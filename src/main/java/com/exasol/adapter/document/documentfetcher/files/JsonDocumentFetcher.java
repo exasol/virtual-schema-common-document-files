@@ -1,0 +1,37 @@
+package com.exasol.adapter.document.documentfetcher.files;
+
+import java.io.InputStream;
+import java.util.stream.Stream;
+
+import javax.json.Json;
+import javax.json.JsonValue;
+
+import com.exasol.ExaConnectionInformation;
+import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
+import com.exasol.adapter.document.documentnode.DocumentNode;
+import com.exasol.adapter.document.documentnode.json.JsonNodeFactory;
+import com.exasol.adapter.document.documentnode.json.JsonNodeVisitor;
+
+/**
+ * {@link DocumentFetcher} for JSON files.
+ */
+public class JsonDocumentFetcher implements DocumentFetcher<JsonNodeVisitor> {
+    private final String fileName;
+
+    /**
+     * Create an instance of {@link JsonDocumentFetcher}.
+     * 
+     * @param fileName file pattern
+     */
+    public JsonDocumentFetcher(final String fileName) {
+        this.fileName = fileName;
+    }
+
+    @Override
+    public Stream<DocumentNode<JsonNodeVisitor>> run(final ExaConnectionInformation connectionInformation) {
+        final InputStream jsonStream = FileLoaderFactory.getInstance().getLoader(this.fileName, connectionInformation)
+                .loadFile();
+        final JsonValue jsonValue = Json.createReader(jsonStream).readValue();
+        return Stream.of(JsonNodeFactory.getInstance().getJsonNode(jsonValue));
+    }
+}
