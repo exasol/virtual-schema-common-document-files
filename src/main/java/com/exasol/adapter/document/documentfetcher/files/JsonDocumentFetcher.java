@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.stream.Stream;
 
 import javax.json.Json;
+import javax.json.JsonReader;
 import javax.json.JsonValue;
 
 import com.exasol.ExaConnectionInformation;
@@ -31,7 +32,9 @@ public class JsonDocumentFetcher implements DocumentFetcher<JsonNodeVisitor> {
     public Stream<DocumentNode<JsonNodeVisitor>> run(final ExaConnectionInformation connectionInformation) {
         final InputStream jsonStream = FileLoaderFactory.getInstance().getLoader(this.fileName, connectionInformation)
                 .loadFile();
-        final JsonValue jsonValue = Json.createReader(jsonStream).readValue();
-        return Stream.of(JsonNodeFactory.getInstance().getJsonNode(jsonValue));
+        try (final JsonReader jsonReader = Json.createReader(jsonStream)) {
+            final JsonValue jsonValue = jsonReader.readValue();
+            return Stream.of(JsonNodeFactory.getInstance().getJsonNode(jsonValue));
+        }
     }
 }
