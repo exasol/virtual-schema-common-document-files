@@ -29,7 +29,7 @@ CREATE OR REPLACE JAVA SET SCRIPT ADAPTER.IMPORT_FROM_DOCUMENT_FILES(
   CONNECTION_NAME VARCHAR(500))
   EMITS(...) AS
     %scriptclass com.exasol.adapter.document.UdfRequestDispatcher;
-    %jar /buckets/bfsdefault/default/document-virtual-schema-dist-1.0.0-files-1.0.0.jar;
+    %jar /buckets/bfsdefault/default/document-virtual-schema-dist-1.0.0-files-0.1.0.jar;
 /
 ```
 
