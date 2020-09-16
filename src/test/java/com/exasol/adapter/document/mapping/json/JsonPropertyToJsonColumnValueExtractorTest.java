@@ -47,14 +47,14 @@ class JsonPropertyToJsonColumnValueExtractorTest {
     }
 
     @Test
-    void testExtractFromObjectThrowsException() {
+    void testExtractFromObject() {
         final DocumentNode<JsonNodeVisitor> testNode = new JsonObjectNode(
                 Json.createObjectBuilder().add("key", "value").build());
         assertThat(EXTRACTOR.mapJsonValue(testNode), equalTo("{\"key\":\"value\"}"));
     }
 
     @Test
-    void testExtractFromArrayThrowsException() {
+    void testExtractFromArray() {
         final DocumentNode<JsonNodeVisitor> testNode = new JsonArrayNode(Json.createArrayBuilder().add(1).build());
         assertThat(EXTRACTOR.mapJsonValue(testNode), equalTo("[1]"));
     }
