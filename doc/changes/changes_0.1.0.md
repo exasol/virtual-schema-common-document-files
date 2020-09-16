@@ -6,4 +6,5 @@ Code name: Loading from json-lines file from BucketFS
 ## Features / Enhancements
  
  * #1: Initial implementation: Loading from json-lines file from BucketFS
+ * #4: Added more tests
 

@@ -34,7 +34,7 @@ public class BucketfsFileLoader implements FileLoader {
      * 
      * @return file name
      */
-    String getFileName() {
+    public String getFileName() {
         return this.fileName;
     }
 }
