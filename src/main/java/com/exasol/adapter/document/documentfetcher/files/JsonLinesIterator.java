@@ -19,14 +19,14 @@ import com.exasol.adapter.document.documentnode.json.JsonNodeVisitor;
 class JsonLinesIterator implements Iterator<DocumentNode<JsonNodeVisitor>> {
     private final BufferedReader jsonlReader;
     private final InputStream jsonlStream;
-    private final FileLoader fileLoader;
+    private final String fileName;
     private final InputStreamReader inputStreamReader;
     private String nextLine = null;
     private long lineCounter = 0;
 
     JsonLinesIterator(final FileLoader fileLoader) {
         this.jsonlStream = fileLoader.loadFile();
-        this.fileLoader = fileLoader;
+        this.fileName = fileLoader.getFileName();
         this.inputStreamReader = new InputStreamReader(this.jsonlStream);
         this.jsonlReader = new BufferedReader(this.inputStreamReader);
         readNextLine();
@@ -67,9 +67,8 @@ class JsonLinesIterator implements Iterator<DocumentNode<JsonNodeVisitor>> {
                 readNextLine();
                 return JsonNodeFactory.getInstance().getJsonNode(jsonValue);
             } catch (final JsonException exception) {
-                throw new IllegalArgumentException(
-                        "Failed to parse JSON-Lines from " + this.fileLoader.getFileName()
-                                + ". Invalid JSON document in line " + this.lineCounter + ". " + exception.getMessage(),
+                throw new IllegalArgumentException("Failed to parse JSON-Lines from " + this.fileName
+                        + ". Invalid JSON document in line " + this.lineCounter + ". " + exception.getMessage(),
                         exception);
             }
         }
