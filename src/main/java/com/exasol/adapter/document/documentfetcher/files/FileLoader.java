@@ -13,4 +13,6 @@ public interface FileLoader {
      * @return content of the file
      */
     public InputStream loadFile();
+
+    public String getFileName();
 }
