@@ -26,7 +26,7 @@ public class FilesDocumentFetcherFactory implements DocumentFetcherFactory<JsonN
             return List.of(new JsonLinesDocumentFetcher(sourceString));
         } else {
             throw new IllegalArgumentException(
-                    "Cannot map this file because it has a unknown type. Supported endings are: [.json]");
+                    "Cannot map this file because it has a unknown type. Supported endings are: [.json, .jsonl]");
         }
     }
 }

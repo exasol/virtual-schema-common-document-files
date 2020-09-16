@@ -22,7 +22,7 @@ A very simple mapping definition for a [JSON-Lines](https://jsonlines.org/) file
 
 The `source` property defines the path to the file relative to the base path defined in the `CONNECTION`.
 
-The virtual schema adapter automatically detects the type of the file from the file ending:
+The virtual schema adapter automatically detects the type of the file from the file extension:
 
 | Ending   | Type                                           |
 |----------|------------------------------------------------|

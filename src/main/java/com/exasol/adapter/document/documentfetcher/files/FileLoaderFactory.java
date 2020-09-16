@@ -40,7 +40,7 @@ public class FileLoaderFactory {
             return new BucketfsFileLoader(filePath);
         } else {
             throw new IllegalArgumentException("Invalid connection string '" + url
-                    + "'. Unsupported protocol. Supported protocols are [bucketfs:/<bucketfs>/].");
+                    + "'. It starts with unsupported protocol. Supported protocols are [bucketfs:/<bucketfs>/].");
         }
     }
 

@@ -1,6 +1,6 @@
 # Virtual Schema for Files
 
-This Virtual Schemas allows you to acces to documents, stored in files like any regular Exasol table.
+This Virtual Schemas allows you to access documents stored in files like any regular Exasol table.
 
 Supported document file formats:
 
@@ -36,7 +36,7 @@ Running the DynamoDB Virtual Schema requires a Java Runtime version 11 or later.
 | [Testcontainers](https://www.testcontainers.org/)                                   | Container-based integration tests                      | MIT License                      |
 | [SLF4J](http://www.slf4j.org/)                                                      | Logging facade                                         | MIT License                      |
 | [Mockito](http://site.mockito.org/)                                                 | Mocking framework                                      | MIT License                      |
-| [Test Database Builder][test-bd-builder]                                            | Fluent database interfaces for testing                 | MIT License                      |
+| [Test Database Builder][test-db-builder]                                            | Fluent database interfaces for testing                 | MIT License                      |
 
 ### Maven Plug-ins
 
@@ -61,5 +61,4 @@ Running the DynamoDB Virtual Schema requires a Java Runtime version 11 or later.
 [edml-doc]: https://exasol.github.io/virtual-schema-common-ducument/schema_doc/index.html
 [virtual-schema-common-document]: https://github.com/exasol/virtual-schema-common-document
 [artifact-reference-checker-plugin]: https://github.com/exasol/artifact-reference-checker-maven-plugin
-[test-bd-builder]: https://github.com/exasol/test-db-builder-java
-
+[test-db-builder]: https://github.com/exasol/test-db-builder-java
