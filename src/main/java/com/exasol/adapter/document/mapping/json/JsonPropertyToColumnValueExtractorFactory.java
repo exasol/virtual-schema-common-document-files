@@ -22,14 +22,12 @@ public class JsonPropertyToColumnValueExtractorFactory
 
         @Override
         public void visit(final PropertyToJsonColumnMapping columnDefinition) {
-            // this.columnValueExtractor = new JsonPropertyToJsonColumnValueExtractor(columnDefinition);
-            throw new UnsupportedOperationException("not yet implemented");// TODO
+            this.columnValueExtractor = new JsonPropertyToJsonColumnValueExtractor(columnDefinition);
         }
 
         @Override
         public void visit(final PropertyToDecimalColumnMapping columnDefinition) {
-            // this.columnValueExtractor = new JsonPropertyToDecimalColumnValueExtractor(columnDefinition);
-            throw new UnsupportedOperationException("not yet implemented");// TODO
+            this.columnValueExtractor = new JsonPropertyToDecimalColumnValueExtractor(columnDefinition);
         }
 
         public ColumnValueExtractor<JsonNodeVisitor> getColumnValueExtractor() {
