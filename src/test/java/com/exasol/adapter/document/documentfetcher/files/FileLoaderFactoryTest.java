@@ -32,7 +32,7 @@ class FileLoaderFactoryTest {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> fileLoaderFactory.getLoader("../test.json", new ExaConnectionStub("unknown:/tmp")));
         assertThat(exception.getMessage(), equalTo(
-                "Invalid connection string 'unknown:/tmp'. Unsupported protocol. Supported protocols are [bucketfs:/<bucketfs>/]."));
+                "Invalid connection string 'unknown:/tmp'. It starts with unsupported protocol. Supported protocols are [bucketfs:/<bucketfs>/]."));
     }
 
     private class ExaConnectionStub implements ExaConnectionInformation {

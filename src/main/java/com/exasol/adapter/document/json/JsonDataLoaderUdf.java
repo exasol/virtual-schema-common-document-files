@@ -8,7 +8,7 @@ import com.exasol.adapter.document.mapping.json.JsonPropertyToColumnValueExtract
 /**
  * This class is the UDF entry point for the data loading from JSON files.
  */
-public class JsonDateLoaderUdf extends AbstractDataLoaderUdf<JsonNodeVisitor> {
+public class JsonDataLoaderUdf extends AbstractDataLoaderUdf<JsonNodeVisitor> {
     @Override
     protected PropertyToColumnValueExtractorFactory<JsonNodeVisitor> getValueExtractorFactory() {
         return new JsonPropertyToColumnValueExtractorFactory();

@@ -20,9 +20,9 @@ public class FilesDocumentFetcherFactory implements DocumentFetcherFactory<JsonN
     public List<DocumentFetcher<JsonNodeVisitor>> buildDocumentFetcherForQuery(final RemoteTableQuery remoteTableQuery,
             final int maxNumberOfParallelFetchers) {
         final String sourceString = remoteTableQuery.getFromTable().getRemoteName();
-        if (sourceString.endsWith(".json")) {
+        if (sourceString.endsWith(JsonDocumentFetcher.FILE_EXTENSION)) {
             return List.of(new JsonDocumentFetcher(sourceString));
-        } else if (sourceString.endsWith(".jsonl")) {
+        } else if (sourceString.endsWith(JsonLinesDocumentFetcher.FILE_EXTENSION)) {
             return List.of(new JsonLinesDocumentFetcher(sourceString));
         } else {
             throw new IllegalArgumentException(

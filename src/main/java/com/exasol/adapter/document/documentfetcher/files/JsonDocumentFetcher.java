@@ -19,6 +19,8 @@ import com.exasol.adapter.document.documentnode.json.JsonNodeVisitor;
 public class JsonDocumentFetcher implements DocumentFetcher<JsonNodeVisitor> {
     private final String fileName;
 
+    public static final String FILE_EXTENSION = ".json";
+
     /**
      * Create an instance of {@link JsonDocumentFetcher}.
      * 

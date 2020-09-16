@@ -12,6 +12,9 @@ import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.json.JsonNodeFactory;
 import com.exasol.adapter.document.documentnode.json.JsonNodeVisitor;
 
+/**
+ * This class iterates the lines of a JSON-Lines file an creates for each line a JSON {@link DocumentNode}.
+ */
 class JsonLinesIterator implements Iterator<DocumentNode<JsonNodeVisitor>> {
     private final BufferedReader jsonlReader;
     private final InputStream jsonlStream;

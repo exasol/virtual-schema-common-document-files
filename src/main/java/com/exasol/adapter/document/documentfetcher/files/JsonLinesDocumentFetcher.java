@@ -13,6 +13,7 @@ import com.exasol.adapter.document.documentnode.json.JsonNodeVisitor;
  */
 public class JsonLinesDocumentFetcher implements DocumentFetcher<JsonNodeVisitor> {
     private final String fileName;
+    public static final String FILE_EXTENSION = ".jsonl";
 
     /**
      * Create an instance of {@link JsonDocumentFetcher}.

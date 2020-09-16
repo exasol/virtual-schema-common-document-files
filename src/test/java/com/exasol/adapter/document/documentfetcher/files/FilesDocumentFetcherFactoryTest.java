@@ -23,6 +23,6 @@ class FilesDocumentFetcherFactoryTest {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> documentFetcherFactory.buildDocumentFetcherForQuery(remoteTableQuery, 1));
         assertThat(exception.getMessage(),
-                equalTo("Cannot map this file because it has a unknown type. Supported endings are: [.json]"));
+                equalTo("Cannot map this file because it has a unknown type. Supported endings are: [.json, .jsonl]"));
     }
 }

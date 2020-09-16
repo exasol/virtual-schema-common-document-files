@@ -12,7 +12,7 @@ import com.exasol.adapter.document.DocumentAdapter;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcherFactory;
 import com.exasol.adapter.document.documentfetcher.files.FilesDocumentFetcherFactory;
 import com.exasol.adapter.document.documentnode.json.JsonNodeVisitor;
-import com.exasol.adapter.document.json.JsonDateLoaderUdf;
+import com.exasol.adapter.document.json.JsonDataLoaderUdf;
 import com.exasol.adapter.document.mapping.TableKeyFetcher;
 import com.exasol.adapter.request.GetCapabilitiesRequest;
 import com.exasol.adapter.response.GetCapabilitiesResponse;
@@ -49,6 +49,6 @@ public class DocumentFilesAdapter extends DocumentAdapter<JsonNodeVisitor> {
 
     @Override
     public DataLoaderUdf getDataLoaderUDF() {
-        return new JsonDateLoaderUdf();
+        return new JsonDataLoaderUdf();
     }
 }

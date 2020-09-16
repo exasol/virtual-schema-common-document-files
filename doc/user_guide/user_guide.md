@@ -63,9 +63,12 @@ CREATE VIRTUAL SCHEMA FILES_VS_TEST USING ADAPTER.FILES_ADAPTER WITH
 
 The CREATE VIRTUAL SCHEMA command accepts the following properties:
 
-| Property          | Mandatory   |  Default      |   Description                                                                 |
-|-------------------|-------------|---------------|-------------------------------------------------------------------------------|
-|`MAPPING`          | Yes         |               | Path to the mapping definition file(s)                                        |
-|`MAX_PARALLEL_UDFS`| No          | -1            | Maximum number of UDFs that are executed in parallel. -1 represents unlimited.|
+| Property          | Mandatory   |  Default      |   Description                                                                   |
+|-------------------|-------------|---------------|---------------------------------------------------------------------------------|
+|`MAPPING`          | Yes         |               | Path to the mapping definition file(s)                                          |
+|`MAX_PARALLEL_UDFS`| No          | -1            | Maximum number of UDFs that are executed in parallel. -1 represents unlimited. *| 
+ 
+ \* The adapter will start at most one UDF per input file. 
+ That means, if data from a single file (for example a JSON-Lines file) is loaded, it will not parallelize.
  
 Now browse the data using your favorite SQL client.
