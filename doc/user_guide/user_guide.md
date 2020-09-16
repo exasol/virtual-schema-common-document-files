@@ -47,7 +47,7 @@ Now you need to define a connection to place where the Files are stored:
   You can leave `USER` and `IDENTIFIED BY` empty.
   
   The path after `buketfs:` is the base path for the file names you define in the mapping definition.
-  The Adapter will concatenate both paths. 
+  The adapter will concatenate the base path from the connection and the path defined in the mapping definition. 
   For security reasons you can however not navigate to directories outside of the base path (using `../`). 
 
 Before creating a Virtual Schema you need to [create mapping definitions](create_a_mapping_definition.md) and upload them to a BucketFS bucket.
