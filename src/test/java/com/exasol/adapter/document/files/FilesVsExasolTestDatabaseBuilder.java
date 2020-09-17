@@ -20,7 +20,7 @@ import com.github.dockerjava.api.model.ContainerNetwork;
 public class FilesVsExasolTestDatabaseBuilder {
     public static final String BUCKETS_BFSDEFAULT_DEFAULT = "/buckets/bfsdefault/default/";
     public static final String DEBUGGER_PORT = "8000";
-    private static final String VIRTUAL_SCHEMAS_JAR_NAME_AND_VERSION = "document-virtual-schema-dist-2.0.0-SNAPSHOT-files-0.1.0.jar";
+    private static final String VIRTUAL_SCHEMAS_JAR_NAME_AND_VERSION = "document-virtual-schema-dist-2.0.0-SNAPSHOT-files-0.2.0.jar";
     public static final String VIRTUAL_SCHEMA_JAR_IN_BUCKET_FS = BUCKETS_BFSDEFAULT_DEFAULT
             + VIRTUAL_SCHEMAS_JAR_NAME_AND_VERSION;
     private static final Path PATH_TO_VIRTUAL_SCHEMAS_JAR = Path.of("target", VIRTUAL_SCHEMAS_JAR_NAME_AND_VERSION);
