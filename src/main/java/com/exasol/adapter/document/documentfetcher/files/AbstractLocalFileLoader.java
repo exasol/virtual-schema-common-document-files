@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 /**
  * Abstract basis for {@link FileLoader}s local files.
  * 
- * @implNote this class is only used by the {@link BucketfsFileLoader}. It was introduced to support unit testing.
+ * @implNote This class is only used by the {@link BucketfsFileLoader}. It is introduced to support unit testing.
  */
 abstract class AbstractLocalFileLoader implements FileLoader {
     public static final Pattern NON_GLOB_PATH_PATTERN = Pattern.compile("([^\\*\\?\\[]*\\/).*");
@@ -33,7 +33,6 @@ abstract class AbstractLocalFileLoader implements FileLoader {
     }
 
     private String concatenatePathsInjectionFree(final String path1, final String path2) {
-
         final String filePath = Path.of(path1, path2).toString();
         try {
             if (!new File(filePath).getCanonicalPath().startsWith(filePath)) {

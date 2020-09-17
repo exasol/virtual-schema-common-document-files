@@ -24,9 +24,9 @@ public class FilesDocumentFetcherFactory implements DocumentFetcherFactory<JsonN
         if (sourceString.endsWith(JsonDocumentFetcher.FILE_EXTENSION)) {
             final List<DocumentFetcher<JsonNodeVisitor>> documentFetchers = new ArrayList<>(
                     maxNumberOfParallelFetchers);
-            for (int segemntCounter = 0; segemntCounter < maxNumberOfParallelFetchers; segemntCounter++) {
+            for (int segmentCounter = 0; segmentCounter < maxNumberOfParallelFetchers; segmentCounter++) {
                 documentFetchers.add(new JsonDocumentFetcher(sourceString,
-                        new SegmentDescription(maxNumberOfParallelFetchers, segemntCounter)));
+                        new SegmentDescription(maxNumberOfParallelFetchers, segmentCounter)));
             }
             return documentFetchers;
         } else if (sourceString.endsWith(JsonLinesDocumentFetcher.FILE_EXTENSION)) {
