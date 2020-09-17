@@ -43,4 +43,13 @@ public class JsonObjectNode implements DocumentObject<JsonNodeVisitor> {
     public void accept(final JsonNodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    /**
+     * Get the wrapped JSON object.
+     * 
+     * @return wrapped JSON object
+     */
+    public JsonObject getJsonObject() {
+        return this.jsonObject;
+    }
 }

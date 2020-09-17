@@ -43,4 +43,13 @@ public class JsonArrayNode implements DocumentArray<JsonNodeVisitor> {
     public void accept(final JsonNodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    /**
+     * Get the wrapped JSON array.
+     * 
+     * @return wrapped JSON array
+     */
+    public JsonArray getJsonArray() {
+        return this.jsonArray;
+    }
 }

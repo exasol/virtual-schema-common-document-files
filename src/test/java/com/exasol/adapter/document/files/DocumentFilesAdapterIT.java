@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -107,20 +108,9 @@ class DocumentFilesAdapterIT {
     }
 
     @Test
-    void testJsonDataTypes()
+    void testJsonDataTypesAsVarcharColumn()
             throws InterruptedException, SQLException, TimeoutException, BucketAccessException, IOException {
-        final FilesVsExasolTestDatabaseBuilder filesVsExasolTestDatabaseBuilder = new FilesVsExasolTestDatabaseBuilder(
-                container);
-        final Path mappingFile = saveResourceToFile("mapDataTypeTests.json");
-        filesVsExasolTestDatabaseBuilder.createVirtualSchema(TEST_SCHEMA, mappingFile);
-        final Path testFile = saveResourceToFile("dataTypeTests.jsonl");
-        container.getDefaultBucket().uploadFile(testFile, "dataTypeTests.jsonl");
-
-        final ResultSet resultSet = statement.executeQuery("SELECT * FROM " + TEST_SCHEMA + ".DATA_TYPES;");
-        final Map<String, String> result = new HashMap<>();
-        while (resultSet.next()) {
-            result.put(resultSet.getString("TYPE"), resultSet.getString("VALUE"));
-        }
+        final Map<String, Object> result = getDataTypesTestResult("mapDataTypesToVarchar.json");
         assertAll(//
                 () -> assertThat(result.get("number"), equalTo("1.23")),
                 () -> assertThat(result.get("null"), equalTo(null)),
@@ -128,5 +118,48 @@ class DocumentFilesAdapterIT {
                 () -> assertThat(result.get("true"), equalTo("true")),
                 () -> assertThat(result.get("false"), equalTo("false"))//
         );
+    }
+
+    @Test
+    void testJsonDataTypesAsDecimal()
+            throws InterruptedException, SQLException, TimeoutException, BucketAccessException, IOException {
+        final Map<String, Object> result = getDataTypesTestResult("mapDataTypesToDecimal.json");
+        assertAll(//
+                () -> assertThat(result.get("number"), equalTo(BigDecimal.valueOf(1.23))),
+                () -> assertThat(result.get("null"), equalTo(null)),
+                () -> assertThat(result.get("string"), equalTo(null)),
+                () -> assertThat(result.get("true"), equalTo(null)),
+                () -> assertThat(result.get("false"), equalTo(null))//
+        );
+    }
+
+    @Test
+    void testJsonDataTypesAsJson()
+            throws InterruptedException, SQLException, TimeoutException, BucketAccessException, IOException {
+        final Map<String, Object> result = getDataTypesTestResult("mapDataTypesToJson.json");
+        assertAll(//
+                () -> assertThat(result.get("number"), equalTo("1.23")),
+                () -> assertThat(result.get("null"), equalTo("null")),
+                () -> assertThat(result.get("string"), equalTo("\"test\"")),
+                () -> assertThat(result.get("true"), equalTo("true")),
+                () -> assertThat(result.get("false"), equalTo("false"))//
+        );
+    }
+
+    private Map<String, Object> getDataTypesTestResult(final String mappingFileName)
+            throws SQLException, InterruptedException, BucketAccessException, TimeoutException, IOException {
+        final FilesVsExasolTestDatabaseBuilder filesVsExasolTestDatabaseBuilder = new FilesVsExasolTestDatabaseBuilder(
+                container);
+        final Path mappingFile = saveResourceToFile(mappingFileName);
+        filesVsExasolTestDatabaseBuilder.createVirtualSchema(TEST_SCHEMA, mappingFile);
+        final Path testFile = saveResourceToFile("dataTypeTests.jsonl");
+        container.getDefaultBucket().uploadFile(testFile, "dataTypeTests.jsonl");
+
+        final ResultSet resultSet = statement.executeQuery("SELECT * FROM " + TEST_SCHEMA + ".DATA_TYPES;");
+        final Map<String, Object> result = new HashMap<>();
+        while (resultSet.next()) {
+            result.put(resultSet.getString("TYPE"), resultSet.getObject("VALUE"));
+        }
+        return result;
     }
 }
