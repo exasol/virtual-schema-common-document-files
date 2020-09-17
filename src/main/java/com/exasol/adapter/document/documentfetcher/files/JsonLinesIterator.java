@@ -24,9 +24,15 @@ class JsonLinesIterator implements Iterator<DocumentNode<JsonNodeVisitor>> {
     private String nextLine = null;
     private long lineCounter = 0;
 
+    /**
+     * Create a new instance of {@link JsonLinesIterator}.
+     * 
+     * @param fileLoader file loader for the JSON-Lines file
+     */
     JsonLinesIterator(final FileLoader fileLoader) {
-        this.jsonlStream = fileLoader.loadFile();
-        this.fileName = fileLoader.getFileName();
+        this.jsonlStream = fileLoader.loadFiles().findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Could not find data file."));
+        this.fileName = fileLoader.getFilePattern();
         this.inputStreamReader = new InputStreamReader(this.jsonlStream);
         this.jsonlReader = new BufferedReader(this.inputStreamReader);
         readNextLine();

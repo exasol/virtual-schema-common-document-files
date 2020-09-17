@@ -8,3 +8,4 @@ Code name: Loading from json-lines file from BucketFS
 * #1: Initial implementation: Loading from json-lines file from BucketFS
 * #4: Added more tests
 * #6: Added toDecimal and toJsonMapping
+* #2: Loading data from one file per row

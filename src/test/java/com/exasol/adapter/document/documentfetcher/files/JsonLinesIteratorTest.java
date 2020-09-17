@@ -12,6 +12,7 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 
@@ -75,8 +76,8 @@ class JsonLinesIteratorTest {
 
     private JsonLinesIterator getJsonLinesIterator(final String s) {
         final FileLoader fileLoader = mock(FileLoader.class);
-        when(fileLoader.loadFile()).thenReturn(new ByteArrayInputStream(s.getBytes()));
-        when(fileLoader.getFileName()).thenReturn("string");
+        when(fileLoader.loadFiles()).thenReturn(Stream.of(new ByteArrayInputStream(s.getBytes())));
+        when(fileLoader.getFilePattern()).thenReturn("string");
         return new JsonLinesIterator(fileLoader);
     }
 }
