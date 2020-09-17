@@ -12,6 +12,7 @@ import com.exasol.adapter.document.documentnode.json.JsonNodeVisitor;
  * {@link DocumentFetcher} for the JSON lines file format.
  */
 public class JsonLinesDocumentFetcher implements DocumentFetcher<JsonNodeVisitor> {
+    private static final long serialVersionUID = 1669610484118054077L;
     private final String fileName;
     public static final String FILE_EXTENSION = ".jsonl";
 
@@ -26,7 +27,8 @@ public class JsonLinesDocumentFetcher implements DocumentFetcher<JsonNodeVisitor
 
     @Override
     public Stream<DocumentNode<JsonNodeVisitor>> run(final ExaConnectionInformation connectionInformation) {
-        final FileLoader fileLoader = FileLoaderFactory.getInstance().getLoader(this.fileName, connectionInformation);
+        final FileLoader fileLoader = FileLoaderFactory.getInstance().getLoader(this.fileName,
+                SegmentDescription.NO_SEGMENTATION, connectionInformation);
         return StreamSupport.stream(new JsonLinesIterable(fileLoader).spliterator(), false);
     }
 

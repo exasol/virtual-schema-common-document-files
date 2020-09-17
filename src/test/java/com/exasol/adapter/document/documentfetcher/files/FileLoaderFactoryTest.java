@@ -1,5 +1,6 @@
 package com.exasol.adapter.document.documentfetcher.files;
 
+import static com.exasol.adapter.document.documentfetcher.files.SegmentDescription.NO_SEGMENTATION;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -13,29 +14,20 @@ class FileLoaderFactoryTest {
     @Test
     void testGetBucketFsLoader() {
         final BucketfsFileLoader loader = (BucketfsFileLoader) FileLoaderFactory.getInstance().getLoader("test.json",
-                new ExaConnectionStub("bucketfs:/bfsdefault/default/"));
-        assertThat(loader.getFileName(), equalTo("/bfsdefault/default/test.json"));
-    }
-
-    @Test
-    void testInjectionThrowsException() {
-        final FileLoaderFactory fileLoaderFactory = FileLoaderFactory.getInstance();
-        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> fileLoaderFactory
-                .getLoader("../test.json", new ExaConnectionStub("bucketfs:/bfsdefault/default/")));
-        assertThat(exception.getMessage(), equalTo(
-                "../test.json leaves the directory configured in the connection string. For security reasons, this is not allowed. Please change the directory in the connection string."));
+                NO_SEGMENTATION, new ExaConnectionStub("bucketfs:/bfsdefault/default/"));
+        assertThat(loader.getFilePattern(), equalTo("/buckets/bfsdefault/default/test.json"));
     }
 
     @Test
     void testUnknownProtocol() {
         final FileLoaderFactory fileLoaderFactory = FileLoaderFactory.getInstance();
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> fileLoaderFactory.getLoader("../test.json", new ExaConnectionStub("unknown:/tmp")));
+                () -> fileLoaderFactory.getLoader("test.json", NO_SEGMENTATION, new ExaConnectionStub("unknown:/tmp")));
         assertThat(exception.getMessage(), equalTo(
                 "Invalid connection string 'unknown:/tmp'. It starts with unsupported protocol. Supported protocols are [bucketfs:/<bucketfs>/]."));
     }
 
-    private class ExaConnectionStub implements ExaConnectionInformation {
+    private static class ExaConnectionStub implements ExaConnectionInformation {
 
         private final String address;
 
@@ -63,5 +55,4 @@ class FileLoaderFactoryTest {
             return null;
         }
     }
-
 }

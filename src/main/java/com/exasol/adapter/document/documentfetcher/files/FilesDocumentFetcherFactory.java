@@ -1,5 +1,6 @@
 package com.exasol.adapter.document.documentfetcher.files;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
@@ -21,12 +22,26 @@ public class FilesDocumentFetcherFactory implements DocumentFetcherFactory<JsonN
             final int maxNumberOfParallelFetchers) {
         final String sourceString = remoteTableQuery.getFromTable().getRemoteName();
         if (sourceString.endsWith(JsonDocumentFetcher.FILE_EXTENSION)) {
-            return List.of(new JsonDocumentFetcher(sourceString));
+            final List<DocumentFetcher<JsonNodeVisitor>> documentFetchers = new ArrayList<>(
+                    maxNumberOfParallelFetchers);
+            for (int segmentCounter = 0; segmentCounter < maxNumberOfParallelFetchers; segmentCounter++) {
+                documentFetchers.add(new JsonDocumentFetcher(sourceString,
+                        new SegmentDescription(maxNumberOfParallelFetchers, segmentCounter)));
+            }
+            return documentFetchers;
         } else if (sourceString.endsWith(JsonLinesDocumentFetcher.FILE_EXTENSION)) {
+            validateNoGlob(sourceString, "JSON-Lines");
             return List.of(new JsonLinesDocumentFetcher(sourceString));
         } else {
             throw new IllegalArgumentException(
                     "Cannot map this file because it has a unknown type. Supported endings are: [.json, .jsonl]");
+        }
+    }
+
+    private void validateNoGlob(final String sourceString, final String typeName) {
+        if (sourceString.contains("*")) {
+            throw new IllegalArgumentException("Invalid source '" + sourceString + "'. For the file type " + typeName
+                    + " you must specify exactly one file.");
         }
     }
 }

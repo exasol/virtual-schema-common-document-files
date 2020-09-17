@@ -1,40 +1,26 @@
 package com.exasol.adapter.document.documentfetcher.files;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-
 import com.exasol.bucketfs.BucketfsFileFactory;
 
 /**
  * {@link FileLoader} for BucketFS.
  */
-public class BucketfsFileLoader implements FileLoader {
+class BucketfsFileLoader extends AbstractLocalFileLoader {
     public static final String BUCKETFS_PREFIX = "bucketfs:";
-    private final String fileName;
-
-    public BucketfsFileLoader(final String fileName) {
-        this.fileName = fileName;
-    }
-
-    @Override
-    public InputStream loadFile() {
-        try {
-            final File file = new BucketfsFileFactory().openFile(this.fileName);
-            return new FileInputStream(file);
-        } catch (final FileNotFoundException exception) {
-            throw new IllegalArgumentException(
-                    "Could not open " + this.fileName + " from BucketFS. Cause: " + exception.getMessage(), exception);
-        }
-    }
 
     /**
-     * Get file name. Used in tests.
-     * 
-     * @return file name
+     * Create a new instance of {@link BucketfsFileLoader}.
+     *
+     * @param baseDirectory      base directory configured in the CONNECTION
+     * @param filePattern        files to load
+     * @param segmentDescription segmentation for parallel execution
      */
-    public String getFileName() {
-        return this.fileName;
+    public BucketfsFileLoader(final String baseDirectory, final String filePattern,
+            final SegmentDescription segmentDescription) {
+        super(prependBucketFsPrefix(baseDirectory), filePattern, segmentDescription);
+    }
+
+    private static String prependBucketFsPrefix(final String path) {
+        return new BucketfsFileFactory().openFile(path).toString();
     }
 }

@@ -78,15 +78,21 @@ class DocumentFilesAdapterIT {
                 container);
         final Path mappingFile = saveResourceToFile("mapJsonFile.json");
         filesVsExasolTestDatabaseBuilder.createVirtualSchema(TEST_SCHEMA, mappingFile);
-        final Path testFile = saveResourceToFile("test.json");
-        container.getDefaultBucket().uploadFile(testFile, "test.json");
+        uploadResource("testData-1.json");
+        uploadResource("testData-2.json");
 
         final ResultSet resultSet = statement.executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
         final List<String> result = new ArrayList<>();
         while (resultSet.next()) {
             result.add(resultSet.getString("ID"));
         }
-        assertThat(result, containsInAnyOrder("book-1"));
+        assertThat(result, containsInAnyOrder("book-1", "book-2"));
+    }
+
+    private void uploadResource(final String s)
+            throws IOException, InterruptedException, BucketAccessException, TimeoutException {
+        final Path testFile = saveResourceToFile(s);
+        container.getDefaultBucket().uploadFile(testFile, s);
     }
 
     @Test
@@ -96,8 +102,7 @@ class DocumentFilesAdapterIT {
                 container);
         final Path mappingFile = saveResourceToFile("mapJsonLinesFile.json");
         filesVsExasolTestDatabaseBuilder.createVirtualSchema(TEST_SCHEMA, mappingFile);
-        final Path testFile = saveResourceToFile("test.jsonl");
-        container.getDefaultBucket().uploadFile(testFile, "test.jsonl");
+        uploadResource("test.jsonl");
 
         final ResultSet resultSet = statement.executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
         final List<String> result = new ArrayList<>();
@@ -152,8 +157,7 @@ class DocumentFilesAdapterIT {
                 container);
         final Path mappingFile = saveResourceToFile(mappingFileName);
         filesVsExasolTestDatabaseBuilder.createVirtualSchema(TEST_SCHEMA, mappingFile);
-        final Path testFile = saveResourceToFile("dataTypeTests.jsonl");
-        container.getDefaultBucket().uploadFile(testFile, "dataTypeTests.jsonl");
+        uploadResource("dataTypeTests.jsonl");
 
         final ResultSet resultSet = statement.executeQuery("SELECT * FROM " + TEST_SCHEMA + ".DATA_TYPES;");
         final Map<String, Object> result = new HashMap<>();
