@@ -22,7 +22,7 @@ class SegmentMatcherTest {
                 matches++;
             }
         }
-        assertThat((double) matches, is(closeTo(numRuns / 2d, numRuns * 0.1)));
+        assertThat((double) matches, is(closeTo(numRuns / 2d, numRuns * 0.05)));
     }
 
     @Test

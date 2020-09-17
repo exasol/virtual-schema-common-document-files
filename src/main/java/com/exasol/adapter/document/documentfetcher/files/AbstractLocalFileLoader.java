@@ -32,11 +32,11 @@ abstract class AbstractLocalFileLoader implements FileLoader {
         this.segmentMatcher = new SegmentMatcher(segmentDescription);
     }
 
-    private String concatenatePathsInjectionFree(final String path1, final String path2) {
-        final String filePath = Path.of(path1, path2).toString();
+    private String concatenatePathsInjectionFree(final String baseDirectory, final String fileName) {
+        final String filePath = Path.of(baseDirectory, fileName).toString();
         try {
             if (!new File(filePath).getCanonicalPath().startsWith(filePath)) {
-                throw new IllegalArgumentException(path2
+                throw new IllegalArgumentException(fileName
                         + " leaves the directory configured in the connection string. For security reasons, this is not allowed. "
                         + "Please change the directory in the connection string.");
             }
