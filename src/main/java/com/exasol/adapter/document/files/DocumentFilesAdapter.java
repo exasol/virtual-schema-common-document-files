@@ -7,12 +7,8 @@ import com.exasol.ExaMetadata;
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.capabilities.Capabilities;
 import com.exasol.adapter.capabilities.MainCapability;
-import com.exasol.adapter.document.DataLoaderUdf;
+import com.exasol.adapter.document.DataLoaderFactory;
 import com.exasol.adapter.document.DocumentAdapter;
-import com.exasol.adapter.document.documentfetcher.DocumentFetcherFactory;
-import com.exasol.adapter.document.documentfetcher.files.FilesDocumentFetcherFactory;
-import com.exasol.adapter.document.documentnode.json.JsonNodeVisitor;
-import com.exasol.adapter.document.json.JsonDataLoaderUdf;
 import com.exasol.adapter.document.mapping.TableKeyFetcher;
 import com.exasol.adapter.request.GetCapabilitiesRequest;
 import com.exasol.adapter.response.GetCapabilitiesResponse;
@@ -20,7 +16,7 @@ import com.exasol.adapter.response.GetCapabilitiesResponse;
 /**
  * This class is the entry point for the files Virtual Schema.
  */
-public class DocumentFilesAdapter extends DocumentAdapter<JsonNodeVisitor> {
+public class DocumentFilesAdapter extends DocumentAdapter {
     public static final String ADAPTER_NAME = "DOCUMENT_FILES";
 
     @Override
@@ -30,9 +26,9 @@ public class DocumentFilesAdapter extends DocumentAdapter<JsonNodeVisitor> {
     }
 
     @Override
-    protected DocumentFetcherFactory<JsonNodeVisitor> getDocumentFetcherFactory(
-            final ExaConnectionInformation connectionInformation) throws AdapterException {
-        return new FilesDocumentFetcherFactory();
+    protected DataLoaderFactory getDataLoaderFactory(final ExaConnectionInformation connectionInformation)
+            throws AdapterException {
+        return new FilesDataLoaderFactory();
     }
 
     @Override
@@ -45,10 +41,5 @@ public class DocumentFilesAdapter extends DocumentAdapter<JsonNodeVisitor> {
             final GetCapabilitiesRequest getCapabilitiesRequest) throws AdapterException {
         return GetCapabilitiesResponse.builder()
                 .capabilities(Capabilities.builder().addMain(MainCapability.SELECTLIST_PROJECTION).build()).build();
-    }
-
-    @Override
-    public DataLoaderUdf getDataLoaderUDF() {
-        return new JsonDataLoaderUdf();
     }
 }
