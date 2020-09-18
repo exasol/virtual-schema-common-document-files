@@ -23,20 +23,28 @@ public class FilesDataLoaderFactory implements DataLoaderFactory {
             final int maxNumberOfParallelFetchers) {
         final String sourceString = remoteTableQuery.getFromTable().getRemoteName();
         if (sourceString.endsWith(JsonDocumentFetcher.FILE_EXTENSION)) {
-            final List<DataLoader> dataLoaders = new ArrayList<>(maxNumberOfParallelFetchers);
-            for (int segmentCounter = 0; segmentCounter < maxNumberOfParallelFetchers; segmentCounter++) {
-                final JsonDocumentFetcher documentFetcher = new JsonDocumentFetcher(sourceString,
-                        new SegmentDescription(maxNumberOfParallelFetchers, segmentCounter));
-                dataLoaders.add(new JsonDataLoader(documentFetcher));
-            }
-            return dataLoaders;
+            return buildJsonDataLoader(maxNumberOfParallelFetchers, sourceString);
         } else if (sourceString.endsWith(JsonLinesDocumentFetcher.FILE_EXTENSION)) {
             validateNoGlob(sourceString, "JSON-Lines");
-            return List.of(new JsonDataLoader(new JsonLinesDocumentFetcher(sourceString)));
+            return buildJsonLinesDataLoader(sourceString);
         } else {
             throw new IllegalArgumentException(
                     "Cannot map this file because it has a unknown type. Supported endings are: [.json, .jsonl]");
         }
+    }
+
+    private List<DataLoader> buildJsonDataLoader(final int maxNumberOfParallelFetchers, final String sourceString) {
+        final List<DataLoader> dataLoaders = new ArrayList<>(maxNumberOfParallelFetchers);
+        for (int segmentCounter = 0; segmentCounter < maxNumberOfParallelFetchers; segmentCounter++) {
+            final JsonDocumentFetcher documentFetcher = new JsonDocumentFetcher(sourceString,
+                    new SegmentDescription(maxNumberOfParallelFetchers, segmentCounter));
+            dataLoaders.add(new JsonDataLoader(documentFetcher));
+        }
+        return dataLoaders;
+    }
+
+    private List<DataLoader> buildJsonLinesDataLoader(final String sourceString) {
+        return List.of(new JsonDataLoader(new JsonLinesDocumentFetcher(sourceString)));
     }
 
     private void validateNoGlob(final String sourceString, final String typeName) {
