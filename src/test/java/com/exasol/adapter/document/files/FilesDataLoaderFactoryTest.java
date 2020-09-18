@@ -1,4 +1,4 @@
-package com.exasol.adapter.document.documentfetcher.files;
+package com.exasol.adapter.document.files;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -12,20 +12,19 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
-import com.exasol.adapter.document.documentnode.json.JsonNodeVisitor;
+import com.exasol.adapter.document.DataLoader;
 import com.exasol.adapter.document.mapping.TableMapping;
 import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
 
-class FilesDocumentFetcherFactoryTest {
+class FilesDataLoaderFactoryTest {
 
-    public static final FilesDocumentFetcherFactory FACTORY = new FilesDocumentFetcherFactory();
+    public static final FilesDataLoaderFactory FACTORY = new FilesDataLoaderFactory();
 
     @Test
     void testUnsupportedFileType() {
         final RemoteTableQuery remoteTableQuery = getRemoteTableQuery("test.unknown-type");
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> FACTORY.buildDocumentFetcherForQuery(remoteTableQuery, 1));
+                () -> FACTORY.buildDataLoaderForQuery(remoteTableQuery, 1));
         assertThat(exception.getMessage(),
                 equalTo("Cannot map this file because it has a unknown type. Supported endings are: [.json, .jsonl]"));
     }
@@ -33,22 +32,20 @@ class FilesDocumentFetcherFactoryTest {
     @Test
     void testJsonFileType() {
         final RemoteTableQuery remoteTableQuery = getRemoteTableQuery("test.json");
-        final List<DocumentFetcher<JsonNodeVisitor>> documentFetchers = FACTORY
-                .buildDocumentFetcherForQuery(remoteTableQuery, 10);
+        final List<DataLoader> documentFetchers = FACTORY.buildDataLoaderForQuery(remoteTableQuery, 10);
         assertAll(//
                 () -> assertThat(documentFetchers.size(), equalTo(10)), //
-                () -> assertThat(documentFetchers.get(0), instanceOf(JsonDocumentFetcher.class))//
+                () -> assertThat(documentFetchers.get(0), instanceOf(JsonDataLoader.class))//
         );
     }
 
     @Test
     void testJsonlFileType() {
         final RemoteTableQuery remoteTableQuery = getRemoteTableQuery("test.jsonl");
-        final List<DocumentFetcher<JsonNodeVisitor>> documentFetchers = FACTORY
-                .buildDocumentFetcherForQuery(remoteTableQuery, 10);
+        final List<DataLoader> documentFetchers = FACTORY.buildDataLoaderForQuery(remoteTableQuery, 10);
         assertAll(//
                 () -> assertThat(documentFetchers.size(), equalTo(1)), //
-                () -> assertThat(documentFetchers.get(0), instanceOf(JsonLinesDocumentFetcher.class))//
+                () -> assertThat(documentFetchers.get(0), instanceOf(JsonDataLoader.class))//
         );
     }
 

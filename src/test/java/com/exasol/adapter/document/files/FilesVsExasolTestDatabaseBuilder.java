@@ -1,7 +1,6 @@
 package com.exasol.adapter.document.files;
 
-import static com.exasol.adapter.document.AbstractDataLoaderUdf.*;
-import static com.exasol.adapter.document.UdfRequestDispatcher.UDF_PREFIX;
+import static com.exasol.adapter.document.UdfEntryPoint.*;
 import static com.exasol.adapter.document.files.DocumentFilesAdapter.ADAPTER_NAME;
 
 import java.nio.file.Path;
@@ -9,7 +8,7 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
-import com.exasol.adapter.document.UdfRequestDispatcher;
+import com.exasol.adapter.document.UdfEntryPoint;
 import com.exasol.bucketfs.BucketAccessException;
 import com.exasol.containers.ExasolContainer;
 import com.exasol.dbbuilder.dialects.exasol.AdapterScript;
@@ -21,7 +20,7 @@ import com.github.dockerjava.api.model.ContainerNetwork;
 public class FilesVsExasolTestDatabaseBuilder {
     public static final String BUCKETS_BFSDEFAULT_DEFAULT = "/buckets/bfsdefault/default/";
     public static final String DEBUGGER_PORT = "8000";
-    private static final String VIRTUAL_SCHEMAS_JAR_NAME_AND_VERSION = "document-virtual-schema-dist-1.0.0-files-0.1.0.jar";
+    private static final String VIRTUAL_SCHEMAS_JAR_NAME_AND_VERSION = "document-virtual-schema-dist-2.0.0-SNAPSHOT-files-0.2.0.jar";
     public static final String VIRTUAL_SCHEMA_JAR_IN_BUCKET_FS = BUCKETS_BFSDEFAULT_DEFAULT
             + VIRTUAL_SCHEMAS_JAR_NAME_AND_VERSION;
     private static final Path PATH_TO_VIRTUAL_SCHEMAS_JAR = Path.of("target", VIRTUAL_SCHEMAS_JAR_NAME_AND_VERSION);
@@ -79,12 +78,11 @@ public class FilesVsExasolTestDatabaseBuilder {
 
     // TODO refactor to use test-db-builder
     private void createUdf() throws SQLException {
-        final StringBuilder statementBuilder = new StringBuilder(
-                "CREATE OR REPLACE JAVA SET SCRIPT ADAPTER." + UDF_PREFIX + ADAPTER_NAME + "("
-                        + PARAMETER_DOCUMENT_FETCHER + " VARCHAR(2000000), " + PARAMETER_REMOTE_TABLE_QUERY
-                        + " VARCHAR(2000000), " + PARAMETER_CONNECTION_NAME + " VARCHAR(500)) EMITS(...) AS\n");
+        final StringBuilder statementBuilder = new StringBuilder("CREATE OR REPLACE JAVA SET SCRIPT ADAPTER." + UDF_NAME
+                + "(" + PARAMETER_DATA_LOADER + " VARCHAR(2000000), " + PARAMETER_REMOTE_TABLE_QUERY
+                + " VARCHAR(2000000), " + PARAMETER_CONNECTION_NAME + " VARCHAR(500)) EMITS(...) AS\n");
         // statementBuilder.append(getDebuggerOptions(true));
-        statementBuilder.append("    %scriptclass " + UdfRequestDispatcher.class.getName() + ";\n");
+        statementBuilder.append("    %scriptclass " + UdfEntryPoint.class.getName() + ";\n");
         statementBuilder.append("    %jar /buckets/bfsdefault/default/" + VIRTUAL_SCHEMAS_JAR_NAME_AND_VERSION + ";\n");
         statementBuilder.append("/");
         final String sql = statementBuilder.toString();

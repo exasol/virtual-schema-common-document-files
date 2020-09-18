@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.exasol</groupId>
     <artifactId>virtual-schema-common-document-files</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
     <name>Virtual Schema for document data in files</name>
     <description>Adapter for document data access from files.</description>
     <url>https://github.com/exasol/virtual-schema-common-document-files</url>
@@ -15,7 +15,7 @@
         <junit.version>5.6.2</junit.version>
         <junit.platform.version>1.6.2</junit.platform.version>
         <jacoco.version>0.8.5</jacoco.version>
-        <vs-common-document.version>1.0.0</vs-common-document.version>
+        <vs-common-document.version>2.0.0-SNAPSHOT</vs-common-document.version>
         <gpg.skip>true</gpg.skip>
         <org.testcontainers.version>1.14.3</org.testcontainers.version>
         <!--

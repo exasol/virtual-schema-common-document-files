@@ -17,19 +17,19 @@ Next create the Adapter Script:
  ```
 CREATE OR REPLACE JAVA ADAPTER SCRIPT ADAPTER.FILES_ADAPTER AS
     %scriptclass com.exasol.adapter.RequestDispatcher;
-    %jar /buckets/bfsdefault/default/document-virtual-schema-dist-1.0.0-files-0.1.0.jar;
+    %jar /buckets/bfsdefault/default/document-virtual-schema-dist-2.0.0-SNAPSHOT-files-0.2.0.jar;
 /
 ```
 
 In addition to the adapter script you need to create a UDF function that will handle the loading of the data:
 ```
-CREATE OR REPLACE JAVA SET SCRIPT ADAPTER.IMPORT_FROM_DOCUMENT_FILES(
-  DOCUMENT_FETCHER VARCHAR(2000000),
+CREATE OR REPLACE JAVA SET SCRIPT ADAPTER.IMPORT_FROM_DOCUMENT(
+  DATA_LOADER VARCHAR(2000000),
   REMOTE_TABLE_QUERY VARCHAR(2000000),
   CONNECTION_NAME VARCHAR(500))
   EMITS(...) AS
-    %scriptclass com.exasol.adapter.document.UdfRequestDispatcher;
-    %jar /buckets/bfsdefault/default/document-virtual-schema-dist-1.0.0-files-0.1.0.jar;
+    %scriptclass com.exasol.adapter.document.UdfEntryPoint;
+    %jar /buckets/bfsdefault/default/document-virtual-schema-dist-2.0.0-SNAPSHOT-files-0.2.0.jar;
 /
 ```
 
