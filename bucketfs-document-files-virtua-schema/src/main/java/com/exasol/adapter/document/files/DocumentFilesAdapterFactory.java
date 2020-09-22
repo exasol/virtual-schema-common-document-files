@@ -1,4 +1,4 @@
-package com.exasol.adapter.document.files;
+package com.exasol.adapter.document.documentfetcher.files;
 
 import static com.exasol.adapter.document.files.DocumentFilesAdapter.ADAPTER_NAME;
 
@@ -6,6 +6,7 @@ import java.util.Set;
 
 import com.exasol.adapter.AdapterFactory;
 import com.exasol.adapter.VirtualSchemaAdapter;
+import com.exasol.adapter.document.files.DocumentFilesAdapter;
 import com.exasol.logging.VersionCollector;
 
 /**
@@ -19,7 +20,7 @@ public class DocumentFilesAdapterFactory implements AdapterFactory {
 
     @Override
     public VirtualSchemaAdapter createAdapter() {
-        return new DocumentFilesAdapter();
+        return new BucketfsDocumentFilesAdapter();
     }
 
     @Override

@@ -9,6 +9,10 @@ The dependency update of virtual-schema-common-document cause the following API 
 
 * The UDF definition changed (see [user_guide.md](../user-guide/user_guide.md))
 
+## Features / Enhancements
+
+* #14 Extracted file backends as separate repositories
+
 ## Dependency updates
 
 * Updated `com.exasol:virtual-schema-common-document` from 1.0.0 to 2.0.0 

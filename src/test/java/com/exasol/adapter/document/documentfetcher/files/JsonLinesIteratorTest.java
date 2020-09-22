@@ -3,7 +3,6 @@ package com.exasol.adapter.document.documentfetcher.files;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -54,9 +53,14 @@ class JsonLinesIteratorTest {
     }
 
     @Test
-    void testFinalize() {
-        final JsonLinesIterator jsonLinesIterator = getJsonLinesIterator(JSON_LINES_EXAMPLE);
-        assertDoesNotThrow(jsonLinesIterator::finalize);
+    void testFinalize() throws Throwable {
+        final CloseCheckStream stream = new CloseCheckStream("");
+        final FileLoader fileLoader = mock(FileLoader.class);
+        when(fileLoader.loadFiles()).thenReturn(Stream.of(stream));
+        when(fileLoader.getFilePattern()).thenReturn("string");
+        final JsonLinesIterator jsonLinesIterator = new JsonLinesIterator(fileLoader);
+        jsonLinesIterator.finalize();
+        assertThat(stream.wasClosed(), equalTo(true));
     }
 
     @Test
@@ -80,4 +84,5 @@ class JsonLinesIteratorTest {
         when(fileLoader.getFilePattern()).thenReturn("string");
         return new JsonLinesIterator(fileLoader);
     }
+
 }

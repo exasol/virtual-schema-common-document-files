@@ -18,9 +18,10 @@ import com.exasol.adapter.document.documentnode.json.JsonNodeVisitor;
  * {@link DocumentFetcher} for JSON files.
  */
 public class JsonDocumentFetcher implements DocumentFetcher<JsonNodeVisitor> {
-    private static final long serialVersionUID = 1252243324748529337L;
+    private static final long serialVersionUID = -8855870887951143439L;
     private final String filePattern;
     SegmentDescription segmentDescription;
+    private final FileLoaderFactory fileLoaderFactory;
 
     public static final String FILE_EXTENSION = ".json";
 
@@ -29,15 +30,18 @@ public class JsonDocumentFetcher implements DocumentFetcher<JsonNodeVisitor> {
      * 
      * @param filePattern        files to load
      * @param segmentDescription segmentation for parallel execution
+     * @param fileLoaderFactory  dependency in injection of {@link FileLoaderFactory}.
      */
-    public JsonDocumentFetcher(final String filePattern, final SegmentDescription segmentDescription) {
+    public JsonDocumentFetcher(final String filePattern, final SegmentDescription segmentDescription,
+            final FileLoaderFactory fileLoaderFactory) {
         this.filePattern = filePattern;
         this.segmentDescription = segmentDescription;
+        this.fileLoaderFactory = fileLoaderFactory;
     }
 
     @Override
     public Stream<DocumentNode<JsonNodeVisitor>> run(final ExaConnectionInformation connectionInformation) {
-        final Stream<InputStream> jsonStream = FileLoaderFactory.getInstance()
+        final Stream<InputStream> jsonStream = this.fileLoaderFactory
                 .getLoader(this.filePattern, this.segmentDescription, connectionInformation).loadFiles();
         return jsonStream.map(this::readJson);
     }

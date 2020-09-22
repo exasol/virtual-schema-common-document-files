@@ -9,7 +9,7 @@ package com.exasol.adapter.document.documentfetcher.files;
  * The reason for this implementation is, that it works independent of the order in that the files are matched.
  * </p>
  */
-class SegmentMatcher {
+public class SegmentMatcher {
     private final SegmentDescription segmentDescription;
 
     /**
