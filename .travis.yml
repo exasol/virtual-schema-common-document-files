@@ -9,6 +9,7 @@ addons:
     token:
       secure: tPHidrtnK0k4agUgdxRthQ/+lv8gTMcRZEfha2YCcDtQ2vQ1PTnGyHGXntDcUkQKvxgkJzX65iXETaxHkP6noQ9Ot58q8GbzlR7DEL0Fm1Him5ECQqhrrctsD/pk+CH7zkJwRD651/+U1I/js01l1gVt638+azzxVVXqM6C/MvY0uUp1W2sLQcF4108aUt8eF0z/qs5rww7aUI3sxKU3uyt/ZiYpVZAfpwf7xb4NyouN0SWCnM2oi6a1xx2d7/EnUcEyQSicRqp9fCzsRkNrJLv9Jq55ZWv/VoooZPZSNnEJg4xPUz79URsD62NkryX+SS2lhBiH46XlqLQi0f/kS1dsVDicgd9eOj+BmRElfHz0WOJszzKpnKI8kd1/ItfW6J/kyghIrrUYVcjvsGbc2LcqBNMlbIO6KOC1xn4XlORoyrROglD7HbYhZHh/08W4pnbwQ20zVkuVJUUC5G3UGG89tJ7pmNCcWb712zGyOXkii5qlYzhC3vDsEa9UKDdZdgx3grT7ZHhfz216Wy2vjsMhgKRYvW5k3XROtsEIxJVBjuZdqyYKA6Lx9dxaOuwNKHc7GFjVU6YFF82oK5/m5+I+VkhchABLefkoRgIAHm+qk9oZ0Enx3CCS0wWc3tX9lCfL+vXyCHpxPNCT8132Ns0yHqYwfsJQzUub5oD6JpE=
 install:
+  - rm -rf "$HOME/.m2/repository/com/exasol/virtual-schema-common-*" #clear cache for our repos since they change quickly
   - travis_retry mvn dependency:resolve
 script:
   - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent org.jacoco:jacoco-maven-plugin:prepare-agent-integration
