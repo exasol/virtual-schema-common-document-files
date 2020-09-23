@@ -4,7 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 class CloseCheckStream extends ByteArrayInputStream {
-    boolean wasClosed = false;
+    private boolean wasClosed = false;
 
     public CloseCheckStream(final String content) {
         super(content.getBytes());
