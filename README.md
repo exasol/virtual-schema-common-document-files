@@ -22,12 +22,17 @@ Supported document file formats:
 * JSON
 * [JSON-Lines (one json document per line)](https://jsonlines.org/) 
 
-Supported Storage drivers:
+## Official Dialects:
+
+You cannot directly use this adapter!
+Use one of these file source-specific dialects instead.
+If this list does not contain your file source you can [implement your own file source](doc/user_guide/howto_create_new_dialect.md). 
 
 * [Exasol BucketFS](https://github.com/exasol/bucketfs-document-files-virtual-schema/)
 
 
 ## Additional Information
 
+* [User Guide](doc/user_guide/user_guide.md)
 * [Changelog](doc/changes/changelog.md)
 * [Dependencies](NOTICE)
