@@ -14,10 +14,6 @@ you probably want to create a dialect of the [virtual-schema-common-document](ht
 ## Learn by Example
 
 As an example consider taking a look into the existing dialects. For example the one for [BucketFS](https://github.com/exasol/bucketfs-document-files-virtual-schema).  
-
-## Getting Started
- 
-To get started with a new dialect create a new repository and copy the contents of the [bucketfs dialect](https://github.com/exasol/bucketfs-document-files-virtual-schema).
  
 ## Create the pom.xml File
 
@@ -25,7 +21,6 @@ Start by creating a maven project, define by a `pom.xml` file.
 There add this generic part as a dependency. 
 
 ## Create a FileLoader
-
 
 The best point to start with your implementation is to create a class named `<YOUR_FILE_SOURCE>FileLoader` 
 that implements the `FileLoader` interface.
