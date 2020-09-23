@@ -10,10 +10,9 @@ A dialect does not implement support for different file types see the [user_guid
 
 Also, check that you really want a new dialect of the files virtual schema. 
 If your data source is not a file storage, but for example a database, 
-you probably do not want to create a dialect of this Virtual Schema,
-but of the [virtual-schema-common-document](https://github.com/exasol/virtual-schema-common-document).
+you probably want to create a dialect of the [virtual-schema-common-document](https://github.com/exasol/virtual-schema-common-document).
 
- ## Getting started
+## Getting started
  
  To get started with a new dialect create a new repository and copy the contents of the [bucketfs dialect](https://github.com/exasol/bucketfs-document-files-virtual-schema).
  
