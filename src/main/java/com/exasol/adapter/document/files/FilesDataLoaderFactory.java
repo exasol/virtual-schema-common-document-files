@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.exasol.adapter.document.DataLoader;
 import com.exasol.adapter.document.DataLoaderFactory;
+import com.exasol.adapter.document.documentfetcher.files.FileLoaderFactory;
 import com.exasol.adapter.document.documentfetcher.files.JsonDocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.files.JsonLinesDocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.files.SegmentDescription;
@@ -18,6 +19,17 @@ import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
  * </p>
  */
 public class FilesDataLoaderFactory implements DataLoaderFactory {
+    private final FileLoaderFactory fileLoaderFactory;
+
+    /**
+     * Get a new instance of {@link FilesDataLoaderFactory}.
+     * 
+     * @param fileLoaderFactory dependency in injection of {@link FileLoaderFactory}
+     */
+    public FilesDataLoaderFactory(final FileLoaderFactory fileLoaderFactory) {
+        this.fileLoaderFactory = fileLoaderFactory;
+    }
+
     @Override
     public List<DataLoader> buildDataLoaderForQuery(final RemoteTableQuery remoteTableQuery,
             final int maxNumberOfParallelFetchers) {
@@ -37,14 +49,14 @@ public class FilesDataLoaderFactory implements DataLoaderFactory {
         final List<DataLoader> dataLoaders = new ArrayList<>(maxNumberOfParallelFetchers);
         for (int segmentCounter = 0; segmentCounter < maxNumberOfParallelFetchers; segmentCounter++) {
             final JsonDocumentFetcher documentFetcher = new JsonDocumentFetcher(sourceString,
-                    new SegmentDescription(maxNumberOfParallelFetchers, segmentCounter));
+                    new SegmentDescription(maxNumberOfParallelFetchers, segmentCounter), this.fileLoaderFactory);
             dataLoaders.add(new JsonDataLoader(documentFetcher));
         }
         return dataLoaders;
     }
 
     private List<DataLoader> buildJsonLinesDataLoader(final String sourceString) {
-        return List.of(new JsonDataLoader(new JsonLinesDocumentFetcher(sourceString)));
+        return List.of(new JsonDataLoader(new JsonLinesDocumentFetcher(sourceString, this.fileLoaderFactory)));
     }
 
     private void validateNoGlob(final String sourceString, final String typeName) {

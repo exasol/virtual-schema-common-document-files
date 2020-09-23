@@ -6,7 +6,6 @@ import com.exasol.bucketfs.BucketfsFileFactory;
  * {@link FileLoader} for BucketFS.
  */
 class BucketfsFileLoader extends AbstractLocalFileLoader {
-    public static final String BUCKETFS_PREFIX = "bucketfs:";
 
     /**
      * Create a new instance of {@link BucketfsFileLoader}.

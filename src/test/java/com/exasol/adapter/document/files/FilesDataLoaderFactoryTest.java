@@ -11,14 +11,18 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import com.exasol.adapter.document.DataLoader;
+import com.exasol.adapter.document.documentfetcher.files.FileLoaderFactory;
 import com.exasol.adapter.document.mapping.TableMapping;
 import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
 
 class FilesDataLoaderFactoryTest {
 
-    public static final FilesDataLoaderFactory FACTORY = new FilesDataLoaderFactory();
+    @Mock
+    private static FileLoaderFactory fileLoaderFactory;
+    public static final FilesDataLoaderFactory FACTORY = new FilesDataLoaderFactory(fileLoaderFactory);
 
     @Test
     void testUnsupportedFileType() {

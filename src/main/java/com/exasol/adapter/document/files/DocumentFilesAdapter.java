@@ -9,6 +9,7 @@ import com.exasol.adapter.capabilities.Capabilities;
 import com.exasol.adapter.capabilities.MainCapability;
 import com.exasol.adapter.document.DataLoaderFactory;
 import com.exasol.adapter.document.DocumentAdapter;
+import com.exasol.adapter.document.documentfetcher.files.FileLoaderFactory;
 import com.exasol.adapter.document.mapping.TableKeyFetcher;
 import com.exasol.adapter.request.GetCapabilitiesRequest;
 import com.exasol.adapter.response.GetCapabilitiesResponse;
@@ -16,8 +17,7 @@ import com.exasol.adapter.response.GetCapabilitiesResponse;
 /**
  * This class is the entry point for the files Virtual Schema.
  */
-public class DocumentFilesAdapter extends DocumentAdapter {
-    public static final String ADAPTER_NAME = "DOCUMENT_FILES";
+public abstract class DocumentFilesAdapter extends DocumentAdapter {
 
     @Override
     protected TableKeyFetcher getTableKeyFetcher(final ExaConnectionInformation connectionInformation)
@@ -26,15 +26,17 @@ public class DocumentFilesAdapter extends DocumentAdapter {
     }
 
     @Override
-    protected DataLoaderFactory getDataLoaderFactory(final ExaConnectionInformation connectionInformation)
+    protected final DataLoaderFactory getDataLoaderFactory(final ExaConnectionInformation connectionInformation)
             throws AdapterException {
-        return new FilesDataLoaderFactory();
+        return new FilesDataLoaderFactory(getFileLoaderFactory());
     }
 
-    @Override
-    protected String getAdapterName() {
-        return ADAPTER_NAME;
-    }
+    /**
+     * Get the file backend specific {@link FileLoaderFactory}.
+     * 
+     * @return file backend specific {@link FileLoaderFactory}
+     */
+    protected abstract FileLoaderFactory getFileLoaderFactory();
 
     @Override
     public GetCapabilitiesResponse getCapabilities(final ExaMetadata exaMetadata,
