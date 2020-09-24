@@ -26,7 +26,7 @@ Supported document file formats:
 
 You cannot directly use this adapter!
 Please, use one of the file source-specific dialects from the list below.
-If this list does not contain your file source you can [implement your own file source](doc/user_guide/howto_create_new_dialect.md). 
+If this list does not contain your file source you can [implement your own file source](doc/user_guide/dialect_development_guide.md). 
 
 * [Exasol BucketFS](https://github.com/exasol/bucketfs-document-files-virtual-schema/)
 

@@ -2,7 +2,7 @@
 
 You cannot directly use this adapter! Use one of the file source-specific dialects instead. 
 For a complete list of all official dialects, check the [README](../../README.md).
-If the document source you need is not listed there, you can also [implement a custom dialect](howto_create_new_dialect.md).
+If the document source you need is not listed there, you can also [implement a custom dialect](dialect_development_guide.md).
 
 This user guide only covers the generic parts of the file virtual schema dialects.
 If you want to get started or need data source-specific information, start with the dialect-specific user guide.
