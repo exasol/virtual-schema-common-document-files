@@ -11,7 +11,7 @@ A dialect does not implement support for different file types see the [user_guid
 If your data source is not a file storage, but for example a document-database, 
 you probably want to create a dialect of the [virtual-schema-common-document](https://github.com/exasol/virtual-schema-common-document).
 
-## Learn by Example
+## Explore Example
 
 As an example consider taking a look into the existing dialects. For example the one for [BucketFS](https://github.com/exasol/bucketfs-document-files-virtual-schema).  
  
@@ -45,10 +45,11 @@ If the path definition includes these characters your adapter must search for ma
 
 ### Segmentation
 
-The Virtual Schema adapter distributes the query processing over multiple parallel running workers (UDFs).
+The Virtual Schema adapter distributes the query processing over multiple parallel-running workers (UDFs).
 Therefore it has to separate the data into multiple segments.
-It does this by passing a `SegmentDescription` to your `FileLoaderFactory`. A `SegmentDescription` consists of two numbers.
-A total number of segments and a segment id.
+It does this by passing a `SegmentDescription` to your `FileLoaderFactory`. A `SegmentDescription` consists of two numbers:
+1. a total number of segments
+1. a segment id
 Your adapter has to divide the input files into the specified number of segments and only return the contents of the specified segment.
 The generic adapter will execute the file loader multiple times in the parallel running workers each time with a different segment id.
 
@@ -97,7 +98,7 @@ com.example.<YOUR_FILE_SOURCE>DocumentFilesAdapterFactory
 Don't forget to test your dialect.
 Take a look at the tests in the BucketFS dialect as an example.
 The BucketFs dialect includes unit and integration tests.
-The integration tests use the [exasol-testconatiners](https://github.com/exasol/exasol-testcontainers/), which automatically start a docker version of the Exasol database for testing.
+The integration tests use the [exasol-testconatiners](https://github.com/exasol/exasol-testcontainers/).
 
 ## Support
 

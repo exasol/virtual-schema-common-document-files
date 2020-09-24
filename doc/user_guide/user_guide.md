@@ -2,7 +2,7 @@
 
 You cannot directly use this adapter! Use one of the file source-specific dialects instead. 
 For a complete list of all official dialects, check the [README](../../README.md).
-If you need something different, you can also [implement a custom dialect](howto_create_new_dialect.md).
+If the document source you need is not listed there, you can also [implement a custom dialect](howto_create_new_dialect.md).
 
 This user guide only covers the generic parts of the file virtual schema dialects.
 If you want to get started or need data source-specific information, start with the dialect-specific user guide.
@@ -10,7 +10,7 @@ If you want to get started or need data source-specific information, start with 
 # Document Types
 
 This Virtual Schema implements support for different document types (JSON, JSON-Lines, ...).
-Don't confuse that with the different data source specific dialects.
+Don't mix it up with the data source specific dialects.
 Each dialect implements a different file provider (S3, BucketFS, ...). 
 With each of these dialects, you define mappings for the different data types listed here.
 
@@ -42,5 +42,3 @@ Parallelization: No
 
 JSON-Lines files store one JSON document per line. 
 In contrast to using a JSON array, that has the advantage that the file can be parsed line by line.
-
-The JSON-Lines file type does not support parallel loading.
