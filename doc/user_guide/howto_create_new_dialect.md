@@ -18,7 +18,16 @@ As an example consider taking a look into the existing dialects. For example the
 ## Create the pom.xml File
 
 Start by creating a maven project, define by a `pom.xml` file.
-There add this generic part as a dependency. 
+There add this generic base as a dependency:
+```xml
+        <dependency>
+            <groupId>com.exasol</groupId>
+            <artifactId>virtual-schema-common-document-files</artifactId>
+            <version>VERSION</version>
+        </dependency>
+``` 
+
+Don't forget to replace `VERSION` with the current latest release number of this repository.
 
 ## Create a FileLoader
 
