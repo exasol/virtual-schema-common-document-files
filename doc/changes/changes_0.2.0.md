@@ -11,7 +11,8 @@ The dependency update of virtual-schema-common-document cause the following API 
 
 ## Features / Enhancements
 
-* #14 Extracted file backends as separate repositories
+* #14: Extracted file backends as separate repositories
+* #16: Made document types extensible using service loader
 
 # Documentation
 

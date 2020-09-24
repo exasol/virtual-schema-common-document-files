@@ -1,0 +1,2 @@
+com.exasol.adapter.document.files.JsonFilesDataLoaderFactory
+com.exasol.adapter.document.files.JsonLinesFilesDataLoaderFactory
