@@ -1,4 +1,4 @@
-# User Guides for the generic Virtual Schema for Document Files
+# User Guides for the Generic Document Files Virtual Schema
 
 You cannot directly use this adapter! Use one of the file source-specific dialects instead. 
 For a complete list of all official dialects, check the [README](../../README.md).
@@ -14,7 +14,7 @@ Don't mix it up with the data source specific dialects.
 Each dialect implements a different file provider (S3, BucketFS, ...). 
 With each of these dialects, you define mappings for the different data types listed here.
 
-You can not add different data types by adding a dialect.
+You can not add support for different document types (like JSON) by adding a dialect.
 In the future, there will be a different approach for that ([issue](https://github.com/exasol/virtual-schema-common-document-files/issues/16)). 
 At the moment it is not possible.
 

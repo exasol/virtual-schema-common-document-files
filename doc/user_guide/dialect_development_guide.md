@@ -2,7 +2,7 @@
 
 This guide helps you to create your custom dialect.
 
-## Check if This is the Correct Guide
+## Make Sure That you Need a Dialect and not Something Else
 
 First of all, check if you really need a dialect.
 A dialect implements support for an external file provider like BucketFs or S3.
