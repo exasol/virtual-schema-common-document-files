@@ -1,0 +1,25 @@
+@startuml
+
+interface  DocumentNode<VisitorType> <<interface>> {
+{abstract} accept(VisitorType)
+}
+interface  DocumentArray<VisitorType> <<interface>> {
+{abstract} getValueList() : List<DocumentNode<? extends VisitorType>>
+{abstract} getValue(index) : DocumentNode<VisitorType>
+}
+interface  DocumentObject<VisitorType> <<interface>> {
+{abstract} getKeyValueMap()
+{abstract} get(key)
+{abstract} hasKey(key)
+}
+interface  DocumentValue<VisitorType> <<interface>> {
+}
+
+
+DocumentNode <|-- DocumentArray
+DocumentNode <|-- DocumentObject
+DocumentNode <|-- DocumentValue
+
+
+
+@enduml
