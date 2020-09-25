@@ -8,7 +8,7 @@ import com.exasol.adapter.document.documentfetcher.files.FileLoaderFactory;
 import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
 
 /**
- * This interface defines factories for {@link DataLoader}s for the files virtual scheam. Classes implementing this
+ * This interface defines factories for {@link DataLoader}s for the files virtual schema. Classes implementing this
  * interface are loaded via a service loader. By that you can add support for new file types as a plugin.
  */
 public interface FilesDataLoaderFactory {
