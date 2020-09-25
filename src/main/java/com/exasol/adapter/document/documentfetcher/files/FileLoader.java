@@ -12,7 +12,7 @@ public interface FileLoader {
      * 
      * @return content of the file
      */
-    public Stream<LoadedFile> loadFiles();
+    public Stream<InputStreamWithResourceName> loadFiles();
 
     /**
      * Get the path / pattern of the files to load.

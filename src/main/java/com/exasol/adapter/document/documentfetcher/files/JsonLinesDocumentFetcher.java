@@ -11,7 +11,7 @@ import com.exasol.adapter.document.documentnode.json.JsonNodeVisitor;
  * {@link DocumentFetcher} for the JSON lines file format.
  */
 public class JsonLinesDocumentFetcher extends AbstractFilesDocumentFetcher<JsonNodeVisitor> {
-    private static final long serialVersionUID = 6762889878963321619L;
+    private static final long serialVersionUID = 3544631884934749820L;
 
     /**
      * Create a new instance of {@link JsonLinesDocumentFetcher}.
@@ -26,7 +26,7 @@ public class JsonLinesDocumentFetcher extends AbstractFilesDocumentFetcher<JsonN
     }
 
     @Override
-    protected Stream<DocumentNode<JsonNodeVisitor>> readDocuments(final LoadedFile loadedFile) {
+    protected Stream<DocumentNode<JsonNodeVisitor>> readDocuments(final InputStreamWithResourceName loadedFile) {
         return StreamSupport.stream(new JsonLinesIterable(loadedFile).spliterator(), false);
     }
 }

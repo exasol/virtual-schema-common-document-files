@@ -7,19 +7,19 @@ import java.io.InputStream;
 /**
  * This class describes a file loaded by the {@link FileLoader}.
  */
-public class LoadedFile implements Closeable {
+public class InputStreamWithResourceName implements Closeable {
     private final InputStream inputStream;
-    private final String fileDescription;
+    private final String resourceName;
 
     /**
-     * Create a new instance of {@link LoadedFile}.
+     * Create a new instance of {@link InputStreamWithResourceName}.
      * 
-     * @param inputStream     stream of file contents
-     * @param fileDescription description of the file e.g. file name; use for error messages
+     * @param inputStream  stream of file contents
+     * @param resourceName description of the file e.g. file name; use for error messages
      */
-    public LoadedFile(final InputStream inputStream, final String fileDescription) {
+    public InputStreamWithResourceName(final InputStream inputStream, final String resourceName) {
         this.inputStream = inputStream;
-        this.fileDescription = fileDescription;
+        this.resourceName = resourceName;
     }
 
     /**
@@ -36,8 +36,8 @@ public class LoadedFile implements Closeable {
      * 
      * @return description of the file
      */
-    public String getFileDescription() {
-        return this.fileDescription;
+    public String getResourceName() {
+        return this.resourceName;
     }
 
     @Override
