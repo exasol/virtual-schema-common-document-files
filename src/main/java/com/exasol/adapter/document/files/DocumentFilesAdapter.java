@@ -28,7 +28,7 @@ public abstract class DocumentFilesAdapter extends DocumentAdapter {
     @Override
     protected final DataLoaderFactory getDataLoaderFactory(final ExaConnectionInformation connectionInformation)
             throws AdapterException {
-        return new FilesDataLoaderFactory(getFileLoaderFactory());
+        return new FilesDataLoaderResolver(getFileLoaderFactory());
     }
 
     /**

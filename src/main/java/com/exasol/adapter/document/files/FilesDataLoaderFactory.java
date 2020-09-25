@@ -1,68 +1,37 @@
 package com.exasol.adapter.document.files;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.exasol.adapter.document.DataLoader;
-import com.exasol.adapter.document.DataLoaderFactory;
+import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.files.FileLoaderFactory;
-import com.exasol.adapter.document.documentfetcher.files.JsonDocumentFetcher;
-import com.exasol.adapter.document.documentfetcher.files.JsonLinesDocumentFetcher;
-import com.exasol.adapter.document.documentfetcher.files.SegmentDescription;
 import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
 
 /**
- * Files {@link DataLoaderFactory} implementation.
- * <p>
- * This {@link DataLoaderFactory} builds the {@link DataLoader} corresponding to the file ending of the source name. If
- * the file name contains a pattern, like {@code *.json}, the loading is distributed over multiple document fetchers.
- * </p>
+ * This interface defines factories for {@link DataLoader}s for the files virtual schema. Classes implementing this
+ * interface are loaded via a service loader. By that you can add support for new file types as a plugin.
  */
-public class FilesDataLoaderFactory implements DataLoaderFactory {
-    private final FileLoaderFactory fileLoaderFactory;
+public interface FilesDataLoaderFactory {
 
     /**
-     * Get a new instance of {@link FilesDataLoaderFactory}.
-     * 
-     * @param fileLoaderFactory dependency in injection of {@link FileLoaderFactory}
+     * Get the file extensions for that this factory can build {@link DocumentFetcher}s.
+     *
+     * <p>
+     * The extensions must include a {@code .}. For example {@code .json}.
+     * </p>
+     *
+     * @return list of supported file extensions
      */
-    public FilesDataLoaderFactory(final FileLoaderFactory fileLoaderFactory) {
-        this.fileLoaderFactory = fileLoaderFactory;
-    }
+    public List<String> getSupportedFileExtensions();
 
-    @Override
+    /**
+     * Builds {@link DataLoader}s for a given query.
+     *
+     * @param remoteTableQuery            the document query build the {@link DocumentFetcher} for
+     * @param maxNumberOfParallelFetchers the maximum amount of {@link DocumentFetcher}s that can be used in parallel
+     * @param fileLoaderFactory           dependency injection of {@link FileLoaderFactory}
+     * @return built {@link DocumentFetcher}
+     */
     public List<DataLoader> buildDataLoaderForQuery(final RemoteTableQuery remoteTableQuery,
-            final int maxNumberOfParallelFetchers) {
-        final String sourceString = remoteTableQuery.getFromTable().getRemoteName();
-        if (sourceString.endsWith(JsonDocumentFetcher.FILE_EXTENSION)) {
-            return buildJsonDataLoader(maxNumberOfParallelFetchers, sourceString);
-        } else if (sourceString.endsWith(JsonLinesDocumentFetcher.FILE_EXTENSION)) {
-            validateNoGlob(sourceString, "JSON-Lines");
-            return buildJsonLinesDataLoader(sourceString);
-        } else {
-            throw new IllegalArgumentException(
-                    "Cannot map this file because it has a unknown type. Supported endings are: [.json, .jsonl]");
-        }
-    }
-
-    private List<DataLoader> buildJsonDataLoader(final int maxNumberOfParallelFetchers, final String sourceString) {
-        final List<DataLoader> dataLoaders = new ArrayList<>(maxNumberOfParallelFetchers);
-        for (int segmentCounter = 0; segmentCounter < maxNumberOfParallelFetchers; segmentCounter++) {
-            final JsonDocumentFetcher documentFetcher = new JsonDocumentFetcher(sourceString,
-                    new SegmentDescription(maxNumberOfParallelFetchers, segmentCounter), this.fileLoaderFactory);
-            dataLoaders.add(new JsonDataLoader(documentFetcher));
-        }
-        return dataLoaders;
-    }
-
-    private List<DataLoader> buildJsonLinesDataLoader(final String sourceString) {
-        return List.of(new JsonDataLoader(new JsonLinesDocumentFetcher(sourceString, this.fileLoaderFactory)));
-    }
-
-    private void validateNoGlob(final String sourceString, final String typeName) {
-        if (sourceString.contains("*")) {
-            throw new IllegalArgumentException("Invalid source '" + sourceString + "'. For the file type " + typeName
-                    + " you must specify exactly one file.");
-        }
-    }
+            final int maxNumberOfParallelFetchers, final FileLoaderFactory fileLoaderFactory);
 }

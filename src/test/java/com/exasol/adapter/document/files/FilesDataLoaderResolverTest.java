@@ -18,19 +18,19 @@ import com.exasol.adapter.document.documentfetcher.files.FileLoaderFactory;
 import com.exasol.adapter.document.mapping.TableMapping;
 import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
 
-class FilesDataLoaderFactoryTest {
+class FilesDataLoaderResolverTest {
 
     @Mock
     private static FileLoaderFactory fileLoaderFactory;
-    public static final FilesDataLoaderFactory FACTORY = new FilesDataLoaderFactory(fileLoaderFactory);
+    public static final FilesDataLoaderResolver FACTORY = new FilesDataLoaderResolver(fileLoaderFactory);
 
     @Test
     void testUnsupportedFileType() {
         final RemoteTableQuery remoteTableQuery = getRemoteTableQuery("test.unknown-type");
-        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        final UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
                 () -> FACTORY.buildDataLoaderForQuery(remoteTableQuery, 1));
-        assertThat(exception.getMessage(),
-                equalTo("Cannot map this file because it has a unknown type. Supported endings are: [.json, .jsonl]"));
+        assertThat(exception.getMessage(), equalTo(
+                "Could not find a file type implementation for test.unknown-type. Please check the file extension."));
     }
 
     @Test
