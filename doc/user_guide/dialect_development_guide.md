@@ -37,7 +37,7 @@ that implements the `FileLoader` interface.
 
 The file loader interface defines only two methods:
 
-* `loadFiles()`: This method loads the files for a query and returns them as `InputStream`s.
+* `loadFiles()`: This method loads the files for a query and returns them as `InputStreamWithResourceName`s (`InputStreamWithResourceName` is a class, that bundles an input stream with a file name used for error messages).
 * `getFilePattern()`: Gives a URL or String that describes the path to the files. This description will be included in exceptions. 
 
 You may have noticed that the `loadFiles()` method does not take any arguments.

@@ -1,6 +1,5 @@
 package com.exasol.adapter.document.documentfetcher.files;
 
-import java.io.InputStream;
 import java.util.stream.Stream;
 
 /**
@@ -13,7 +12,7 @@ public interface FileLoader {
      * 
      * @return content of the file
      */
-    public Stream<InputStream> loadFiles();
+    public Stream<InputStreamWithResourceName> loadFiles();
 
     /**
      * Get the path / pattern of the files to load.

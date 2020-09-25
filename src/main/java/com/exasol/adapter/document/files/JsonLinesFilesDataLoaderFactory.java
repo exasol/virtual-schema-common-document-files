@@ -5,6 +5,7 @@ import java.util.List;
 import com.exasol.adapter.document.DataLoader;
 import com.exasol.adapter.document.documentfetcher.files.FileLoaderFactory;
 import com.exasol.adapter.document.documentfetcher.files.JsonLinesDocumentFetcher;
+import com.exasol.adapter.document.documentfetcher.files.SegmentDescription;
 import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
 
 /**
@@ -24,6 +25,7 @@ public class JsonLinesFilesDataLoaderFactory implements FilesDataLoaderFactory {
             throw new IllegalArgumentException("Invalid source '" + sourceString
                     + "'. For the JSON-Lines you must specify exactly one file. * and ? wildcards are not allowed.");
         }
-        return List.of(new JsonDataLoader(new JsonLinesDocumentFetcher(sourceString, fileLoaderFactory)));
+        return List.of(new JsonDataLoader(
+                new JsonLinesDocumentFetcher(sourceString, SegmentDescription.NO_SEGMENTATION, fileLoaderFactory)));
     }
 }
