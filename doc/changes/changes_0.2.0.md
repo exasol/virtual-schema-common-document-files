@@ -13,6 +13,10 @@ The dependency update of virtual-schema-common-document cause the following API 
 
 * #14 Extracted file backends as separate repositories
 
+# Documentation
+
+* #17 Added User Guide
+
 ## Dependency updates
 
 * Updated `com.exasol:virtual-schema-common-document` from 1.0.0 to 2.0.0 
