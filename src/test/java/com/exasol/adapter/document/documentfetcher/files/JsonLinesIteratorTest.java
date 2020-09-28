@@ -4,14 +4,11 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +16,6 @@ import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.json.JsonNodeVisitor;
 
 class JsonLinesIteratorTest {
-
     public static final String JSON_LINES_EXAMPLE = "{\"id\": \"test-1\"}\n{\"id\": \"test-2\"}";
 
     @Test
@@ -55,10 +51,7 @@ class JsonLinesIteratorTest {
     @Test
     void testFinalize() throws Throwable {
         final CloseCheckStream stream = new CloseCheckStream("");
-        final FileLoader fileLoader = mock(FileLoader.class);
-        when(fileLoader.loadFiles()).thenReturn(Stream.of(stream));
-        when(fileLoader.getFilePattern()).thenReturn("string");
-        final JsonLinesIterator jsonLinesIterator = new JsonLinesIterator(fileLoader);
+        final JsonLinesIterator jsonLinesIterator = new JsonLinesIterator(new InputStreamWithResourceName(stream, ""));
         jsonLinesIterator.finalize();
         assertThat(stream.wasClosed(), equalTo(true));
     }
@@ -79,10 +72,7 @@ class JsonLinesIteratorTest {
     }
 
     private JsonLinesIterator getJsonLinesIterator(final String s) {
-        final FileLoader fileLoader = mock(FileLoader.class);
-        when(fileLoader.loadFiles()).thenReturn(Stream.of(new ByteArrayInputStream(s.getBytes())));
-        when(fileLoader.getFilePattern()).thenReturn("string");
-        return new JsonLinesIterator(fileLoader);
+        return new JsonLinesIterator(new InputStreamWithResourceName(new ByteArrayInputStream(s.getBytes()), "string"));
     }
 
 }

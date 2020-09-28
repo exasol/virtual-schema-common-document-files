@@ -1,6 +1,9 @@
 package com.exasol.adapter.document.documentfetcher.files;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -18,8 +21,7 @@ import com.exasol.adapter.document.documentnode.json.JsonNodeVisitor;
  */
 class JsonLinesIterator implements Iterator<DocumentNode<JsonNodeVisitor>> {
     private final BufferedReader jsonlReader;
-    private final InputStream jsonlStream;
-    private final String fileName;
+    private final InputStreamWithResourceName jsonlFile;
     private final InputStreamReader inputStreamReader;
     private String nextLine = null;
     private long lineCounter = 0;
@@ -27,20 +29,18 @@ class JsonLinesIterator implements Iterator<DocumentNode<JsonNodeVisitor>> {
     /**
      * Create a new instance of {@link JsonLinesIterator}.
      * 
-     * @param fileLoader file loader for the JSON-Lines file
+     * @param jsonlFile file loader for the JSON-Lines file
      */
-    JsonLinesIterator(final FileLoader fileLoader) {
-        this.jsonlStream = fileLoader.loadFiles().findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Could not find data file."));
-        this.fileName = fileLoader.getFilePattern();
-        this.inputStreamReader = new InputStreamReader(this.jsonlStream);
+    JsonLinesIterator(final InputStreamWithResourceName jsonlFile) {
+        this.jsonlFile = jsonlFile;
+        this.inputStreamReader = new InputStreamReader(this.jsonlFile.getInputStream());
         this.jsonlReader = new BufferedReader(this.inputStreamReader);
         readNextLine();
     }
 
     @Override
     protected void finalize() throws Throwable {
-        this.jsonlStream.close();
+        this.jsonlFile.close();
         this.inputStreamReader.close();
         this.jsonlReader.close();
         super.finalize();
@@ -73,8 +73,9 @@ class JsonLinesIterator implements Iterator<DocumentNode<JsonNodeVisitor>> {
                 readNextLine();
                 return JsonNodeFactory.getInstance().getJsonNode(jsonValue);
             } catch (final JsonException exception) {
-                throw new IllegalArgumentException("Failed to parse JSON-Lines from " + this.fileName
-                        + ". Invalid JSON document in line " + this.lineCounter + ". " + exception.getMessage(),
+                throw new IllegalArgumentException(
+                        "Failed to parse JSON-Lines from " + this.jsonlFile.getResourceName()
+                                + ". Invalid JSON document in line " + this.lineCounter + ". " + exception.getMessage(),
                         exception);
             }
         }

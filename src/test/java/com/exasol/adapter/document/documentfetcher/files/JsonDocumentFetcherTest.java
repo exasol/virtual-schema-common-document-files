@@ -18,7 +18,7 @@ class JsonDocumentFetcherTest {
     void testClosed() {
         final CloseCheckStream closeCheckStream = new CloseCheckStream("{}");
         final FileLoader fileLoader = mock(FileLoader.class);
-        when(fileLoader.loadFiles()).thenReturn(Stream.of(closeCheckStream));
+        when(fileLoader.loadFiles()).thenReturn(Stream.of(new InputStreamWithResourceName(closeCheckStream, "")));
         final FileLoaderFactory loaderFactory = mock(FileLoaderFactory.class);
         when(loaderFactory.getLoader(Mockito.anyString(), Mockito.any(), Mockito.any())).thenReturn(fileLoader);
         final JsonDocumentFetcher jsonDocumentFetcher = new JsonDocumentFetcher("", null, loaderFactory);
