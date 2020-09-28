@@ -35,11 +35,11 @@ class FilesDataLoaderResolverTest {
 
     @Test
     void testJsonFileType() {
-        final RemoteTableQuery remoteTableQuery = getRemoteTableQuery("test.json");
+        final RemoteTableQuery remoteTableQuery = getRemoteTableQuery("test-*.json");
         final List<DataLoader> documentFetchers = FACTORY.buildDataLoaderForQuery(remoteTableQuery, 10);
         assertAll(//
                 () -> assertThat(documentFetchers.size(), equalTo(10)), //
-                () -> assertThat(documentFetchers.get(0), instanceOf(JsonDataLoader.class))//
+                () -> assertThat(documentFetchers.get(0), instanceOf(JsonFilesDataLoader.class))//
         );
     }
 
@@ -49,7 +49,7 @@ class FilesDataLoaderResolverTest {
         final List<DataLoader> documentFetchers = FACTORY.buildDataLoaderForQuery(remoteTableQuery, 10);
         assertAll(//
                 () -> assertThat(documentFetchers.size(), equalTo(1)), //
-                () -> assertThat(documentFetchers.get(0), instanceOf(JsonDataLoader.class))//
+                () -> assertThat(documentFetchers.get(0), instanceOf(JsonFilesDataLoader.class))//
         );
     }
 
