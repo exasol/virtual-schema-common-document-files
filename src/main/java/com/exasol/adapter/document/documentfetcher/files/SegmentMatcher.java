@@ -30,7 +30,7 @@ public class SegmentMatcher {
     public boolean matches(final String fileName) {
         @java.lang.SuppressWarnings("squid:S2676") // abs hashcode is intended here
         final long hashNumber = Math.abs(fileName.hashCode());
-        final int modulo = (int) (hashNumber % this.segmentDescription.getNumSegments());
+        final int modulo = (int) (hashNumber % this.segmentDescription.getNumberOfSegments());
         return modulo == this.segmentDescription.getSegmentId();
     }
 }

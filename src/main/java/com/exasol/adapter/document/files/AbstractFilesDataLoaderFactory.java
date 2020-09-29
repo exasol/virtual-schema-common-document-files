@@ -17,9 +17,9 @@ public abstract class AbstractFilesDataLoaderFactory implements FilesDataLoaderF
             final int maxNumberOfParallelFetchers, final FileLoaderFactory fileLoaderFactory) {
         final List<DataLoader> dataLoaders = new ArrayList<>(maxNumberOfParallelFetchers);
         final String sourceString = remoteTableQuery.getFromTable().getRemoteName();
-        final int numSegments = hasGlob(sourceString) ? maxNumberOfParallelFetchers : 1;
-        for (int segmentCounter = 0; segmentCounter < numSegments; segmentCounter++) {
-            final SegmentDescription segmentDescription = new SegmentDescription(numSegments, segmentCounter);
+        final int numberOfSegments = hasGlob(sourceString) ? maxNumberOfParallelFetchers : 1;
+        for (int segmentCounter = 0; segmentCounter < numberOfSegments; segmentCounter++) {
+            final SegmentDescription segmentDescription = new SegmentDescription(numberOfSegments, segmentCounter);
             final DataLoader dataLoader = buildSingleDataLoader(fileLoaderFactory, segmentDescription, sourceString);
             dataLoaders.add(dataLoader);
         }
