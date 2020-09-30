@@ -140,3 +140,17 @@ To do so create a file `META_INF/services/com.exasol.adapter.document.files.File
 ```
 com.exasol.adapter.document.files.YOUT_TYPEFilesDataLoaderFactory
 ``` 
+
+## Tests
+
+Don't forget to test your dialect.
+Take a look at JSON document type (in this repository), as an example.
+
+## Support
+
+If you need help, feel free to create a GitHub issue in this repository.
+
+## Tell the World
+ 
+When you finished your document type implementation, we are happy to list it on the README of this repository, so that others can find it.
+Just open an issue!
