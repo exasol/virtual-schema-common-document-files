@@ -7,7 +7,7 @@ If you want to add support for different file backends like BucketFS or S3, use 
 ## Create a Repository
 
 The generic adapter loads the document type implementations using a service loader.
-By that, you can implement your document type in a different repository and simply also add it's jar in the `CREATE ADAPTER SCRIPT` command.
+By that, you can implement your document type in a different repository and simply add its jar in the `CREATE ADAPTER SCRIPT` command.
 
 
 ## The Document Node Interface
@@ -24,9 +24,9 @@ Implement this structure in the following steps:
 
 * Select a name for your document structure (in this example we will use `YOUR_TYPE`)
 * Define a Visitor interface for your type (`YOUR_TYPEDocumentNodeVisitor`)
-* Implement wrappers for the java API classes of your data type that implement `DocumentArray`, `DocumentObject`, or `DocumentValue`.
-  You can define multiple classes for each interface. For example `YOUR_TYPENumber` and `YOUR_TYPEString` that both implement `DocumentValue`.
-  As a type parameter for the generic interfaces use your Visitor.
+* Implement wrappers for the Java API classes of your data type that implement `DocumentArray`, `DocumentObject`, or `DocumentValue`.
+  You can define multiple classes for each interface. For example `YOUR_TYPENumber` and `YOUR_TYPEString` both can implement `DocumentValue`.
+  As a type parameter for the generic interfaces, use your Visitor.
 * Implement a factory that wraps the Java classes of your data type into the newly defined wrapper classes.
 
 If your data type does not has a Java API you can also create your own parser, that implements these interfaces. 
@@ -47,7 +47,7 @@ We now implement so-called PropertyToColumnValueExtractors that extract the desi
 
 Therefore we create a class `YOUR_TYPEPropertyToVarcharColumnValueExtractor` that extends `PropertyToVarcharColumnValueExtractor<YOUR_TYPEDocumentNodeVisitor>` and implement the required methods.
 
-Hint: You can use a visitor for your DocumentNode structure to dispatch between the different types here.
+**Hint**: You can use a visitor for your `DocumentNode` structure to dispatch between the different types here.
 
 Implement the value extractors for the other mappings respectively.
 
@@ -75,7 +75,7 @@ The parameter `InputStreamWithResourceName` consists of an `InputStream` from wh
 
 Implement the method so that it converts the `loadedFile` into a `Stream<DocumentNode<YOUR_TYPEDocumentNodeVisitor>>` by parsing it and using the factory for your class structure.
 If your datatype has only one document per file, simply return `Set.of(YOUR_DOCUMTNT_NODE)`.
-Else it is important to stream the data and not to collect it in a List first. 
+Otherwise it is important to stream the data and not to collect it in a List first. 
 For that implement an custom `Iterator` and `Iterable` and use:
 
 ```java
@@ -87,8 +87,8 @@ Don't forget to close the input streams!
 ## The DataLoader
 
 Next, we implement the `DataLoader`. The `DataLoader` runs the whole pipeline from fetching the data, 
-extracting the selecting properties over mapping the result to Exasol values.
-Luckily most of this implementation is covered in its abstract basis `AbstractDataLoader`.
+extracting and selecting properties over mapping the result to Exasol values.
+Luckily most of this implementation is covered in its abstract basis `AbstractDataLoader` class.
 
 Create a new class `YOUR_TYPEFilesDataLoader` that extends `AbstractDataLoader<YOUR_TYPEDocumentNodeVisitor>`.
 
@@ -144,7 +144,7 @@ com.exasol.adapter.document.files.YOUT_TYPEFilesDataLoaderFactory
 ## Tests
 
 Don't forget to test your dialect.
-Take a look at JSON document type (in this repository), as an example.
+Take a look at JSON document type inside the repository as an example.
 
 ## Support
 
@@ -152,5 +152,5 @@ If you need help, feel free to create a GitHub issue in this repository.
 
 ## Tell the World
  
-When you finished your document type implementation, we are happy to list it on the README of this repository, so that others can find it.
+When you are finished with your document type implementation, we are happy to list it on the README of this repository, so that others can find it.
 Just open an issue!
