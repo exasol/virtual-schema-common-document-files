@@ -1,24 +1,30 @@
 # How to add Support for a new Document Type
 
-This guide explains how to add a support for a new document types like JSON or JSON-Lines.
+This guide explains how to add support for new document types like JSON or JSON-Lines.
 
-If you want to add support for a different files backend like BucketFS or S3, use the [dialect development guide](dialect_development_guide.md).
+If you want to add support for different file backends like BucketFS or S3, use the [dialect development guide](dialect_development_guide.md).
+
+## Create a Repository
+
+The generic adapter loads the document type implementations using a service loader.
+By that, you can implement your document type in a different repository and simply also add it's jar in the `CREATE ADAPTER SCRIPT` command.
+
 
 ## The Document Node Interface
-This Document Virtual Schemas abstract over the implementation of the document data.
-By that it can support different document types.
+The document Virtual Schema abstracts over the implementation of the document data.
+By that, it can support different document types.
 For that we use the `DocumentNode` interface structure:
 
 ![document node](documentnode.png)
 
-The idea behind this structure is, that this Virtual Schema adapter can travers your document data, without knowing 
-implementation details, like the language specific data types.
+The idea behind this structure is, that this Virtual Schema adapter can traverse your document data, without knowing 
+implementation details, like the language-specific data types.
 
 Implement this structure in the following steps:
 
 * Select a name for your document structure (in this example we will use `YOUR_TYPE`)
 * Define a Visitor interface for your type (`YOUR_TYPEDocumentNodeVisitor`)
-* Implement wrappers for the java API classes of your data type that implement `DocumentArray`, `DocumentObject` or `DocumentValue`.
+* Implement wrappers for the java API classes of your data type that implement `DocumentArray`, `DocumentObject`, or `DocumentValue`.
   You can define multiple classes for each interface. For example `YOUR_TYPENumber` and `YOUR_TYPEString` that both implement `DocumentValue`.
   As a type parameter for the generic interfaces use your Visitor.
 * Implement a factory that wraps the Java classes of your data type into the newly defined wrapper classes.
@@ -27,7 +33,7 @@ If your data type does not has a Java API you can also create your own parser, t
   
  ## The Property to Column Value Extractors
  
- Now we need to implement the value extraction from the class structure that wwe just defined.
+ Now we need to implement the value extraction from the class structure that we just defined.
  
  At the moment there are three types of mappings:
  
@@ -37,18 +43,18 @@ If your data type does not has a Java API you can also create your own parser, t
  
  To learn more about the mappings check the [EDML documentation](https://github.com/exasol/virtual-schema-common-document/blob/master/doc/user_guide/edml_user_guide.md).  
 
-We now implement so called PropertyToColumnValueExtractors that extract the desired value from the class structure.
+We now implement so-called PropertyToColumnValueExtractors that extract the desired value from the class structure.
 
 Therefore we create a class `YOUR_TYPEPropertyToVarcharColumnValueExtractor` that extends `PropertyToVarcharColumnValueExtractor<YOUR_TYPEDocumentNodeVisitor>` and implement the required methods.
 
-Hint: You can use the your a visitor for your DocumentNode structure defined to dispatch between the different types here.
+Hint: You can use a visitor for your DocumentNode structure to dispatch between the different types here.
 
 Implement the value extractors for the other mappings respectively.
 
 After implementing extractors for all mapping types, you need to create a factory for them.
 
 Therefore we create `YOUR_TYPEPropertyToColumnValueExtractorFactory` that implements `PropertyToColumnValueExtractorFactory<YOUR_TYPEDocumentNodeVisitor>`.
-Don't forget to use your Visitor as generic type here.
+Don't forget to use your Visitor as a generic type here.
 
 ## The DocumentFetcher
 
@@ -64,8 +70,8 @@ The interface requires only a single method:
 protected abstract Stream<DocumentNode<DocumentVisitorType>> readDocuments(InputStreamWithResourceName loadedFile);
 ```
 
-Inside of this method you need to load the data, and convert it into your class structure implementing the `DocumentNode` interfaces.
-Tha parameter `InputStreamWithResourceName` consists of an `InputStream` from which you can parse the data and a file name, that you can use for logging. 
+Inside this method, you need to load the data and convert it into your class structure implementing the `DocumentNode` interfaces.
+The parameter `InputStreamWithResourceName` consists of an `InputStream` from which you can parse the data and a file name, that you can use for logging. 
 
 Implement the method so that it converts the `loadedFile` into a `Stream<DocumentNode<YOUR_TYPEDocumentNodeVisitor>>` by parsing it and using the factory for your class structure.
 If your datatype has only one document per file, simply return `Set.of(YOUR_DOCUMTNT_NODE)`.
@@ -80,9 +86,9 @@ Don't forget to close the input streams!
 
 ## The DataLoader
 
-Next, we implement the a `DataLoader`. The data loader runs the whole pipeline from fetching the data, 
+Next, we implement the `DataLoader`. The `DataLoader` runs the whole pipeline from fetching the data, 
 extracting the selecting properties over mapping the result to Exasol values.
-Luckily most of this implementation is covered in it's abstract basis `AbstractDataLoader`.
+Luckily most of this implementation is covered in its abstract basis `AbstractDataLoader`.
 
 Create a new class `YOUR_TYPEFilesDataLoader` that extends `AbstractDataLoader<YOUR_TYPEDocumentNodeVisitor>`.
 
@@ -108,30 +114,29 @@ Note that we return here the `PropertyToColumnValueExtractorFactory` that we def
 
 ## The FilesDataLoaderFactory
 
-Finally we add a factory for the newly defined `DataLoader`.
+Finally, we add a factory for the newly defined `DataLoader`.
 For that create a new class named `YOUR_TYPEFilesDataLoaderFactory`:
 
 ```java
-public class YOUR_TYPEFilesDataLoaderFactory implements FilesDataLoaderFactory {
-    @Override
-    public List<DataLoader> buildDataLoaderForQuery(final RemoteTableQuery remoteTableQuery,
-            final int maxNumberOfParallelFetchers, final FileLoaderFactory fileLoaderFactory) {
-        final List<DataLoader> dataLoaders = new ArrayList<>(maxNumberOfParallelFetchers);
-        for (int segmentCounter = 0; segmentCounter < maxNumberOfParallelFetchers; segmentCounter++) {
-            final JsonDocumentFetcher documentFetcher = new YOUR_TYPEDocumentFetcher(
-                    remoteTableQuery.getFromTable().getRemoteName(),
-                    new SegmentDescription(maxNumberOfParallelFetchers, segmentCounter), fileLoaderFactory);
-            dataLoaders.add(new YOUR_TYPEFilesDataLoader(documentFetcher));
-        }
-        return dataLoaders;
-    }
-
+public class YOUR_TYPEFilesDataLoaderFactory extends AbstractFilesDataLoaderFactory {
+    
     @Override
     public List<String> getSupportedFileExtensions() {
         return List.of(".YOUR_TYPE");
     }
+
+    @Override
+    protected DataLoader buildSingleDataLoader(final FileLoaderFactory fileLoaderFactory,
+            final SegmentDescription segmentDescription, final String sourceString) {
+        return new YOUR_TYPEFilesDataLoader(
+                new YOUR_TYPEDocumentFetcher(sourceString, segmentDescription, fileLoaderFactory));
+    }
 }
 ```
 
+Now we introduce the new `DataLoaderFactory` to the generic adapter. 
+To do so create a file `META_INF/services/com.exasol.adapter.document.files.FilesDataLoaderFactory` with the fully qualified name of your `DataLoaderFactory`. For Example:
 
-
+```
+com.exasol.adapter.document.files.YOUT_TYPEFilesDataLoaderFactory
+``` 
