@@ -7,18 +7,18 @@ import java.io.Serializable;
  */
 public class SegmentDescription implements Serializable {
     public static final SegmentDescription NO_SEGMENTATION = new SegmentDescription(1, 0);
-    private static final long serialVersionUID = -8482568518621558183L;
-    private final int numSegments;
+    private static final long serialVersionUID = -6391949745846220794L;
+    private final int numberOfSegments;
     private final int segmentId;
 
     /**
      * Create a new instance of {@link SegmentDescription}.
      *
-     * @param numSegments total number of segments
-     * @param segmentId   number of this segment
+     * @param numberOfSegments total number of segments
+     * @param segmentId        number of this segment
      */
-    public SegmentDescription(final int numSegments, final int segmentId) {
-        this.numSegments = numSegments;
+    public SegmentDescription(final int numberOfSegments, final int segmentId) {
+        this.numberOfSegments = numberOfSegments;
         this.segmentId = segmentId;
     }
 
@@ -27,8 +27,8 @@ public class SegmentDescription implements Serializable {
      * 
      * @return total number iof segments
      */
-    public int getNumSegments() {
-        return this.numSegments;
+    public int getNumberOfSegments() {
+        return this.numberOfSegments;
     }
 
     /**

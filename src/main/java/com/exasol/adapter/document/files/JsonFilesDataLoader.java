@@ -10,15 +10,15 @@ import com.exasol.adapter.document.mapping.json.JsonPropertyToColumnValueExtract
 /**
  * {@link DataLoader} for JSON documents.
  */
-public class JsonDataLoader extends AbstractDataLoader<JsonNodeVisitor> {
+public class JsonFilesDataLoader extends AbstractDataLoader<JsonNodeVisitor> {
     private static final long serialVersionUID = 4891180789265505288L;
 
     /**
-     * Create a new instance of {@link JsonDataLoader}.
+     * Create a new instance of {@link JsonFilesDataLoader}.
      *
      * @param documentFetcher document fetcher that provides the document data.
      */
-    public JsonDataLoader(final DocumentFetcher<JsonNodeVisitor> documentFetcher) {
+    public JsonFilesDataLoader(final DocumentFetcher<JsonNodeVisitor> documentFetcher) {
         super(documentFetcher);
     }
 

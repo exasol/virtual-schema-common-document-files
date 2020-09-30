@@ -16,7 +16,8 @@ The dependency update of virtual-schema-common-document cause the following API 
 
 ## Refactoring:
 
-* #23: Added abstract document fetcher 
+* #23: Added abstract document fetcher
+* #25: Added abstract data loader factory
 
 # Documentation
 
