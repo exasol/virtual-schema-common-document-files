@@ -17,10 +17,12 @@
 
 This Virtual Schemas allows you to access documents stored in files like any regular Exasol table.
 
-Supported document file formats:
+Supported document types:
 
 * JSON
 * [JSON-Lines (one json document per line)](https://jsonlines.org/) 
+
+You can also [add support for different document types](doc/user_guide/document_type_plugin_development_guide.md).
 
 ## Official Dialects:
 

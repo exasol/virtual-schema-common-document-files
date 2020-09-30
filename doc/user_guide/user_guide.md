@@ -14,9 +14,7 @@ Don't mix it up with the data source specific dialects.
 Each dialect implements a different file provider (S3, BucketFS, ...). 
 With each of these dialects, you define mappings for the different data types listed here.
 
-You can not add support for different document types (like JSON) by adding a dialect.
-In the future, there will be a different approach for that ([issue](https://github.com/exasol/virtual-schema-common-document-files/issues/16)). 
-At the moment it is not possible.
+You can also [add support for different document types](document_type_plugin_development_guide.md).
 
 This adapter automatically detects the data type from the file extension.
 That means that your files must have the correct file extension.

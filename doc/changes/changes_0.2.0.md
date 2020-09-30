@@ -21,7 +21,8 @@ The dependency update of virtual-schema-common-document cause the following API 
 
 # Documentation
 
-* #17 Added User Guide
+* #17: Added User Guide
+* #20: Added documentation for document type plugin development
 
 ## Dependency updates
 
