@@ -1,6 +1,6 @@
-# virtual-schema-common-document-files 0.2.0, released 2020-XX-XX
+# virtual-schema-common-document-files 0.2.0, released 2020-10-01
  
-Code name: 
+Code name: Extracted file backends
  
 # Summary
 
@@ -31,3 +31,5 @@ The dependency update of virtual-schema-common-document cause the following API 
 ## Dependency updates
 
 * Updated `com.exasol:virtual-schema-common-document` from 1.0.0 to 2.0.0 
+* Updated `org.mockito:mockito-core` from 3.5.10 to 3.5.13
+* Updated `com.exasol:exasol-testcontainers` from 3.0.0 to 3.2.0
