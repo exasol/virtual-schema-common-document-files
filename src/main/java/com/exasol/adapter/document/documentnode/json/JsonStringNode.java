@@ -8,7 +8,7 @@ import com.exasol.adapter.document.documentnode.DocumentValue;
  * This class represents JSON string values.
  */
 public class JsonStringNode implements DocumentValue<JsonNodeVisitor> {
-
+    /** @serial */
     private final String stringValue;
 
     /**

@@ -12,6 +12,7 @@ import com.exasol.adapter.document.documentnode.DocumentObject;
  * This class represents JSON objects.
  */
 public class JsonObjectNode implements DocumentObject<JsonNodeVisitor> {
+    /** @serial */
     private final JsonObject jsonObject;
 
     /**
