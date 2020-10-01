@@ -2,11 +2,11 @@
  
 Code name: Extracted file backends
  
-# Summary
+## Summary
 
 The dependency update of virtual-schema-common-document cause the following API change:
 
-* The UDF definition changed (see [user_guide.md](../user-guide/user_guide.md))
+* The UDF definition changed. See the dialects user-guides.
 
 ## Features / Enhancements
 
@@ -23,7 +23,7 @@ The dependency update of virtual-schema-common-document cause the following API 
 * #23: Added abstract document fetcher
 * #25: Added abstract data loader factory
 
-# Documentation
+## Documentation
 
 * #17: Added User Guide
 * #20: Added documentation for document type plugin development
