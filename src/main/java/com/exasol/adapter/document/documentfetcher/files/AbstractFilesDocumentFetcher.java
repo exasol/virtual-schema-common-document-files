@@ -12,9 +12,12 @@ import com.exasol.adapter.document.documentnode.DocumentNode;
 @java.lang.SuppressWarnings("squid:S119") // DocumentVisitorType does not fit naming conventions.
 public abstract class AbstractFilesDocumentFetcher<DocumentVisitorType>
         implements DocumentFetcher<DocumentVisitorType> {
-    private static final long serialVersionUID = -2604354872947669906L;
+    private static final long serialVersionUID = -2604354872947669906L;//
+    /** @serial */
     private final String filePattern;
+    /** @serial */
     private final SegmentDescription segmentDescription;
+    /** @serial */
     private final FileLoaderFactory fileLoaderFactory;
 
     /**

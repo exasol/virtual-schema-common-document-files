@@ -12,6 +12,7 @@ import com.exasol.adapter.document.documentnode.DocumentNode;
  * This class represents JSON arrays.
  */
 public class JsonArrayNode implements DocumentArray<JsonNodeVisitor> {
+    /** @serial */
     private final JsonArray jsonArray;
 
     /**

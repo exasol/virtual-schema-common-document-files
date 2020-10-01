@@ -7,8 +7,10 @@ import java.io.Serializable;
  */
 public class SegmentDescription implements Serializable {
     public static final SegmentDescription NO_SEGMENTATION = new SegmentDescription(1, 0);
-    private static final long serialVersionUID = -6391949745846220794L;
+    private static final long serialVersionUID = -6391949745846220794L;//
+    /** @serial */
     private final int numberOfSegments;
+    /** @serial */
     private final int segmentId;
 
     /**

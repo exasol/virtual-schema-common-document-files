@@ -10,6 +10,7 @@ import com.exasol.adapter.document.documentnode.DocumentNode;
  * This class represents JSON numbers.
  */
 public class JsonNumberNode implements DocumentNode<JsonNodeVisitor> {
+    /** @serial */
     private final BigDecimal numberValue;
 
     /**

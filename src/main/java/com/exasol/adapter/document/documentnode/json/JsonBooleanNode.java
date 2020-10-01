@@ -6,6 +6,7 @@ import com.exasol.adapter.document.documentnode.DocumentNode;
  * This class represents JSON boolean values.
  */
 public class JsonBooleanNode implements DocumentNode<JsonNodeVisitor> {
+    /** @serial */
     private final boolean booleanValue;
 
     /**
