@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.stream.Stream;
 
 import javax.json.Json;
+import javax.json.JsonException;
 import javax.json.JsonReader;
 import javax.json.JsonValue;
 
@@ -16,7 +17,7 @@ import com.exasol.adapter.document.documentnode.json.JsonNodeVisitor;
  * {@link DocumentFetcher} for JSON files.
  */
 public class JsonDocumentFetcher extends AbstractFilesDocumentFetcher<JsonNodeVisitor> {
-    private static final long serialVersionUID = 9127449898816112421L;
+    private static final long serialVersionUID = 9127449898816112421L;//
 
     /**
      * Create an instance of {@link JsonDocumentFetcher}.
@@ -34,12 +35,19 @@ public class JsonDocumentFetcher extends AbstractFilesDocumentFetcher<JsonNodeVi
     protected Stream<DocumentNode<JsonNodeVisitor>> readDocuments(final InputStreamWithResourceName loadedFile) {
         try (final JsonReader jsonReader = Json.createReader(loadedFile.getInputStream())) {
             final JsonValue jsonValue = jsonReader.readValue();
-            try {
-                loadedFile.close();
-            } catch (final IOException exception) {
-                // ignore
-            }
+            tryToClose(loadedFile);
             return Stream.of(JsonNodeFactory.getInstance().getJsonNode(jsonValue));
+        } catch (final JsonException jsonException) {
+            throw new InputDataException("E-VSDF-1 Error in input file '" + loadedFile.getResourceName() + "': "
+                    + jsonException.getMessage(), jsonException);
+        }
+    }
+
+    private void tryToClose(final InputStreamWithResourceName loadedFile) {
+        try {
+            loadedFile.close();
+        } catch (final IOException exception) {
+            // ignore
         }
     }
 }

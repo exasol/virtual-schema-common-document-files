@@ -48,7 +48,8 @@ public class JsonNodeFactory {
         case NUMBER:
             return new JsonNumberNode((JsonNumber) jsonValue);
         default:
-            throw new UnsupportedOperationException("Unsupported json type: " + jsonValue.getValueType());
+            throw new UnsupportedOperationException(
+                    "F-VSDF-4 Unsupported json type: " + jsonValue.getValueType() + ". Please open an issue.");
         }
     }
 }
