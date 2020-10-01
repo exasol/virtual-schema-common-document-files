@@ -1,6 +1,7 @@
 package com.exasol.adapter.document.documentfetcher.files;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
@@ -12,6 +13,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 
 import com.exasol.ExaConnectionInformation;
@@ -52,5 +55,17 @@ class JsonDocumentFetcherTest {
                 () -> jsonDocumentFetcher.readDocuments(loadedFile));
         assertThat(exception.getMessage(), equalTo(
                 "E-VSDF-1 Error in input file 'string source': Unexpected char 105 at (line no=2, column no=1, offset=2)"));
+    }
+
+    @ValueSource(strings = { "", " ", "   ", "\n", "\n " })
+    @ParameterizedTest
+    void testReadEmptyDocument(final String emptyDocumentVariant) {
+        final InputStreamWithResourceName loadedFile = new InputStreamWithResourceName(
+                new ByteArrayInputStream(emptyDocumentVariant.getBytes()), "string source");
+        final JsonDocumentFetcher jsonDocumentFetcher = new JsonDocumentFetcher("", null, null);
+        final InputDataException inputDataException = assertThrows(InputDataException.class,
+                () -> jsonDocumentFetcher.readDocuments(loadedFile));
+        assertThat(inputDataException.getMessage(),
+                startsWith("E-VSDF-1 Error in input file 'string source': Invalid token=EOF"));
     }
 }

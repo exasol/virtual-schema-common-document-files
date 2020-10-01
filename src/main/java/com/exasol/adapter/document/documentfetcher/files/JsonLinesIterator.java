@@ -7,10 +7,10 @@ import java.io.StringReader;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import javax.json.Json;
 import javax.json.JsonException;
 import javax.json.JsonReader;
 import javax.json.JsonValue;
+import javax.json.spi.JsonProvider;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.json.JsonNodeFactory;
@@ -20,6 +20,7 @@ import com.exasol.adapter.document.documentnode.json.JsonNodeVisitor;
  * This class iterates the lines of a JSON-Lines file an creates for each line a JSON {@link DocumentNode}.
  */
 class JsonLinesIterator implements Iterator<DocumentNode<JsonNodeVisitor>> {
+    private static final JsonProvider JSON = JsonProvider.provider();
     private final BufferedReader jsonlReader;
     private final InputStreamWithResourceName jsonlFile;
     private final InputStreamReader inputStreamReader;
@@ -68,7 +69,7 @@ class JsonLinesIterator implements Iterator<DocumentNode<JsonNodeVisitor>> {
         if (this.nextLine == null) {
             throw new NoSuchElementException();
         }
-        try (final JsonReader jsonReader = Json.createReader(new StringReader(this.nextLine))) {
+        try (final JsonReader jsonReader = JSON.createReader(new StringReader(this.nextLine))) {
             try {
                 final JsonValue jsonValue = jsonReader.readValue();
                 readNextLine();

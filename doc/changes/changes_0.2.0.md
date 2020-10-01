@@ -14,6 +14,10 @@ The dependency update of virtual-schema-common-document cause the following API 
 * #16: Made document types extensible using service loader
 * #13: Improved error message on syntax errors in input data
 
+## Bug fixes:
+
+* #12: Fixed error message for empty json files
+
 ## Refactoring:
 
 * #23: Added abstract document fetcher
