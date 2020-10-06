@@ -15,7 +15,7 @@ import com.exasol.adapter.document.documentnode.json.JsonNodeVisitor;
  * {@link DocumentFetcher} for JSON files.
  */
 public class JsonDocumentFetcher extends AbstractFilesDocumentFetcher<JsonNodeVisitor> {
-    private static final long serialVersionUID = -4129961180761254886L;
+    private static final long serialVersionUID = -5496318178434824307L;
     private static final JsonReaderFactory JSON_READER_FACTORY = Json.createReaderFactory(null);
 
     /**
@@ -37,7 +37,7 @@ public class JsonDocumentFetcher extends AbstractFilesDocumentFetcher<JsonNodeVi
             tryToClose(loadedFile);
             return Stream.of(JsonNodeFactory.getInstance().getJsonNode(jsonValue));
         } catch (final JsonException jsonException) {
-            throw new InputDataException("E-VSDF-1 Error in input file '" + loadedFile.getResourceName() + "': "
+            throw new InputDataException("E-VSDF-1 Error in input file '" + loadedFile.getFullResourceName() + "': "
                     + jsonException.getMessage(), jsonException);
         }
     }
