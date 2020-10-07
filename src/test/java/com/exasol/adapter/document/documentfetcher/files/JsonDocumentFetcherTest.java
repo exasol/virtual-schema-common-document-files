@@ -27,7 +27,7 @@ class JsonDocumentFetcherTest {
     void testClosed() {
         final CloseCheckStream closeCheckStream = new CloseCheckStream("{}");
         final FileLoader fileLoader = mock(FileLoader.class);
-        when(fileLoader.loadFiles()).thenReturn(Stream.of(new InputStreamWithResourceName(closeCheckStream, "")));
+        when(fileLoader.loadFiles()).thenReturn(Stream.of(new InputStreamWithResourceName(closeCheckStream, "", "")));
         final FileLoaderFactory loaderFactory = mock(FileLoaderFactory.class);
         when(loaderFactory.getLoader(Mockito.anyString(), Mockito.any(), Mockito.any())).thenReturn(fileLoader);
         final JsonDocumentFetcher jsonDocumentFetcher = new JsonDocumentFetcher("", null, loaderFactory);
@@ -39,7 +39,7 @@ class JsonDocumentFetcherTest {
     @Test
     void testReadDocument() {
         final InputStreamWithResourceName loadedFile = new InputStreamWithResourceName(
-                new ByteArrayInputStream("{\"id\": \"book-1\"}".getBytes()), "string source");
+                new ByteArrayInputStream("{\"id\": \"book-1\"}".getBytes()), "string source", "");
         final JsonDocumentFetcher jsonDocumentFetcher = new JsonDocumentFetcher("", null, null);
         final List<DocumentNode<JsonNodeVisitor>> result = jsonDocumentFetcher.readDocuments(loadedFile)
                 .collect(Collectors.toList());
@@ -49,7 +49,7 @@ class JsonDocumentFetcherTest {
     @Test
     void testReadDocumentWithSyntaxError() {
         final InputStreamWithResourceName loadedFile = new InputStreamWithResourceName(
-                new ByteArrayInputStream("{\ninvalid syntax\n}".getBytes()), "string source");
+                new ByteArrayInputStream("{\ninvalid syntax\n}".getBytes()), "string source", "");
         final JsonDocumentFetcher jsonDocumentFetcher = new JsonDocumentFetcher("", null, null);
         final InputDataException exception = assertThrows(InputDataException.class,
                 () -> jsonDocumentFetcher.readDocuments(loadedFile));
@@ -61,7 +61,7 @@ class JsonDocumentFetcherTest {
     @ParameterizedTest
     void testReadEmptyDocument(final String emptyDocumentVariant) {
         final InputStreamWithResourceName loadedFile = new InputStreamWithResourceName(
-                new ByteArrayInputStream(emptyDocumentVariant.getBytes()), "string source");
+                new ByteArrayInputStream(emptyDocumentVariant.getBytes()), "string source", "");
         final JsonDocumentFetcher jsonDocumentFetcher = new JsonDocumentFetcher("", null, null);
         final InputDataException inputDataException = assertThrows(InputDataException.class,
                 () -> jsonDocumentFetcher.readDocuments(loadedFile));

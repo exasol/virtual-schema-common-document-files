@@ -4,6 +4,7 @@ import java.util.stream.Stream;
 
 import com.exasol.ExaConnectionInformation;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
+import com.exasol.adapter.document.documentfetcher.FetchedDocument;
 import com.exasol.adapter.document.documentnode.DocumentNode;
 
 /**
@@ -12,7 +13,7 @@ import com.exasol.adapter.document.documentnode.DocumentNode;
 @java.lang.SuppressWarnings("squid:S119") // DocumentVisitorType does not fit naming conventions.
 public abstract class AbstractFilesDocumentFetcher<DocumentVisitorType>
         implements DocumentFetcher<DocumentVisitorType> {
-    private static final long serialVersionUID = -2604354872947669906L;//
+    private static final long serialVersionUID = 8437656305548085344L;//
     /** @serial */
     private final String filePattern;
     /** @serial */
@@ -35,10 +36,16 @@ public abstract class AbstractFilesDocumentFetcher<DocumentVisitorType>
     }
 
     @Override
-    public final Stream<DocumentNode<DocumentVisitorType>> run(final ExaConnectionInformation connectionInformation) {
+    public final Stream<FetchedDocument<DocumentVisitorType>> run(
+            final ExaConnectionInformation connectionInformation) {
         final Stream<InputStreamWithResourceName> jsonStream = this.fileLoaderFactory
                 .getLoader(this.filePattern, this.segmentDescription, connectionInformation).loadFiles();
-        return jsonStream.flatMap(this::readDocuments);
+        return jsonStream.flatMap(this::readLoadedFile);
+    }
+
+    private Stream<FetchedDocument<DocumentVisitorType>> readLoadedFile(final InputStreamWithResourceName loadedFile) {
+        return readDocuments(loadedFile)
+                .map(document -> new FetchedDocument<>(document, loadedFile.getRelativeResourceName()));
     }
 
     /**

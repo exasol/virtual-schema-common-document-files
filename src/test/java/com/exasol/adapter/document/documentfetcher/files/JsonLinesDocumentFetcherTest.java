@@ -17,7 +17,7 @@ class JsonLinesDocumentFetcherTest {
     void testReadDocuments() {
         final JsonLinesDocumentFetcher documentFetcher = new JsonLinesDocumentFetcher("", null, null);
         final InputStreamWithResourceName loadedFile = new InputStreamWithResourceName(
-                new ByteArrayInputStream("{\"id\": \"book-1\"}\n{\"id\": \"book-2\"}".getBytes()), "string source");
+                new ByteArrayInputStream("{\"id\": \"book-1\"}\n{\"id\": \"book-2\"}".getBytes()), "string source", "");
         final Stream<DocumentNode<JsonNodeVisitor>> documentNodeStream = documentFetcher.readDocuments(loadedFile);
         assertThat(documentNodeStream.count(), equalTo(2L));
     }
