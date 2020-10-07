@@ -7,5 +7,4 @@ Code name:
 
 ## Features / Enhancements
 
-* #22: Added a column containing the the file name
-
+* #22: Added a column containing the file name
