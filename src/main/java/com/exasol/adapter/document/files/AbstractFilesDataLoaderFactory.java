@@ -6,17 +6,15 @@ import java.util.List;
 import com.exasol.adapter.document.DataLoader;
 import com.exasol.adapter.document.documentfetcher.files.FileLoaderFactory;
 import com.exasol.adapter.document.documentfetcher.files.SegmentDescription;
-import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
 
 /**
  * Abstract basis for {@link FilesDataLoaderFactory}.
  */
 public abstract class AbstractFilesDataLoaderFactory implements FilesDataLoaderFactory {
     @Override
-    public List<DataLoader> buildDataLoaderForQuery(final RemoteTableQuery remoteTableQuery,
-            final int maxNumberOfParallelFetchers, final FileLoaderFactory fileLoaderFactory) {
+    public List<DataLoader> buildDataLoaderForQuery(final String sourceString, final int maxNumberOfParallelFetchers,
+            final FileLoaderFactory fileLoaderFactory) {
         final List<DataLoader> dataLoaders = new ArrayList<>(maxNumberOfParallelFetchers);
-        final String sourceString = remoteTableQuery.getFromTable().getRemoteName();
         final int numberOfSegments = hasGlob(sourceString) ? maxNumberOfParallelFetchers : 1;
         for (int segmentCounter = 0; segmentCounter < numberOfSegments; segmentCounter++) {
             final SegmentDescription segmentDescription = new SegmentDescription(numberOfSegments, segmentCounter);

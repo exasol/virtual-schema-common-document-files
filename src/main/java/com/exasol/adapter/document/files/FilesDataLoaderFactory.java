@@ -5,7 +5,6 @@ import java.util.List;
 import com.exasol.adapter.document.DataLoader;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.files.FileLoaderFactory;
-import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
 
 /**
  * This interface defines factories for {@link DataLoader}s for the files virtual schema. Classes implementing this
@@ -27,11 +26,11 @@ public interface FilesDataLoaderFactory {
     /**
      * Builds {@link DataLoader}s for a given query.
      *
-     * @param remoteTableQuery            the document query build the {@link DocumentFetcher} for
+     * @param sourceString                the source string to fetch the data for
      * @param maxNumberOfParallelFetchers the maximum amount of {@link DocumentFetcher}s that can be used in parallel
      * @param fileLoaderFactory           dependency injection of {@link FileLoaderFactory}
      * @return built {@link DocumentFetcher}
      */
-    public List<DataLoader> buildDataLoaderForQuery(final RemoteTableQuery remoteTableQuery,
-            final int maxNumberOfParallelFetchers, final FileLoaderFactory fileLoaderFactory);
+    public List<DataLoader> buildDataLoaderForQuery(final String sourceString, final int maxNumberOfParallelFetchers,
+            final FileLoaderFactory fileLoaderFactory);
 }
