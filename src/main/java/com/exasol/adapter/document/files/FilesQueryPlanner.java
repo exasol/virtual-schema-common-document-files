@@ -29,6 +29,11 @@ public class FilesQueryPlanner implements QueryPlanner {
         final ServiceLoader<FilesDataLoaderFactory> loader = ServiceLoader.load(FilesDataLoaderFactory.class);
         final FilesSelectionExtractor.Result splitSelection = new FilesSelectionExtractor(sourceString)
                 .splitSelection(remoteTableQuery.getSelection());
+        return getDataLoaderForFileExtension(maxNumberOfParallelFetchers, loader, splitSelection);
+    }
+
+    private QueryPlan getDataLoaderForFileExtension(final int maxNumberOfParallelFetchers,
+            final ServiceLoader<FilesDataLoaderFactory> loader, final FilesSelectionExtractor.Result splitSelection) {
         final String filteredSourceString = splitSelection.getSourceString();
         final FilesDataLoaderFactory filesDataLoaderFactory = loader.stream()
                 .filter(x -> x.get().getSupportedFileExtensions().stream().anyMatch(filteredSourceString::endsWith))//
