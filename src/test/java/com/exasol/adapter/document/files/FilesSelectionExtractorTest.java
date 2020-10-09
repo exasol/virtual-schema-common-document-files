@@ -27,7 +27,6 @@ class FilesSelectionExtractorTest {
             "testFile-1abc.json, testFile-1abc.json", //
             "other.json, testFile-*.json"//
     })
-
     @ParameterizedTest
     void test(final String selection, final String expectedSourceString) {
         final FilesSelectionExtractor.Result result = EXTRACTOR

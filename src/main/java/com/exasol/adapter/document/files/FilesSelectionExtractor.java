@@ -16,8 +16,8 @@ import com.exasol.adapter.sql.SqlLiteralString;
  * This class applies the predicates on the SOURCE_REFERENCE to the source string and splits the rest of the selection
  * as post-selection. By that only the required files are read.
  * <p>
- * If the selection can not be extracted, (for example because it combines two conditions on SOURCE_REFERENCE using AND
- * or OR), the source string is not changed, and the whole selection is used as post selection.
+ * If the selection can not be extracted, for example because it combines two conditions on SOURCE_REFERENCE using AND
+ * or OR, the source string is not changed, and the whole selection is used as post selection.
  * </p>
  */
 public class FilesSelectionExtractor {
@@ -57,7 +57,7 @@ public class FilesSelectionExtractor {
         }
     }
 
-    @SuppressWarnings("java:S3655") // findFirst is save here since since is checked in if
+    @SuppressWarnings("java:S3655") // findFirst is safe here since it is checked with if beforehand
     private String extractStringValueFromDnfOr(final DnfOr or) {
         final Set<DnfAnd> dnfAnds = or.getOperands();
         if (dnfAnds.size() != 1) {
@@ -67,7 +67,7 @@ public class FilesSelectionExtractor {
         }
     }
 
-    @SuppressWarnings("java:S3655") // findFirst is save here since since is checked in if
+    @SuppressWarnings("java:S3655") // findFirst is safe here since it is checked with if beforehand
     private String extractStringValueFromDnfAnd(final DnfAnd dnfAnd) {
         final Set<DnfComparison> operands = dnfAnd.getOperands();
         if (operands.size() != 1) {
