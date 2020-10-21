@@ -13,11 +13,4 @@ public interface FileLoader {
      * @return content of the file
      */
     public Stream<InputStreamWithResourceName> loadFiles();
-
-    /**
-     * Get the path / pattern of the files to load.
-     * 
-     * @return path / pattern of the files to load
-     */
-    public String getFilePattern();
 }

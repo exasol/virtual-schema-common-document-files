@@ -10,12 +10,13 @@ import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.json.JsonNodeFactory;
 import com.exasol.adapter.document.documentnode.json.JsonNodeVisitor;
+import com.exasol.adapter.document.files.stringfilter.StringFilter;
 
 /**
  * {@link DocumentFetcher} for JSON files.
  */
 public class JsonDocumentFetcher extends AbstractFilesDocumentFetcher<JsonNodeVisitor> {
-    private static final long serialVersionUID = -5496318178434824307L;
+    private static final long serialVersionUID = 248574935175405437L;
     private static final JsonReaderFactory JSON_READER_FACTORY = Json.createReaderFactory(null);
 
     /**
@@ -25,7 +26,7 @@ public class JsonDocumentFetcher extends AbstractFilesDocumentFetcher<JsonNodeVi
      * @param segmentDescription segmentation for parallel execution
      * @param fileLoaderFactory  dependency in injection of {@link FileLoaderFactory}.
      */
-    public JsonDocumentFetcher(final String filePattern, final SegmentDescription segmentDescription,
+    public JsonDocumentFetcher(final StringFilter filePattern, final SegmentDescription segmentDescription,
             final FileLoaderFactory fileLoaderFactory) {
         super(filePattern, segmentDescription, fileLoaderFactory);
     }
@@ -37,7 +38,7 @@ public class JsonDocumentFetcher extends AbstractFilesDocumentFetcher<JsonNodeVi
             tryToClose(loadedFile);
             return Stream.of(JsonNodeFactory.getInstance().getJsonNode(jsonValue));
         } catch (final JsonException jsonException) {
-            throw new InputDataException("E-VSDF-1 Error in input file '" + loadedFile.getFullResourceName() + "': "
+            throw new InputDataException("E-VSDF-1 Error in input file '" + loadedFile.getResourceName() + "': "
                     + jsonException.getMessage(), jsonException);
         }
     }

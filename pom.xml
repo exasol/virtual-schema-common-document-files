@@ -40,10 +40,10 @@
         </developer>
     </developers>
     <scm>
-        <connection>scm:git:https://github.com/exasol/project-keeper-maven-plugin.git</connection>
-        <developerConnection>scm:git:https://github.com/exasol/project-keeper-maven-plugin.git
+        <connection>scm:git:https://github.com/exasol/virtual-schema-common-document-files.git</connection>
+        <developerConnection>scm:git:https://github.com/exasol/virtual-schema-common-document-files.git
         </developerConnection>
-        <url>https://github.com/exasol/project-keeper-maven-plugin/tree/master</url>
+        <url>https://github.com/exasol/virtual-schema-common-document-files/tree/master</url>
     </scm>
     <distributionManagement>
         <snapshotRepository>

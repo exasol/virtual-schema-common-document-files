@@ -9,3 +9,4 @@ Code name:
 
 * #22: Added a column containing the file name
 * #32: Selection on SOURCE_REFERENCE column
+* #34: Selection using LIKE on SOURCE_REFERENCE column

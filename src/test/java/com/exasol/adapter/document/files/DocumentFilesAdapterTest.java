@@ -18,20 +18,20 @@ import com.exasol.adapter.capabilities.LiteralCapability;
 import com.exasol.adapter.capabilities.PredicateCapability;
 import com.exasol.adapter.document.QueryPlanner;
 import com.exasol.adapter.document.mapping.TableKeyFetcher;
-import com.exasol.adapter.response.GetCapabilitiesResponse;
 
 class DocumentFilesAdapterTest {
 
     @Test
     void testGetCapabilities() throws AdapterException {
         final DocumentFilesAdapter adapter = spy(DocumentFilesAdapter.class);
-        final GetCapabilitiesResponse capabilitiesResponse = adapter.getCapabilities(null, null);
-        final Capabilities capabilities = capabilitiesResponse.getCapabilities();
+        final Capabilities capabilities = adapter.getCapabilities();
         assertAll(//
                 () -> assertThat(capabilities.getMainCapabilities(),
                         containsInAnyOrder(SELECTLIST_PROJECTION, FILTER_EXPRESSIONS)),
                 () -> assertThat(capabilities.getLiteralCapabilities(), containsInAnyOrder(LiteralCapability.STRING)), //
-                () -> assertThat(capabilities.getPredicateCapabilities(), containsInAnyOrder(PredicateCapability.EQUAL))//
+                () -> assertThat(capabilities.getPredicateCapabilities(),
+                        containsInAnyOrder(PredicateCapability.EQUAL, PredicateCapability.LIKE, PredicateCapability.AND,
+                                PredicateCapability.OR, PredicateCapability.NOT))//
         );
     }
 
