@@ -18,7 +18,7 @@ import com.exasol.adapter.document.files.stringfilter.wildcardexpression.Wildcar
 @java.lang.SuppressWarnings("squid:S119") // DocumentVisitorType does not fit naming conventions.
 public abstract class AbstractFilesDocumentFetcher<DocumentVisitorType>
         implements DocumentFetcher<DocumentVisitorType> {
-    private static final long serialVersionUID = 2343157697125338324L;//
+    private static final long serialVersionUID = 2343157697125338324L;
     /** @serial */
     private final StringFilter filePattern;
     /** @serial */
