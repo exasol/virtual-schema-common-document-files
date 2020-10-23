@@ -53,16 +53,4 @@ class WildcardExpressionTest {
     void testConvertGlobToRegex(final String glob, final String regex) {
         assertThat(WildcardExpression.fromGlob(glob).asDirectoryIgnoringRegex(), equalTo(regex));
     }
-
-    @CsvSource({ //
-            "test7, false", //
-            "test*, true", //
-            "test-?23.json, true", //
-            "test*.json, true", //
-            "*, true", //
-    })
-    @ParameterizedTest
-    void testMatches(final String globExpression, final boolean expectedResult) {
-        assertThat(WildcardExpression.fromGlob(globExpression).matches("test-123.json"), equalTo(expectedResult));
-    }
 }
