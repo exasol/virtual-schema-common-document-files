@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
  * OR predicate for {@link StringFilter}.
  */
 public class StringFilterOr implements StringFilter {
-    private static final long serialVersionUID = -3002334887917139727L;
+    private static final long serialVersionUID = -5480465940663077807L;
     /** @serial */
     private final ArrayList<StringFilter> operands;
 
@@ -45,7 +45,7 @@ public class StringFilterOr implements StringFilter {
                 .orElse(-1);
         for (int cursor = 0; cursor < shortestOperandsPrefixLength; cursor++) {
             final int currentCursor = cursor;
-            final char currentChar = operandsPrefixes.stream().findAny().get().charAt(currentCursor);
+            final char currentChar = operandsPrefixes.stream().findAny().orElse("").charAt(currentCursor);
             if (operandsPrefixes.stream().anyMatch(prefix -> prefix.charAt(currentCursor) != currentChar)) {
                 break;
             } else {
