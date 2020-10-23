@@ -28,12 +28,12 @@ public class FilesQueryPlanner implements QueryPlanner {
     @Override
     public QueryPlan planQuery(final RemoteTableQuery remoteTableQuery, final int maxNumberOfParallelFetchers) {
         final String sourceString = remoteTableQuery.getFromTable().getRemoteName();
-        final FilesDataLoaderFactory filesDataLoaderFactory = getFilesDataLoaderFactory(sourceString);
         final FilesSelectionExtractor.Result splitSelection = new FilesSelectionExtractor(sourceString)
                 .splitSelection(remoteTableQuery.getSelection());
         if (splitSelection.getSourceFilter().hasContradiction()) {
             return new EmptyQueryPlan();
         }
+        final FilesDataLoaderFactory filesDataLoaderFactory = getFilesDataLoaderFactory(sourceString);
         return new FetchQueryPlan(filesDataLoaderFactory.buildDataLoaderForQuery(splitSelection.getSourceFilter(),
                 maxNumberOfParallelFetchers, this.fileLoaderFactory), splitSelection.getPostSelection());
     }
