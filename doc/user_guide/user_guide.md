@@ -40,7 +40,7 @@ For some file type (for example JSON) each source file contains only a single do
 That means, that you have one file for each row in the mapped table.
 To define mappings for such types, you can use the GLOB syntax.
 
-That means that you can use `*`, `**` and `?` as wildcards, where `*` matches multiple characters and `?` a single one.
+You can use `*`, `**` and `?` as wildcard characters, where `*` matches multiple characters and `?` a single one.
 So, for example, if your data files are named `book-1.json`, `book-2.json` and so on, 
 you can refer to them as `book-*.json`.
 

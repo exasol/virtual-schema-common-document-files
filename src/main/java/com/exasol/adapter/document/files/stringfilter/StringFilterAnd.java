@@ -16,7 +16,7 @@ public class StringFilterAnd implements StringFilter {
     /**
      * Create a new instance of {@link StringFilterAnd}.
      * 
-     * @param operands operands to combine with and AND.
+     * @param operands operands to combine with an AND.
      */
     StringFilterAnd(final List<StringFilter> operands) {
         this.operands = new ArrayList<>(operands);

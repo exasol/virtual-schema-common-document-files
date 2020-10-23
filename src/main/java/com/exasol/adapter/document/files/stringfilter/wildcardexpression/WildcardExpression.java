@@ -54,7 +54,7 @@ public class WildcardExpression implements StringFilter {
     }
 
     /**
-     * Build a {{@link WildcardExpression}} from a non-wildcard-format string.
+     * Build a {@link WildcardExpression} from a non-wildcard-format string.
      * 
      * @param regularString string to parse
      * @return built {@link WildcardExpression} with no wildcards
@@ -83,7 +83,7 @@ public class WildcardExpression implements StringFilter {
     /**
      * Render the expression into a regular expression (regex).
      * <p>
-     * Used this method, if the target file system does not support directories.
+     * Use this method, if the target file system does not support directories.
      * </p>
      *
      * @return rendered regular expression

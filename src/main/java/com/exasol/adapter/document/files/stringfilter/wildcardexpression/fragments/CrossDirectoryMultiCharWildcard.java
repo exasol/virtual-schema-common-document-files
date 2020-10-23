@@ -4,7 +4,7 @@ import com.exasol.adapter.document.files.stringfilter.wildcardexpression.Wildcar
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpressionFragmentVisitor;
 
 /**
- * This class represent wildcards that matches any number of any characters including none and also matches slashes. By
+ * This class represent wildcards that match any number of characters including none and also matches slashes. By
  * that it also matches recursively into directory structures.
  */
 public class CrossDirectoryMultiCharWildcard implements WildcardExpressionFragment {

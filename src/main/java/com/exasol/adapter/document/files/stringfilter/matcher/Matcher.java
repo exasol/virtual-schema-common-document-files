@@ -8,7 +8,7 @@ import com.exasol.adapter.document.files.stringfilter.StringFilter;
 public interface Matcher {
 
     /**
-     * Checks if a given string is matches by this filter.
+     * Checks if a given string is matched by this filter.
      * 
      * @param stringToMatch string that is matched
      * @return {@code true} if string was matched.

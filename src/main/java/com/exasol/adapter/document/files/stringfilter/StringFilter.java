@@ -22,9 +22,9 @@ public interface StringFilter extends Serializable {
     public String getStaticPrefix();
 
     /**
-     * Get if this expression contains on or more wildcards.
+     * Get if this expression contains one or more wildcards.
      *
-     * @return {@code true}, if this expression contains on or more wildcards
+     * @return {@code true}, if this expression contains one or more wildcards
      */
     public boolean hasWildcard();
 

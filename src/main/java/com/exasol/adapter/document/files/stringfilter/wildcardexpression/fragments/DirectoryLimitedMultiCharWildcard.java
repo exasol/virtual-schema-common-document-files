@@ -4,7 +4,7 @@ import com.exasol.adapter.document.files.stringfilter.wildcardexpression.Wildcar
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpressionFragmentVisitor;
 
 /**
- * This class represent wildcards that matches any number of any characters including none, but is limited by to one
+ * This class represent wildcards that match any number of characters including none, but it is limited to one
  * path segment. So in directory structures it does not match recursively.
  */
 public class DirectoryLimitedMultiCharWildcard implements WildcardExpressionFragment {

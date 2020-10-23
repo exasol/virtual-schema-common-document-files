@@ -4,7 +4,7 @@ import com.exasol.adapter.document.files.stringfilter.wildcardexpression.Wildcar
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpressionFragmentVisitor;
 
 /**
- * This class represents a wildcard the matches exactly one character, but does not match the directory separator.
+ * This class represents a wildcard that matches exactly one character, but does not match the directory separator.
  */
 public class CrossDirectorySingleCharWildcard implements WildcardExpressionFragment {
     private static final long serialVersionUID = 1947044901719175233L;

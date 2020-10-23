@@ -15,8 +15,8 @@ public class NonWildcardParser {
     /**
      * Create a {@link WildcardExpression}s from a string without wildcards.
      * <p>
-     * If the input string contains characters that are wildcard characters in some regular language they are treated as
-     * normal characters. The renderer will then escape it.
+     * If the input string contains characters that are wildcard characters in some regular language, they are treated as
+     * normal characters. The renderer will then escape them.
      * </p>
      * 
      * @param regularString string without wildcards.
