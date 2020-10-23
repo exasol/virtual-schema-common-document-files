@@ -2,7 +2,6 @@ package com.exasol.adapter.document.files.stringfilter.wildcardexpression;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -19,7 +18,7 @@ import com.exasol.adapter.document.files.stringfilter.wildcardexpression.rendere
  * This class represents expressions with simple wildcards as can be expressed using the GLOB or SQL-LIKE syntax.
  */
 public class WildcardExpression implements StringFilter {
-    private static final long serialVersionUID = -5197100977178000590L;
+    private static final long serialVersionUID = -9137643648656274318L;
     /** @serial */
     private final ArrayList<WildcardExpressionFragment> fragments;
 
@@ -63,6 +62,12 @@ public class WildcardExpression implements StringFilter {
         return new NonWildcardParser().parse(regularString);
     }
 
+    /**
+     * Build a {@link WildcardExpression} from a non-wildcard-format prefix.
+     *
+     * @param prefix prefix to bild wildcard expression for
+     * @return built {@link WildcardExpression}
+     */
     public static WildcardExpression forNonWildcardPrefix(final String prefix) {
         final List<WildcardExpressionFragment> fragments = Stream
                 .concat(new NonWildcardParser().parse(prefix).getFragments().stream(),
@@ -123,16 +128,6 @@ public class WildcardExpression implements StringFilter {
     @Override
     public void accept(final StringFilterVisitor visitor) {
         visitor.visit(this);
-    }
-
-    /**
-     * Test if this expression matches a given string.
-     * 
-     * @param stringToTest string to test
-     * @return {@code true} if matched
-     */
-    public boolean matches(final String stringToTest) {
-        return Pattern.compile(this.asDirectoryIgnoringRegex()).matcher(stringToTest).matches();
     }
 
     @Override

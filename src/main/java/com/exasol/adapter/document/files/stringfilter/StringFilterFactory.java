@@ -7,6 +7,9 @@ import java.util.stream.Stream;
 
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
 
+/**
+ * Factory for {@link StringFilter}.
+ */
 public class StringFilterFactory {
 
     /**
