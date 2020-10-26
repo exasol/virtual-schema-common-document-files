@@ -5,8 +5,8 @@ import java.util.regex.Pattern;
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
 
 /**
- * This class renders a {@link WildcardExpression} into a regular expression that applies the non recursive wildcards
- * not across directory borders.
+ * This class renders a {@link WildcardExpression} into a regular expression that applies the nonrecursive wildcards
+ only for file / directory names, not for whole paths. It does so by excluding the directory separator for the matches.
  */
 public class DirectoryAwareRegexRenderer extends AbstractRegexRenderer {
 
