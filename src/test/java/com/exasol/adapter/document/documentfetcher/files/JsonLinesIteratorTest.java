@@ -51,8 +51,7 @@ class JsonLinesIteratorTest {
     @Test
     void testFinalize() throws Throwable {
         final CloseCheckStream stream = new CloseCheckStream("");
-        final JsonLinesIterator jsonLinesIterator = new JsonLinesIterator(
-                new InputStreamWithResourceName(stream, "", ""));
+        final JsonLinesIterator jsonLinesIterator = new JsonLinesIterator(new InputStreamWithResourceName(stream, ""));
         jsonLinesIterator.finalize();
         assertThat(stream.wasClosed(), equalTo(true));
     }
@@ -73,7 +72,6 @@ class JsonLinesIteratorTest {
     }
 
     private JsonLinesIterator getJsonLinesIterator(final String s) {
-        return new JsonLinesIterator(
-                new InputStreamWithResourceName(new ByteArrayInputStream(s.getBytes()), "string", "string"));
+        return new JsonLinesIterator(new InputStreamWithResourceName(new ByteArrayInputStream(s.getBytes()), "string"));
     }
 }

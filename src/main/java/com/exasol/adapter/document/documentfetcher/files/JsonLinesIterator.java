@@ -54,8 +54,8 @@ class JsonLinesIterator implements Iterator<DocumentNode<JsonNodeVisitor>> {
                 this.lineCounter++;
             } while (this.nextLine != null && this.nextLine.isBlank());
         } catch (final IOException exception) {
-            throw new InputDataException("E-VSDF-2 Failed to read from data file "
-                    + this.jsonlFile.getFullResourceName() + "'. Cause: " + exception.getMessage(), exception);
+            throw new InputDataException("E-VSDF-2 Failed to read from data file " + this.jsonlFile.getResourceName()
+                    + "'. Cause: " + exception.getMessage(), exception);
         }
     }
 
@@ -76,7 +76,7 @@ class JsonLinesIterator implements Iterator<DocumentNode<JsonNodeVisitor>> {
                 return JsonNodeFactory.getInstance().getJsonNode(jsonValue);
             } catch (final JsonException exception) {
                 throw new InputDataException(
-                        "E-VSDF-3 Failed to parse JSON-Lines from " + this.jsonlFile.getFullResourceName()
+                        "E-VSDF-3 Failed to parse JSON-Lines from " + this.jsonlFile.getResourceName()
                                 + ". Invalid JSON document in line " + this.lineCounter + ". " + exception.getMessage(),
                         exception);
             }

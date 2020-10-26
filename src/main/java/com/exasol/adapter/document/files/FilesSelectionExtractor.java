@@ -1,12 +1,19 @@
 package com.exasol.adapter.document.files;
 
-import java.util.Set;
-import java.util.regex.Pattern;
+import static com.exasol.adapter.document.querypredicate.AbstractComparisonPredicate.Operator.EQUAL;
+import static com.exasol.adapter.document.querypredicate.AbstractComparisonPredicate.Operator.LIKE;
 
-import com.exasol.adapter.document.documentfetcher.files.GlobToRegexConverter;
+import java.util.Set;
+
+import com.exasol.adapter.document.files.stringfilter.StringFilter;
+import com.exasol.adapter.document.files.stringfilter.StringFilterFactory;
+import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
 import com.exasol.adapter.document.mapping.SourceReferenceColumnMapping;
 import com.exasol.adapter.document.queryplanning.selectionextractor.SelectionExtractor;
-import com.exasol.adapter.document.querypredicate.*;
+import com.exasol.adapter.document.querypredicate.AbstractComparisonPredicate;
+import com.exasol.adapter.document.querypredicate.ColumnLiteralComparisonPredicate;
+import com.exasol.adapter.document.querypredicate.ComparisonPredicate;
+import com.exasol.adapter.document.querypredicate.QueryPredicate;
 import com.exasol.adapter.document.querypredicate.normalizer.DnfAnd;
 import com.exasol.adapter.document.querypredicate.normalizer.DnfComparison;
 import com.exasol.adapter.document.querypredicate.normalizer.DnfOr;
@@ -16,13 +23,14 @@ import com.exasol.adapter.sql.SqlLiteralString;
  * This class applies the predicates on the SOURCE_REFERENCE to the source string and splits the rest of the selection
  * as post-selection. By that only the required files are read.
  * <p>
- * If the selection can not be extracted, for example because it combines two conditions on SOURCE_REFERENCE using AND
- * or OR, the source string is not changed, and the whole selection is used as post selection.
+ * If the selection can not be extracted, the source string is not changed, and the whole selection is used as post
+ * selection.
  * </p>
  */
 public class FilesSelectionExtractor {
-    private final String sourceString;
-    private final Pattern sourceStringPattern;
+    public static final StringFilterFactory STRING_FILTER_FACTORY = new StringFilterFactory();
+    private static final Set<AbstractComparisonPredicate.Operator> SUPPORTED_OPERATORS = Set.of(EQUAL, LIKE);
+    private final WildcardExpression sourceExpression;
 
     /**
      * Create a new instance of {@link FilesSelectionExtractor}.
@@ -30,8 +38,7 @@ public class FilesSelectionExtractor {
      * @param sourceString source string pattern as GLOB
      */
     public FilesSelectionExtractor(final String sourceString) {
-        this.sourceString = sourceString;
-        this.sourceStringPattern = GlobToRegexConverter.convert(sourceString);
+        this.sourceExpression = WildcardExpression.fromGlob(sourceString);
     }
 
     /**
@@ -41,64 +48,68 @@ public class FilesSelectionExtractor {
      * @return {@link Result}
      */
     public Result splitSelection(final QueryPredicate selection) {
-        final SelectionExtractor selectionExtractor = new SelectionExtractor(comparison -> comparison
-                .getComparedColumns().stream().anyMatch(column -> column instanceof SourceReferenceColumnMapping));
-        final SelectionExtractor.Result selectionExtractionResult = selectionExtractor
-                .extractIndexColumnSelection(selection);
-        final QueryPredicate postSelection = selectionExtractionResult.getRemainingSelection().asQueryPredicate();
-        final DnfOr or = selectionExtractionResult.getSelectedSelection();
         try {
-            return new Result(postSelection, extractStringValueFromDnfOr(or));
-        } catch (final CanNotSplitException exception) {
-            return new Result(selection, this.sourceString);
-        } catch (final QueryIsEmptyException exception) {
-            final QueryPredicate falsePredicate = new NotPredicate(new NoPredicate());
-            return new Result(falsePredicate, this.sourceString);
+            final SelectionExtractor selectionExtractor = new SelectionExtractor(
+                    comparison -> comparison instanceof ColumnLiteralComparisonPredicate
+                            && comparison.getComparedColumns().stream()
+                                    .anyMatch(column -> column instanceof SourceReferenceColumnMapping)
+                            && SUPPORTED_OPERATORS.contains(comparison.getOperator()));
+            final SelectionExtractor.Result selectionExtractionResult = selectionExtractor
+                    .extractIndexColumnSelection(selection);
+            final QueryPredicate postSelection = selectionExtractionResult.getRemainingSelection().asQueryPredicate();
+            final DnfOr or = selectionExtractionResult.getSelectedSelection();
+            return new Result(postSelection,
+                    STRING_FILTER_FACTORY.and(extractStringValueFromDnfOr(or), this.sourceExpression));
+        } catch (final UnsupportedOperationException exception) {// todo refactor to a more specific exception
+            return new Result(selection, this.sourceExpression);
         }
     }
 
-    @SuppressWarnings("java:S3655") // findFirst is safe here since it is checked with if beforehand
-    private String extractStringValueFromDnfOr(final DnfOr or) {
-        final Set<DnfAnd> dnfAnds = or.getOperands();
-        if (dnfAnds.size() != 1) {
-            throw new CanNotSplitException();
-        } else {
-            return extractStringValueFromDnfAnd(dnfAnds.stream().findFirst().get());
-        }
+    private StringFilter extractStringValueFromDnfOr(final DnfOr or) {
+        return STRING_FILTER_FACTORY.or(or.getOperands().stream().map(this::extractStringValueFromDnfAnd));
     }
 
-    @SuppressWarnings("java:S3655") // findFirst is safe here since it is checked with if beforehand
-    private String extractStringValueFromDnfAnd(final DnfAnd dnfAnd) {
-        final Set<DnfComparison> operands = dnfAnd.getOperands();
-        if (operands.size() != 1) {
-            throw new CanNotSplitException();
-        } else {
-            return extractFilterFromDnfComparison(operands.stream().findFirst().get());
-        }
+    private StringFilter extractStringValueFromDnfAnd(final DnfAnd dnfAnd) {
+        return STRING_FILTER_FACTORY.and(dnfAnd.getOperands().stream().map(this::extractFilterFromDnfComparison));
     }
 
-    private String extractFilterFromDnfComparison(final DnfComparison dnfComparison) {
+    private StringFilter extractFilterFromDnfComparison(final DnfComparison dnfComparison) {
         if (dnfComparison.isNegated()) {
-            throw new CanNotSplitException();
+            return STRING_FILTER_FACTORY.not(extractFilterFromComparison(dnfComparison.getComparisonPredicate()));
         } else {
             return extractFilterFromComparison(dnfComparison.getComparisonPredicate());
         }
     }
 
-    private String extractFilterFromComparison(final ComparisonPredicate comparisonPredicate) {
-        if (!(comparisonPredicate instanceof ColumnLiteralComparisonPredicate)
-                || !comparisonPredicate.getOperator().equals(AbstractComparisonPredicate.Operator.EQUAL)) {
-            throw new CanNotSplitException();
+    private StringFilter extractFilterFromComparison(final ComparisonPredicate comparisonPredicate) {
+        if (!(comparisonPredicate instanceof ColumnLiteralComparisonPredicate)) {
+            throw new IllegalStateException(
+                    "F-VSDF-6 Internal error. Please open a ticket. Unsupported comparison predicate.");
         } else {
-            final ColumnLiteralComparisonPredicate comparison = (ColumnLiteralComparisonPredicate) comparisonPredicate;
-            final SqlLiteralString literal = (SqlLiteralString) comparison.getLiteral();
-            final String sourceStringFilter = literal.getValue();
-            if (this.sourceStringPattern.matcher(sourceStringFilter).matches()) {
-                return sourceStringFilter;
-            } else {
-                throw new QueryIsEmptyException();
-            }
+            return extractFromColumnLiteralComparison(comparisonPredicate);
         }
+    }
+
+    private StringFilter extractFromColumnLiteralComparison(final ComparisonPredicate comparisonPredicate) {
+        final ColumnLiteralComparisonPredicate comparison = (ColumnLiteralComparisonPredicate) comparisonPredicate;
+        final SqlLiteralString literal = (SqlLiteralString) comparison.getLiteral();
+        final String sourceStringFilter = literal.getValue();
+        if (comparisonPredicate.getOperator().equals(EQUAL)) {
+            return extractFromEqualComparison(sourceStringFilter);
+        } else if (comparisonPredicate.getOperator().equals(LIKE)) {
+            return extractFromLikeExpression(sourceStringFilter);
+        } else {
+            throw new IllegalStateException("F-VSDF-5 Internal error. Please open a ticket. Unsupported operator '"
+                    + comparisonPredicate + "'. Unsupported operators should be filtered earlier.");
+        }
+    }
+
+    private StringFilter extractFromEqualComparison(final String sourceStringFilter) {
+        return WildcardExpression.forNonWildcardString(sourceStringFilter);
+    }
+
+    private StringFilter extractFromLikeExpression(final String sourceStringFilter) {
+        return WildcardExpression.fromLike(sourceStringFilter, '\\');// TODO remove hardcoded escape char
     }
 
     /**
@@ -106,11 +117,11 @@ public class FilesSelectionExtractor {
      */
     public static class Result {
         private final QueryPredicate postSelection;
-        private final String sourceString;
+        private final StringFilter sourceFilter;
 
-        private Result(final QueryPredicate postSelection, final String sourceString) {
+        private Result(final QueryPredicate postSelection, final StringFilter sourceFilter) {
             this.postSelection = postSelection;
-            this.sourceString = sourceString;
+            this.sourceFilter = sourceFilter;
         }
 
         /**
@@ -123,18 +134,12 @@ public class FilesSelectionExtractor {
         }
 
         /**
-         * Get the more selective source string.
+         * Get the built filter for the source files.
          * 
          * @return more selective source string
          */
-        public String getSourceString() {
-            return this.sourceString;
+        public StringFilter getSourceFilter() {
+            return this.sourceFilter;
         }
-    }
-
-    private static class CanNotSplitException extends RuntimeException {
-    }
-
-    private static class QueryIsEmptyException extends RuntimeException {
     }
 }

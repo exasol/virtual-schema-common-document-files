@@ -2,9 +2,11 @@ package com.exasol.adapter.document.files;
 
 import java.util.ServiceLoader;
 
-import com.exasol.adapter.document.QueryPlan;
 import com.exasol.adapter.document.QueryPlanner;
 import com.exasol.adapter.document.documentfetcher.files.FileLoaderFactory;
+import com.exasol.adapter.document.queryplan.EmptyQueryPlan;
+import com.exasol.adapter.document.queryplan.FetchQueryPlan;
+import com.exasol.adapter.document.queryplan.QueryPlan;
 import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
 
 /**
@@ -26,22 +28,23 @@ public class FilesQueryPlanner implements QueryPlanner {
     @Override
     public QueryPlan planQuery(final RemoteTableQuery remoteTableQuery, final int maxNumberOfParallelFetchers) {
         final String sourceString = remoteTableQuery.getFromTable().getRemoteName();
-        final ServiceLoader<FilesDataLoaderFactory> loader = ServiceLoader.load(FilesDataLoaderFactory.class);
         final FilesSelectionExtractor.Result splitSelection = new FilesSelectionExtractor(sourceString)
                 .splitSelection(remoteTableQuery.getSelection());
-        return getDataLoaderForFileExtension(maxNumberOfParallelFetchers, loader, splitSelection);
+        if (splitSelection.getSourceFilter().hasContradiction()) {
+            return new EmptyQueryPlan();
+        }
+        final FilesDataLoaderFactory filesDataLoaderFactory = getFilesDataLoaderFactory(sourceString);
+        return new FetchQueryPlan(filesDataLoaderFactory.buildDataLoaderForQuery(splitSelection.getSourceFilter(),
+                maxNumberOfParallelFetchers, this.fileLoaderFactory), splitSelection.getPostSelection());
     }
 
-    private QueryPlan getDataLoaderForFileExtension(final int maxNumberOfParallelFetchers,
-            final ServiceLoader<FilesDataLoaderFactory> loader, final FilesSelectionExtractor.Result splitSelection) {
-        final String filteredSourceString = splitSelection.getSourceString();
-        final FilesDataLoaderFactory filesDataLoaderFactory = loader.stream()
-                .filter(x -> x.get().getSupportedFileExtensions().stream().anyMatch(filteredSourceString::endsWith))//
+    private FilesDataLoaderFactory getFilesDataLoaderFactory(final String sourceFilterGlob) {
+        final ServiceLoader<FilesDataLoaderFactory> loader = ServiceLoader.load(FilesDataLoaderFactory.class);
+        return loader.stream()
+                .filter(x -> x.get().getSupportedFileExtensions().stream().anyMatch(sourceFilterGlob::endsWith))//
                 .findAny()
                 .orElseThrow(() -> new UnsupportedOperationException("Could not find a file type implementation for "
-                        + filteredSourceString + ". Please check the file extension."))//
+                        + sourceFilterGlob + ". Please check the file extension."))//
                 .get();
-        return new QueryPlan(filesDataLoaderFactory.buildDataLoaderForQuery(filteredSourceString,
-                maxNumberOfParallelFetchers, this.fileLoaderFactory), splitSelection.getPostSelection());
     }
 }

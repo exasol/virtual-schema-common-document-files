@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import com.exasol.ExaConnectionInformation;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
+import com.exasol.adapter.document.files.stringfilter.StringFilter;
 
 /**
  * Factory interface for {@link FileLoader}.
@@ -23,6 +24,6 @@ public interface FileLoaderFactory extends Serializable {
      * @param connectionInformation connection to the data source
      * @return {@link FileLoader}
      */
-    public FileLoader getLoader(String filePattern, SegmentDescription segmentDescription,
+    public FileLoader getLoader(StringFilter filePattern, SegmentDescription segmentDescription,
             ExaConnectionInformation connectionInformation);
 }

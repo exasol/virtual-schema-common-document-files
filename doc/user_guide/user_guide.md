@@ -7,7 +7,7 @@ If the document source you need is not listed there, you can also [implement a c
 This user guide only covers the generic parts of the file virtual schema dialects.
 If you want to get started or need data source-specific information, start with the dialect-specific user guide.
 
-# Document Types
+## Document Types
 
 This Virtual Schema implements support for different document types (JSON, JSON-Lines, ...).
 Don't mix it up with the data source specific dialects.
@@ -19,20 +19,13 @@ You can also [add support for different document types](document_type_plugin_dev
 This adapter automatically detects the data type from the file extension.
 That means that your files must have the correct file extension.
 
-## JSON
+### JSON
 
 File extension: `.json`
 
 Parallelization: Yes 
 
-For JSON data, you typically have each document in a separate file.
-So in the Exasol table, you want to have one row per document.
-To define the path to such mappings, use the GLOB syntax.
-That means that you can use `*` and `?` as wildcards, where `*` matches multiple characters and `?` a single one.
-So, for example, if your data files are named `book-1.json`, `book-2.json` and so on, 
-you can refer to them as `book-*.json`.
-
-## JSON-Lines
+### JSON-Lines
 
 File extension: `.jsonl`
 
@@ -40,3 +33,16 @@ Parallelization: No
 
 JSON-Lines files store one JSON document per line. 
 In contrast to using a JSON array, that has the advantage that the file can be parsed line by line.
+
+## Mapping Multiple Files
+
+For some file type (for example JSON) each source file contains only a single document. 
+That means, that you have one file for each row in the mapped table.
+To define mappings for such types, you can use the GLOB syntax.
+
+You can use `*`, `**` and `?` as wildcard characters, where `*` matches multiple characters and `?` a single one.
+So, for example, if your data files are named `book-1.json`, `book-2.json` and so on, 
+you can refer to them as `book-*.json`.
+
+While `*` and `?` do not match cross directories, `**` also matches recursively into nested directories.
+For file source, that do not have directory structures (like S3 ) `*` and `**` have the same behaviour.
