@@ -1,7 +1,6 @@
 This project has the following dependencies:
   ANTLR 4 Runtime under The BSD License
   Apache Commons Collections under Apache License, Version 2.0
-  Apache Commons Compress under Apache License, Version 2.0
   Apache Commons Logging under The Apache Software License, Version 2.0
   Apache Commons Validator under Apache License, Version 2.0
   asm under BSD-3-Clause
@@ -13,20 +12,14 @@ This project has the following dependencies:
   Common module of Exasol Virtual Schemas Adapters under MIT
   Common Virtual Schema for document data under MIT
   Commons Digester under The Apache Software License, Version 2.0
-  Duct Tape under MIT
   everit-org/json-schema under Apache License, Version 2.0
-  Exasol Database fundamentals for Java under MIT
   Exasol SQL Statement Builder under MIT
-  EXASolution JDBC Driver under EXAClient License
   Hamcrest under BSD License 3
   Hamcrest Core under New BSD License
   Handy URI Templates under The Apache Software License, Version 2.0
   JaCoCo :: Agent under Eclipse Public License 2.0
   JaCoCo :: Core under Eclipse Public License 2.0
   Java Interface for EXASOL Scripts under MIT License
-  Java Native Access under LGPL, version 2.1 or Apache License v2.0
-  Java Native Access Platform under LGPL, version 2.1 or Apache License v2.0
-  JetBrains Java Annotations under The Apache Software License, Version 2.0
   Joda-Time under Apache 2
   JSON in Java under The JSON License
   JSR 374 (JSON Processing) Default Provider under Dual license consisting of the CDDL v1.1 and GPL v2
@@ -39,26 +32,13 @@ This project has the following dependencies:
   JUnit Platform Launcher under Eclipse Public License v2.0
   JUnit Platform Runner under Eclipse Public License v2.0
   JUnit Platform Suite API under Eclipse Public License v2.0
-  junixsocket-common under Apache License, Version 2.0
-  junixsocket-native-common under Apache License, Version 2.0
   LogicNG under The Apache License, Version 2.0
   mockito-core under The MIT License
-  MySQL Connector/J under The GNU General Public License, v2 with FOSS exception
-  Native Library Loader under CC0 1.0 Universal License
   Objenesis under Apache License, Version 2.0
   org.apiguardian:apiguardian-api under The Apache License, Version 2.0
   org.opentest4j:opentest4j under The Apache License, Version 2.0
-  Protocol Buffers [Core] under 3-Clause BSD License
   RE2/J under Go License
   SLF4J API Module under MIT License
   SLF4J JDK14 Binding under MIT License
-  TCP to Unix Socket Proxy under MIT
-  Test containers for Exasol on Docker under MIT
-  Test Database Builder for Java under MIT
-  Testcontainers :: Database-Commons under MIT
-  Testcontainers :: JDBC under MIT
-  Testcontainers :: JUnit Jupiter Extension under MIT
-  Testcontainers Core under MIT
   Virtual Schema for document data in files under MIT
-  Visible Assertions under MIT
 
