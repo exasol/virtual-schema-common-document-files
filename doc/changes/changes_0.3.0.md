@@ -17,4 +17,4 @@ Code name:
 * Removed `com.exasol:test-db-builder-java`
 * Removed `com.exasol:exasol-testcontainers`
 * Removed `org.testcontainers:junit-jupiter`
-* Updates `com.exasol:project-keeper-maven-plugin` from 0.1.0 to 0.2.0
+* Updated `com.exasol:project-keeper-maven-plugin` from 0.1.0 to 0.2.0
