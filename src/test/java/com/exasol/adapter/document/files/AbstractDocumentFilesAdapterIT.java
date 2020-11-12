@@ -122,8 +122,11 @@ public abstract class AbstractDocumentFilesAdapterIT {
         );
     }
 
+    /**
+     * This test is a workaround for #41 that occurs at {@link #testFilterWithOrOnSourceReference()}
+     */
     @Test
-        // TODO remove when SUPPORT-18306 is fixed
+    // TODO remove when SUPPORT-18306 is fixed
     void testFilterWithOrOnSourceReferenceWithBugifxForSUPPORT18306() {
         createJsonVirtualSchema();
         final String query = "SELECT ID FROM (SELECT ID, SOURCE_REFERENCE FROM " + TEST_SCHEMA
