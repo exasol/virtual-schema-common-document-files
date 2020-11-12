@@ -1,0 +1,5 @@
+{"type": "number", "value": 1.23}
+{"type": "null", "value": null}
+{"type":"string", "value": "test"}
+{"type":"true", "value": true}
+{"type":"false", "value": false}

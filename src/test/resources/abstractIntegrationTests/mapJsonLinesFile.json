@@ -1,0 +1,15 @@
+{
+  "$schema": "https://schemas.exasol.com/edml-1.2.0.json",
+  "source": "test.jsonl",
+  "destinationTable": "BOOKS",
+  "description": "Maps MY_BOOKS to BOOKS",
+  "addSourceReferenceColumn": true,
+  "mapping": {
+    "fields": {
+      "id": {
+        "toVarcharMapping": {
+        }
+      }
+    }
+  }
+}

@@ -1,5 +1,19 @@
 package com.exasol.adapter.document.documentfetcher.files;
 
+import com.exasol.ExaConnectionInformation;
+import com.exasol.adapter.document.documentfetcher.FetchedDocument;
+import com.exasol.adapter.document.documentnode.MockValueNode;
+import com.exasol.adapter.document.files.stringfilter.StringFilter;
+import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+
+import java.io.ByteArrayInputStream;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
@@ -7,24 +21,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.ByteArrayInputStream;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-
-import com.exasol.ExaConnectionInformation;
-import com.exasol.adapter.document.documentfetcher.FetchedDocument;
-import com.exasol.adapter.document.documentnode.MockValueNode;
-import com.exasol.adapter.document.files.stringfilter.StringFilter;
-import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
-
 class AbstractFilesDocumentFetcherTest {
-
-    public static final String PREFIX = "prefix/";
+    private static final String PREFIX = "prefix/";
 
     @Test
     void testSourceReferences() {
