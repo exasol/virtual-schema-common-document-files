@@ -18,6 +18,7 @@ import com.exasol.adapter.document.querypredicate.normalizer.DnfAnd;
 import com.exasol.adapter.document.querypredicate.normalizer.DnfComparison;
 import com.exasol.adapter.document.querypredicate.normalizer.DnfOr;
 import com.exasol.adapter.sql.SqlLiteralString;
+import com.exasol.errorreporting.ExaError;
 
 /**
  * This class applies the predicates on the SOURCE_REFERENCE to the source string and splits the rest of the selection
@@ -34,7 +35,7 @@ public class FilesSelectionExtractor {
 
     /**
      * Create a new instance of {@link FilesSelectionExtractor}.
-     * 
+     *
      * @param sourceString source string pattern as GLOB
      */
     public FilesSelectionExtractor(final String sourceString) {
@@ -43,7 +44,7 @@ public class FilesSelectionExtractor {
 
     /**
      * Split the selection into a post-selection and a modified, more-selective sourceString.
-     * 
+     *
      * @param selection selection to split
      * @return {@link Result}
      */
@@ -83,8 +84,8 @@ public class FilesSelectionExtractor {
 
     private StringFilter extractFilterFromComparison(final ComparisonPredicate comparisonPredicate) {
         if (!(comparisonPredicate instanceof ColumnLiteralComparisonPredicate)) {
-            throw new IllegalStateException(
-                    "F-VSDF-6 Internal error. Please open a ticket. Unsupported comparison predicate.");
+            throw new IllegalStateException(ExaError.messageBuilder("F-VSDF-6")
+                    .message("Internal error. Please open a ticket. Unsupported comparison predicate.").toString());
         } else {
             return extractFromColumnLiteralComparison(comparisonPredicate);
         }
@@ -99,8 +100,9 @@ public class FilesSelectionExtractor {
         } else if (comparisonPredicate.getOperator().equals(LIKE)) {
             return extractFromLikeExpression(sourceStringFilter);
         } else {
-            throw new IllegalStateException("F-VSDF-5 Internal error. Please open a ticket. Unsupported operator '"
-                    + comparisonPredicate + "'. Unsupported operators should be filtered earlier.");
+            throw new IllegalStateException(ExaError.messageBuilder("F-VSDF-5")
+                    .message("Internal error. Please open a ticket. Unsupported operator {{OPERATOR}}.")
+                    .parameter("OPERATOR", comparisonPredicate).toString());
         }
     }
 
@@ -126,7 +128,7 @@ public class FilesSelectionExtractor {
 
         /**
          * Get the post-selection.
-         * 
+         *
          * @return post-selection
          */
         public QueryPredicate getPostSelection() {
@@ -135,7 +137,7 @@ public class FilesSelectionExtractor {
 
         /**
          * Get the built filter for the source files.
-         * 
+         *
          * @return more selective source string
          */
         public StringFilter getSourceFilter() {

@@ -15,6 +15,7 @@ import javax.json.spi.JsonProvider;
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.json.JsonNodeFactory;
 import com.exasol.adapter.document.documentnode.json.JsonNodeVisitor;
+import com.exasol.errorreporting.ExaError;
 
 /**
  * This class iterates the lines of a JSON-Lines file an creates for each line a JSON {@link DocumentNode}.
@@ -54,8 +55,10 @@ class JsonLinesIterator implements Iterator<DocumentNode<JsonNodeVisitor>> {
                 this.lineCounter++;
             } while (this.nextLine != null && this.nextLine.isBlank());
         } catch (final IOException exception) {
-            throw new InputDataException("E-VSDF-2 Failed to read from data file " + this.jsonlFile.getResourceName()
-                    + "'. Cause: " + exception.getMessage(), exception);
+            throw new InputDataException(
+                    ExaError.messageBuilder("E-VSDF-2").message("Failed to read from data file {{JSONL_FILE}}.")
+                            .parameter("JSONL_FILE", this.jsonlFile.getResourceName()).toString(),
+                    exception);
         }
     }
 
@@ -75,10 +78,10 @@ class JsonLinesIterator implements Iterator<DocumentNode<JsonNodeVisitor>> {
                 readNextLine();
                 return JsonNodeFactory.getInstance().getJsonNode(jsonValue);
             } catch (final JsonException exception) {
-                throw new InputDataException(
-                        "E-VSDF-3 Failed to parse JSON-Lines from " + this.jsonlFile.getResourceName()
-                                + ". Invalid JSON document in line " + this.lineCounter + ". " + exception.getMessage(),
-                        exception);
+                throw new InputDataException(ExaError.messageBuilder("E-VSDF-3").message(
+                        "Failed to parse JSON-Lines from {{JSONL_FILE}}. Invalid JSON document in line {{LINE}}.")
+                        .parameter("JSONL_FILE", this.jsonlFile.getResourceName()).parameter("LINE", this.lineCounter)
+                        .toString(), exception);
             }
         }
     }

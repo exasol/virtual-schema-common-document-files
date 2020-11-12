@@ -11,12 +11,13 @@ import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.json.JsonNodeFactory;
 import com.exasol.adapter.document.documentnode.json.JsonNodeVisitor;
 import com.exasol.adapter.document.files.stringfilter.StringFilter;
+import com.exasol.errorreporting.ExaError;
 
 /**
  * {@link DocumentFetcher} for JSON files.
  */
 public class JsonDocumentFetcher extends AbstractFilesDocumentFetcher<JsonNodeVisitor> {
-    private static final long serialVersionUID = 248574935175405437L;
+    private static final long serialVersionUID = 5377870560856410930L;
     private static final JsonReaderFactory JSON_READER_FACTORY = Json.createReaderFactory(null);
 
     /**
@@ -38,8 +39,10 @@ public class JsonDocumentFetcher extends AbstractFilesDocumentFetcher<JsonNodeVi
             tryToClose(loadedFile);
             return Stream.of(JsonNodeFactory.getInstance().getJsonNode(jsonValue));
         } catch (final JsonException jsonException) {
-            throw new InputDataException("E-VSDF-1 Error in input file '" + loadedFile.getResourceName() + "': "
-                    + jsonException.getMessage(), jsonException);
+            throw new InputDataException(
+                    ExaError.messageBuilder("E-VSDF-1").message("Error in input file {{JSON_FILE}}.")
+                            .parameter("JSON_FILE", loadedFile.getResourceName()).toString(),
+                    jsonException);
         }
     }
 

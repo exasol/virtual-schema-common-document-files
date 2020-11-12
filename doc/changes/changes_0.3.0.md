@@ -12,6 +12,7 @@ Code name:
 * #34: Selection using LIKE on SOURCE_REFERENCE column
 * #38: Removed unnecessary dependencies
 * #40: Created abstract integration test
+* #36: Added unified error codes 
 
 ## Dependency updates
 
@@ -22,3 +23,4 @@ Code name:
 * Removed `org.slf4j:slf4j-jdk14`
 * Added `com.exasol:hamcrest-resultset-matcher` 1.2.1
 * Added `com.exasol:udf-debugging-java` 0.2.0
+* Added `com.exasol:error-reporting-java` 0.1.1

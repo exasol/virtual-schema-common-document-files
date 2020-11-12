@@ -57,8 +57,7 @@ class JsonDocumentFetcherTest {
         final JsonDocumentFetcher jsonDocumentFetcher = new JsonDocumentFetcher(null, null, null);
         final InputDataException exception = assertThrows(InputDataException.class,
                 () -> jsonDocumentFetcher.readDocuments(loadedFile));
-        assertThat(exception.getMessage(), equalTo(
-                "E-VSDF-1 Error in input file 'string source': Unexpected char 105 at (line no=2, column no=1, offset=2)"));
+        assertThat(exception.getMessage(), equalTo("E-VSDF-1: Error in input file 'string source'."));
     }
 
     @ValueSource(strings = { "", " ", "   ", "\n", "\n " })
@@ -69,7 +68,6 @@ class JsonDocumentFetcherTest {
         final JsonDocumentFetcher jsonDocumentFetcher = new JsonDocumentFetcher(null, null, null);
         final InputDataException inputDataException = assertThrows(InputDataException.class,
                 () -> jsonDocumentFetcher.readDocuments(loadedFile));
-        assertThat(inputDataException.getMessage(),
-                startsWith("E-VSDF-1 Error in input file 'string source': Invalid token=EOF"));
+        assertThat(inputDataException.getMessage(), startsWith("E-VSDF-1: Error in input file 'string source'."));
     }
 }

@@ -5,6 +5,7 @@ import javax.json.JsonString;
 import javax.json.JsonValue;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
+import com.exasol.errorreporting.ExaError;
 
 /**
  * Factory for JSON {@link DocumentNode}s.
@@ -48,8 +49,9 @@ public class JsonNodeFactory {
         case NUMBER:
             return new JsonNumberNode((JsonNumber) jsonValue);
         default:
-            throw new UnsupportedOperationException(
-                    "F-VSDF-4 Unsupported json type: " + jsonValue.getValueType() + ". Please open an issue.");
+            throw new UnsupportedOperationException(ExaError.messageBuilder("F-VSDF-4")
+                    .message("Unsupported json type: {{TYPE}}. Please open an issue.")
+                    .parameter("TYPE", jsonValue.getValueType()).toString());
         }
     }
 }

@@ -45,7 +45,7 @@ class JsonLinesIteratorTest {
         final InputDataException exception = assertThrows(InputDataException.class,
                 () -> readJsonLines("{}\n{notQutes :: - \"wrong syntax}"));
         assertThat(exception.getMessage(),
-                startsWith("E-VSDF-3 Failed to parse JSON-Lines from string. Invalid JSON document in line 2."));
+                startsWith("E-VSDF-3: Failed to parse JSON-Lines from 'string'. Invalid JSON document in line 2."));
     }
 
     @Test
