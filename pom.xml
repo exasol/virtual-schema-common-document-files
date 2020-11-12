@@ -120,12 +120,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-jdk14</artifactId>
-            <version>1.7.30</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>org.jacoco</groupId>
             <artifactId>org.jacoco.agent</artifactId>
             <version>${jacoco.version}</version>
@@ -136,6 +130,18 @@
             <groupId>org.jacoco</groupId>
             <artifactId>org.jacoco.core</artifactId>
             <version>${jacoco.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.exasol</groupId>
+            <artifactId>hamcrest-resultset-matcher</artifactId>
+            <version>1.2.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.exasol</groupId>
+            <artifactId>udf-debugging-java</artifactId>
+            <version>0.2.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -206,17 +212,6 @@
                             <goal>report-integration</goal>
                         </goals>
                     </execution>
-                    <execution>
-                        <id>report-udf-integration</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>report-integration</goal>
-                        </goals>
-                        <configuration>
-                            <dataFile>${project.build.directory}/jacoco-udf.exec</dataFile>
-                            <outputDirectory>${project.reporting.outputDirectory}/jacoco-udf</outputDirectory>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -229,10 +224,10 @@
                             <goal>test-jar</goal>
                         </goals>
                         <configuration>
-                            <excludes>
-                                <exclude>**/*Test.class</exclude>
-                                <exclude>**/*IT.class</exclude>
-                            </excludes>
+                            <includes>
+                                <include>**/AbstractDocumentFilesAdapterIT.class</include>
+                                <include>abstractIntegrationTests/*</include>
+                            </includes>
                         </configuration>
                     </execution>
                 </executions>
