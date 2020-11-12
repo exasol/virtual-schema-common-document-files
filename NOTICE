@@ -12,6 +12,7 @@ This project has the following dependencies:
   Common module of Exasol Virtual Schemas Adapters under MIT
   Common Virtual Schema for document data under MIT
   Commons Digester under The Apache Software License, Version 2.0
+  error-reporting-java under MIT
   everit-org/json-schema under Apache License, Version 2.0
   Exasol SQL Statement Builder under MIT
   Hamcrest under BSD License 3
@@ -22,6 +23,7 @@ This project has the following dependencies:
   Java Interface for EXASOL Scripts under MIT License
   Joda-Time under Apache 2
   JSON in Java under The JSON License
+  JSR 374 (JSON Processing) API under Dual license consisting of the CDDL v1.1 and GPL v2
   JSR 374 (JSON Processing) Default Provider under Dual license consisting of the CDDL v1.1 and GPL v2
   JUnit under Eclipse Public License 1.0
   JUnit Jupiter API under Eclipse Public License v2.0
@@ -33,6 +35,7 @@ This project has the following dependencies:
   JUnit Platform Runner under Eclipse Public License v2.0
   JUnit Platform Suite API under Eclipse Public License v2.0
   LogicNG under The Apache License, Version 2.0
+  Matcher for SQL Result Sets under MIT
   mockito-core under The MIT License
   Objenesis under Apache License, Version 2.0
   org.apiguardian:apiguardian-api under The Apache License, Version 2.0
@@ -40,5 +43,6 @@ This project has the following dependencies:
   RE2/J under Go License
   SLF4J API Module under MIT License
   SLF4J JDK14 Binding under MIT License
+  udf-debugging-java under MIT
   Virtual Schema for document data in files under MIT
 
