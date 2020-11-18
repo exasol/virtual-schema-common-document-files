@@ -56,7 +56,7 @@ public class JsonPropertyToDecimalColumnValueExtractor extends PropertyToDecimal
 
         @Override
         public void visit(final JsonBooleanNode booleanNode) {
-            this.result = new NotNumericResult("<" + (booleanNode.getBooleanValue() ? "true" : false) + ">");
+            this.result = new NotNumericResult("<" + (booleanNode.getBooleanValue() ? "true" : "false") + ">");
         }
 
         /**
