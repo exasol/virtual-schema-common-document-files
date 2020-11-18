@@ -1,4 +1,4 @@
-# virtual-schema-common-document-files 1.0.0, released 2020-11-19
+# virtual-schema-common-document-files 1.0.0, released 2020-11-18
  
 Code name: Selection on file name
  
