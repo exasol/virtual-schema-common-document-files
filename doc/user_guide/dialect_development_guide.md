@@ -48,7 +48,7 @@ Mind the following aspects when implementing the `FileLoader`:
 ### Pattern Support
 
 Your adapter must support searching for Wildcard patterns on the remote file system.
-In case your file system does not (fully) support this, try to filter most using the filters the remote system supports (for example a prefix) and apply an accurate filter in your `FileLoader`.
+In case your file system does not (fully) support this, try to filter most using the filters that remote system supports (for example a prefix) and apply an accurate filter in your `FileLoader`.
 The generic adapter passes the search pattern as `StringFilter` to your `FileLoaderFactory`.
 The `StringFilter` class offers you helper functions like `getStaticPrefix()` or `Matchers`.
 A `Matcher` can check if a string fulfills the pattern or not. 

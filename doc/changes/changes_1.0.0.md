@@ -22,7 +22,7 @@ Known issues:
 
 # Documentation
 
-* #37-updated-development-resources
+* #37: Updated development resources
 
 ## Dependency updates
 
