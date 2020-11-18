@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.exasol</groupId>
     <artifactId>virtual-schema-common-document-files</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>Virtual Schema for document data in files</name>
     <description>Adapter for document data access from files.</description>
     <url>https://github.com/exasol/virtual-schema-common-document-files</url>
@@ -12,12 +12,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>11</java.version>
-        <junit.version>5.6.2</junit.version>
+        <junit.version>5.7.0</junit.version>
         <junit.platform.version>1.6.2</junit.platform.version>
         <jacoco.version>0.8.5</jacoco.version>
-        <vs-common-document.version>3.0.0-SNAPSHOT</vs-common-document.version>
+        <vs-common-document.version>3.0.0</vs-common-document.version>
         <gpg.skip>true</gpg.skip>
-        <org.testcontainers.version>1.14.3</org.testcontainers.version>
         <!--
         M4 does not fail tests if beforeAll fails
         M5 fails in integration tests with a strange error
@@ -91,18 +90,12 @@
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>error-reporting-java</artifactId>
-            <version>0.1.1</version>
+            <version>0.2.0</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
             <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-runner</artifactId>
-            <version>${junit.platform.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -114,7 +107,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>3.5.13</version>
+            <version>3.6.0</version>
         </dependency>
         <!--Integration test dependencies-->
         <dependency>
@@ -363,7 +356,7 @@
             <plugin>
                 <groupId>com.exasol</groupId>
                 <artifactId>project-keeper-maven-plugin</artifactId>
-                <version>0.2.0</version>
+                <version>0.3.0</version>
                 <executions>
                     <execution>
                         <goals>
@@ -408,28 +401,41 @@
                         <goals>
                             <goal>sign</goal>
                         </goals>
+                        <configuration>
+                            <gpgArguments>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
-            <!--<plugin>
-                <groupId>org.jasig.maven</groupId>
-                <artifactId>maven-notice-plugin</artifactId>
-                <version>1.1.1</version>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
                 <configuration>
-                    <noticeTemplate>NOTICE.template</noticeTemplate>
-                    <licenseMapping>
-                        <param>https://source.jasig.org/licenses/license-mappings.xml</param>
-                    </licenseMapping>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.8</version>
+                <configuration>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                 </configuration>
                 <executions>
                     <execution>
-                        <phase>package</phase>
+                        <id>default-deploy</id>
+                        <phase>deploy</phase>
                         <goals>
-                            <goal>check</goal>
+                            <goal>deploy</goal>
                         </goals>
                     </execution>
                 </executions>
-            </plugin>-->
+            </plugin>
         </plugins>
     </build>
 </project>

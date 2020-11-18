@@ -3,7 +3,6 @@ package com.exasol.adapter.document.files;
 import java.util.Collections;
 
 import com.exasol.ExaConnectionInformation;
-import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.capabilities.Capabilities;
 import com.exasol.adapter.capabilities.LiteralCapability;
 import com.exasol.adapter.capabilities.MainCapability;
@@ -19,14 +18,12 @@ import com.exasol.adapter.document.mapping.TableKeyFetcher;
 public abstract class DocumentFilesAdapter extends DocumentAdapter {
 
     @Override
-    protected TableKeyFetcher getTableKeyFetcher(final ExaConnectionInformation connectionInformation)
-            throws AdapterException {
+    protected TableKeyFetcher getTableKeyFetcher(final ExaConnectionInformation connectionInformation) {
         return (tableName, mappedColumns) -> Collections.emptyList();
     }
 
     @Override
-    protected final QueryPlanner getQueryPlanner(final ExaConnectionInformation connectionInformation)
-            throws AdapterException {
+    protected final QueryPlanner getQueryPlanner(final ExaConnectionInformation connectionInformation) {
         return new FilesQueryPlanner(getFileLoaderFactory());
     }
 

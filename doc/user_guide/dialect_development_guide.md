@@ -35,22 +35,23 @@ The best point to start with your implementation is to create a class named `<YO
 that implements the `FileLoader` interface.
 `FileLoader`s fetch the files from your data source and returns them as `InputStream`s.
 
-The file loader interface defines only two methods:
-
-* `loadFiles()`: This method loads the files for a query and returns them as `InputStreamWithResourceName`s (`InputStreamWithResourceName` is a class, that bundles an input stream with a file name used for error messages).
-* `getFilePattern()`: Gives a URL or String that describes the path to the files. This description will be included in exceptions. 
+The file loader interface defines only the method `loadFiles()`.
+ This method loads the files for a query and returns them as `InputStreamWithResourceName`s (`InputStreamWithResourceName` is a class, that bundles an input stream with a file name used for error messages). 
 
 You may have noticed that the `loadFiles()` method does not take any arguments.
 The reason for that is, that the arguments (which files to load) are passed to the `FileLoaderFactory`.
 By that you can implement different `FileLoaders` and a `FileLoaderFactory` that produces them depending on the request.
-Typically you will, however, implement a `FileLoaderFactory` that only passes the parameters to the constructor of your `FileLoader`.
+Typically, you will, however, implement a `FileLoaderFactory` that only passes the parameters to the constructor of your `FileLoader`.
 
 Mind the following aspects when implementing the `FileLoader`:
 
-### GLOB support
+### Pattern Support
 
-Your `FileLoader` must support the GLOB syntax (`*` and `?` wildcards).
-If the path definition includes these characters your adapter must search for matching files on your data source.
+Your adapter must support searching for Wildcard patterns on the remote file system.
+In case your file system does not (fully) support this, try to filter most using the filters that remote system supports (for example a prefix) and apply an accurate filter in your `FileLoader`.
+The generic adapter passes the search pattern as `StringFilter` to your `FileLoaderFactory`.
+The `StringFilter` class offers you helper functions like `getStaticPrefix()` or `Matchers`.
+A `Matcher` can check if a string fulfills the pattern or not. 
 
 ### Segmentation
 
