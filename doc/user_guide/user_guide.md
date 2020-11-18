@@ -46,3 +46,7 @@ you can refer to them as `book-*.json`.
 
 While `*` and `?` do not match cross directories, `**` also matches recursively into nested directories.
 For file source, that do not have directory structures (like S3 ) `*` and `**` have the same behaviour.
+
+## Known Issues:
+
+* Certain virtual-schema queries can cause a database crash. For details see [#41](https://github.com/exasol/virtual-schema-common-document-files/issues/41).

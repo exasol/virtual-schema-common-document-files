@@ -20,23 +20,23 @@ public class JsonPropertyToVarcharColumnValueExtractor extends PropertyToVarchar
     }
 
     @Override
-    protected MappedStringResult mapStringValue(final DocumentNode<JsonNodeVisitor> property) {
+    protected ConversionResult mapStringValue(final DocumentNode<JsonNodeVisitor> property) {
         final ToStringVisitor toStringVisitor = new ToStringVisitor();
         property.accept(toStringVisitor);
         return toStringVisitor.getResult();
     }
 
     private static class ToStringVisitor implements JsonNodeVisitor {
-        private MappedStringResult result;
+        private ConversionResult result;
 
         @Override
         public void visit(final JsonObjectNode jsonObjectNode) {
-            this.result = null;
+            this.result = new FailedConversionResult("object");
         }
 
         @Override
         public void visit(final JsonArrayNode jsonArrayNode) {
-            this.result = null;
+            this.result = new FailedConversionResult("array");
         }
 
         @Override
@@ -59,7 +59,7 @@ public class JsonPropertyToVarcharColumnValueExtractor extends PropertyToVarchar
             this.result = new MappedStringResult(booleanNode.getBooleanValue() ? "true" : "false", true);
         }
 
-        public MappedStringResult getResult() {
+        public ConversionResult getResult() {
             return this.result;
         }
     }

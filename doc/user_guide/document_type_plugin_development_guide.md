@@ -127,7 +127,7 @@ public class YOUR_TYPEFilesDataLoaderFactory extends AbstractFilesDataLoaderFact
 
     @Override
     protected DataLoader buildSingleDataLoader(final FileLoaderFactory fileLoaderFactory,
-            final SegmentDescription segmentDescription, final String sourceString) {
+                                                           final SegmentDescription segmentDescription, final StringFilter sourceFilter) {
         return new YOUR_TYPEFilesDataLoader(
                 new YOUR_TYPEDocumentFetcher(sourceString, segmentDescription, fileLoaderFactory));
     }

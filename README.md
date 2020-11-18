@@ -31,6 +31,7 @@ You cannot directly use this adapter!
 Please, use one of the file source-specific dialects from the list below.
 If this list does not contain your file source you can [implement your own file source](doc/user_guide/dialect_development_guide.md). 
 
+* [S3](https://github.com/exasol/s3-document-files-virtual-schema/)
 * [Exasol BucketFS](https://github.com/exasol/bucketfs-document-files-virtual-schema/)
 
 
