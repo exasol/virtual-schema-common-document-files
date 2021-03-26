@@ -12,5 +12,5 @@ public interface FileLoader {
      * 
      * @return content of the file
      */
-    public Stream<InputStreamWithResourceName> loadFiles();
+    public Stream<LoadedFile> loadFiles();
 }

@@ -1,6 +1,5 @@
 package com.exasol.adapter.document.documentfetcher.files;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.stream.Stream;
 
@@ -17,7 +16,7 @@ import com.exasol.errorreporting.ExaError;
  * {@link DocumentFetcher} for JSON files.
  */
 public class JsonDocumentFetcher extends AbstractFilesDocumentFetcher<JsonNodeVisitor> {
-    private static final long serialVersionUID = 5377870560856410930L;
+    private static final long serialVersionUID = -8825186330680874523L;
     private static final JsonReaderFactory JSON_READER_FACTORY = Json.createReaderFactory(null);
 
     /**
@@ -33,10 +32,9 @@ public class JsonDocumentFetcher extends AbstractFilesDocumentFetcher<JsonNodeVi
     }
 
     @Override
-    protected Stream<DocumentNode<JsonNodeVisitor>> readDocuments(final InputStreamWithResourceName loadedFile) {
+    protected Stream<DocumentNode<JsonNodeVisitor>> readDocuments(final LoadedFile loadedFile) {
         try (final JsonReader jsonReader = buildJsonReader(loadedFile.getInputStream())) {
             final JsonValue jsonValue = jsonReader.readValue();
-            tryToClose(loadedFile);
             return Stream.of(JsonNodeFactory.getInstance().getJsonNode(jsonValue));
         } catch (final JsonException jsonException) {
             throw new InputDataException(
@@ -55,14 +53,6 @@ public class JsonDocumentFetcher extends AbstractFilesDocumentFetcher<JsonNodeVi
             } else {
                 throw exception;
             }
-        }
-    }
-
-    private void tryToClose(final InputStreamWithResourceName loadedFile) {
-        try {
-            loadedFile.close();
-        } catch (final IOException exception) {
-            // ignore
         }
     }
 }

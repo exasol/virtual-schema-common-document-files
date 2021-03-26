@@ -5,10 +5,7 @@ import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
@@ -50,10 +47,10 @@ class JsonLinesIteratorTest {
 
     @Test
     void testFinalize() throws Throwable {
-        final CloseCheckStream stream = new CloseCheckStream("");
-        final JsonLinesIterator jsonLinesIterator = new JsonLinesIterator(new InputStreamWithResourceName(stream, ""));
+        final CloseCheckLoadedFile closeCheckLoadedFile = new CloseCheckLoadedFile("");
+        final JsonLinesIterator jsonLinesIterator = new JsonLinesIterator(closeCheckLoadedFile);
         jsonLinesIterator.finalize();
-        assertThat(stream.wasClosed(), equalTo(true));
+        assertThat(closeCheckLoadedFile.wasStreamClosed(), equalTo(true));
     }
 
     @Test
@@ -71,7 +68,7 @@ class JsonLinesIteratorTest {
         return result;
     }
 
-    private JsonLinesIterator getJsonLinesIterator(final String s) {
-        return new JsonLinesIterator(new InputStreamWithResourceName(new ByteArrayInputStream(s.getBytes()), "string"));
+    private JsonLinesIterator getJsonLinesIterator(final String content) {
+        return new JsonLinesIterator(new StringLoadedFile(content, "string"));
     }
 }

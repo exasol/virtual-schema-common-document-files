@@ -10,4 +10,4 @@ repos:
     rev: master
     hooks:
       - id: serial-version-uid
-        language_version: python3.7
+        language_version: python3.8
