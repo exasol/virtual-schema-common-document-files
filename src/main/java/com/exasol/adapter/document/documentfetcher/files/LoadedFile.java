@@ -43,7 +43,7 @@ public abstract class LoadedFile {
             return InMemoryRandomAccessStream.getInMemoryCache(inputStream);
         } catch (final IOException exception) {
             throw new IllegalStateException(
-                    ExaError.messageBuilder("E-VSDF-11").message("Failed an data sources input stream.").toString(),
+                    ExaError.messageBuilder("E-VSDF-11").message("Failed reading data source's input stream.").toString(),
                     exception);
         }
     }
