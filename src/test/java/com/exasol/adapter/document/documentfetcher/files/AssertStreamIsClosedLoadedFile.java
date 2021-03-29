@@ -15,7 +15,7 @@ class AssertStreamIsClosedLoadedFile extends LoadedFile {
         return this.closeCheckStream;
     }
 
-    public boolean wasStreamClosed() {
+    public boolean isStreamClosed() {
         return this.closeCheckStream.wasClosed();
     }
 }

@@ -36,7 +36,7 @@ class JsonDocumentFetcherTest {
         when(connectionInformation.getAddress()).thenReturn("");
         jsonDocumentFetcher.run(connectionInformation).forEach(x -> {
         });
-        assertThat(loadedFile.wasStreamClosed(), equalTo(true));
+        assertThat(loadedFile.isStreamClosed(), equalTo(true));
     }
 
     @Test

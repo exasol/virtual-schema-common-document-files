@@ -50,7 +50,7 @@ class JsonLinesIteratorTest {
         final AssertStreamIsClosedLoadedFile assertStreamIsClosedLoadedFile = new AssertStreamIsClosedLoadedFile("");
         final JsonLinesIterator jsonLinesIterator = new JsonLinesIterator(assertStreamIsClosedLoadedFile);
         jsonLinesIterator.finalize();
-        assertThat(assertStreamIsClosedLoadedFile.wasStreamClosed(), equalTo(true));
+        assertThat(assertStreamIsClosedLoadedFile.isStreamClosed(), equalTo(true));
     }
 
     @Test
