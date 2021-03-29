@@ -47,10 +47,10 @@ class JsonLinesIteratorTest {
 
     @Test
     void testFinalize() throws Throwable {
-        final CloseCheckLoadedFile closeCheckLoadedFile = new CloseCheckLoadedFile("");
-        final JsonLinesIterator jsonLinesIterator = new JsonLinesIterator(closeCheckLoadedFile);
+        final AssertStreamIsClosedLoadedFile assertStreamIsClosedLoadedFile = new AssertStreamIsClosedLoadedFile("");
+        final JsonLinesIterator jsonLinesIterator = new JsonLinesIterator(assertStreamIsClosedLoadedFile);
         jsonLinesIterator.finalize();
-        assertThat(closeCheckLoadedFile.wasStreamClosed(), equalTo(true));
+        assertThat(assertStreamIsClosedLoadedFile.wasStreamClosed(), equalTo(true));
     }
 
     @Test

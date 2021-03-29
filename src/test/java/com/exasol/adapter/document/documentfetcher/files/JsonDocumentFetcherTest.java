@@ -25,7 +25,7 @@ class JsonDocumentFetcherTest {
 
     @Test
     void testClosed() {
-        final CloseCheckLoadedFile loadedFile = new CloseCheckLoadedFile("{}");
+        final AssertStreamIsClosedLoadedFile loadedFile = new AssertStreamIsClosedLoadedFile("{}");
         final FileLoader fileLoader = mock(FileLoader.class);
         when(fileLoader.loadFiles()).thenReturn(Stream.of(loadedFile));
         final FileLoaderFactory loaderFactory = mock(FileLoaderFactory.class);
