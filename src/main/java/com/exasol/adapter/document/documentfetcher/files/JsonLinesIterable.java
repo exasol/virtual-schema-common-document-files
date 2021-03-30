@@ -9,9 +9,14 @@ import com.exasol.adapter.document.documentnode.json.JsonNodeVisitor;
  * This class provides a {@link JsonLinesIterator} for a given JSON-Lines file.
  */
 class JsonLinesIterable implements Iterable<DocumentNode<JsonNodeVisitor>> {
-    private final InputStreamWithResourceName jsonlFile;
+    private final LoadedFile jsonlFile;
 
-    JsonLinesIterable(final InputStreamWithResourceName jsonlFile) {
+    /**
+     * Create a new instance of {@link JsonLinesIterable}.
+     * 
+     * @param jsonlFile JSON lines file
+     */
+    JsonLinesIterable(final LoadedFile jsonlFile) {
         this.jsonlFile = jsonlFile;
     }
 

@@ -1,13 +1,5 @@
 package com.exasol.adapter.document.files;
 
-import org.junit.jupiter.api.Test;
-
-import java.io.InputStream;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.function.Supplier;
-
 import static com.exasol.matcher.ResultSetStructureMatcher.table;
 import static com.exasol.udfdebugging.PushDownTesting.getPushDownSql;
 import static com.exasol.udfdebugging.PushDownTesting.getSelectionThatIsSentToTheAdapter;
@@ -15,6 +7,12 @@ import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+
+import java.io.InputStream;
+import java.sql.*;
+import java.util.function.Supplier;
+
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("java:S5786") // this class is public so that class from different packages can inherit
 public abstract class AbstractDocumentFilesAdapterIT {
@@ -134,8 +132,8 @@ public abstract class AbstractDocumentFilesAdapterIT {
         assertAll(//
                 () -> assertThat(getStatement().executeQuery(query), table().row("book-1").row("book-2").matches()), //
                 () -> assertThat(getPushDownSql(getStatement(), query), endsWith("WHERE TRUE")), // no post selection
-                () -> assertThat(getSelectionThatIsSentToTheAdapter(getStatement(), query),
-                        equalTo("(BOOKS.SOURCE_REFERENCE='testData-1.json') OR (BOOKS.SOURCE_REFERENCE='testData-2.json')"))//
+                () -> assertThat(getSelectionThatIsSentToTheAdapter(getStatement(), query), equalTo(
+                        "(BOOKS.SOURCE_REFERENCE='testData-1.json') OR (BOOKS.SOURCE_REFERENCE='testData-2.json')"))//
         );
     }
 

@@ -12,7 +12,7 @@ import com.exasol.adapter.document.files.stringfilter.StringFilter;
  * {@link DocumentFetcher} for the JSON lines file format.
  */
 public class JsonLinesDocumentFetcher extends AbstractFilesDocumentFetcher<JsonNodeVisitor> {
-    private static final long serialVersionUID = -4079602566145893845L;
+    private static final long serialVersionUID = -2946894300385849999L;
 
     /**
      * Create a new instance of {@link JsonLinesDocumentFetcher}.
@@ -27,7 +27,7 @@ public class JsonLinesDocumentFetcher extends AbstractFilesDocumentFetcher<JsonN
     }
 
     @Override
-    protected Stream<DocumentNode<JsonNodeVisitor>> readDocuments(final InputStreamWithResourceName loadedFile) {
+    protected Stream<DocumentNode<JsonNodeVisitor>> readDocuments(final LoadedFile loadedFile) {
         return StreamSupport.stream(new JsonLinesIterable(loadedFile).spliterator(), false);
     }
 }
