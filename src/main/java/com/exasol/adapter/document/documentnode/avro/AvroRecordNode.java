@@ -12,8 +12,8 @@ import com.exasol.adapter.document.documentnode.DocumentObject;
 /**
  * This class wraps an avro record.
  */
-public class AvroRecordNode implements DocumentObject<AvroNodeVisitor> {
-    private static final long serialVersionUID = 3349393522994678022L;
+public class AvroRecordNode implements DocumentObject {
+    private static final long serialVersionUID = 4901894006649229751L;
     /** @serial */
     private final GenericRecord record;
 
@@ -27,27 +27,18 @@ public class AvroRecordNode implements DocumentObject<AvroNodeVisitor> {
     }
 
     @Override
-    public Map<String, DocumentNode<AvroNodeVisitor>> getKeyValueMap() {
+    public Map<String, DocumentNode> getKeyValueMap() {
         return this.record.getSchema().getFields().stream().collect(Collectors.toMap(Schema.Field::name,
-                field -> wrapChildNode(this.record.get(field.name()), field.schema())));
+                field -> JavaObjectDocumentNodeFactory.getNodeFor(this.record.get(field.name()))));
     }
 
     @Override
-    public DocumentNode<AvroNodeVisitor> get(final String key) {
-        return wrapChildNode(this.record.get(key), this.record.getSchema().getField(key).schema());
+    public DocumentNode get(final String key) {
+        return JavaObjectDocumentNodeFactory.getNodeFor(this.record.get(key));
     }
 
     @Override
     public boolean hasKey(final String key) {
         return this.record.getSchema().getFields().stream().anyMatch(field -> field.name().equals(key));
-    }
-
-    private DocumentNode<AvroNodeVisitor> wrapChildNode(final Object value, final Schema schema) {
-        return new AvroValueNode(schema, value);
-    }
-
-    @Override
-    public void accept(final AvroNodeVisitor visitor) {
-        visitor.visit(this);
     }
 }

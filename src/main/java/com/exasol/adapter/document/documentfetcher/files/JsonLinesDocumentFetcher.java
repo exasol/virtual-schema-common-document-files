@@ -5,14 +5,13 @@ import java.util.stream.StreamSupport;
 
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentnode.DocumentNode;
-import com.exasol.adapter.document.documentnode.json.JsonNodeVisitor;
 import com.exasol.adapter.document.files.stringfilter.StringFilter;
 
 /**
  * {@link DocumentFetcher} for the JSON lines file format.
  */
-public class JsonLinesDocumentFetcher extends AbstractFilesDocumentFetcher<JsonNodeVisitor> {
-    private static final long serialVersionUID = -2946894300385849999L;
+public class JsonLinesDocumentFetcher extends AbstractFilesDocumentFetcher {
+    private static final long serialVersionUID = -8072558589408147427L;
 
     /**
      * Create a new instance of {@link JsonLinesDocumentFetcher}.
@@ -27,7 +26,7 @@ public class JsonLinesDocumentFetcher extends AbstractFilesDocumentFetcher<JsonN
     }
 
     @Override
-    protected Stream<DocumentNode<JsonNodeVisitor>> readDocuments(final LoadedFile loadedFile) {
+    protected Stream<DocumentNode> readDocuments(final LoadedFile loadedFile) {
         return StreamSupport.stream(new JsonLinesIterable(loadedFile).spliterator(), false);
     }
 }

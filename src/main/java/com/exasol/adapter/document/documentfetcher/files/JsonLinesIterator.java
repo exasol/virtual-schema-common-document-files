@@ -9,13 +9,12 @@ import javax.json.spi.JsonProvider;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.json.JsonNodeFactory;
-import com.exasol.adapter.document.documentnode.json.JsonNodeVisitor;
 import com.exasol.errorreporting.ExaError;
 
 /**
  * This class iterates the lines of a JSON-Lines file an creates for each line a JSON {@link DocumentNode}.
  */
-class JsonLinesIterator implements Iterator<DocumentNode<JsonNodeVisitor>> {
+class JsonLinesIterator implements Iterator<DocumentNode> {
     private static final JsonProvider JSON = JsonProvider.provider();
     private final BufferedReader jsonlReader;
     private final InputStreamReader inputStreamReader;
@@ -62,7 +61,7 @@ class JsonLinesIterator implements Iterator<DocumentNode<JsonNodeVisitor>> {
     }
 
     @Override
-    public DocumentNode<JsonNodeVisitor> next() {
+    public DocumentNode next() {
         if (this.nextLine == null) {
             throw new NoSuchElementException();
         }

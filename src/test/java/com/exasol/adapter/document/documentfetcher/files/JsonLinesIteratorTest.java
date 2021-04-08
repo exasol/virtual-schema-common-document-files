@@ -10,20 +10,19 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
-import com.exasol.adapter.document.documentnode.json.JsonNodeVisitor;
 
 class JsonLinesIteratorTest {
     public static final String JSON_LINES_EXAMPLE = "{\"id\": \"test-1\"}\n{\"id\": \"test-2\"}";
 
     @Test
     void testReadLines() {
-        final List<DocumentNode<JsonNodeVisitor>> result = readJsonLines(JSON_LINES_EXAMPLE);
+        final List<DocumentNode> result = readJsonLines(JSON_LINES_EXAMPLE);
         assertThat(result.size(), equalTo(2));
     }
 
     @Test
     void testReadLinesWithAdditionalNewLine() {
-        final List<DocumentNode<JsonNodeVisitor>> result = readJsonLines(JSON_LINES_EXAMPLE + "\n\n");
+        final List<DocumentNode> result = readJsonLines(JSON_LINES_EXAMPLE + "\n\n");
         assertThat(result.size(), equalTo(2));
     }
 
@@ -61,9 +60,9 @@ class JsonLinesIteratorTest {
         assertThrows(NoSuchElementException.class, jsonLinesIterator::next);
     }
 
-    private List<DocumentNode<JsonNodeVisitor>> readJsonLines(final String s) {
+    private List<DocumentNode> readJsonLines(final String s) {
         final JsonLinesIterator jsonLinesIterator = getJsonLinesIterator(s);
-        final List<DocumentNode<JsonNodeVisitor>> result = new ArrayList<>();
+        final List<DocumentNode> result = new ArrayList<>();
         jsonLinesIterator.forEachRemaining(result::add);
         return result;
     }
