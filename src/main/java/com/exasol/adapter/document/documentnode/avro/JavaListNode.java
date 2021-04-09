@@ -10,6 +10,7 @@ import com.exasol.adapter.document.documentnode.DocumentNode;
  * This class wraps list of java objects as {@link DocumentNode}.
  */
 public class JavaListNode implements DocumentArray {
+    private static final long serialVersionUID = -2400489519576753876L;
     /** @serial */
     private final List<Object> values;
 

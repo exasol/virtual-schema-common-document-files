@@ -11,9 +11,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.exasol.ExaConnectionInformation;
 import com.exasol.adapter.document.documentfetcher.FetchedDocument;
@@ -21,41 +23,52 @@ import com.exasol.adapter.document.documentnode.holder.StringHolderNode;
 import com.exasol.adapter.document.files.stringfilter.StringFilter;
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
 
+@ExtendWith(MockitoExtension.class)
 class AbstractFilesDocumentFetcherTest {
     private static final String PREFIX = "prefix/";
+    @Mock
+    FileLoader fileLoader;
+    @Mock
+    FileLoaderFactory loaderFactory;
+    private ExaConnectionInformation connectionInformation;
+
+    @BeforeEach
+    void beforeEach() {
+        this.connectionInformation = mockConnectionInformation();
+    }
 
     @Test
     void testSourceReferences() {
-        final FileLoader fileLoader = mock(FileLoader.class);
-        when(fileLoader.loadFiles()).thenReturn(Stream.of(mockLoadedFile("file-1"), mockLoadedFile("file-2")));
-        final FileLoaderFactory loaderFactory = mock(FileLoaderFactory.class);
-        when(loaderFactory.getLoader(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(fileLoader);
+        when(this.fileLoader.loadFiles()).thenReturn(Stream.of(mockLoadedFile("file-1"), mockLoadedFile("file-2")));
+        when(this.loaderFactory.getLoader(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(this.fileLoader);
         final AbstractFilesDocumentFetcher documentFetcher = mock(AbstractFilesDocumentFetcher.class,
-                Mockito.withSettings().useConstructor(WildcardExpression.forNonWildcardString(""), null, loaderFactory)
+                Mockito.withSettings()
+                        .useConstructor(WildcardExpression.forNonWildcardString(""), null, this.loaderFactory)
                         .defaultAnswer(Mockito.CALLS_REAL_METHODS));
         when(documentFetcher.readDocuments(any())).thenAnswer(invocation -> Stream.of(new StringHolderNode("")));
-        final ExaConnectionInformation connectionInformation = mock(ExaConnectionInformation.class);
-        when(connectionInformation.getAddress()).thenReturn(PREFIX);
-        final List<String> sourceReferences = documentFetcher.run(connectionInformation)
+        final List<String> sourceReferences = documentFetcher.run(this.connectionInformation)
                 .map(FetchedDocument::getSourcePath).collect(Collectors.toList());
         assertThat(sourceReferences, containsInAnyOrder("file-1", "file-2"));
     }
 
     @Test
     void testPrefixIsAdded() {
-        final FileLoader dummyLoader = mock(FileLoader.class);
-        when(dummyLoader.loadFiles()).thenReturn(Stream.of());
-        final FileLoaderFactory loaderFactory = mock(FileLoaderFactory.class);
+        when(this.fileLoader.loadFiles()).thenReturn(Stream.of());
         final ArgumentCaptor<StringFilter> argumentCaptor = ArgumentCaptor.forClass(StringFilter.class);
-        when(loaderFactory.getLoader(argumentCaptor.capture(), Mockito.any(), Mockito.any())).thenReturn(dummyLoader);
+        when(this.loaderFactory.getLoader(argumentCaptor.capture(), Mockito.any(), Mockito.any()))
+                .thenReturn(this.fileLoader);
         final AbstractFilesDocumentFetcher documentFetcher = mock(AbstractFilesDocumentFetcher.class,
-                Mockito.withSettings().useConstructor(WildcardExpression.fromGlob("file-*"), null, loaderFactory)
+                Mockito.withSettings().useConstructor(WildcardExpression.fromGlob("file-*"), null, this.loaderFactory)
                         .defaultAnswer(Mockito.CALLS_REAL_METHODS));
-        final ExaConnectionInformation connectionInformation = mock(ExaConnectionInformation.class);
-        when(connectionInformation.getAddress()).thenReturn(PREFIX);
-        documentFetcher.run(connectionInformation);
+        documentFetcher.run(this.connectionInformation);
         assertThat(argumentCaptor.getValue().toString(), equalTo(
                 "(prefix/file-<DirectoryLimitedMultiCharWildcard>) AND (prefix/<CrossDirectoryMultiCharWildcard>)"));
+    }
+
+    private ExaConnectionInformation mockConnectionInformation() {
+        final ExaConnectionInformation connectionInformation = mock(ExaConnectionInformation.class);
+        when(connectionInformation.getAddress()).thenReturn(PREFIX);
+        return connectionInformation;
     }
 
     private LoadedFile mockLoadedFile(final String fileName) {
