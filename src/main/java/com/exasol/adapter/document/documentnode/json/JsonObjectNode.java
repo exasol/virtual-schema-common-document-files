@@ -12,6 +12,7 @@ import com.exasol.adapter.document.documentnode.DocumentObject;
  * This class represents JSON objects.
  */
 public class JsonObjectNode implements DocumentObject {
+    private static final long serialVersionUID = 4620082479753326426L;
     /** @serial */
     private final JsonObject jsonObject;
 

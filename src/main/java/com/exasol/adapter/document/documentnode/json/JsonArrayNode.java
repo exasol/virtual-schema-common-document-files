@@ -12,6 +12,7 @@ import com.exasol.adapter.document.documentnode.DocumentNode;
  * This class represents JSON arrays.
  */
 public class JsonArrayNode implements DocumentArray {
+    private static final long serialVersionUID = -2812502174409591338L;
     /** @serial */
     private final JsonArray jsonArray;
 
