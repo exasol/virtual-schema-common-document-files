@@ -10,6 +10,7 @@ import javax.json.JsonObject;
 import org.junit.jupiter.api.Test;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
+import com.exasol.adapter.document.documentnode.holder.StringHolderNode;
 
 class JsonObjectNodeTest {
 
@@ -17,8 +18,7 @@ class JsonObjectNodeTest {
 
     @Test
     void testCreation() {
-        final DocumentNode<JsonNodeVisitor> jsonNode = JsonNodeFactory.getInstance()
-                .getJsonNode(Json.createObjectBuilder().build());
+        final DocumentNode jsonNode = JsonNodeFactory.getInstance().getJsonNode(Json.createObjectBuilder().build());
         assertThat(jsonNode, instanceOf(JsonObjectNode.class));
     }
 
@@ -37,14 +37,14 @@ class JsonObjectNodeTest {
     @Test
     void testGet() {
         final JsonObjectNode objectNode = (JsonObjectNode) JsonNodeFactory.getInstance().getJsonNode(JSON_OBJECT);
-        final JsonStringNode result = (JsonStringNode) objectNode.get("key");
-        assertThat(result.getStringValue(), equalTo("value"));
+        final StringHolderNode result = (StringHolderNode) objectNode.get("key");
+        assertThat(result.getValue(), equalTo("value"));
     }
 
     @Test
     void testGetKeyValueMap() {
         final JsonObjectNode objectNode = (JsonObjectNode) JsonNodeFactory.getInstance().getJsonNode(JSON_OBJECT);
-        final JsonStringNode result = (JsonStringNode) objectNode.getKeyValueMap().get("key");
-        assertThat(result.getStringValue(), equalTo("value"));
+        final StringHolderNode result = (StringHolderNode) objectNode.getKeyValueMap().get("key");
+        assertThat(result.getValue(), equalTo("value"));
     }
 }

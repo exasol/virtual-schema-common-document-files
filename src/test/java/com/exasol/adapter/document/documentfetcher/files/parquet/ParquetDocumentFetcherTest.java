@@ -6,6 +6,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,8 +18,9 @@ import org.junit.jupiter.api.io.TempDir;
 
 import com.exasol.adapter.document.documentfetcher.files.LoadedFile;
 import com.exasol.adapter.document.documentfetcher.files.LocalLoadedFile;
+import com.exasol.adapter.document.documentnode.DocumentBigDecimalValue;
 import com.exasol.adapter.document.documentnode.DocumentNode;
-import com.exasol.adapter.document.documentnode.avro.*;
+import com.exasol.adapter.document.documentnode.avro.AvroRecordNode;
 
 class ParquetDocumentFetcherTest {
     @TempDir
@@ -26,31 +28,31 @@ class ParquetDocumentFetcherTest {
 
     @Test
     void testReadInt() throws IOException {
-        final Path parquetFile = getSingleValueParquetFile(Types.primitive(INT32, REQUIRED), 123);
-        final AvroValueNode valueNode = (AvroValueNode) runDocumentFetcherAndGetFirstResult(parquetFile)
-                .get("my_value");
-        assertThat(valueNode.getValue(), equalTo(123));
+        final Path parquetFile = getSingleValueParquetFile("my_value", Types.primitive(INT32, REQUIRED), 123);
+        final DocumentBigDecimalValue valueNode = (DocumentBigDecimalValue) runDocumentFetcherAndGetFirstResult(
+                parquetFile).get("my_value");
+        assertThat(valueNode.getValue(), equalTo(new BigDecimal(123)));
     }
 
     @Test
     void testReadDecimal() throws IOException {
-        final Path parquetFile = getSingleValueParquetFile(
+        final Path parquetFile = getSingleValueParquetFile("my_value",
                 Types.primitive(INT32, REQUIRED).as(LogicalTypeAnnotation.decimalType(2, 8)), 123);
-        final AvroValueNode valueNode = (AvroValueNode) runDocumentFetcherAndGetFirstResult(parquetFile)
-                .get("my_value");
-        assertThat(valueNode.getValue(), equalTo(123));
+        final DocumentBigDecimalValue valueNode = (DocumentBigDecimalValue) runDocumentFetcherAndGetFirstResult(
+                parquetFile).get("my_value");
+        assertThat(valueNode.getValue(), equalTo(new BigDecimal(123)));
     }
 
     @Test
     void testReadGroup() throws IOException {
         final Path parquetFile = getListParquetFile();
-        final AvroValueNode valueNode = (AvroValueNode) runDocumentFetcherAndGetFirstResult(parquetFile).get("numbers");
+        runDocumentFetcherAndGetFirstResult(parquetFile).get("numbers");
     }
 
     private AvroRecordNode runDocumentFetcherAndGetFirstResult(final Path parquetFile) throws IOException {
         final LoadedFile loadedFile = new LocalLoadedFile(parquetFile);
-        final List<DocumentNode<AvroNodeVisitor>> result = new ParquetDocumentFetcher(null, null, null)
-                .readDocuments(loadedFile).collect(Collectors.toList());
+        final List<DocumentNode> result = new ParquetDocumentFetcher(null, null, null).readDocuments(loadedFile)
+                .collect(Collectors.toList());
         return (AvroRecordNode) result.get(0);
     }
 
@@ -66,12 +68,10 @@ class ParquetDocumentFetcherTest {
         return parquetTestSetup.getParquetFile();
     }
 
-    private Path getSingleValueParquetFile(final Types.PrimitiveBuilder<PrimitiveType> typeBuilder, final int value)
-            throws IOException {
-        final ParquetTestSetup parquetTestSetup = new ParquetTestSetup(this.tempDir, typeBuilder.named("my_value"));
-        parquetTestSetup.writeRow(row -> row.add("my_value", value)).closeWriter();
-        parquetTestSetup.writeRow(row -> row.add("my_value", value)).closeWriter();
-        parquetTestSetup.writeRow(row -> row.add("my_value", value)).closeWriter();
+    private Path getSingleValueParquetFile(final String key, final Types.PrimitiveBuilder<PrimitiveType> typeBuilder,
+            final int value) throws IOException {
+        final ParquetTestSetup parquetTestSetup = new ParquetTestSetup(this.tempDir, typeBuilder.named(key));
+        parquetTestSetup.writeRow(row -> row.add(key, value)).closeWriter();
         return parquetTestSetup.getParquetFile();
     }
 }

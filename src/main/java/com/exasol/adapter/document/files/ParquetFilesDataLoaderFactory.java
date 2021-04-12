@@ -4,21 +4,23 @@ import java.util.List;
 
 import com.exasol.adapter.document.DataLoader;
 import com.exasol.adapter.document.DataLoaderImpl;
-import com.exasol.adapter.document.documentfetcher.files.*;
+import com.exasol.adapter.document.documentfetcher.files.FileLoaderFactory;
+import com.exasol.adapter.document.documentfetcher.files.SegmentDescription;
+import com.exasol.adapter.document.documentfetcher.files.parquet.ParquetDocumentFetcher;
 import com.exasol.adapter.document.files.stringfilter.StringFilter;
 
 /**
  * Factory for JSON-Lines {@link DataLoader}s.
  */
-public class JsonLinesFilesDataLoaderFactory extends AbstractFilesDataLoaderFactory {
+public class ParquetFilesDataLoaderFactory extends AbstractFilesDataLoaderFactory {
     @Override
     public List<String> getSupportedFileExtensions() {
-        return List.of(".jsonl");
+        return List.of(".parquet");
     }
 
     @Override
     protected DataLoader buildSingleDataLoader(final FileLoaderFactory fileLoaderFactory,
             final SegmentDescription segmentDescription, final StringFilter sourceFilter) {
-        return new DataLoaderImpl(new JsonLinesDocumentFetcher(sourceFilter, segmentDescription, fileLoaderFactory));
+        return new DataLoaderImpl(new ParquetDocumentFetcher(sourceFilter, segmentDescription, fileLoaderFactory));
     }
 }

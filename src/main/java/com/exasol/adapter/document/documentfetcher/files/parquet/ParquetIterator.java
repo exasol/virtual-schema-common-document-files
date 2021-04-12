@@ -8,14 +8,13 @@ import org.apache.avro.generic.GenericRecord;
 import org.apache.parquet.hadoop.ParquetReader;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
-import com.exasol.adapter.document.documentnode.avro.AvroNodeVisitor;
 import com.exasol.adapter.document.documentnode.avro.AvroRecordNode;
 import com.exasol.errorreporting.ExaError;
 
 /**
  * Iterator for parquet files.
  */
-class ParquetIterator implements Iterator<DocumentNode<AvroNodeVisitor>> {
+class ParquetIterator implements Iterator<DocumentNode> {
     private final ParquetReader<GenericRecord> reader;
     private GenericRecord next;
 
@@ -35,7 +34,7 @@ class ParquetIterator implements Iterator<DocumentNode<AvroNodeVisitor>> {
     }
 
     @Override
-    public DocumentNode<AvroNodeVisitor> next() {
+    public DocumentNode next() {
         final GenericRecord current = this.next;
         if (current == null) {
             throw new NoSuchElementException(ExaError.messageBuilder("F-VSDF-8").message("No more elements available.")

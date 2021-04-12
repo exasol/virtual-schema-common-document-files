@@ -2,22 +2,22 @@ package com.exasol.adapter.document.files;
 
 import java.util.List;
 
-import com.exasol.adapter.document.documentfetcher.files.FileLoaderFactory;
-import com.exasol.adapter.document.documentfetcher.files.JsonDocumentFetcher;
-import com.exasol.adapter.document.documentfetcher.files.SegmentDescription;
+import com.exasol.adapter.document.DataLoader;
+import com.exasol.adapter.document.DataLoaderImpl;
+import com.exasol.adapter.document.documentfetcher.files.*;
 import com.exasol.adapter.document.files.stringfilter.StringFilter;
 
 /**
- * Factory for JSON {@link JsonFilesDataLoader}.
+ * Factory for JSON {@link DataLoader}.
  */
 public class JsonFilesDataLoaderFactory extends AbstractFilesDataLoaderFactory {
 
     @Override
-    protected JsonFilesDataLoader buildSingleDataLoader(final FileLoaderFactory fileLoaderFactory,
+    protected DataLoader buildSingleDataLoader(final FileLoaderFactory fileLoaderFactory,
             final SegmentDescription segmentDescription, final StringFilter sourceFilter) {
         final JsonDocumentFetcher documentFetcher = new JsonDocumentFetcher(sourceFilter, segmentDescription,
                 fileLoaderFactory);
-        return new JsonFilesDataLoader(documentFetcher);
+        return new DataLoaderImpl(documentFetcher);
     }
 
     @Override

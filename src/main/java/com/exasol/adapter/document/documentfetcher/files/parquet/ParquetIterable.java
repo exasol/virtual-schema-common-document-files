@@ -6,12 +6,11 @@ import org.apache.avro.generic.GenericRecord;
 import org.apache.parquet.hadoop.ParquetReader;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
-import com.exasol.adapter.document.documentnode.avro.AvroNodeVisitor;
 
 /**
  * Iterable for parquet files.
  */
-class ParquetIterable implements Iterable<DocumentNode<AvroNodeVisitor>> {
+class ParquetIterable implements Iterable<DocumentNode> {
     private final ParquetReader<GenericRecord> reader;
 
     /**
@@ -24,7 +23,7 @@ class ParquetIterable implements Iterable<DocumentNode<AvroNodeVisitor>> {
     }
 
     @Override
-    public Iterator<DocumentNode<AvroNodeVisitor>> iterator() {
+    public Iterator<DocumentNode> iterator() {
         return new ParquetIterator(this.reader);
     }
 }

@@ -18,7 +18,6 @@ import org.mockito.Mockito;
 
 import com.exasol.ExaConnectionInformation;
 import com.exasol.adapter.document.documentnode.DocumentNode;
-import com.exasol.adapter.document.documentnode.json.JsonNodeVisitor;
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
 
 class JsonDocumentFetcherTest {
@@ -43,8 +42,7 @@ class JsonDocumentFetcherTest {
     void testReadDocument() {
         final LoadedFile loadedFile = new StringLoadedFile("{\"id\": \"book-1\"}", "string source");
         final JsonDocumentFetcher jsonDocumentFetcher = new JsonDocumentFetcher(null, null, null);
-        final List<DocumentNode<JsonNodeVisitor>> result = jsonDocumentFetcher.readDocuments(loadedFile)
-                .collect(Collectors.toList());
+        final List<DocumentNode> result = jsonDocumentFetcher.readDocuments(loadedFile).collect(Collectors.toList());
         assertThat(result.size(), equalTo(1));
     }
 

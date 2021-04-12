@@ -12,15 +12,14 @@ import org.apache.parquet.io.InputFile;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.files.*;
 import com.exasol.adapter.document.documentnode.DocumentNode;
-import com.exasol.adapter.document.documentnode.avro.AvroNodeVisitor;
 import com.exasol.adapter.document.files.stringfilter.StringFilter;
 import com.exasol.errorreporting.ExaError;
 
 /**
  * {@link DocumentFetcher} for parquet files.
  */
-public class ParquetDocumentFetcher extends AbstractFilesDocumentFetcher<AvroNodeVisitor> {
-    private static final long serialVersionUID = -3864074466066717654L;
+public class ParquetDocumentFetcher extends AbstractFilesDocumentFetcher {
+    private static final long serialVersionUID = -2501601443778189953L;
 
     /**
      * Create a new instance of {@link ParquetDocumentFetcher}.
@@ -29,13 +28,13 @@ public class ParquetDocumentFetcher extends AbstractFilesDocumentFetcher<AvroNod
      * @param segmentDescription segmentation for parallel execution
      * @param fileLoaderFactory  dependency in injection of {@link FileLoaderFactory}.
      */
-    protected ParquetDocumentFetcher(final StringFilter filePattern, final SegmentDescription segmentDescription,
+    public ParquetDocumentFetcher(final StringFilter filePattern, final SegmentDescription segmentDescription,
             final FileLoaderFactory fileLoaderFactory) {
         super(filePattern, segmentDescription, fileLoaderFactory);
     }
 
     @Override
-    protected Stream<DocumentNode<AvroNodeVisitor>> readDocuments(final LoadedFile loadedFile) {
+    protected Stream<DocumentNode> readDocuments(final LoadedFile loadedFile) {
         final InputFile hadoopInputFile = SeekableInputStreamAdapter.convert(loadedFile.getRandomAccessInputStream());
         try {
             final ParquetReader<GenericRecord> reader = AvroParquetReader.<GenericRecord>builder(hadoopInputFile)

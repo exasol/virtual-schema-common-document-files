@@ -36,7 +36,7 @@ public class ParquetTestSetup {
     }
 
     @FunctionalInterface
-    interface RowBuilder {
+    public interface RowBuilder {
         void populateRecord(final Group recordToFill);
     }
 }

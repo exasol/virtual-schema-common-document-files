@@ -3,12 +3,11 @@ package com.exasol.adapter.document.documentfetcher.files;
 import java.util.Iterator;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
-import com.exasol.adapter.document.documentnode.json.JsonNodeVisitor;
 
 /**
  * This class provides a {@link JsonLinesIterator} for a given JSON-Lines file.
  */
-class JsonLinesIterable implements Iterable<DocumentNode<JsonNodeVisitor>> {
+class JsonLinesIterable implements Iterable<DocumentNode> {
     private final LoadedFile jsonlFile;
 
     /**
@@ -21,7 +20,7 @@ class JsonLinesIterable implements Iterable<DocumentNode<JsonNodeVisitor>> {
     }
 
     @Override
-    public Iterator<DocumentNode<JsonNodeVisitor>> iterator() {
+    public Iterator<DocumentNode> iterator() {
         return new JsonLinesIterator(this.jsonlFile);
     }
 }

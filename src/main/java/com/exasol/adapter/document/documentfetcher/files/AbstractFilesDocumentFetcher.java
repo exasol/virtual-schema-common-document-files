@@ -14,9 +14,8 @@ import com.exasol.adapter.document.files.stringfilter.wildcardexpression.Wildcar
  * This is an abstract basis for {@link DocumentFetcher}s that fetch data from files.
  */
 @java.lang.SuppressWarnings("squid:S119") // DocumentVisitorType does not fit naming conventions.
-public abstract class AbstractFilesDocumentFetcher<DocumentVisitorType>
-        implements DocumentFetcher<DocumentVisitorType> {
-    private static final long serialVersionUID = -4554289393581677748L;
+public abstract class AbstractFilesDocumentFetcher implements DocumentFetcher {
+    private static final long serialVersionUID = -3587378975304602402L;
     /** @serial */
     private final StringFilter filePattern;
     /** @serial */
@@ -39,8 +38,7 @@ public abstract class AbstractFilesDocumentFetcher<DocumentVisitorType>
     }
 
     @Override
-    public final Stream<FetchedDocument<DocumentVisitorType>> run(
-            final ExaConnectionInformation connectionInformation) {
+    public final Stream<FetchedDocument> run(final ExaConnectionInformation connectionInformation) {
         final String prefix = connectionInformation.getAddress();
         final StringFilter filePatternWithPrefix = new PrefixPrepender().prependStaticPrefix(prefix, this.filePattern);
         final StringFilter filterWithPatternFromConnectionToPreventInjection = new StringFilterFactory()
@@ -52,10 +50,9 @@ public abstract class AbstractFilesDocumentFetcher<DocumentVisitorType>
         return fileStream.flatMap(loadedFile -> readLoadedFile(loadedFile, prefix));
     }
 
-    private Stream<FetchedDocument<DocumentVisitorType>> readLoadedFile(final LoadedFile loadedFile,
-            final String prefix) {
+    private Stream<FetchedDocument> readLoadedFile(final LoadedFile loadedFile, final String prefix) {
         final String relativeName = loadedFile.getResourceName().replaceFirst(Pattern.quote(prefix), "");
-        return readDocuments(loadedFile).map(document -> new FetchedDocument<>(document, relativeName));
+        return readDocuments(loadedFile).map(document -> new FetchedDocument(document, relativeName));
     }
 
     /**
@@ -68,5 +65,5 @@ public abstract class AbstractFilesDocumentFetcher<DocumentVisitorType>
      * @param loadedFile stream of the files contents with additional description for logging
      * @return read document nodes
      */
-    protected abstract Stream<DocumentNode<DocumentVisitorType>> readDocuments(LoadedFile loadedFile);
+    protected abstract Stream<DocumentNode> readDocuments(LoadedFile loadedFile);
 }

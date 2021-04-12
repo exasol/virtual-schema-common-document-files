@@ -1,10 +1,9 @@
 package com.exasol.adapter.document.documentnode.json;
 
-import javax.json.JsonNumber;
-import javax.json.JsonString;
-import javax.json.JsonValue;
+import javax.json.*;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
+import com.exasol.adapter.document.documentnode.holder.*;
 import com.exasol.errorreporting.ExaError;
 
 /**
@@ -32,22 +31,24 @@ public class JsonNodeFactory {
      * @param jsonValue JSON value
      * @return built JSON {@link DocumentNode}
      */
-    public DocumentNode<JsonNodeVisitor> getJsonNode(final JsonValue jsonValue) {
+    public DocumentNode getJsonNode(final JsonValue jsonValue) {
         switch (jsonValue.getValueType()) {
         case OBJECT:
             return new JsonObjectNode(jsonValue.asJsonObject());
         case ARRAY:
             return new JsonArrayNode(jsonValue.asJsonArray());
         case STRING:
-            return new JsonStringNode((JsonString) jsonValue);
+            final JsonString jsonString = (JsonString) jsonValue;
+            return new StringHolderNode(jsonString.getString());
         case NULL:
-            return new JsonNullNode();
+            return new NullHolderNode();
         case TRUE:
-            return new JsonBooleanNode(true);
+            return new BooleanHolderNode(true);
         case FALSE:
-            return new JsonBooleanNode(false);
+            return new BooleanHolderNode(false);
         case NUMBER:
-            return new JsonNumberNode((JsonNumber) jsonValue);
+            final JsonNumber jsonNumber = (JsonNumber) jsonValue;
+            return new BigDecimalHolderNode(jsonNumber.bigDecimalValue());
         default:
             throw new UnsupportedOperationException(ExaError.messageBuilder("F-VSDF-4")
                     .message("Unsupported json type: {{TYPE}}. Please open an issue.")

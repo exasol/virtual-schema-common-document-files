@@ -3,16 +3,24 @@ package com.exasol.adapter.document.files;
 import static com.exasol.matcher.ResultSetStructureMatcher.table;
 import static com.exasol.udfdebugging.PushDownTesting.getPushDownSql;
 import static com.exasol.udfdebugging.PushDownTesting.getSelectionThatIsSentToTheAdapter;
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.INT32;
+import static org.apache.parquet.schema.Type.Repetition.REQUIRED;
 import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-import java.io.InputStream;
+import java.io.*;
+import java.nio.file.Path;
 import java.sql.*;
 import java.util.function.Supplier;
 
+import org.apache.parquet.schema.Type;
+import org.apache.parquet.schema.Types;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import com.exasol.adapter.document.documentfetcher.files.parquet.ParquetTestSetup;
 
 @SuppressWarnings("java:S5786") // this class is public so that class from different packages can inherit
 public abstract class AbstractDocumentFilesAdapterIT {
@@ -74,7 +82,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
         final ResultSet result = getDataTypesTestResult("mapDataTypesToJson.json");
         assertThat(result, table("VARCHAR", "VARCHAR")//
                 .row("false", "false")//
-                .row("null", "null")//
+                .row("null", null)//
                 .row("number", "1.23")//
                 .row("string", "\"test\"")//
                 .row("true", "true")//
@@ -162,6 +170,23 @@ public abstract class AbstractDocumentFilesAdapterIT {
                     () -> assertThat(result, table().row("book-1").matches()), //
                     () -> assertThat(getPushDownSql(getStatement(), query), endsWith("WHERE TRUE"))// no post selection
             );
+        }
+    }
+
+    @Test
+    void testReadParquetFile(@TempDir final Path tempDir) throws IOException, SQLException {
+        createVirtualSchema(TEST_SCHEMA, "mapParquetFile.json");
+        final Type idColumn = Types.primitive(INT32, REQUIRED).named("id");
+        final ParquetTestSetup parquetTestSetup = new ParquetTestSetup(tempDir, idColumn);
+        parquetTestSetup.writeRow(row -> row.add("id", 123));
+        parquetTestSetup.closeWriter();
+        final Path parquetFile = parquetTestSetup.getParquetFile();
+        try (final FileInputStream parquetStream = new FileInputStream(parquetFile.toFile())) {
+            uploadDataFile(() -> parquetStream, "testData-1.parquet");
+        }
+        final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS";
+        try (final ResultSet result = getStatement().executeQuery(query)) {
+            assertThat(result, table().row("123").matches());
         }
     }
 

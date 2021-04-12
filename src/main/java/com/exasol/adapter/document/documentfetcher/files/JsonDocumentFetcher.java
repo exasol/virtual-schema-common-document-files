@@ -8,15 +8,14 @@ import javax.json.*;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.json.JsonNodeFactory;
-import com.exasol.adapter.document.documentnode.json.JsonNodeVisitor;
 import com.exasol.adapter.document.files.stringfilter.StringFilter;
 import com.exasol.errorreporting.ExaError;
 
 /**
  * {@link DocumentFetcher} for JSON files.
  */
-public class JsonDocumentFetcher extends AbstractFilesDocumentFetcher<JsonNodeVisitor> {
-    private static final long serialVersionUID = -8825186330680874523L;
+public class JsonDocumentFetcher extends AbstractFilesDocumentFetcher {
+    private static final long serialVersionUID = -9046044846522460457L;
     private static final JsonReaderFactory JSON_READER_FACTORY = Json.createReaderFactory(null);
 
     /**
@@ -32,7 +31,7 @@ public class JsonDocumentFetcher extends AbstractFilesDocumentFetcher<JsonNodeVi
     }
 
     @Override
-    protected Stream<DocumentNode<JsonNodeVisitor>> readDocuments(final LoadedFile loadedFile) {
+    protected Stream<DocumentNode> readDocuments(final LoadedFile loadedFile) {
         try (final JsonReader jsonReader = buildJsonReader(loadedFile.getInputStream())) {
             final JsonValue jsonValue = jsonReader.readValue();
             return Stream.of(JsonNodeFactory.getInstance().getJsonNode(jsonValue));
