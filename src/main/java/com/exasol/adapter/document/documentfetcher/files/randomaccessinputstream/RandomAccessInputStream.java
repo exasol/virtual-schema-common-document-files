@@ -54,4 +54,10 @@ public abstract class RandomAccessInputStream extends InputStream {
     public boolean markSupported() {
         return true;
     }
+
+    @Override
+    public long skip(final long bytesToSkip) throws IOException {
+        seek(getPos() + bytesToSkip);
+        return bytesToSkip;
+    }
 }
