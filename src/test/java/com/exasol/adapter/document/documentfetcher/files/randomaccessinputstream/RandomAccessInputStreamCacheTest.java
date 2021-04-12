@@ -12,6 +12,6 @@ class RandomAccessInputStreamCacheTest extends RandomAccessInputStreamTestBase {
 
     @Override
     protected RandomAccessInputStream getSeekableInputStream() {
-        return new RandomAccessInputStreamCache(new InMemoryRandomAccessStream(this.testData), 500);
+        return new RandomAccessInputStreamCache(new InMemoryRandomAccessStream(this.testData), 5000);
     }
 }
