@@ -15,7 +15,8 @@ public class RandomAccessInputStreamCache extends RandomAccessInputStream {
     /**
      * Create a new instance of {@link RandomAccessInputStream}.
      * 
-     * @param source source to wrap
+     * @param source    source to wrap
+     * @param cacheSize size of the cache
      */
     public RandomAccessInputStreamCache(final RandomAccessInputStream source, final int cacheSize) {
         this.source = source;
@@ -72,7 +73,7 @@ public class RandomAccessInputStreamCache extends RandomAccessInputStream {
                 this.position += cachedSize;
             }
             final long remainingSize = actualReadLength - cachedSize;
-            if (remainingSize > 0) {
+            if (remainingSize > 0) {// not everything requested was in the cache so we have to fetch it
                 return (int) cachedSize + readRemaining(destination, offset, cachedSize, remainingSize);
             }
         }
@@ -91,14 +92,17 @@ public class RandomAccessInputStreamCache extends RandomAccessInputStream {
             final long remainingSize) throws IOException {
         this.source.seek(this.position);
         if (remainingSize < this.cache.length) {
+            // request is smaller than cache so we will the cache and answer the request from it
             final int bytesRead = this.source.read(this.cache, 0, this.cache.length);
             final long requestedReadBytes = Math.min(bytesRead, remainingSize);
+            // copy from cache to destination array
             System.arraycopy(this.cache, 0, destination, (int) (offset + cachedSize), (int) requestedReadBytes);
             this.cacheStartPos = this.position;
             this.position += requestedReadBytes;
             this.usedCacheSize = bytesRead;
             return (int) requestedReadBytes;
         } else {
+            // request is larger than cache so we simply answer it by requesting the data from the source
             final int bytesRead = this.source.read(destination, (int) (offset + cachedSize), (int) remainingSize);
             this.position += bytesRead;
             return bytesRead;
