@@ -13,7 +13,7 @@ import com.exasol.adapter.document.documentfetcher.files.AbstractInputStreamTest
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class RandomAccessInputStreamTestBase extends AbstractInputStreamTest {
-    private static final byte[] testData = generateTestData(10000);
+    private static final byte[] testData = generateTestData(50000);
     private RandomAccessInputStream seekableStream;
 
     protected RandomAccessInputStreamTestBase() {
@@ -71,7 +71,8 @@ public abstract class RandomAccessInputStreamTestBase extends AbstractInputStrea
     void testBackwardSeek() throws IOException {
         this.seekableStream.readAllBytes();
         this.seekableStream.seek(0);
-        assertThat(this.seekableStream.readAllBytes(), equalTo(testData));
+        final byte[] result = this.seekableStream.readAllBytes();
+        assertThat("data was different", Arrays.equals(result, testData));
     }
 
     @Test
