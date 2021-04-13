@@ -9,9 +9,9 @@ import com.exasol.adapter.document.documentfetcher.files.SegmentDescription;
 import com.exasol.adapter.document.files.stringfilter.StringFilter;
 
 /**
- * Abstract basis for {@link FilesDataLoaderFactory}.
+ * Abstract basis for {@link FilesDocumentFetcherFactory}.
  */
-public abstract class AbstractFilesDataLoaderFactory implements FilesDataLoaderFactory {
+public abstract class AbstractFilesDocumentFetcherFactory implements FilesDocumentFetcherFactory {
     @Override
     public List<DocumentFetcher> buildDocumentFetcherForQuery(final StringFilter sourceFilter,
             final int maxNumberOfParallelFetchers, final FileLoaderFactory fileLoaderFactory) {

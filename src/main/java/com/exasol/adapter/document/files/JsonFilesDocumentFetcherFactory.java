@@ -9,7 +9,7 @@ import com.exasol.adapter.document.files.stringfilter.StringFilter;
 /**
  * Factory for JSON {@link DocumentFetcher}.
  */
-public class JsonFilesDataLoaderFactory extends AbstractFilesDataLoaderFactory {
+public class JsonFilesDocumentFetcherFactory extends AbstractFilesDocumentFetcherFactory {
 
     @Override
     protected DocumentFetcher buildSingleDocumentFetcher(final FileLoaderFactory fileLoaderFactory,

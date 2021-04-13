@@ -10,7 +10,7 @@ import com.exasol.adapter.document.files.stringfilter.StringFilter;
  * This interface defines factories for {@link DocumentFetcher}s for the files virtual schema. Classes implementing this
  * interface are loaded via a service loader. By that you can add support for new file types as a plugin.
  */
-public interface FilesDataLoaderFactory {
+public interface FilesDocumentFetcherFactory {
 
     /**
      * Get the file extensions for that this factory can build {@link DocumentFetcher}s.
