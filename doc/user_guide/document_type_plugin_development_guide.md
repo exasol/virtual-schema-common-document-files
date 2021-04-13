@@ -23,7 +23,7 @@ Implement this structure in the following steps:
 * Implement wrappers for the Java API classes of your data type that implement `DocumentArray`, `DocumentObject`, or `DocumentValue`. You can define multiple classes for each interface. For example `YOUR_TYPENumber` and `YOUR_TYPEString` both can implement `DocumentValue`. As a type parameter for the generic interfaces, use your Visitor.
 * Implement a factory that wraps the Java classes of your data type into the newly defined wrapper classes.
 
-If your data type does not has a Java API you can also create your own parser, that implements these interfaces.
+If your data type does not have a Java API you can also create your own parser, that implements these interfaces.
 
 ## The Property to Column Value Extractors
 
@@ -63,7 +63,7 @@ protected abstract Stream<DocumentNode<DocumentVisitorType>> readDocuments(Input
 
 Inside this method, you need to load the data and convert it into your class structure implementing the `DocumentNode` interfaces. The parameter `InputStreamWithResourceName` consists of an `InputStream` from which you can parse the data and a file name, that you can use for logging.
 
-Implement the method so that it converts the `loadedFile` into a `Stream<DocumentNode<YOUR_TYPEDocumentNodeVisitor>>` by parsing it and using the factory for your class structure. If your datatype has only one document per file, simply return `Set.of(YOUR_DOCUMTNT_NODE)`. Otherwise it is important to stream the data and not to collect it in a List first. For that implement an custom `Iterator` and `Iterable` and use:
+Implement the method so that it converts the `loadedFile` into a `Stream<DocumentNode<YOUR_TYPEDocumentNodeVisitor>>` by parsing it and using the factory for your class structure. If your datatype has only one document per file, simply return `Set.of(YOUR_DOCUMTNT_NODE)`. Otherwise it is important to stream the data and not to collect it in a List first. For that implement a custom `Iterator` and `Iterable` and use:
 
 ```java
 return StreamSupport.stream(new YOUR_ITERABLE(loadedFile).spliterator(), false);
