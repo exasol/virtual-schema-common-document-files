@@ -4,9 +4,7 @@ import java.util.ServiceLoader;
 
 import com.exasol.adapter.document.QueryPlanner;
 import com.exasol.adapter.document.documentfetcher.files.FileLoaderFactory;
-import com.exasol.adapter.document.queryplan.EmptyQueryPlan;
-import com.exasol.adapter.document.queryplan.FetchQueryPlan;
-import com.exasol.adapter.document.queryplan.QueryPlan;
+import com.exasol.adapter.document.queryplan.*;
 import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
 
 /**
@@ -34,7 +32,7 @@ public class FilesQueryPlanner implements QueryPlanner {
             return new EmptyQueryPlan();
         }
         final FilesDataLoaderFactory filesDataLoaderFactory = getFilesDataLoaderFactory(sourceString);
-        return new FetchQueryPlan(filesDataLoaderFactory.buildDataLoaderForQuery(splitSelection.getSourceFilter(),
+        return new FetchQueryPlan(filesDataLoaderFactory.buildDocumentFetcherForQuery(splitSelection.getSourceFilter(),
                 maxNumberOfParallelFetchers, this.fileLoaderFactory), splitSelection.getPostSelection());
     }
 

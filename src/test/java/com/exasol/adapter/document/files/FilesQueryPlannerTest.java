@@ -13,7 +13,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import com.exasol.adapter.document.DataLoader;
+import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.files.FileLoaderFactory;
 import com.exasol.adapter.document.mapping.SourceReferenceColumnMapping;
 import com.exasol.adapter.document.mapping.TableMapping;
@@ -41,15 +41,15 @@ class FilesQueryPlannerTest {
     void testJsonFileType() {
         final RemoteTableQuery remoteTableQuery = getRemoteTableQuery("test-*.json", new NoPredicate());
         final FetchQueryPlan queryPlan = (FetchQueryPlan) FACTORY.planQuery(remoteTableQuery, 10);
-        final List<DataLoader> dataLoaders = queryPlan.getDataLoaders();
-        assertThat(dataLoaders.size(), equalTo(10));
+        final List<DocumentFetcher> documentFetchers = queryPlan.getDocumentFetcher();
+        assertThat(documentFetchers.size(), equalTo(10));
     }
 
     @Test
     void testJsonlFileType() {
         final RemoteTableQuery remoteTableQuery = getRemoteTableQuery("test.jsonl", new NoPredicate());
         final FetchQueryPlan queryPlan = (FetchQueryPlan) FACTORY.planQuery(remoteTableQuery, 10);
-        final List<DataLoader> documentFetchers = queryPlan.getDataLoaders();
+        final List<DocumentFetcher> documentFetchers = queryPlan.getDocumentFetcher();
         assertThat(documentFetchers.size(), equalTo(1));
     }
 
