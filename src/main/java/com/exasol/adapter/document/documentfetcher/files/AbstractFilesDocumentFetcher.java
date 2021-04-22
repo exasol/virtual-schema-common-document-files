@@ -1,7 +1,8 @@
 package com.exasol.adapter.document.documentfetcher.files;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import com.exasol.ExaConnectionInformation;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
@@ -10,12 +11,15 @@ import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.files.stringfilter.*;
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
 
+import akka.NotUsed;
+import akka.stream.javadsl.Source;
+
 /**
  * This is an abstract basis for {@link DocumentFetcher}s that fetch data from files.
  */
 @java.lang.SuppressWarnings("squid:S119") // DocumentVisitorType does not fit naming conventions.
 public abstract class AbstractFilesDocumentFetcher implements DocumentFetcher {
-    private static final long serialVersionUID = -3587378975304602402L;
+    private static final long serialVersionUID = -7350431040429718519L;
     /** @serial */
     private final StringFilter filePattern;
     /** @serial */
@@ -38,21 +42,25 @@ public abstract class AbstractFilesDocumentFetcher implements DocumentFetcher {
     }
 
     @Override
-    public final Stream<FetchedDocument> run(final ExaConnectionInformation connectionInformation) {
+    public final Source<List<FetchedDocument>, NotUsed> run(final ExaConnectionInformation connectionInformation) {
         final String prefix = connectionInformation.getAddress();
         final StringFilter filePatternWithPrefix = new PrefixPrepender().prependStaticPrefix(prefix, this.filePattern);
         final StringFilter filterWithPatternFromConnectionToPreventInjection = new StringFilterFactory()
                 .and(filePatternWithPrefix, WildcardExpression.forNonWildcardPrefix(prefix));
-        final Stream<LoadedFile> fileStream = this.fileLoaderFactory
+        final Source<LoadedFile, NotUsed> fileStream = this.fileLoaderFactory
                 .getLoader(filterWithPatternFromConnectionToPreventInjection, this.segmentDescription,
                         connectionInformation)
                 .loadFiles();
-        return fileStream.flatMap(loadedFile -> readLoadedFile(loadedFile, prefix));
+        return fileStream.flatMapConcat(loadedFile -> readLoadedFile(loadedFile, prefix));
     }
 
-    private Stream<FetchedDocument> readLoadedFile(final LoadedFile loadedFile, final String prefix) {
+    private Source<List<FetchedDocument>, NotUsed> readLoadedFile(final LoadedFile loadedFile, final String prefix) {
         final String relativeName = loadedFile.getResourceName().replaceFirst(Pattern.quote(prefix), "");
-        return readDocuments(loadedFile).map(document -> new FetchedDocument(document, relativeName));
+        return Source.fromIterator(() -> {
+            final Iterator<FetchedDocument> fetchedDocuments = new TransformingIterator<>(readDocuments(loadedFile),
+                    document -> new FetchedDocument(document, relativeName));
+            return new ChunkBuildingIterator<>(fetchedDocuments);
+        });
     }
 
     /**
@@ -65,5 +73,5 @@ public abstract class AbstractFilesDocumentFetcher implements DocumentFetcher {
      * @param loadedFile stream of the files contents with additional description for logging
      * @return read document nodes
      */
-    protected abstract Stream<DocumentNode> readDocuments(LoadedFile loadedFile);
+    protected abstract Iterator<DocumentNode> readDocuments(LoadedFile loadedFile);
 }

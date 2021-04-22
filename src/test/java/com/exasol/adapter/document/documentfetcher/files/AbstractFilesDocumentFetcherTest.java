@@ -8,8 +8,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,6 +22,10 @@ import com.exasol.adapter.document.documentnode.holder.StringHolderNode;
 import com.exasol.adapter.document.files.stringfilter.StringFilter;
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
 
+import akka.actor.ActorSystem;
+import akka.stream.javadsl.Sink;
+import akka.stream.javadsl.Source;
+
 @ExtendWith(MockitoExtension.class)
 class AbstractFilesDocumentFetcherTest {
     private static final String PREFIX = "prefix/";
@@ -31,6 +34,7 @@ class AbstractFilesDocumentFetcherTest {
     @Mock
     FileLoaderFactory loaderFactory;
     private ExaConnectionInformation connectionInformation;
+    private final ActorSystem akka = ActorSystem.create("test");
 
     @BeforeEach
     void beforeEach() {
@@ -38,22 +42,24 @@ class AbstractFilesDocumentFetcherTest {
     }
 
     @Test
-    void testSourceReferences() {
-        when(this.fileLoader.loadFiles()).thenReturn(Stream.of(mockLoadedFile("file-1"), mockLoadedFile("file-2")));
+    void testSourceReferences() throws ExecutionException, InterruptedException {
+        final List<LoadedFile> loadedFiles = List.of(mockLoadedFile("file-1"), mockLoadedFile("file-2"));
+        when(this.fileLoader.loadFiles()).thenReturn(Source.from(loadedFiles));
         when(this.loaderFactory.getLoader(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(this.fileLoader);
         final AbstractFilesDocumentFetcher documentFetcher = mock(AbstractFilesDocumentFetcher.class,
                 Mockito.withSettings()
                         .useConstructor(WildcardExpression.forNonWildcardString(""), null, this.loaderFactory)
                         .defaultAnswer(Mockito.CALLS_REAL_METHODS));
-        when(documentFetcher.readDocuments(any())).thenAnswer(invocation -> Stream.of(new StringHolderNode("")));
-        final List<String> sourceReferences = documentFetcher.run(this.connectionInformation)
-                .map(FetchedDocument::getSourcePath).collect(Collectors.toList());
+        when(documentFetcher.readDocuments(any()))
+                .thenAnswer(invocation -> List.of(new StringHolderNode("")).iterator());
+        final List<String> sourceReferences = documentFetcher.run(this.connectionInformation).map(chunk -> chunk.get(0))
+                .map(FetchedDocument::getSourcePath).runWith(Sink.seq(), this.akka).toCompletableFuture().get();
         assertThat(sourceReferences, containsInAnyOrder("file-1", "file-2"));
     }
 
     @Test
     void testPrefixIsAdded() {
-        when(this.fileLoader.loadFiles()).thenReturn(Stream.of());
+        when(this.fileLoader.loadFiles()).thenReturn(Source.empty());
         final ArgumentCaptor<StringFilter> argumentCaptor = ArgumentCaptor.forClass(StringFilter.class);
         when(this.loaderFactory.getLoader(argumentCaptor.capture(), Mockito.any(), Mockito.any()))
                 .thenReturn(this.fileLoader);

@@ -1,7 +1,6 @@
 package com.exasol.adapter.document.documentfetcher.files;
 
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+import java.util.Iterator;
 
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentnode.DocumentNode;
@@ -11,7 +10,7 @@ import com.exasol.adapter.document.files.stringfilter.StringFilter;
  * {@link DocumentFetcher} for the JSON lines file format.
  */
 public class JsonLinesDocumentFetcher extends AbstractFilesDocumentFetcher {
-    private static final long serialVersionUID = -8072558589408147427L;
+    private static final long serialVersionUID = -7993760475689582484L;
 
     /**
      * Create a new instance of {@link JsonLinesDocumentFetcher}.
@@ -26,7 +25,7 @@ public class JsonLinesDocumentFetcher extends AbstractFilesDocumentFetcher {
     }
 
     @Override
-    protected Stream<DocumentNode> readDocuments(final LoadedFile loadedFile) {
-        return StreamSupport.stream(new JsonLinesIterable(loadedFile).spliterator(), false);
+    protected Iterator<DocumentNode> readDocuments(final LoadedFile loadedFile) {
+        return new JsonLinesIterator(loadedFile);
     }
 }
