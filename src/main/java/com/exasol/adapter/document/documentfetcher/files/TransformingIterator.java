@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.function.Function;
 
 /**
- * This class applies a transformation (function) on an {@link Iterator}.
+ * This class applies a transformation function on an {@link Iterator}.
  * 
  * @param <T> input type
  * @param <R> output type
