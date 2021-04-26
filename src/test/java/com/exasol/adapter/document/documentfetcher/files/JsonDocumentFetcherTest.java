@@ -7,9 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,29 +20,34 @@ import com.exasol.ExaConnectionInformation;
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
 
+import akka.actor.ActorSystem;
+import akka.stream.javadsl.Sink;
+import akka.stream.javadsl.Source;
+
 class JsonDocumentFetcherTest {
+    private final ActorSystem akka = ActorSystem.create("test");
 
     @Test
-    void testClosed() {
+    void testClosed() throws ExecutionException, InterruptedException {
         final AssertStreamIsClosedLoadedFile loadedFile = new AssertStreamIsClosedLoadedFile("{}");
         final FileLoader fileLoader = mock(FileLoader.class);
-        when(fileLoader.loadFiles()).thenReturn(Stream.of(loadedFile));
+        when(fileLoader.loadFiles()).thenReturn(Source.single(loadedFile));
         final FileLoaderFactory loaderFactory = mock(FileLoaderFactory.class);
         when(loaderFactory.getLoader(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(fileLoader);
         final JsonDocumentFetcher jsonDocumentFetcher = new JsonDocumentFetcher(
                 WildcardExpression.forNonWildcardString(""), null, loaderFactory);
         final ExaConnectionInformation connectionInformation = mock(ExaConnectionInformation.class);
         when(connectionInformation.getAddress()).thenReturn("");
-        jsonDocumentFetcher.run(connectionInformation).forEach(x -> {
-        });
+        jsonDocumentFetcher.run(connectionInformation).runWith(Sink.ignore(), this.akka).toCompletableFuture().get();
         assertThat(loadedFile.isStreamClosed(), equalTo(true));
     }
 
     @Test
-    void testReadDocument() {
+    void testReadDocument() throws ExecutionException, InterruptedException {
         final LoadedFile loadedFile = new StringLoadedFile("{\"id\": \"book-1\"}", "string source");
         final JsonDocumentFetcher jsonDocumentFetcher = new JsonDocumentFetcher(null, null, null);
-        final List<DocumentNode> result = jsonDocumentFetcher.readDocuments(loadedFile).collect(Collectors.toList());
+        final List<DocumentNode> result = new ArrayList<>();
+        jsonDocumentFetcher.readDocuments(loadedFile).forEachRemaining(result::add);
         assertThat(result.size(), equalTo(1));
     }
 

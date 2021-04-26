@@ -13,7 +13,7 @@ import com.exasol.adapter.document.documentnode.DocumentObject;
  * This class wraps an avro record.
  */
 public class AvroRecordNode implements DocumentObject {
-    private static final long serialVersionUID = 4901894006649229751L;
+    private static final long serialVersionUID = -3891287732407694481L;
     /** @serial */
     private final GenericRecord record;
 
@@ -39,6 +39,11 @@ public class AvroRecordNode implements DocumentObject {
 
     @Override
     public boolean hasKey(final String key) {
-        return this.record.getSchema().getFields().stream().anyMatch(field -> field.name().equals(key));
+        for (final Schema.Field field : this.record.getSchema().getFields()) {
+            if (field.name().equals(key)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

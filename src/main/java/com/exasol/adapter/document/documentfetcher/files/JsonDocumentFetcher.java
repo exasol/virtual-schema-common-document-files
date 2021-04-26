@@ -1,7 +1,8 @@
 package com.exasol.adapter.document.documentfetcher.files;
 
 import java.io.InputStream;
-import java.util.stream.Stream;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.json.*;
 
@@ -15,7 +16,7 @@ import com.exasol.errorreporting.ExaError;
  * {@link DocumentFetcher} for JSON files.
  */
 public class JsonDocumentFetcher extends AbstractFilesDocumentFetcher {
-    private static final long serialVersionUID = -9046044846522460457L;
+    private static final long serialVersionUID = 2766114889525275450L;
     private static final JsonReaderFactory JSON_READER_FACTORY = Json.createReaderFactory(null);
 
     /**
@@ -31,10 +32,10 @@ public class JsonDocumentFetcher extends AbstractFilesDocumentFetcher {
     }
 
     @Override
-    protected Stream<DocumentNode> readDocuments(final LoadedFile loadedFile) {
+    protected Iterator<DocumentNode> readDocuments(final LoadedFile loadedFile) {
         try (final JsonReader jsonReader = buildJsonReader(loadedFile.getInputStream())) {
             final JsonValue jsonValue = jsonReader.readValue();
-            return Stream.of(JsonNodeFactory.getInstance().getJsonNode(jsonValue));
+            return List.of(JsonNodeFactory.getInstance().getJsonNode(jsonValue)).iterator();
         } catch (final JsonException jsonException) {
             throw new InputDataException(
                     ExaError.messageBuilder("E-VSDF-1").message("Error in input file {{JSON_FILE}}.")

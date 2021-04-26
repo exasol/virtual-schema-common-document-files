@@ -8,8 +8,7 @@ import static org.hamcrest.Matchers.equalTo;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.parquet.example.data.Group;
 import org.apache.parquet.schema.*;
@@ -19,15 +18,16 @@ import org.junit.jupiter.api.io.TempDir;
 import com.exasol.adapter.document.documentfetcher.files.LoadedFile;
 import com.exasol.adapter.document.documentfetcher.files.LocalLoadedFile;
 import com.exasol.adapter.document.documentnode.DocumentBigDecimalValue;
-import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.avro.AvroRecordNode;
+
+import akka.actor.ActorSystem;
 
 class ParquetDocumentFetcherTest {
     @TempDir
     Path tempDir;
 
     @Test
-    void testReadInt() throws IOException {
+    void testReadInt() throws IOException, ExecutionException, InterruptedException {
         final Path parquetFile = getSingleValueParquetFile("my_value", Types.primitive(INT32, REQUIRED), 123);
         final DocumentBigDecimalValue valueNode = (DocumentBigDecimalValue) runDocumentFetcherAndGetFirstResult(
                 parquetFile).get("my_value");
@@ -35,7 +35,7 @@ class ParquetDocumentFetcherTest {
     }
 
     @Test
-    void testReadDecimal() throws IOException {
+    void testReadDecimal() throws IOException, ExecutionException, InterruptedException {
         final Path parquetFile = getSingleValueParquetFile("my_value",
                 Types.primitive(INT32, REQUIRED).as(LogicalTypeAnnotation.decimalType(2, 8)), 123);
         final DocumentBigDecimalValue valueNode = (DocumentBigDecimalValue) runDocumentFetcherAndGetFirstResult(
@@ -44,16 +44,16 @@ class ParquetDocumentFetcherTest {
     }
 
     @Test
-    void testReadGroup() throws IOException {
+    void testReadGroup() throws IOException, ExecutionException, InterruptedException {
         final Path parquetFile = getListParquetFile();
         runDocumentFetcherAndGetFirstResult(parquetFile).get("numbers");
     }
 
-    private AvroRecordNode runDocumentFetcherAndGetFirstResult(final Path parquetFile) throws IOException {
+    private AvroRecordNode runDocumentFetcherAndGetFirstResult(final Path parquetFile)
+            throws ExecutionException, InterruptedException {
+        final ActorSystem system = ActorSystem.create("DataProcessingPipeline");
         final LoadedFile loadedFile = new LocalLoadedFile(parquetFile);
-        final List<DocumentNode> result = new ParquetDocumentFetcher(null, null, null).readDocuments(loadedFile)
-                .collect(Collectors.toList());
-        return (AvroRecordNode) result.get(0);
+        return (AvroRecordNode) new ParquetDocumentFetcher(null, null, null).readDocuments(loadedFile).next();
     }
 
     private Path getListParquetFile() throws IOException {

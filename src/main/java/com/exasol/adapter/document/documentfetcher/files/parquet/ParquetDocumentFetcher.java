@@ -1,8 +1,7 @@
 package com.exasol.adapter.document.documentfetcher.files.parquet;
 
 import java.io.IOException;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+import java.util.Iterator;
 
 import org.apache.avro.generic.GenericRecord;
 import org.apache.parquet.avro.AvroParquetReader;
@@ -19,7 +18,7 @@ import com.exasol.errorreporting.ExaError;
  * {@link DocumentFetcher} for parquet files.
  */
 public class ParquetDocumentFetcher extends AbstractFilesDocumentFetcher {
-    private static final long serialVersionUID = -2501601443778189953L;
+    private static final long serialVersionUID = -5916279353029675791L;
 
     /**
      * Create a new instance of {@link ParquetDocumentFetcher}.
@@ -34,13 +33,12 @@ public class ParquetDocumentFetcher extends AbstractFilesDocumentFetcher {
     }
 
     @Override
-    protected Stream<DocumentNode> readDocuments(final LoadedFile loadedFile) {
+    protected Iterator<DocumentNode> readDocuments(final LoadedFile loadedFile) {
         final InputFile hadoopInputFile = SeekableInputStreamAdapter.convert(loadedFile.getRandomAccessInputStream());
         try {
             final ParquetReader<GenericRecord> reader = AvroParquetReader.<GenericRecord>builder(hadoopInputFile)
                     .build();
-            return StreamSupport.stream(new ParquetIterable(reader).spliterator(), false)
-                    .onClose(() -> tryToCloseReader(reader));
+            return new ParquetIterator(reader);// todo handle close
         } catch (final IOException exception) {
             throw new IllegalStateException(
                     ExaError.messageBuilder("E-VSDF-7").message("Failed to read parquet file.").toString(), exception);
