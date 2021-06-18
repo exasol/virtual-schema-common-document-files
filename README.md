@@ -1,6 +1,6 @@
 # Virtual Schema for Files
 
-[![Build Status](https://travis-ci.com/exasol/virtual-schema-common-document-files.svg?branch=master)](https://travis-ci.com/exasol/virtual-schema-common-document-files)
+[![Build Status](https://travis-ci.com/exasol/virtual-schema-common-document-files.svg?branch=main)](https://travis-ci.com/exasol/virtual-schema-common-document-files)
 [![Maven Central](https://img.shields.io/maven-central/v/com.exasol/virtual-schema-common-document-files)](https://search.maven.org/artifact/com.exasol/virtual-schema-common-document-files) 
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=com.exasol%3Avirtual-schema-common-document-files&metric=alert_status)](https://sonarcloud.io/dashboard?id=com.exasol%3Avirtual-schema-common-document-files)
