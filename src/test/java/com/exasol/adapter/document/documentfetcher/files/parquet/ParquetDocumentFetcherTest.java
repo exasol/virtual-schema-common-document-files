@@ -3,12 +3,15 @@ package com.exasol.adapter.document.documentfetcher.files.parquet;
 import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.INT32;
 import static org.apache.parquet.schema.Type.Repetition.REQUIRED;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import org.apache.parquet.example.data.Group;
 import org.apache.parquet.schema.*;
@@ -17,8 +20,9 @@ import org.junit.jupiter.api.io.TempDir;
 
 import com.exasol.adapter.document.documentfetcher.files.LoadedFile;
 import com.exasol.adapter.document.documentfetcher.files.LocalLoadedFile;
-import com.exasol.adapter.document.documentnode.DocumentBigDecimalValue;
-import com.exasol.adapter.document.documentnode.avro.AvroRecordNode;
+import com.exasol.adapter.document.documentnode.DocumentArray;
+import com.exasol.adapter.document.documentnode.DocumentDecimalValue;
+import com.exasol.adapter.document.documentnode.parquet.RowRecordNode;
 
 import akka.actor.ActorSystem;
 
@@ -29,8 +33,8 @@ class ParquetDocumentFetcherTest {
     @Test
     void testReadInt() throws IOException, ExecutionException, InterruptedException {
         final Path parquetFile = getSingleValueParquetFile("my_value", Types.primitive(INT32, REQUIRED), 123);
-        final DocumentBigDecimalValue valueNode = (DocumentBigDecimalValue) runDocumentFetcherAndGetFirstResult(
-                parquetFile).get("my_value");
+        final DocumentDecimalValue valueNode = (DocumentDecimalValue) runDocumentFetcherAndGetFirstResult(parquetFile)
+                .get("my_value");
         assertThat(valueNode.getValue(), equalTo(new BigDecimal(123)));
     }
 
@@ -38,22 +42,25 @@ class ParquetDocumentFetcherTest {
     void testReadDecimal() throws IOException, ExecutionException, InterruptedException {
         final Path parquetFile = getSingleValueParquetFile("my_value",
                 Types.primitive(INT32, REQUIRED).as(LogicalTypeAnnotation.decimalType(2, 8)), 123);
-        final DocumentBigDecimalValue valueNode = (DocumentBigDecimalValue) runDocumentFetcherAndGetFirstResult(
-                parquetFile).get("my_value");
-        assertThat(valueNode.getValue(), equalTo(new BigDecimal(123)));
+        final DocumentDecimalValue valueNode = (DocumentDecimalValue) runDocumentFetcherAndGetFirstResult(parquetFile)
+                .get("my_value");
+        assertThat(valueNode.getValue(), equalTo(BigDecimal.valueOf(1.23)));
     }
 
     @Test
     void testReadGroup() throws IOException, ExecutionException, InterruptedException {
         final Path parquetFile = getListParquetFile();
-        runDocumentFetcherAndGetFirstResult(parquetFile).get("numbers");
+        final DocumentArray array = (DocumentArray) runDocumentFetcherAndGetFirstResult(parquetFile).get("numbers");
+        final List<Integer> results = array.getValuesList().stream()
+                .map(each -> ((DocumentDecimalValue) each).getValue().intValue()).collect(Collectors.toList());
+        assertThat(results, contains(1, 2));
     }
 
-    private AvroRecordNode runDocumentFetcherAndGetFirstResult(final Path parquetFile)
+    private RowRecordNode runDocumentFetcherAndGetFirstResult(final Path parquetFile)
             throws ExecutionException, InterruptedException {
         final ActorSystem system = ActorSystem.create("DataProcessingPipeline");
         final LoadedFile loadedFile = new LocalLoadedFile(parquetFile);
-        return (AvroRecordNode) new ParquetDocumentFetcher(null, null, null).readDocuments(loadedFile).next();
+        return (RowRecordNode) new ParquetDocumentFetcher(null, null, null).readDocuments(loadedFile).next();
     }
 
     private Path getListParquetFile() throws IOException {

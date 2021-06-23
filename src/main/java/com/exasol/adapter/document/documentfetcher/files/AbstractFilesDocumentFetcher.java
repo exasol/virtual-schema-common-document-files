@@ -17,9 +17,8 @@ import akka.stream.javadsl.Source;
 /**
  * This is an abstract basis for {@link DocumentFetcher}s that fetch data from files.
  */
-@java.lang.SuppressWarnings("squid:S119") // DocumentVisitorType does not fit naming conventions.
 public abstract class AbstractFilesDocumentFetcher implements DocumentFetcher {
-    private static final long serialVersionUID = -7350431040429718519L;
+    private static final long serialVersionUID = 3720910714619545280L;
     /** @serial */
     private final StringFilter filePattern;
     /** @serial */
