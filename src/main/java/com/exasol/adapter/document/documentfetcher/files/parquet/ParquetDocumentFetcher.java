@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.avro.generic.GenericRecord;
-import org.apache.parquet.avro.AvroParquetReader;
 import org.apache.parquet.hadoop.ParquetReader;
 import org.apache.parquet.io.InputFile;
 
@@ -13,12 +12,14 @@ import com.exasol.adapter.document.documentfetcher.files.*;
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.files.stringfilter.StringFilter;
 import com.exasol.errorreporting.ExaError;
+import com.exasol.parquetio.data.Row;
+import com.exasol.parquetio.reader.RowParquetReader;
 
 /**
  * {@link DocumentFetcher} for parquet files.
  */
 public class ParquetDocumentFetcher extends AbstractFilesDocumentFetcher {
-    private static final long serialVersionUID = -5916279353029675791L;
+    private static final long serialVersionUID = -4369884468233699499L;
 
     /**
      * Create a new instance of {@link ParquetDocumentFetcher}.
@@ -36,8 +37,7 @@ public class ParquetDocumentFetcher extends AbstractFilesDocumentFetcher {
     protected Iterator<DocumentNode> readDocuments(final LoadedFile loadedFile) {
         final InputFile hadoopInputFile = SeekableInputStreamAdapter.convert(loadedFile.getRandomAccessInputStream());
         try {
-            final ParquetReader<GenericRecord> reader = AvroParquetReader.<GenericRecord>builder(hadoopInputFile)
-                    .build();
+            final ParquetReader<Row> reader = RowParquetReader.builder(hadoopInputFile).build();
             return new ParquetIterator(reader);// todo handle close
         } catch (final IOException exception) {
             throw new IllegalStateException(

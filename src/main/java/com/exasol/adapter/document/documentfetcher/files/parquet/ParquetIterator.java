@@ -4,26 +4,26 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import org.apache.avro.generic.GenericRecord;
 import org.apache.parquet.hadoop.ParquetReader;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
-import com.exasol.adapter.document.documentnode.avro.AvroRecordNode;
+import com.exasol.adapter.document.documentnode.parquet.RowRecordNode;
 import com.exasol.errorreporting.ExaError;
+import com.exasol.parquetio.data.Row;
 
 /**
  * Iterator for parquet files.
  */
 class ParquetIterator implements Iterator<DocumentNode> {
-    private final ParquetReader<GenericRecord> reader;
-    private GenericRecord next;
+    private final ParquetReader<Row> reader;
+    private Row next;
 
     /**
      * Create a new instance of {@link ParquetIterator}.
      * 
      * @param reader parquet reader
      */
-    ParquetIterator(final ParquetReader<GenericRecord> reader) {
+    ParquetIterator(final ParquetReader<Row> reader) {
         this.reader = reader;
         readNext();
     }
@@ -35,13 +35,13 @@ class ParquetIterator implements Iterator<DocumentNode> {
 
     @Override
     public DocumentNode next() {
-        final GenericRecord current = this.next;
+        final Row current = this.next;
         if (current == null) {
             throw new NoSuchElementException(ExaError.messageBuilder("F-VSDF-8").message("No more elements available.")
                     .ticketMitigation().toString());
         }
         readNext();
-        return new AvroRecordNode(current);
+        return new RowRecordNode(current);
     }
 
     private void readNext() {
