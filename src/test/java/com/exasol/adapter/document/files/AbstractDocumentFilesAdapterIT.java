@@ -155,7 +155,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
                             equalTo("BOOKS.SOURCE_REFERENCE='UNKNOWN.json'")),
                     () -> assertThat(result, table("VARCHAR").matches()), //
                     () -> assertThat(getPushDownSql(getStatement(), query),
-                            equalTo("SELECT * FROM (VALUES (CAST(NULL AS VARCHAR(254)))) WHERE FALSE")));
+                            equalTo("SELECT * FROM (VALUES (CAST(NULL AS  VARCHAR(254)))) WHERE FALSE")));
         }
     }
 
