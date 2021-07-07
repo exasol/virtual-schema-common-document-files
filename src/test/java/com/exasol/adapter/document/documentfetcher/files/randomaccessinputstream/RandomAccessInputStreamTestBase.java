@@ -35,11 +35,25 @@ public abstract class RandomAccessInputStreamTestBase extends AbstractInputStrea
 
     protected abstract void prepareTestSetup(byte[] testData) throws IOException;
 
+    /**
+     * This method is a hook for deleting the test setup created in {@link #prepareTestSetup(byte[])}.
+     * 
+     * @throws IOException if cleaning fails
+     */
+    protected void cleanupTestSetup() throws IOException {
+        // nothing to do.
+    }
+
     protected abstract RandomAccessInputStream getSeekableInputStream();
 
     @BeforeAll
     void beforeAll() throws IOException {
         this.prepareTestSetup(testData);
+    }
+
+    @AfterAll
+    void afterAll() throws IOException {
+        this.cleanupTestSetup();
     }
 
     @BeforeEach
