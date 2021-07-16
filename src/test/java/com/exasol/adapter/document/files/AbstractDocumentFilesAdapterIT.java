@@ -3,22 +3,30 @@ package com.exasol.adapter.document.files;
 import static com.exasol.matcher.ResultSetStructureMatcher.table;
 import static com.exasol.udfdebugging.PushDownTesting.getPushDownSql;
 import static com.exasol.udfdebugging.PushDownTesting.getSelectionThatIsSentToTheAdapter;
-import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.INT32;
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.BINARY;
 import static org.apache.parquet.schema.Type.Repetition.REQUIRED;
 import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.sql.*;
+import java.util.Random;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import org.apache.parquet.schema.Type;
 import org.apache.parquet.schema.Types;
+import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.exasol.adapter.document.documentfetcher.files.parquet.ParquetTestSetup;
 
@@ -26,10 +34,21 @@ import com.exasol.adapter.document.documentfetcher.files.parquet.ParquetTestSetu
 public abstract class AbstractDocumentFilesAdapterIT {
     private static final String TEST_SCHEMA = "TEST";
     private static final String IT_RESOURCES = "abstractIntegrationTests/";
+    @TempDir
+    Path tempDir;
 
     protected abstract Statement getStatement();
 
     protected abstract void uploadDataFile(final Supplier<InputStream> resource, String resourceName);
+
+    static Stream<Arguments> testLargeParquetFiles() {
+        final int k = 1000;
+        final int m = k * k;
+        return Stream.of(//
+                Arguments.of(k, 1 * m), //
+                Arguments.of(1 * m, k)//
+        );
+    }
 
     private void createVirtualSchema(final String schemaName, final String resourceName) {
         createVirtualSchema(schemaName, () -> AbstractDocumentFilesAdapterIT.class.getClassLoader()
@@ -173,21 +192,51 @@ public abstract class AbstractDocumentFilesAdapterIT {
         }
     }
 
+    protected abstract void uploadDataFile(final Path file, String resourceName);
+
     @Test
-    void testReadParquetFile(@TempDir final Path tempDir) throws IOException, SQLException {
+    void testReadParquetFile() throws IOException, SQLException {
         createVirtualSchema(TEST_SCHEMA, "mapParquetFile.json");
-        final Type idColumn = Types.primitive(INT32, REQUIRED).named("id");
-        final ParquetTestSetup parquetTestSetup = new ParquetTestSetup(tempDir, idColumn);
-        parquetTestSetup.writeRow(row -> row.add("id", 123));
+        final Type idColumn = Types.primitive(BINARY, REQUIRED).named("data");
+        final ParquetTestSetup parquetTestSetup = new ParquetTestSetup(this.tempDir, idColumn);
+        parquetTestSetup.writeRow(row -> row.add("data", "my test string"));
         parquetTestSetup.closeWriter();
-        final Path parquetFile = parquetTestSetup.getParquetFile();
-        try (final FileInputStream parquetStream = new FileInputStream(parquetFile.toFile())) {
-            uploadDataFile(() -> parquetStream, "testData-1.parquet");
+        uploadAsParquetFile(parquetTestSetup);
+        final String query = "SELECT \"DATA\" FROM " + TEST_SCHEMA + ".BOOKS";
+        assertQuery(query, table().row("my test string").matches());
+    }
+
+    @ParameterizedTest
+    @MethodSource("testLargeParquetFiles")
+    void testLargeParquetFiles(final int itemSize, final long itemCount) throws IOException, SQLException {
+        createVirtualSchema(TEST_SCHEMA, "mapParquetFile.json");
+        final Type idColumn = Types.primitive(BINARY, REQUIRED).named("data");
+        final ParquetTestSetup parquetTestSetup = new ParquetTestSetup(this.tempDir, idColumn);
+        final Random random = new Random();
+        for (long counter = 0; counter < itemCount; counter++) {
+            final byte[] data = new byte[itemSize];
+            random.nextBytes(data);
+            parquetTestSetup.writeRow(row -> {
+                row.add("data", new String(data, StandardCharsets.US_ASCII));
+            });
         }
-        final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS";
+        parquetTestSetup.closeWriter();
+        uploadAsParquetFile(parquetTestSetup);
+        final long testStart = System.currentTimeMillis();
+        final String query = "SELECT COUNT(*) FROM " + TEST_SCHEMA + ".BOOKS";
+        assertQuery(query, table().row(itemCount).matches());
+        System.out.println("test took: " + (System.currentTimeMillis() - testStart));
+    }
+
+    private void assertQuery(final String query, final Matcher<ResultSet> matcher) throws SQLException {
         try (final ResultSet result = getStatement().executeQuery(query)) {
-            assertThat(result, table().row("123").matches());
+            assertThat(result, matcher);
         }
+    }
+
+    private void uploadAsParquetFile(final ParquetTestSetup parquetTestSetup) throws IOException {
+        final Path parquetFile = parquetTestSetup.getParquetFile();
+        uploadDataFile(parquetFile, "testData-1.parquet");
     }
 
     private void createJsonVirtualSchema() {
