@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,13 +19,10 @@ import com.exasol.ExaConnectionInformation;
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
 
-import akka.actor.ActorSystem;
-
 class JsonDocumentFetcherTest {
-    private final ActorSystem akka = ActorSystem.create("test");
 
     @Test
-    void testClosed() throws ExecutionException, InterruptedException {
+    void testClosed() {
         final AssertStreamIsClosedLoadedFile loadedFile = new AssertStreamIsClosedLoadedFile("{}");
         final FileLoader fileLoader = mock(FileLoader.class);
         when(fileLoader.loadFiles()).thenReturn(List.of((LoadedFile) loadedFile).iterator());

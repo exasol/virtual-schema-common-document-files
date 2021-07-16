@@ -21,8 +21,6 @@ import com.exasol.adapter.document.documentnode.holder.StringHolderNode;
 import com.exasol.adapter.document.files.stringfilter.StringFilter;
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
 
-import akka.actor.ActorSystem;
-
 @ExtendWith(MockitoExtension.class)
 class AbstractFilesDocumentFetcherTest {
     private static final String PREFIX = "prefix/";
@@ -31,7 +29,6 @@ class AbstractFilesDocumentFetcherTest {
     @Mock
     FileLoaderFactory loaderFactory;
     private ExaConnectionInformation connectionInformation;
-    private final ActorSystem akka = ActorSystem.create("test");
 
     @BeforeEach
     void beforeEach() {
