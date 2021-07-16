@@ -1,24 +1,21 @@
 package com.exasol.adapter.document.documentfetcher.files;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.regex.Pattern;
 
 import com.exasol.ExaConnectionInformation;
+import com.exasol.adapter.document.FlatMapIterator;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.FetchedDocument;
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.files.stringfilter.*;
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
 
-import akka.NotUsed;
-import akka.stream.javadsl.Source;
-
 /**
  * This is an abstract basis for {@link DocumentFetcher}s that fetch data from files.
  */
 public abstract class AbstractFilesDocumentFetcher implements DocumentFetcher {
-    private static final long serialVersionUID = 3720910714619545280L;
+    private static final long serialVersionUID = 8379996344087768715L;
     /** @serial */
     private final StringFilter filePattern;
     /** @serial */
@@ -41,25 +38,22 @@ public abstract class AbstractFilesDocumentFetcher implements DocumentFetcher {
     }
 
     @Override
-    public final Source<List<FetchedDocument>, NotUsed> run(final ExaConnectionInformation connectionInformation) {
+    public final Iterator<FetchedDocument> run(final ExaConnectionInformation connectionInformation) {
         final String prefix = connectionInformation.getAddress();
         final StringFilter filePatternWithPrefix = new PrefixPrepender().prependStaticPrefix(prefix, this.filePattern);
         final StringFilter filterWithPatternFromConnectionToPreventInjection = new StringFilterFactory()
                 .and(filePatternWithPrefix, WildcardExpression.forNonWildcardPrefix(prefix));
-        final Source<LoadedFile, NotUsed> fileStream = this.fileLoaderFactory
+        final Iterator<LoadedFile> files = this.fileLoaderFactory
                 .getLoader(filterWithPatternFromConnectionToPreventInjection, this.segmentDescription,
                         connectionInformation)
                 .loadFiles();
-        return fileStream.flatMapConcat(loadedFile -> readLoadedFile(loadedFile, prefix));
+        return new FlatMapIterator<>(files, loadedFile -> readLoadedFile(loadedFile, prefix));
     }
 
-    private Source<List<FetchedDocument>, NotUsed> readLoadedFile(final LoadedFile loadedFile, final String prefix) {
+    private Iterator<FetchedDocument> readLoadedFile(final LoadedFile loadedFile, final String prefix) {
         final String relativeName = loadedFile.getResourceName().replaceFirst(Pattern.quote(prefix), "");
-        return Source.fromIterator(() -> {
-            final Iterator<FetchedDocument> fetchedDocuments = new TransformingIterator<>(readDocuments(loadedFile),
-                    document -> new FetchedDocument(document, relativeName));
-            return new ChunkBuildingIterator<>(fetchedDocuments);
-        });
+        return new TransformingIterator<>(readDocuments(loadedFile),
+                document -> new FetchedDocument(document, relativeName));
     }
 
     /**

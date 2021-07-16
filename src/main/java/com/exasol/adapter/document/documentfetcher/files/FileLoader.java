@@ -1,7 +1,6 @@
 package com.exasol.adapter.document.documentfetcher.files;
 
-import akka.NotUsed;
-import akka.stream.javadsl.Source;
+import java.util.Iterator;
 
 /**
  * Classes implementing this interface load files from a specific files system type or network storage.
@@ -13,5 +12,5 @@ public interface FileLoader {
      * 
      * @return content of the file
      */
-    public Source<LoadedFile, NotUsed> loadFiles();
+    public Iterator<LoadedFile> loadFiles();
 }

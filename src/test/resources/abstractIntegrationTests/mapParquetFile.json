@@ -6,7 +6,7 @@
   "addSourceReferenceColumn": true,
   "mapping": {
     "fields": {
-      "id": {
+      "data": {
         "toVarcharMapping": {
         }
       }

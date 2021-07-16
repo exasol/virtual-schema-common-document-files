@@ -10,7 +10,7 @@ import org.junit.jupiter.api.io.TempDir;
  * This class runs the tests from {@link RandomAccessInputStreamTestBase} against {@link RandomAccessFile} to see if the
  * test work on a proper implementation.
  */
-class RandomAccessInputStreamReferenceImplementationTest extends RandomAccessInputStreamTestBase {
+class FileRandomAccessInputStreamTest extends RandomAccessInputStreamTestBase {
     @TempDir
     static Path tempDir;
     private Path testFile;
@@ -24,7 +24,7 @@ class RandomAccessInputStreamReferenceImplementationTest extends RandomAccessInp
     @Override
     protected RandomAccessInputStream getSeekableInputStream() {
         try {
-            return new RandomAccessInputStreamReferenceImplementation(this.testFile.toFile());
+            return new FileRandomAccessInputStream(this.testFile.toFile());
         } catch (final FileNotFoundException exception) {
             throw new IllegalArgumentException(exception);
         }

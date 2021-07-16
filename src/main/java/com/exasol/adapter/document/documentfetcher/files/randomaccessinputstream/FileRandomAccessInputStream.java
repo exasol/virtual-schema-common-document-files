@@ -2,10 +2,19 @@ package com.exasol.adapter.document.documentfetcher.files.randomaccessinputstrea
 
 import java.io.*;
 
-class RandomAccessInputStreamReferenceImplementation extends RandomAccessInputStream {
+/**
+ * This class implements a {@link RandomAccessInputStream} for local files.
+ */
+public class FileRandomAccessInputStream extends RandomAccessInputStream {
     private final RandomAccessFile fileReader;
 
-    RandomAccessInputStreamReferenceImplementation(final File file) throws FileNotFoundException {
+    /**
+     * Create a new instance of {@link FileRandomAccessInputStream}.
+     * 
+     * @param file file to open
+     * @throws FileNotFoundException if open failes
+     */
+    public FileRandomAccessInputStream(final File file) throws FileNotFoundException {
         this.fileReader = new RandomAccessFile(file, "r");
     }
 
@@ -30,8 +39,18 @@ class RandomAccessInputStreamReferenceImplementation extends RandomAccessInputSt
     }
 
     @Override
+    public int read(final byte[] b) throws IOException {
+        return this.fileReader.read(b);
+    }
+
+    @Override
+    public int read(final byte[] b, final int off, final int len) throws IOException {
+        return this.fileReader.read(b, off, len);
+    }
+
+    @Override
     public void close() throws IOException {
-        super.close();
         this.fileReader.close();
+        super.close();
     }
 }

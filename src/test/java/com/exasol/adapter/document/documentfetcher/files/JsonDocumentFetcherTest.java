@@ -21,8 +21,6 @@ import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
 
 import akka.actor.ActorSystem;
-import akka.stream.javadsl.Sink;
-import akka.stream.javadsl.Source;
 
 class JsonDocumentFetcherTest {
     private final ActorSystem akka = ActorSystem.create("test");
@@ -31,19 +29,21 @@ class JsonDocumentFetcherTest {
     void testClosed() throws ExecutionException, InterruptedException {
         final AssertStreamIsClosedLoadedFile loadedFile = new AssertStreamIsClosedLoadedFile("{}");
         final FileLoader fileLoader = mock(FileLoader.class);
-        when(fileLoader.loadFiles()).thenReturn(Source.single(loadedFile));
+        when(fileLoader.loadFiles()).thenReturn(List.of((LoadedFile) loadedFile).iterator());
         final FileLoaderFactory loaderFactory = mock(FileLoaderFactory.class);
         when(loaderFactory.getLoader(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(fileLoader);
         final JsonDocumentFetcher jsonDocumentFetcher = new JsonDocumentFetcher(
                 WildcardExpression.forNonWildcardString(""), null, loaderFactory);
         final ExaConnectionInformation connectionInformation = mock(ExaConnectionInformation.class);
         when(connectionInformation.getAddress()).thenReturn("");
-        jsonDocumentFetcher.run(connectionInformation).runWith(Sink.ignore(), this.akka).toCompletableFuture().get();
+        jsonDocumentFetcher.run(connectionInformation).forEachRemaining(x -> {
+            // just run through
+        });
         assertThat(loadedFile.isStreamClosed(), equalTo(true));
     }
 
     @Test
-    void testReadDocument() throws ExecutionException, InterruptedException {
+    void testReadDocument() {
         final LoadedFile loadedFile = new StringLoadedFile("{\"id\": \"book-1\"}", "string source");
         final JsonDocumentFetcher jsonDocumentFetcher = new JsonDocumentFetcher(null, null, null);
         final List<DocumentNode> result = new ArrayList<>();
