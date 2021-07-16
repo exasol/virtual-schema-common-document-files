@@ -12,7 +12,7 @@ public class FileRandomAccessInputStream extends RandomAccessInputStream {
      * Create a new instance of {@link FileRandomAccessInputStream}.
      * 
      * @param file file to open
-     * @throws FileNotFoundException if open failes
+     * @throws FileNotFoundException if open fails
      */
     public FileRandomAccessInputStream(final File file) throws FileNotFoundException {
         this.fileReader = new RandomAccessFile(file, "r");
