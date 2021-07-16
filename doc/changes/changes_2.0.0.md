@@ -8,7 +8,7 @@ In this release we added Parquet support and did performance optimizations.
 
 ## Features
 
-* #60: Parquet support
+* #47: Parquet support
 
 ## Dependency Updates
 
