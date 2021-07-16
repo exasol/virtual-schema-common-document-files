@@ -73,13 +73,13 @@
 [58]: http://zlika.github.io/reproducible-build-maven-plugin
 [32]: http://maven.apache.org/plugins/maven-jar-plugin/
 [27]: https://www.apache.org/licenses/LICENSE-2.0.txt
-[24]: https://github.com/exasol/udf-debugging-javat
 [44]: https://maven.apache.org/enforcer/maven-enforcer-plugin/
 [13]: https://github.com/mockito/mockito/blob/release/3.x/LICENSE
 [9]: https://www.eclipse.org/legal/epl-v20.html
 [64]: http://maven.apache.org/plugins/maven-install-plugin/
 [8]: https://junit.org/junit5/
 [42]: https://sonatype.github.io/ossindex-maven/maven-plugin/
+[24]: https://github.com/exasol/udf-debugging-java
 [34]: https://maven.apache.org/plugins/maven-source-plugin/
 [6]: http://hamcrest.org/JavaHamcrest/
 [52]: http://maven.apache.org/plugins/maven-deploy-plugin/
