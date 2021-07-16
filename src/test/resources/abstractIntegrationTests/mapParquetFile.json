@@ -1,0 +1,15 @@
+{
+  "$schema": "https://schemas.exasol.com/edml-1.2.0.json",
+  "source": "testData-*.parquet",
+  "destinationTable": "BOOKS",
+  "description": "Maps MY_BOOKS to BOOKS",
+  "addSourceReferenceColumn": true,
+  "mapping": {
+    "fields": {
+      "data": {
+        "toVarcharMapping": {
+        }
+      }
+    }
+  }
+}

@@ -1,51 +1,46 @@
 package com.exasol.adapter.document.documentfetcher.files;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.StringReader;
+import java.io.*;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import javax.json.JsonException;
-import javax.json.JsonReader;
-import javax.json.JsonValue;
+import javax.json.*;
 import javax.json.spi.JsonProvider;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.json.JsonNodeFactory;
-import com.exasol.adapter.document.documentnode.json.JsonNodeVisitor;
 import com.exasol.errorreporting.ExaError;
 
 /**
  * This class iterates the lines of a JSON-Lines file an creates for each line a JSON {@link DocumentNode}.
  */
-class JsonLinesIterator implements Iterator<DocumentNode<JsonNodeVisitor>> {
+class JsonLinesIterator implements Iterator<DocumentNode> {
     private static final JsonProvider JSON = JsonProvider.provider();
     private final BufferedReader jsonlReader;
-    private final InputStreamWithResourceName jsonlFile;
     private final InputStreamReader inputStreamReader;
     private String nextLine = null;
     private long lineCounter = 0;
+    private final String resourceName;
 
     /**
      * Create a new instance of {@link JsonLinesIterator}.
      * 
      * @param jsonlFile file loader for the JSON-Lines file
      */
-    JsonLinesIterator(final InputStreamWithResourceName jsonlFile) {
-        this.jsonlFile = jsonlFile;
-        this.inputStreamReader = new InputStreamReader(this.jsonlFile.getInputStream());
+    JsonLinesIterator(final LoadedFile jsonlFile) {
+        this.inputStreamReader = new InputStreamReader(jsonlFile.getInputStream());
         this.jsonlReader = new BufferedReader(this.inputStreamReader);
+        this.resourceName = jsonlFile.getResourceName();
         readNextLine();
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        this.jsonlFile.close();
-        this.inputStreamReader.close();
-        this.jsonlReader.close();
-        super.finalize();
+    private void closeResources() {
+        try {
+            this.inputStreamReader.close();
+            this.jsonlReader.close();
+        } catch (final IOException exception) {
+            // at least we tried...
+        }
     }
 
     private void readNextLine() {
@@ -54,10 +49,13 @@ class JsonLinesIterator implements Iterator<DocumentNode<JsonNodeVisitor>> {
                 this.nextLine = this.jsonlReader.readLine();
                 this.lineCounter++;
             } while (this.nextLine != null && this.nextLine.isBlank());
+            if (!hasNext()) {
+                closeResources();
+            }
         } catch (final IOException exception) {
             throw new InputDataException(
                     ExaError.messageBuilder("E-VSDF-2").message("Failed to read from data file {{JSONL_FILE}}.")
-                            .parameter("JSONL_FILE", this.jsonlFile.getResourceName()).toString(),
+                            .parameter("JSONL_FILE", this.resourceName).toString(),
                     exception);
         }
     }
@@ -68,7 +66,7 @@ class JsonLinesIterator implements Iterator<DocumentNode<JsonNodeVisitor>> {
     }
 
     @Override
-    public DocumentNode<JsonNodeVisitor> next() {
+    public DocumentNode next() {
         if (this.nextLine == null) {
             throw new NoSuchElementException();
         }
@@ -80,8 +78,8 @@ class JsonLinesIterator implements Iterator<DocumentNode<JsonNodeVisitor>> {
             } catch (final JsonException exception) {
                 throw new InputDataException(ExaError.messageBuilder("E-VSDF-3").message(
                         "Failed to parse JSON-Lines from {{JSONL_FILE}}. Invalid JSON document in line {{LINE}}.")
-                        .parameter("JSONL_FILE", this.jsonlFile.getResourceName()).parameter("LINE", this.lineCounter)
-                        .toString(), exception);
+                        .parameter("JSONL_FILE", this.resourceName).parameter("LINE", this.lineCounter).toString(),
+                        exception);
             }
         }
     }

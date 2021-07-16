@@ -1,0 +1,4 @@
+error-tags:
+  VSDF:
+    packages:
+      - com.exasol.adapter.document

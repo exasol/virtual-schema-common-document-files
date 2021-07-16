@@ -11,7 +11,8 @@ import com.exasol.adapter.document.documentnode.DocumentNode;
 /**
  * This class represents JSON arrays.
  */
-public class JsonArrayNode implements DocumentArray<JsonNodeVisitor> {
+public class JsonArrayNode implements DocumentArray {
+    private static final long serialVersionUID = -2812502174409591338L;
     /** @serial */
     private final JsonArray jsonArray;
 
@@ -25,32 +26,18 @@ public class JsonArrayNode implements DocumentArray<JsonNodeVisitor> {
     }
 
     @Override
-    public List<? extends DocumentNode<JsonNodeVisitor>> getValuesList() {
+    public List<DocumentNode> getValuesList() {
         return this.jsonArray.stream().map(each -> JsonNodeFactory.getInstance().getJsonNode(each))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public DocumentNode<JsonNodeVisitor> getValue(final int index) {
+    public DocumentNode getValue(final int index) {
         return JsonNodeFactory.getInstance().getJsonNode(this.jsonArray.get(index));
     }
 
     @Override
     public int size() {
         return this.jsonArray.size();
-    }
-
-    @Override
-    public void accept(final JsonNodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    /**
-     * Get the wrapped JSON array.
-     * 
-     * @return wrapped JSON array
-     */
-    public JsonArray getJsonArray() {
-        return this.jsonArray;
     }
 }

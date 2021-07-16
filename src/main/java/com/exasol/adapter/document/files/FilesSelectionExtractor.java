@@ -10,13 +10,8 @@ import com.exasol.adapter.document.files.stringfilter.StringFilterFactory;
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
 import com.exasol.adapter.document.mapping.SourceReferenceColumnMapping;
 import com.exasol.adapter.document.queryplanning.selectionextractor.SelectionExtractor;
-import com.exasol.adapter.document.querypredicate.AbstractComparisonPredicate;
-import com.exasol.adapter.document.querypredicate.ColumnLiteralComparisonPredicate;
-import com.exasol.adapter.document.querypredicate.ComparisonPredicate;
-import com.exasol.adapter.document.querypredicate.QueryPredicate;
-import com.exasol.adapter.document.querypredicate.normalizer.DnfAnd;
-import com.exasol.adapter.document.querypredicate.normalizer.DnfComparison;
-import com.exasol.adapter.document.querypredicate.normalizer.DnfOr;
+import com.exasol.adapter.document.querypredicate.*;
+import com.exasol.adapter.document.querypredicate.normalizer.*;
 import com.exasol.adapter.sql.SqlLiteralString;
 import com.exasol.errorreporting.ExaError;
 
@@ -53,7 +48,7 @@ public class FilesSelectionExtractor {
             final SelectionExtractor selectionExtractor = new SelectionExtractor(
                     comparison -> comparison instanceof ColumnLiteralComparisonPredicate
                             && comparison.getComparedColumns().stream()
-                                    .anyMatch(column -> column instanceof SourceReferenceColumnMapping)
+                                    .anyMatch(SourceReferenceColumnMapping.class::isInstance)
                             && SUPPORTED_OPERATORS.contains(comparison.getOperator()));
             final SelectionExtractor.Result selectionExtractionResult = selectionExtractor
                     .extractIndexColumnSelection(selection);

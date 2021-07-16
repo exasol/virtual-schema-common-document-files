@@ -1,24 +1,21 @@
 package com.exasol.adapter.document.documentfetcher.files;
 
+import java.util.Iterator;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import com.exasol.ExaConnectionInformation;
+import com.exasol.adapter.document.FlatMapIterator;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.FetchedDocument;
 import com.exasol.adapter.document.documentnode.DocumentNode;
-import com.exasol.adapter.document.files.stringfilter.PrefixPrepender;
-import com.exasol.adapter.document.files.stringfilter.StringFilter;
-import com.exasol.adapter.document.files.stringfilter.StringFilterFactory;
+import com.exasol.adapter.document.files.stringfilter.*;
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
 
 /**
  * This is an abstract basis for {@link DocumentFetcher}s that fetch data from files.
  */
-@java.lang.SuppressWarnings("squid:S119") // DocumentVisitorType does not fit naming conventions.
-public abstract class AbstractFilesDocumentFetcher<DocumentVisitorType>
-        implements DocumentFetcher<DocumentVisitorType> {
-    private static final long serialVersionUID = 2343157697125338324L;
+public abstract class AbstractFilesDocumentFetcher implements DocumentFetcher {
+    private static final long serialVersionUID = 8379996344087768715L;
     /** @serial */
     private final StringFilter filePattern;
     /** @serial */
@@ -41,23 +38,22 @@ public abstract class AbstractFilesDocumentFetcher<DocumentVisitorType>
     }
 
     @Override
-    public final Stream<FetchedDocument<DocumentVisitorType>> run(
-            final ExaConnectionInformation connectionInformation) {
+    public final Iterator<FetchedDocument> run(final ExaConnectionInformation connectionInformation) {
         final String prefix = connectionInformation.getAddress();
         final StringFilter filePatternWithPrefix = new PrefixPrepender().prependStaticPrefix(prefix, this.filePattern);
         final StringFilter filterWithPatternFromConnectionToPreventInjection = new StringFilterFactory()
                 .and(filePatternWithPrefix, WildcardExpression.forNonWildcardPrefix(prefix));
-        final Stream<InputStreamWithResourceName> fileStream = this.fileLoaderFactory
+        final Iterator<LoadedFile> files = this.fileLoaderFactory
                 .getLoader(filterWithPatternFromConnectionToPreventInjection, this.segmentDescription,
                         connectionInformation)
                 .loadFiles();
-        return fileStream.flatMap(loadedFile -> readLoadedFile(loadedFile, prefix));
+        return new FlatMapIterator<>(files, loadedFile -> readLoadedFile(loadedFile, prefix));
     }
 
-    private Stream<FetchedDocument<DocumentVisitorType>> readLoadedFile(final InputStreamWithResourceName loadedFile,
-            final String prefix) {
+    private Iterator<FetchedDocument> readLoadedFile(final LoadedFile loadedFile, final String prefix) {
         final String relativeName = loadedFile.getResourceName().replaceFirst(Pattern.quote(prefix), "");
-        return readDocuments(loadedFile).map(document -> new FetchedDocument<>(document, relativeName));
+        return new TransformingIterator<>(readDocuments(loadedFile),
+                document -> new FetchedDocument(document, relativeName));
     }
 
     /**
@@ -70,5 +66,5 @@ public abstract class AbstractFilesDocumentFetcher<DocumentVisitorType>
      * @param loadedFile stream of the files contents with additional description for logging
      * @return read document nodes
      */
-    protected abstract Stream<DocumentNode<DocumentVisitorType>> readDocuments(InputStreamWithResourceName loadedFile);
+    protected abstract Iterator<DocumentNode> readDocuments(LoadedFile loadedFile);
 }

@@ -1,25 +1,36 @@
 package com.exasol.adapter.document.files;
 
-import org.junit.jupiter.api.Test;
-
-import java.io.InputStream;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.function.Supplier;
-
 import static com.exasol.matcher.ResultSetStructureMatcher.table;
 import static com.exasol.udfdebugging.PushDownTesting.getPushDownSql;
 import static com.exasol.udfdebugging.PushDownTesting.getSelectionThatIsSentToTheAdapter;
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.BINARY;
+import static org.apache.parquet.schema.Type.Repetition.REQUIRED;
 import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.sql.*;
+import java.util.function.Supplier;
+
+import org.apache.parquet.schema.Type;
+import org.apache.parquet.schema.Types;
+import org.hamcrest.Matcher;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import com.exasol.adapter.document.documentfetcher.files.parquet.ParquetTestSetup;
+import com.exasol.matcher.TypeMatchMode;
+
 @SuppressWarnings("java:S5786") // this class is public so that class from different packages can inherit
 public abstract class AbstractDocumentFilesAdapterIT {
     private static final String TEST_SCHEMA = "TEST";
     private static final String IT_RESOURCES = "abstractIntegrationTests/";
+    @TempDir
+    Path tempDir;
 
     protected abstract Statement getStatement();
 
@@ -68,7 +79,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 .row("number", 1.23)//
                 .row("string", equalTo(null))//
                 .row("true", equalTo(null))//
-                .matchesFuzzily());
+                .matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
     }
 
     @Test
@@ -76,7 +87,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
         final ResultSet result = getDataTypesTestResult("mapDataTypesToJson.json");
         assertThat(result, table("VARCHAR", "VARCHAR")//
                 .row("false", "false")//
-                .row("null", "null")//
+                .row("null", null)//
                 .row("number", "1.23")//
                 .row("string", "\"test\"")//
                 .row("true", "true")//
@@ -134,8 +145,8 @@ public abstract class AbstractDocumentFilesAdapterIT {
         assertAll(//
                 () -> assertThat(getStatement().executeQuery(query), table().row("book-1").row("book-2").matches()), //
                 () -> assertThat(getPushDownSql(getStatement(), query), endsWith("WHERE TRUE")), // no post selection
-                () -> assertThat(getSelectionThatIsSentToTheAdapter(getStatement(), query),
-                        equalTo("(BOOKS.SOURCE_REFERENCE='testData-1.json') OR (BOOKS.SOURCE_REFERENCE='testData-2.json')"))//
+                () -> assertThat(getSelectionThatIsSentToTheAdapter(getStatement(), query), equalTo(
+                        "(BOOKS.SOURCE_REFERENCE='testData-1.json') OR (BOOKS.SOURCE_REFERENCE='testData-2.json')"))//
         );
     }
 
@@ -149,7 +160,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
                             equalTo("BOOKS.SOURCE_REFERENCE='UNKNOWN.json'")),
                     () -> assertThat(result, table("VARCHAR").matches()), //
                     () -> assertThat(getPushDownSql(getStatement(), query),
-                            equalTo("SELECT * FROM (VALUES (CAST(NULL AS VARCHAR(254)))) WHERE FALSE")));
+                            equalTo("SELECT * FROM (VALUES (CAST(NULL AS  VARCHAR(254)))) WHERE FALSE")));
         }
     }
 
@@ -165,6 +176,31 @@ public abstract class AbstractDocumentFilesAdapterIT {
                     () -> assertThat(getPushDownSql(getStatement(), query), endsWith("WHERE TRUE"))// no post selection
             );
         }
+    }
+
+    protected abstract void uploadDataFile(final Path file, String resourceName);
+
+    @Test
+    void testReadParquetFile() throws IOException, SQLException {
+        createVirtualSchema(TEST_SCHEMA, "mapParquetFile.json");
+        final Type idColumn = Types.primitive(BINARY, REQUIRED).named("data");
+        final ParquetTestSetup parquetTestSetup = new ParquetTestSetup(this.tempDir, idColumn);
+        parquetTestSetup.writeRow(row -> row.add("data", "my test string"));
+        parquetTestSetup.closeWriter();
+        uploadAsParquetFile(parquetTestSetup);
+        final String query = "SELECT \"DATA\" FROM " + TEST_SCHEMA + ".BOOKS";
+        assertQuery(query, table().row("my test string").matches());
+    }
+
+    private void assertQuery(final String query, final Matcher<ResultSet> matcher) throws SQLException {
+        try (final ResultSet result = getStatement().executeQuery(query)) {
+            assertThat(result, matcher);
+        }
+    }
+
+    private void uploadAsParquetFile(final ParquetTestSetup parquetTestSetup) throws IOException {
+        final Path parquetFile = parquetTestSetup.getParquetFile();
+        uploadDataFile(parquetFile, "testData-1.parquet");
     }
 
     private void createJsonVirtualSchema() {

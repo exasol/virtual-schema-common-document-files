@@ -3,7 +3,6 @@ package com.exasol.adapter.document.files;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -14,18 +13,13 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import com.exasol.adapter.document.DataLoader;
+import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.files.FileLoaderFactory;
 import com.exasol.adapter.document.mapping.SourceReferenceColumnMapping;
 import com.exasol.adapter.document.mapping.TableMapping;
-import com.exasol.adapter.document.queryplan.EmptyQueryPlan;
-import com.exasol.adapter.document.queryplan.FetchQueryPlan;
-import com.exasol.adapter.document.queryplan.QueryPlan;
+import com.exasol.adapter.document.queryplan.*;
 import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
-import com.exasol.adapter.document.querypredicate.AbstractComparisonPredicate;
-import com.exasol.adapter.document.querypredicate.ColumnLiteralComparisonPredicate;
-import com.exasol.adapter.document.querypredicate.NoPredicate;
-import com.exasol.adapter.document.querypredicate.QueryPredicate;
+import com.exasol.adapter.document.querypredicate.*;
 import com.exasol.adapter.sql.SqlLiteralString;
 
 class FilesQueryPlannerTest {
@@ -47,22 +41,16 @@ class FilesQueryPlannerTest {
     void testJsonFileType() {
         final RemoteTableQuery remoteTableQuery = getRemoteTableQuery("test-*.json", new NoPredicate());
         final FetchQueryPlan queryPlan = (FetchQueryPlan) FACTORY.planQuery(remoteTableQuery, 10);
-        final List<DataLoader> documentFetchers = queryPlan.getDataLoaders();
-        assertAll(//
-                () -> assertThat(documentFetchers.size(), equalTo(10)), //
-                () -> assertThat(documentFetchers.get(0), instanceOf(JsonFilesDataLoader.class))//
-        );
+        final List<DocumentFetcher> documentFetchers = queryPlan.getDocumentFetcher();
+        assertThat(documentFetchers.size(), equalTo(10));
     }
 
     @Test
     void testJsonlFileType() {
         final RemoteTableQuery remoteTableQuery = getRemoteTableQuery("test.jsonl", new NoPredicate());
         final FetchQueryPlan queryPlan = (FetchQueryPlan) FACTORY.planQuery(remoteTableQuery, 10);
-        final List<DataLoader> documentFetchers = queryPlan.getDataLoaders();
-        assertAll(//
-                () -> assertThat(documentFetchers.size(), equalTo(1)), //
-                () -> assertThat(documentFetchers.get(0), instanceOf(JsonFilesDataLoader.class))//
-        );
+        final List<DocumentFetcher> documentFetchers = queryPlan.getDocumentFetcher();
+        assertThat(documentFetchers.size(), equalTo(1));
     }
 
     @Test

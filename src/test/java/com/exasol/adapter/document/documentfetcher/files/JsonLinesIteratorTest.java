@@ -5,28 +5,24 @@ import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
-import com.exasol.adapter.document.documentnode.json.JsonNodeVisitor;
 
 class JsonLinesIteratorTest {
     public static final String JSON_LINES_EXAMPLE = "{\"id\": \"test-1\"}\n{\"id\": \"test-2\"}";
 
     @Test
     void testReadLines() {
-        final List<DocumentNode<JsonNodeVisitor>> result = readJsonLines(JSON_LINES_EXAMPLE);
+        final List<DocumentNode> result = readJsonLines(JSON_LINES_EXAMPLE);
         assertThat(result.size(), equalTo(2));
     }
 
     @Test
     void testReadLinesWithAdditionalNewLine() {
-        final List<DocumentNode<JsonNodeVisitor>> result = readJsonLines(JSON_LINES_EXAMPLE + "\n\n");
+        final List<DocumentNode> result = readJsonLines(JSON_LINES_EXAMPLE + "\n\n");
         assertThat(result.size(), equalTo(2));
     }
 
@@ -49,11 +45,13 @@ class JsonLinesIteratorTest {
     }
 
     @Test
-    void testFinalize() throws Throwable {
-        final CloseCheckStream stream = new CloseCheckStream("");
-        final JsonLinesIterator jsonLinesIterator = new JsonLinesIterator(new InputStreamWithResourceName(stream, ""));
-        jsonLinesIterator.finalize();
-        assertThat(stream.wasClosed(), equalTo(true));
+    void testFinalize() {
+        final AssertStreamIsClosedLoadedFile assertStreamIsClosedLoadedFile = new AssertStreamIsClosedLoadedFile("");
+        final JsonLinesIterator jsonLinesIterator = new JsonLinesIterator(assertStreamIsClosedLoadedFile);
+        jsonLinesIterator.forEachRemaining(each -> {
+            // just read all
+        });
+        assertThat(assertStreamIsClosedLoadedFile.isStreamClosed(), equalTo(true));
     }
 
     @Test
@@ -64,14 +62,14 @@ class JsonLinesIteratorTest {
         assertThrows(NoSuchElementException.class, jsonLinesIterator::next);
     }
 
-    private List<DocumentNode<JsonNodeVisitor>> readJsonLines(final String s) {
+    private List<DocumentNode> readJsonLines(final String s) {
         final JsonLinesIterator jsonLinesIterator = getJsonLinesIterator(s);
-        final List<DocumentNode<JsonNodeVisitor>> result = new ArrayList<>();
+        final List<DocumentNode> result = new ArrayList<>();
         jsonLinesIterator.forEachRemaining(result::add);
         return result;
     }
 
-    private JsonLinesIterator getJsonLinesIterator(final String s) {
-        return new JsonLinesIterator(new InputStreamWithResourceName(new ByteArrayInputStream(s.getBytes()), "string"));
+    private JsonLinesIterator getJsonLinesIterator(final String content) {
+        return new JsonLinesIterator(new StringLoadedFile(content, "string"));
     }
 }
