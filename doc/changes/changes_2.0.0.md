@@ -4,7 +4,7 @@ Code name: Added Parquet Support
 
 ## Summary
 
-In this release we added Parquet Support and did performance optimizations.
+In this release we added Parquet support and did performance optimizations.
 
 ## Features
 
