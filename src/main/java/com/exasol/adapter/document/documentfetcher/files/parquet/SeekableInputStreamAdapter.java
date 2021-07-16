@@ -26,7 +26,6 @@ public final class SeekableInputStreamAdapter {
             public SeekableInputStream newStream() throws IOException {
                 return new SeekableInputStream() {
                     private final byte[] tmpBuf = new byte[COPY_BUFFER_SIZE];
-                    private final long markPos = 0;
 
                     @Override
                     public int read() throws IOException {
@@ -76,8 +75,8 @@ public final class SeekableInputStreamAdapter {
                     }
 
                     @Override
-                    public synchronized void mark(final int readlimit) {
-                        source.mark(readlimit);
+                    public synchronized void mark(final int readLimit) {
+                        source.mark(readLimit);
                     }
 
                     @Override

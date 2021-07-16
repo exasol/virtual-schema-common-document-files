@@ -24,8 +24,6 @@ import com.exasol.adapter.document.documentnode.DocumentArray;
 import com.exasol.adapter.document.documentnode.DocumentDecimalValue;
 import com.exasol.adapter.document.documentnode.parquet.RowRecordNode;
 
-import akka.actor.ActorSystem;
-
 class ParquetDocumentFetcherTest {
     @TempDir
     Path tempDir;
@@ -56,9 +54,7 @@ class ParquetDocumentFetcherTest {
         assertThat(results, contains(1, 2));
     }
 
-    private RowRecordNode runDocumentFetcherAndGetFirstResult(final Path parquetFile)
-            throws ExecutionException, InterruptedException {
-        final ActorSystem system = ActorSystem.create("DataProcessingPipeline");
+    private RowRecordNode runDocumentFetcherAndGetFirstResult(final Path parquetFile) {
         final LoadedFile loadedFile = new LocalLoadedFile(parquetFile);
         return (RowRecordNode) new ParquetDocumentFetcher(null, null, null).readDocuments(loadedFile).next();
     }

@@ -34,11 +34,13 @@ class JsonLinesIterator implements Iterator<DocumentNode> {
         readNextLine();
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        this.inputStreamReader.close();
-        this.jsonlReader.close();
-        super.finalize();
+    private void closeResources() {
+        try {
+            this.inputStreamReader.close();
+            this.jsonlReader.close();
+        } catch (final IOException exception) {
+            // at least we tried...
+        }
     }
 
     private void readNextLine() {
@@ -47,6 +49,9 @@ class JsonLinesIterator implements Iterator<DocumentNode> {
                 this.nextLine = this.jsonlReader.readLine();
                 this.lineCounter++;
             } while (this.nextLine != null && this.nextLine.isBlank());
+            if (!hasNext()) {
+                closeResources();
+            }
         } catch (final IOException exception) {
             throw new InputDataException(
                     ExaError.messageBuilder("E-VSDF-2").message("Failed to read from data file {{JSONL_FILE}}.")

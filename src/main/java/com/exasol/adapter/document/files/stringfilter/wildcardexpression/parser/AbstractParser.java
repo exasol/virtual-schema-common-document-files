@@ -1,9 +1,6 @@
 package com.exasol.adapter.document.files.stringfilter.wildcardexpression.parser;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
@@ -25,7 +22,7 @@ public abstract class AbstractParser {
      * @param multiCharWildcard  language specific wildcard that matches multiple characters
      * @param singleCharWildcard language specific wildcard that matches a single characters
      */
-    public AbstractParser(final char escapeChar, final char multiCharWildcard, final char singleCharWildcard) {
+    AbstractParser(final char escapeChar, final char multiCharWildcard, final char singleCharWildcard) {
         this.escapeChar = escapeChar;
         this.multiCharWildcard = multiCharWildcard;
         this.singleCharWildcard = singleCharWildcard;
@@ -40,7 +37,8 @@ public abstract class AbstractParser {
     public WildcardExpression parse(final String expression) {
         final List<WildcardExpressionFragment> fragments = new ArrayList<>();
         final EscapedState escapedState = new EscapedState();
-        final Queue<Character> characterQueue = expression.chars().mapToObj(charValue -> (char) charValue)
+        @SuppressWarnings("java:S1612") // char.class:cast does not work here
+        final Queue<Character> characterQueue = expression.chars().mapToObj(charCode -> (char) charCode)
                 .collect(Collectors.toCollection(LinkedList::new));
         while (!characterQueue.isEmpty()) {
             handleNextCharacter(fragments, escapedState, characterQueue);

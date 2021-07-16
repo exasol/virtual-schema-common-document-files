@@ -18,6 +18,7 @@ public abstract class LoadedFile {
      *
      * @param resourceName description of the file e.g. file name; use for error messages
      */
+    @SuppressWarnings("java:S5993") // public so that sub classes from other packages can call it
     public LoadedFile(final String resourceName) {
         this.resourceName = resourceName;
     }
@@ -42,9 +43,8 @@ public abstract class LoadedFile {
         try (final InputStream inputStream = getInputStream()) {
             return InMemoryRandomAccessStream.getInMemoryCache(inputStream);
         } catch (final IOException exception) {
-            throw new IllegalStateException(
-                    ExaError.messageBuilder("E-VSDF-11").message("Failed reading data source's input stream.").toString(),
-                    exception);
+            throw new IllegalStateException(ExaError.messageBuilder("E-VSDF-11")
+                    .message("Failed reading data source's input stream.").toString(), exception);
         }
     }
 
