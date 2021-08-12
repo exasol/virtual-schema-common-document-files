@@ -1,6 +1,7 @@
 package com.exasol.adapter.document.documentfetcher.files.parquet;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.apache.parquet.example.data.Group;
@@ -15,7 +16,8 @@ public class ParquetTestSetup {
     private final ParquetWriter<Group> parquetWriter;
 
     public ParquetTestSetup(final Path tempDir, final Type... columnTypes) throws IOException {
-        this.parquetFile = tempDir.resolve("parquetTestFile.parquet");
+        this.parquetFile = Files.createTempFile(tempDir, "testData", ".parquet");
+        Files.delete(this.parquetFile);
         this.schema = new MessageType("test", columnTypes);
         this.parquetWriter = new ParquetTestWriterBuilder(this.parquetFile, this.schema).build();
     }

@@ -12,15 +12,23 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.sql.*;
+import java.util.Random;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import org.apache.parquet.schema.Type;
 import org.apache.parquet.schema.Types;
 import org.hamcrest.Matcher;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.exasol.adapter.document.documentfetcher.files.parquet.ParquetTestSetup;
 import com.exasol.matcher.TypeMatchMode;
@@ -180,6 +188,16 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     protected abstract void uploadDataFile(final Path file, String resourceName);
 
+    static Stream<Arguments> testLargeParquetFiles() {
+        final int k = 1000;
+        final int m = k * k;
+        return Stream.of(//
+                Arguments.of(k, m, 1), //
+                Arguments.of(m, k, 1), //
+                Arguments.of(k, k, 10)//
+        );
+    }
+
     @Test
     void testReadParquetFile() throws IOException, SQLException {
         createVirtualSchema(TEST_SCHEMA, "mapParquetFile.json");
@@ -187,9 +205,39 @@ public abstract class AbstractDocumentFilesAdapterIT {
         final ParquetTestSetup parquetTestSetup = new ParquetTestSetup(this.tempDir, idColumn);
         parquetTestSetup.writeRow(row -> row.add("data", "my test string"));
         parquetTestSetup.closeWriter();
-        uploadAsParquetFile(parquetTestSetup);
+        uploadAsParquetFile(parquetTestSetup, 1);
         final String query = "SELECT \"DATA\" FROM " + TEST_SCHEMA + ".BOOKS";
         assertQuery(query, table().row("my test string").matches());
+    }
+
+    @ParameterizedTest
+    @MethodSource("testLargeParquetFiles")
+    @Tag("regression")
+    void testLargeParquetFiles(final int itemSize, final long itemCount, final int fileCount, final TestInfo testInfo)
+            throws Exception {
+        final Random random = new Random(1);
+        createVirtualSchema(TEST_SCHEMA, "mapParquetFile.json");
+        for (int fileCounter = 0; fileCounter < fileCount; fileCounter++) {
+            final Type idColumn = Types.primitive(BINARY, REQUIRED).named("data");
+            final ParquetTestSetup parquetTestSetup = new ParquetTestSetup(this.tempDir, idColumn);
+            for (long counter = 0; counter < itemCount; counter++) {
+                final byte[] data = new byte[itemSize];
+                random.nextBytes(data);
+                parquetTestSetup.writeRow(row -> {
+                    row.add("data", new String(data, StandardCharsets.US_ASCII));
+                });
+            }
+            parquetTestSetup.closeWriter();
+            uploadAsParquetFile(parquetTestSetup, fileCounter);
+        }
+        final String query = "SELECT COUNT(*) FROM " + TEST_SCHEMA + ".BOOKS";
+        new PerformanceTestLogger(testInfo)
+                .profile(() -> assertQuery(query, table().row(itemCount * fileCount).matches()));
+    }
+
+    private void uploadAsParquetFile(final ParquetTestSetup parquetTestSetup, final int fileCount) throws IOException {
+        final Path parquetFile = parquetTestSetup.getParquetFile();
+        uploadDataFile(parquetFile, "testData-" + fileCount + ".parquet");
     }
 
     private void assertQuery(final String query, final Matcher<ResultSet> matcher) throws SQLException {
@@ -198,9 +246,26 @@ public abstract class AbstractDocumentFilesAdapterIT {
         }
     }
 
-    private void uploadAsParquetFile(final ParquetTestSetup parquetTestSetup) throws IOException {
-        final Path parquetFile = parquetTestSetup.getParquetFile();
-        uploadDataFile(parquetFile, "testData-1.parquet");
+    private static class PerformanceTestLogger {
+        private static final Logger LOGGER = Logger.getLogger(PerformanceTestLogger.class.getName());
+        private final TestInfo testInfo;
+
+        private PerformanceTestLogger(final TestInfo testInfo) {
+            this.testInfo = testInfo;
+        }
+
+        void profile(final RunnableWithException methodUnderTest) throws Exception {
+            final String testName = this.testInfo.getDisplayName();
+            LOGGER.log(Level.INFO, "Starting stopwatch for {0}", new Object[] { testName });
+            final long startMillis = System.currentTimeMillis();
+            methodUnderTest.run();
+            final long duration = System.currentTimeMillis() - startMillis;
+            LOGGER.log(Level.INFO, "{0} took {1} ms", new Object[] { testName, duration });
+        }
+
+        interface RunnableWithException {
+            void run() throws Exception;
+        }
     }
 
     private void createJsonVirtualSchema() {
