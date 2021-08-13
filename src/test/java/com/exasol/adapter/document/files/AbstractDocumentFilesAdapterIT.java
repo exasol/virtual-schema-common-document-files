@@ -40,15 +40,16 @@ public abstract class AbstractDocumentFilesAdapterIT {
     private static final String IT_RESOURCES = "abstractIntegrationTests/";
     @TempDir
     Path tempDir;
+    private String dataFilesDirectory;
 
     protected abstract Statement getStatement();
 
     protected abstract void uploadDataFile(final Supplier<InputStream> resource, String resourceName);
 
-    private void createVirtualSchemaWithMappingFromResource(final String schemaName, final String resourceName,
-            final String dataFilesDir) throws IOException {
+    private void createVirtualSchemaWithMappingFromResource(final String schemaName, final String resourceName)
+            throws IOException {
         final String mappingTemplate = getMappingTemplate(resourceName);
-        final String filledMapping = mappingTemplate.replace("DATA_FILES_DIR", dataFilesDir);
+        final String filledMapping = mappingTemplate.replace("DATA_FILES_DIR", this.dataFilesDirectory);
         createVirtualSchema(schemaName, filledMapping);
     }
 
@@ -61,14 +62,18 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     protected abstract void createVirtualSchema(String schemaName, String mapping);
 
+    @BeforeEach
+    void beforeEach() {
+        this.dataFilesDirectory = String.valueOf(System.currentTimeMillis());
+    }
+
     @Test
     void testReadJson() throws SQLException, IOException {
-        final String dataFilesDirectory = String.valueOf(System.currentTimeMillis());
-        createJsonVirtualSchema(dataFilesDirectory);
+        createJsonVirtualSchema(this.dataFilesDirectory);
         final ResultSet result = getStatement()
                 .executeQuery("SELECT ID, SOURCE_REFERENCE FROM " + TEST_SCHEMA + ".BOOKS ORDER BY ID ASC;");
-        assertThat(result, table().row("book-1", dataFilesDirectory + "/testData-1.json")
-                .row("book-2", dataFilesDirectory + "/testData-2.json").matches());
+        assertThat(result, table().row("book-1", this.dataFilesDirectory + "/testData-1.json")
+                .row("book-2", this.dataFilesDirectory + "/testData-2.json").matches());
     }
 
     @Test
@@ -115,47 +120,46 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     private ResultSet getDataTypesTestResult(final String mappingFileName) throws SQLException, IOException {
-        final String dataFilesDirectory = String.valueOf(System.currentTimeMillis());
-        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, mappingFileName, dataFilesDirectory);
-        uploadDataFileFromResources("dataTypeTests.jsonl", dataFilesDirectory);
+        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, mappingFileName);
+        uploadDataFileFromResources("dataTypeTests.jsonl");
         return getStatement().executeQuery("SELECT * FROM " + TEST_SCHEMA + ".DATA_TYPES ORDER BY TYPE ASC;");
     }
 
-    private void uploadDataFileFromResources(final String resourceName, final String dataFilesDir) {
-        uploadDataFile(() -> AbstractDocumentFilesAdapterIT.class.getClassLoader()
-                .getResourceAsStream(IT_RESOURCES + resourceName), dataFilesDir + "/" + resourceName);
+    private void uploadDataFileFromResources(final String resourceName) {
+        uploadDataFile(
+                () -> AbstractDocumentFilesAdapterIT.class.getClassLoader()
+                        .getResourceAsStream(IT_RESOURCES + resourceName),
+                this.dataFilesDirectory + "/" + resourceName);
     }
 
     @Test
     void testFilterOnSourceReference() throws SQLException, IOException {
-        final String dataFilesDirectory = String.valueOf(System.currentTimeMillis());
-        createJsonVirtualSchema(dataFilesDirectory);
-        final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS WHERE SOURCE_REFERENCE = '" + dataFilesDirectory
-                + "/testData-1.json'";
+        createJsonVirtualSchema(this.dataFilesDirectory);
+        final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS WHERE SOURCE_REFERENCE = '"
+                + this.dataFilesDirectory + "/testData-1.json'";
         try (final ResultSet result = getStatement().executeQuery(query)) {
             assertAll(//
                     () -> assertThat(result, table().row("book-1").matches()), //
                     () -> assertThat(getPushDownSql(getStatement(), query), endsWith("WHERE TRUE")), // no post
                     // selection
                     () -> assertThat(getSelectionThatIsSentToTheAdapter(getStatement(), query),
-                            equalTo("BOOKS.SOURCE_REFERENCE='" + dataFilesDirectory + "/testData-1.json'"))//
+                            equalTo("BOOKS.SOURCE_REFERENCE='" + this.dataFilesDirectory + "/testData-1.json'"))//
             );
         }
     }
 
-    // @Test //TODO re-enable when SUPPORT-18306 is fixed; See #41
+    // @Test //TODO re-enable when SPOT-11018 is fixed; See #41
     void testFilterWithOrOnSourceReference() throws IOException {
-        final String dataFilesDirectory = String.valueOf(System.currentTimeMillis());
-        createJsonVirtualSchema(dataFilesDirectory);
-        final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS WHERE SOURCE_REFERENCE = '" + dataFilesDirectory
-                + "/testData-1.json' OR SOURCE_REFERENCE = '" + dataFilesDirectory
+        createJsonVirtualSchema(this.dataFilesDirectory);
+        final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS WHERE SOURCE_REFERENCE = '"
+                + this.dataFilesDirectory + "/testData-1.json' OR SOURCE_REFERENCE = '" + this.dataFilesDirectory
                 + "/testData-2.json' ORDER BY SOURCE_REFERENCE ASC";
         assertAll(//
                 () -> assertThat(getStatement().executeQuery(query), table().row("book-1").row("book-2").matches()), //
                 () -> assertThat(getPushDownSql(getStatement(), query), endsWith("WHERE TRUE")), // no post selection
                 () -> assertThat(getSelectionThatIsSentToTheAdapter(getStatement(), query),
-                        equalTo("BOOKS.SOURCE_REFERENCE='" + dataFilesDirectory
-                                + "/testData-1.json' OR BOOKS.SOURCE_REFERENCE='" + dataFilesDirectory
+                        equalTo("BOOKS.SOURCE_REFERENCE='" + this.dataFilesDirectory
+                                + "/testData-1.json' OR BOOKS.SOURCE_REFERENCE='" + this.dataFilesDirectory
                                 + "testData-2.json'"))//
         );
     }
@@ -164,8 +168,8 @@ public abstract class AbstractDocumentFilesAdapterIT {
      * This test is a workaround for #41 that occurs at {@link #testFilterWithOrOnSourceReference()}
      */
     @Test
-    // TODO remove when SUPPORT-18306 is fixed
-    void testFilterWithOrOnSourceReferenceWithBugfixForSUPPORT18306() throws IOException {
+    // TODO remove when SPOT-11018 is fixed
+    void testFilterWithOrOnSourceReferenceWithBugfixForSPOT11018() throws IOException {
         final String dataFilesDirectory = String.valueOf(System.currentTimeMillis());
         createJsonVirtualSchema(dataFilesDirectory);
         final String query = "SELECT ID FROM (SELECT ID, SOURCE_REFERENCE FROM " + TEST_SCHEMA
@@ -183,8 +187,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     @Test
     void testFilterOnSourceReferenceForNonExisting() throws SQLException, IOException {
-        final String dataFilesDirectory = String.valueOf(System.currentTimeMillis());
-        createJsonVirtualSchema(dataFilesDirectory);
+        createJsonVirtualSchema(this.dataFilesDirectory);
         final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS WHERE SOURCE_REFERENCE = 'UNKNOWN.json'";
         try (final ResultSet result = getStatement().executeQuery(query)) {
             assertAll(//
@@ -198,8 +201,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     @Test
     void testFilterOnSourceReferenceUsingLike() throws SQLException, IOException {
-        final String dataFilesDirectory = String.valueOf(System.currentTimeMillis());
-        createJsonVirtualSchema(dataFilesDirectory);
+        createJsonVirtualSchema(this.dataFilesDirectory);
         final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS WHERE SOURCE_REFERENCE LIKE '%1.json'";
         try (final ResultSet result = getStatement().executeQuery(query)) {
             assertAll(//
@@ -225,13 +227,12 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     @Test
     void testReadParquetFile() throws IOException, SQLException {
-        final String dataFilesDirectory = String.valueOf(System.currentTimeMillis());
-        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapParquetFile.json", dataFilesDirectory);
+        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapParquetFile.json");
         final Type idColumn = Types.primitive(BINARY, REQUIRED).named("data");
         final ParquetTestSetup parquetTestSetup = new ParquetTestSetup(this.tempDir, idColumn);
         parquetTestSetup.writeRow(row -> row.add("data", "my test string"));
         parquetTestSetup.closeWriter();
-        uploadAsParquetFile(parquetTestSetup, 1, dataFilesDirectory);
+        uploadAsParquetFile(parquetTestSetup, 1);
         final String query = "SELECT \"DATA\" FROM " + TEST_SCHEMA + ".BOOKS";
         assertQuery(query, table().row("my test string").matches());
     }
@@ -242,8 +243,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     void testLargeParquetFiles(final int itemSize, final long itemCount, final int fileCount, final TestInfo testInfo)
             throws Exception {
         final Random random = new Random(1);
-        final String dataFilesDirectory = String.valueOf(System.currentTimeMillis());
-        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapParquetFile.json", dataFilesDirectory);
+        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapParquetFile.json");
         for (int fileCounter = 0; fileCounter < fileCount; fileCounter++) {
             final Type idColumn = Types.primitive(BINARY, REQUIRED).named("data");
             final ParquetTestSetup parquetTestSetup = new ParquetTestSetup(this.tempDir, idColumn);
@@ -255,17 +255,16 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 });
             }
             parquetTestSetup.closeWriter();
-            uploadAsParquetFile(parquetTestSetup, fileCounter, dataFilesDirectory);
+            uploadAsParquetFile(parquetTestSetup, fileCounter);
         }
         final String query = "SELECT COUNT(*) FROM " + TEST_SCHEMA + ".BOOKS";
         new PerformanceTestLogger(testInfo)
                 .profile(() -> assertQuery(query, table().row(itemCount * fileCount).matches()));
     }
 
-    private void uploadAsParquetFile(final ParquetTestSetup parquetTestSetup, final int fileCount,
-            final String dataFilesDir) throws IOException {
+    private void uploadAsParquetFile(final ParquetTestSetup parquetTestSetup, final int fileCount) throws IOException {
         final Path parquetFile = parquetTestSetup.getParquetFile();
-        uploadDataFile(parquetFile, dataFilesDir + "/testData-" + fileCount + ".parquet");
+        uploadDataFile(parquetFile, this.dataFilesDirectory + "/testData-" + fileCount + ".parquet");
     }
 
     private void assertQuery(final String query, final Matcher<ResultSet> matcher) throws SQLException {
@@ -297,14 +296,13 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     private void createJsonVirtualSchema(final String dataFilesDirectory) throws IOException {
-        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapJsonFile.json", dataFilesDirectory);
-        uploadDataFileFromResources("testData-1.json", dataFilesDirectory);
-        uploadDataFileFromResources("testData-2.json", dataFilesDirectory);
+        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapJsonFile.json");
+        uploadDataFileFromResources("testData-1.json");
+        uploadDataFileFromResources("testData-2.json");
     }
 
     private void createJsonLinesVirtualSchema() throws IOException {
-        final String dataFilesDirectory = String.valueOf(System.currentTimeMillis());
-        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapJsonLinesFile.json", dataFilesDirectory);
-        uploadDataFileFromResources("test.jsonl", dataFilesDirectory);
+        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapJsonLinesFile.json");
+        uploadDataFileFromResources("test.jsonl");
     }
 }
