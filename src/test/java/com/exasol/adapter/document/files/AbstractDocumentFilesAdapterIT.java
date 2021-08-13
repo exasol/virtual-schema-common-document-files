@@ -295,7 +295,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
         }
     }
 
-    private void createJsonVirtualSchema(final String dataFilesDirectory) throws IOException {
+    private void createJsonVirtualSchema() throws IOException {
         createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapJsonFile.json");
         uploadDataFileFromResources("testData-1.json");
         uploadDataFileFromResources("testData-2.json");
