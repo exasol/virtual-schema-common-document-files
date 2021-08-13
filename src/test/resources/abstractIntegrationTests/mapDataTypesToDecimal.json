@@ -1,6 +1,6 @@
 {
   "$schema": "https://schemas.exasol.com/edml-1.0.0.json",
-  "source": "dataTypeTests.jsonl",
+  "source": "DATA_FILES_DIR/dataTypeTests.jsonl",
   "destinationTable": "DATA_TYPES",
   "mapping": {
     "fields": {

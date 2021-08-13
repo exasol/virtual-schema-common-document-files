@@ -8,6 +8,10 @@ Code name:
 
 * #58: Added regression test
 
+## Bug Fixes
+
+* #62: Fixed unstable tests
+
 ## Dependency Updates
 
 ### Compile Dependency Updates
