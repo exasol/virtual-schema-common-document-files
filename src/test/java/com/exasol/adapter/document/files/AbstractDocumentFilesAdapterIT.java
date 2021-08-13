@@ -69,7 +69,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     @Test
     void testReadJson() throws SQLException, IOException {
-        createJsonVirtualSchema(this.dataFilesDirectory);
+        createJsonVirtualSchema();
         final ResultSet result = getStatement()
                 .executeQuery("SELECT ID, SOURCE_REFERENCE FROM " + TEST_SCHEMA + ".BOOKS ORDER BY ID ASC;");
         assertThat(result, table().row("book-1", this.dataFilesDirectory + "/testData-1.json")
@@ -134,7 +134,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     @Test
     void testFilterOnSourceReference() throws SQLException, IOException {
-        createJsonVirtualSchema(this.dataFilesDirectory);
+        createJsonVirtualSchema();
         final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS WHERE SOURCE_REFERENCE = '"
                 + this.dataFilesDirectory + "/testData-1.json'";
         try (final ResultSet result = getStatement().executeQuery(query)) {
@@ -150,7 +150,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     // @Test //TODO re-enable when SPOT-11018 is fixed; See #41
     void testFilterWithOrOnSourceReference() throws IOException {
-        createJsonVirtualSchema(this.dataFilesDirectory);
+        createJsonVirtualSchema();
         final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS WHERE SOURCE_REFERENCE = '"
                 + this.dataFilesDirectory + "/testData-1.json' OR SOURCE_REFERENCE = '" + this.dataFilesDirectory
                 + "/testData-2.json' ORDER BY SOURCE_REFERENCE ASC";
@@ -171,7 +171,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     // TODO remove when SPOT-11018 is fixed
     void testFilterWithOrOnSourceReferenceWithBugfixForSPOT11018() throws IOException {
         final String dataFilesDirectory = String.valueOf(System.currentTimeMillis());
-        createJsonVirtualSchema(dataFilesDirectory);
+        createJsonVirtualSchema();
         final String query = "SELECT ID FROM (SELECT ID, SOURCE_REFERENCE FROM " + TEST_SCHEMA
                 + ".BOOKS WHERE SOURCE_REFERENCE = '" + dataFilesDirectory + "/testData-1.json' OR SOURCE_REFERENCE = '"
                 + dataFilesDirectory + "/testData-2.json' ORDER BY SOURCE_REFERENCE ASC)";
@@ -187,7 +187,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     @Test
     void testFilterOnSourceReferenceForNonExisting() throws SQLException, IOException {
-        createJsonVirtualSchema(this.dataFilesDirectory);
+        createJsonVirtualSchema();
         final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS WHERE SOURCE_REFERENCE = 'UNKNOWN.json'";
         try (final ResultSet result = getStatement().executeQuery(query)) {
             assertAll(//
@@ -201,7 +201,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     @Test
     void testFilterOnSourceReferenceUsingLike() throws SQLException, IOException {
-        createJsonVirtualSchema(this.dataFilesDirectory);
+        createJsonVirtualSchema();
         final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS WHERE SOURCE_REFERENCE LIKE '%1.json'";
         try (final ResultSet result = getStatement().executeQuery(query)) {
             assertAll(//
