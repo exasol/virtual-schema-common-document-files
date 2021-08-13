@@ -60,6 +60,12 @@ public abstract class AbstractDocumentFilesAdapterIT {
         }
     }
 
+    /**
+     * Create a virtual schema in the test database.
+     * 
+     * @param schemaName name of the virtual schema
+     * @param mapping    mapping file content
+     */
     protected abstract void createVirtualSchema(String schemaName, String mapping);
 
     @BeforeEach
@@ -260,6 +266,17 @@ public abstract class AbstractDocumentFilesAdapterIT {
         final String query = "SELECT COUNT(*) FROM " + TEST_SCHEMA + ".BOOKS";
         new PerformanceTestLogger(testInfo)
                 .profile(() -> assertQuery(query, table().row(itemCount * fileCount).matches()));
+    }
+
+    @Test
+    void testOverrideFileType() throws IOException, SQLException {
+        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapJsonLinesFileWithStrangeExtension.json");
+        uploadDataFile(
+                () -> AbstractDocumentFilesAdapterIT.class.getClassLoader()
+                        .getResourceAsStream(IT_RESOURCES + "test.jsonl"),
+                this.dataFilesDirectory + "/" + "test.strange-extension");
+        final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
+        assertThat(result, table().row("book-1").row("book-2").matches());
     }
 
     private void uploadAsParquetFile(final ParquetTestSetup parquetTestSetup, final int fileCount) throws IOException {
