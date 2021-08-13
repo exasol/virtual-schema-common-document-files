@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.sql.*;
+import java.util.Objects;
 import java.util.Random;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -44,30 +45,41 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     protected abstract void uploadDataFile(final Supplier<InputStream> resource, String resourceName);
 
-    private void createVirtualSchema(final String schemaName, final String resourceName) {
-        createVirtualSchema(schemaName, () -> AbstractDocumentFilesAdapterIT.class.getClassLoader()
-                .getResourceAsStream(IT_RESOURCES + resourceName));
+    private void createVirtualSchemaWithMappingFromResource(final String schemaName, final String resourceName,
+            final String dataFilesDir) throws IOException {
+        final String mappingTemplate = getMappingTemplate(resourceName);
+        final String filledMapping = mappingTemplate.replace("DATA_FILES_DIR", dataFilesDir);
+        createVirtualSchema(schemaName, filledMapping);
     }
 
-    protected abstract void createVirtualSchema(String schemaName, Supplier<InputStream> mapping);
+    private String getMappingTemplate(final String resourceName) throws IOException {
+        try (final InputStream stream = AbstractDocumentFilesAdapterIT.class.getClassLoader()
+                .getResourceAsStream(IT_RESOURCES + resourceName)) {
+            return new String(Objects.requireNonNull(stream).readAllBytes(), StandardCharsets.UTF_8);
+        }
+    }
+
+    protected abstract void createVirtualSchema(String schemaName, String mapping);
 
     @Test
-    void testReadJson() throws SQLException {
-        createJsonVirtualSchema();
+    void testReadJson() throws SQLException, IOException {
+        final String dataFilesDirectory = String.valueOf(System.currentTimeMillis());
+        createJsonVirtualSchema(dataFilesDirectory);
         final ResultSet result = getStatement()
                 .executeQuery("SELECT ID, SOURCE_REFERENCE FROM " + TEST_SCHEMA + ".BOOKS ORDER BY ID ASC;");
-        assertThat(result, table().row("book-1", "testData-1.json").row("book-2", "testData-2.json").matches());
+        assertThat(result, table().row("book-1", dataFilesDirectory + "/testData-1.json")
+                .row("book-2", dataFilesDirectory + "/testData-2.json").matches());
     }
 
     @Test
-    void testReadJsonLines() throws SQLException {
+    void testReadJsonLines() throws SQLException, IOException {
         createJsonLinesVirtualSchema();
         final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
         assertThat(result, table().row("book-1").row("book-2").matches());
     }
 
     @Test
-    void testJsonDataTypesAsVarcharColumn() throws SQLException {
+    void testJsonDataTypesAsVarcharColumn() throws SQLException, IOException {
         final ResultSet result = getDataTypesTestResult("mapDataTypesToVarchar.json");
         assertThat(result, table("VARCHAR", "VARCHAR")//
                 .row("false", "false")//
@@ -79,7 +91,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testJsonDataTypesAsDecimal() throws SQLException {
+    void testJsonDataTypesAsDecimal() throws SQLException, IOException {
         final ResultSet result = getDataTypesTestResult("mapDataTypesToDecimal.json");
         assertThat(result, table("VARCHAR", "DECIMAL")//
                 .row("false", equalTo(null))//
@@ -91,7 +103,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testJsonDataTypesAsJson() throws SQLException {
+    void testJsonDataTypesAsJson() throws SQLException, IOException {
         final ResultSet result = getDataTypesTestResult("mapDataTypesToJson.json");
         assertThat(result, table("VARCHAR", "VARCHAR")//
                 .row("false", "false")//
@@ -102,42 +114,49 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 .matches());
     }
 
-    private ResultSet getDataTypesTestResult(final String mappingFileName) throws SQLException {
-        createVirtualSchema(TEST_SCHEMA, mappingFileName);
-        uploadDataFileFromResources("dataTypeTests.jsonl");
+    private ResultSet getDataTypesTestResult(final String mappingFileName) throws SQLException, IOException {
+        final String dataFilesDirectory = String.valueOf(System.currentTimeMillis());
+        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, mappingFileName, dataFilesDirectory);
+        uploadDataFileFromResources("dataTypeTests.jsonl", dataFilesDirectory);
         return getStatement().executeQuery("SELECT * FROM " + TEST_SCHEMA + ".DATA_TYPES ORDER BY TYPE ASC;");
     }
 
-    private void uploadDataFileFromResources(final String resourceName) {
+    private void uploadDataFileFromResources(final String resourceName, final String dataFilesDir) {
         uploadDataFile(() -> AbstractDocumentFilesAdapterIT.class.getClassLoader()
-                .getResourceAsStream(IT_RESOURCES + resourceName), resourceName);
+                .getResourceAsStream(IT_RESOURCES + resourceName), dataFilesDir + "/" + resourceName);
     }
 
     @Test
-    void testFilterOnSourceReference() throws SQLException {
-        createJsonVirtualSchema();
-        final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS WHERE SOURCE_REFERENCE = 'testData-1.json'";
+    void testFilterOnSourceReference() throws SQLException, IOException {
+        final String dataFilesDirectory = String.valueOf(System.currentTimeMillis());
+        createJsonVirtualSchema(dataFilesDirectory);
+        final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS WHERE SOURCE_REFERENCE = '" + dataFilesDirectory
+                + "/testData-1.json'";
         try (final ResultSet result = getStatement().executeQuery(query)) {
             assertAll(//
                     () -> assertThat(result, table().row("book-1").matches()), //
                     () -> assertThat(getPushDownSql(getStatement(), query), endsWith("WHERE TRUE")), // no post
                     // selection
                     () -> assertThat(getSelectionThatIsSentToTheAdapter(getStatement(), query),
-                            equalTo("BOOKS.SOURCE_REFERENCE='testData-1.json'"))//
+                            equalTo("BOOKS.SOURCE_REFERENCE='" + dataFilesDirectory + "/testData-1.json'"))//
             );
         }
     }
 
     // @Test //TODO re-enable when SUPPORT-18306 is fixed; See #41
-    void testFilterWithOrOnSourceReference() {
-        createJsonVirtualSchema();
-        final String query = "SELECT ID FROM " + TEST_SCHEMA
-                + ".BOOKS WHERE SOURCE_REFERENCE = 'testData-1.json' OR SOURCE_REFERENCE = 'testData-2.json' ORDER BY SOURCE_REFERENCE ASC";
+    void testFilterWithOrOnSourceReference() throws IOException {
+        final String dataFilesDirectory = String.valueOf(System.currentTimeMillis());
+        createJsonVirtualSchema(dataFilesDirectory);
+        final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS WHERE SOURCE_REFERENCE = '" + dataFilesDirectory
+                + "/testData-1.json' OR SOURCE_REFERENCE = '" + dataFilesDirectory
+                + "/testData-2.json' ORDER BY SOURCE_REFERENCE ASC";
         assertAll(//
                 () -> assertThat(getStatement().executeQuery(query), table().row("book-1").row("book-2").matches()), //
                 () -> assertThat(getPushDownSql(getStatement(), query), endsWith("WHERE TRUE")), // no post selection
                 () -> assertThat(getSelectionThatIsSentToTheAdapter(getStatement(), query),
-                        equalTo("BOOKS.SOURCE_REFERENCE='testData-1.json' OR BOOKS.SOURCE_REFERENCE='testData-2.json'"))//
+                        equalTo("BOOKS.SOURCE_REFERENCE='" + dataFilesDirectory
+                                + "/testData-1.json' OR BOOKS.SOURCE_REFERENCE='" + dataFilesDirectory
+                                + "testData-2.json'"))//
         );
     }
 
@@ -146,21 +165,26 @@ public abstract class AbstractDocumentFilesAdapterIT {
      */
     @Test
     // TODO remove when SUPPORT-18306 is fixed
-    void testFilterWithOrOnSourceReferenceWithBugifxForSUPPORT18306() {
-        createJsonVirtualSchema();
+    void testFilterWithOrOnSourceReferenceWithBugfixForSUPPORT18306() throws IOException {
+        final String dataFilesDirectory = String.valueOf(System.currentTimeMillis());
+        createJsonVirtualSchema(dataFilesDirectory);
         final String query = "SELECT ID FROM (SELECT ID, SOURCE_REFERENCE FROM " + TEST_SCHEMA
-                + ".BOOKS WHERE SOURCE_REFERENCE = 'testData-1.json' OR SOURCE_REFERENCE = 'testData-2.json' ORDER BY SOURCE_REFERENCE ASC)";
+                + ".BOOKS WHERE SOURCE_REFERENCE = '" + dataFilesDirectory + "/testData-1.json' OR SOURCE_REFERENCE = '"
+                + dataFilesDirectory + "/testData-2.json' ORDER BY SOURCE_REFERENCE ASC)";
         assertAll(//
                 () -> assertThat(getStatement().executeQuery(query), table().row("book-1").row("book-2").matches()), //
                 () -> assertThat(getPushDownSql(getStatement(), query), endsWith("WHERE TRUE")), // no post selection
-                () -> assertThat(getSelectionThatIsSentToTheAdapter(getStatement(), query), equalTo(
-                        "(BOOKS.SOURCE_REFERENCE='testData-1.json') OR (BOOKS.SOURCE_REFERENCE='testData-2.json')"))//
+                () -> assertThat(getSelectionThatIsSentToTheAdapter(getStatement(), query),
+                        equalTo("(BOOKS.SOURCE_REFERENCE='" + dataFilesDirectory
+                                + "/testData-1.json') OR (BOOKS.SOURCE_REFERENCE='" + dataFilesDirectory
+                                + "/testData-2.json')"))//
         );
     }
 
     @Test
-    void testFilterOnSourceReferenceForNonExisting() throws SQLException {
-        createJsonVirtualSchema();
+    void testFilterOnSourceReferenceForNonExisting() throws SQLException, IOException {
+        final String dataFilesDirectory = String.valueOf(System.currentTimeMillis());
+        createJsonVirtualSchema(dataFilesDirectory);
         final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS WHERE SOURCE_REFERENCE = 'UNKNOWN.json'";
         try (final ResultSet result = getStatement().executeQuery(query)) {
             assertAll(//
@@ -173,8 +197,9 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testFilterOnSourceReferenceUsingLike() throws SQLException {
-        createJsonVirtualSchema();
+    void testFilterOnSourceReferenceUsingLike() throws SQLException, IOException {
+        final String dataFilesDirectory = String.valueOf(System.currentTimeMillis());
+        createJsonVirtualSchema(dataFilesDirectory);
         final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS WHERE SOURCE_REFERENCE LIKE '%1.json'";
         try (final ResultSet result = getStatement().executeQuery(query)) {
             assertAll(//
@@ -200,12 +225,13 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     @Test
     void testReadParquetFile() throws IOException, SQLException {
-        createVirtualSchema(TEST_SCHEMA, "mapParquetFile.json");
+        final String dataFilesDirectory = String.valueOf(System.currentTimeMillis());
+        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapParquetFile.json", dataFilesDirectory);
         final Type idColumn = Types.primitive(BINARY, REQUIRED).named("data");
         final ParquetTestSetup parquetTestSetup = new ParquetTestSetup(this.tempDir, idColumn);
         parquetTestSetup.writeRow(row -> row.add("data", "my test string"));
         parquetTestSetup.closeWriter();
-        uploadAsParquetFile(parquetTestSetup, 1);
+        uploadAsParquetFile(parquetTestSetup, 1, dataFilesDirectory);
         final String query = "SELECT \"DATA\" FROM " + TEST_SCHEMA + ".BOOKS";
         assertQuery(query, table().row("my test string").matches());
     }
@@ -216,7 +242,8 @@ public abstract class AbstractDocumentFilesAdapterIT {
     void testLargeParquetFiles(final int itemSize, final long itemCount, final int fileCount, final TestInfo testInfo)
             throws Exception {
         final Random random = new Random(1);
-        createVirtualSchema(TEST_SCHEMA, "mapParquetFile.json");
+        final String dataFilesDirectory = String.valueOf(System.currentTimeMillis());
+        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapParquetFile.json", dataFilesDirectory);
         for (int fileCounter = 0; fileCounter < fileCount; fileCounter++) {
             final Type idColumn = Types.primitive(BINARY, REQUIRED).named("data");
             final ParquetTestSetup parquetTestSetup = new ParquetTestSetup(this.tempDir, idColumn);
@@ -228,16 +255,17 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 });
             }
             parquetTestSetup.closeWriter();
-            uploadAsParquetFile(parquetTestSetup, fileCounter);
+            uploadAsParquetFile(parquetTestSetup, fileCounter, dataFilesDirectory);
         }
         final String query = "SELECT COUNT(*) FROM " + TEST_SCHEMA + ".BOOKS";
         new PerformanceTestLogger(testInfo)
                 .profile(() -> assertQuery(query, table().row(itemCount * fileCount).matches()));
     }
 
-    private void uploadAsParquetFile(final ParquetTestSetup parquetTestSetup, final int fileCount) throws IOException {
+    private void uploadAsParquetFile(final ParquetTestSetup parquetTestSetup, final int fileCount,
+            final String dataFilesDir) throws IOException {
         final Path parquetFile = parquetTestSetup.getParquetFile();
-        uploadDataFile(parquetFile, "testData-" + fileCount + ".parquet");
+        uploadDataFile(parquetFile, dataFilesDir + "/testData-" + fileCount + ".parquet");
     }
 
     private void assertQuery(final String query, final Matcher<ResultSet> matcher) throws SQLException {
@@ -268,14 +296,15 @@ public abstract class AbstractDocumentFilesAdapterIT {
         }
     }
 
-    private void createJsonVirtualSchema() {
-        createVirtualSchema(TEST_SCHEMA, "mapJsonFile.json");
-        uploadDataFileFromResources("testData-1.json");
-        uploadDataFileFromResources("testData-2.json");
+    private void createJsonVirtualSchema(final String dataFilesDirectory) throws IOException {
+        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapJsonFile.json", dataFilesDirectory);
+        uploadDataFileFromResources("testData-1.json", dataFilesDirectory);
+        uploadDataFileFromResources("testData-2.json", dataFilesDirectory);
     }
 
-    private void createJsonLinesVirtualSchema() {
-        createVirtualSchema(TEST_SCHEMA, "mapJsonLinesFile.json");
-        uploadDataFileFromResources("test.jsonl");
+    private void createJsonLinesVirtualSchema() throws IOException {
+        final String dataFilesDirectory = String.valueOf(System.currentTimeMillis());
+        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapJsonLinesFile.json", dataFilesDirectory);
+        uploadDataFileFromResources("test.jsonl", dataFilesDirectory);
     }
 }
