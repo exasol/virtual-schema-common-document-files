@@ -4,18 +4,19 @@ import java.util.Iterator;
 import java.util.regex.Pattern;
 
 import com.exasol.ExaConnectionInformation;
-import com.exasol.adapter.document.FlatMapIterator;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.FetchedDocument;
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.files.stringfilter.*;
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
+import com.exasol.adapter.document.iterators.FlatMapIterator;
+import com.exasol.adapter.document.iterators.TransformingIterator;
 
 /**
  * This is an abstract basis for {@link DocumentFetcher}s that fetch data from files.
  */
 public abstract class AbstractFilesDocumentFetcher implements DocumentFetcher {
-    private static final long serialVersionUID = 8379996344087768715L;
+    private static final long serialVersionUID = -6407330666075977620L;
     /** @serial */
     private final StringFilter filePattern;
     /** @serial */

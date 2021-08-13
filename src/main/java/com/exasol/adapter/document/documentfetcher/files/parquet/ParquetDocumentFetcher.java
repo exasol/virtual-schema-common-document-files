@@ -6,11 +6,11 @@ import java.util.Iterator;
 import org.apache.parquet.hadoop.ParquetReader;
 import org.apache.parquet.io.InputFile;
 
-import com.exasol.adapter.document.AfterAllCallbackIterator;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.files.*;
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.files.stringfilter.StringFilter;
+import com.exasol.adapter.document.iterators.AfterAllCallbackIterator;
 import com.exasol.errorreporting.ExaError;
 import com.exasol.parquetio.data.Row;
 import com.exasol.parquetio.reader.RowParquetReader;
@@ -19,7 +19,7 @@ import com.exasol.parquetio.reader.RowParquetReader;
  * {@link DocumentFetcher} for parquet files.
  */
 public class ParquetDocumentFetcher extends AbstractFilesDocumentFetcher {
-    private static final long serialVersionUID = 1840717648925583476L;
+    private static final long serialVersionUID = -363386922005840682L;
 
     /**
      * Create a new instance of {@link ParquetDocumentFetcher}.

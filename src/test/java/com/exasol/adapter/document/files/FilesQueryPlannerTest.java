@@ -11,7 +11,9 @@ import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.files.FileLoaderFactory;
@@ -22,6 +24,7 @@ import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
 import com.exasol.adapter.document.querypredicate.*;
 import com.exasol.adapter.sql.SqlLiteralString;
 
+@ExtendWith(MockitoExtension.class)
 class FilesQueryPlannerTest {
 
     @Mock
