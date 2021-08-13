@@ -27,7 +27,6 @@ public class FilesQueryPlanner implements QueryPlanner {
     @Override
     public QueryPlan planQuery(final RemoteTableQuery remoteTableQuery, final int maxNumberOfParallelFetchers) {
         final SourceString sourceString = new SourceString(remoteTableQuery.getFromTable().getRemoteName());
-
         final FilesSelectionExtractor.Result splitSelection = new FilesSelectionExtractor(sourceString.getFilePattern())
                 .splitSelection(remoteTableQuery.getSelection());
         if (splitSelection.getSourceFilter().hasContradiction()) {

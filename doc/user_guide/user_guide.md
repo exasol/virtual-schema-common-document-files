@@ -42,7 +42,7 @@ While `*` and `?` do not match cross directories, `**` also matches recursively 
 
 ## Overriding Auto-detected File Type
 
-The adapter automatically detects the document type by the file extension. If you files don't have the correct extension rename them. If that's not an option for you, you can also explicitly specify the file type:
+The adapter automatically detects the document type by the file extension. If your files don't have the correct extension rename them. If that's not an option for you, you can also explicitly specify the file type:
 
 ```
 source: "test.my-strange-ending(import-as:json)"
