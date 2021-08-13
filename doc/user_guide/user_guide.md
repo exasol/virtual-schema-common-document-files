@@ -40,6 +40,14 @@ You can use `*`, `**` and `?` as wildcard characters, where `*` matches multiple
 
 While `*` and `?` do not match cross directories, `**` also matches recursively into nested directories. For file source, that do not have directory structures (like S3 ) `*` and `**` have the same behaviour.
 
+## Overriding Auto-detected File Type
+
+The adapter automatically detects the document type by the file extension. If your files don't have the correct extension rename them. If that's not an option for you, you can also explicitly specify the file type:
+
+```
+source: "test.my-strange-ending(import-as:json)"
+```
+
 ## Known Issues:
 
 * Certain virtual-schema queries can cause a database crash. For details see [#41](https://github.com/exasol/virtual-schema-common-document-files/issues/41).

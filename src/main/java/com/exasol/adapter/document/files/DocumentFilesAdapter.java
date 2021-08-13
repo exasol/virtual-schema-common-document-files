@@ -3,10 +3,8 @@ package com.exasol.adapter.document.files;
 import java.util.Collections;
 
 import com.exasol.ExaConnectionInformation;
-import com.exasol.adapter.capabilities.Capabilities;
-import com.exasol.adapter.capabilities.LiteralCapability;
-import com.exasol.adapter.capabilities.MainCapability;
-import com.exasol.adapter.capabilities.PredicateCapability;
+import com.exasol.adapter.AdapterProperties;
+import com.exasol.adapter.capabilities.*;
 import com.exasol.adapter.document.DocumentAdapter;
 import com.exasol.adapter.document.QueryPlanner;
 import com.exasol.adapter.document.documentfetcher.files.FileLoaderFactory;
@@ -23,7 +21,8 @@ public abstract class DocumentFilesAdapter extends DocumentAdapter {
     }
 
     @Override
-    protected final QueryPlanner getQueryPlanner(final ExaConnectionInformation connectionInformation) {
+    protected final QueryPlanner getQueryPlanner(final ExaConnectionInformation connectionInformation,
+            final AdapterProperties adapterProperties) {
         return new FilesQueryPlanner(getFileLoaderFactory());
     }
 

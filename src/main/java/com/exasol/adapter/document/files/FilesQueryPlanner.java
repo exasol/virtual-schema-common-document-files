@@ -6,6 +6,7 @@ import com.exasol.adapter.document.QueryPlanner;
 import com.exasol.adapter.document.documentfetcher.files.FileLoaderFactory;
 import com.exasol.adapter.document.queryplan.*;
 import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
+import com.exasol.errorreporting.ExaError;
 
 /**
  * This class plans the query on document files. For that, it resolves the matching {@link FilesDocumentFetcherFactory}
@@ -25,26 +26,28 @@ public class FilesQueryPlanner implements QueryPlanner {
 
     @Override
     public QueryPlan planQuery(final RemoteTableQuery remoteTableQuery, final int maxNumberOfParallelFetchers) {
-        final String sourceString = remoteTableQuery.getFromTable().getRemoteName();
-        final FilesSelectionExtractor.Result splitSelection = new FilesSelectionExtractor(sourceString)
+        final SourceString sourceString = new SourceString(remoteTableQuery.getFromTable().getRemoteName());
+        final FilesSelectionExtractor.Result splitSelection = new FilesSelectionExtractor(sourceString.getFilePattern())
                 .splitSelection(remoteTableQuery.getSelection());
         if (splitSelection.getSourceFilter().hasContradiction()) {
             return new EmptyQueryPlan();
         }
-        final FilesDocumentFetcherFactory filesDocumentFetcherFactory = getFilesDataLoaderFactory(sourceString);
+        final FilesDocumentFetcherFactory filesDocumentFetcherFactory = getFilesDataLoaderFactory(
+                "." + sourceString.getFileType());
         return new FetchQueryPlan(
                 filesDocumentFetcherFactory.buildDocumentFetcherForQuery(splitSelection.getSourceFilter(),
                         maxNumberOfParallelFetchers, this.fileLoaderFactory),
                 splitSelection.getPostSelection());
     }
 
-    private FilesDocumentFetcherFactory getFilesDataLoaderFactory(final String sourceFilterGlob) {
+    private FilesDocumentFetcherFactory getFilesDataLoaderFactory(final String fileEnding) {
         final ServiceLoader<FilesDocumentFetcherFactory> loader = ServiceLoader.load(FilesDocumentFetcherFactory.class);
         return loader.stream()
-                .filter(x -> x.get().getSupportedFileExtensions().stream().anyMatch(sourceFilterGlob::endsWith))//
+                .filter(x -> x.get().getSupportedFileExtensions().stream().anyMatch(fileEnding::equalsIgnoreCase))//
                 .findAny()
-                .orElseThrow(() -> new UnsupportedOperationException("Could not find a file type implementation for "
-                        + sourceFilterGlob + ". Please check the file extension."))//
+                .orElseThrow(() -> new UnsupportedOperationException(ExaError.messageBuilder("E-VSDF-13")
+                        .message("Could not find a file type implementation for {{file ending}}.", fileEnding)
+                        .mitigation("Please check the file extension.").toString()))//
                 .get();
     }
 }
