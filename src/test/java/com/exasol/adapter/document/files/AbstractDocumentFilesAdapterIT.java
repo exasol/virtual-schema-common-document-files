@@ -18,8 +18,6 @@ import java.sql.*;
 import java.util.Objects;
 import java.util.Random;
 import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import org.apache.parquet.schema.Type;
@@ -33,6 +31,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import com.exasol.adapter.document.documentfetcher.files.parquet.ParquetTestSetup;
 import com.exasol.matcher.TypeMatchMode;
+import com.exasol.performancetestrecorder.PerformanceTestRecorder;
 
 @SuppressWarnings("java:S5786") // this class is public so that class from different packages can inherit
 public abstract class AbstractDocumentFilesAdapterIT {
@@ -264,8 +263,8 @@ public abstract class AbstractDocumentFilesAdapterIT {
             uploadAsParquetFile(parquetTestSetup, fileCounter);
         }
         final String query = "SELECT COUNT(*) FROM " + TEST_SCHEMA + ".BOOKS";
-        new PerformanceTestLogger(testInfo)
-                .profile(() -> assertQuery(query, table().row(itemCount * fileCount).matches()));
+        PerformanceTestRecorder.getInstance().recordExecution(testInfo,
+                () -> assertQuery(query, table().row(itemCount * fileCount).matches()));
     }
 
     @Test
@@ -287,28 +286,6 @@ public abstract class AbstractDocumentFilesAdapterIT {
     private void assertQuery(final String query, final Matcher<ResultSet> matcher) throws SQLException {
         try (final ResultSet result = getStatement().executeQuery(query)) {
             assertThat(result, matcher);
-        }
-    }
-
-    private static class PerformanceTestLogger {
-        private static final Logger LOGGER = Logger.getLogger(PerformanceTestLogger.class.getName());
-        private final TestInfo testInfo;
-
-        private PerformanceTestLogger(final TestInfo testInfo) {
-            this.testInfo = testInfo;
-        }
-
-        void profile(final RunnableWithException methodUnderTest) throws Exception {
-            final String testName = this.testInfo.getDisplayName();
-            LOGGER.log(Level.INFO, "Starting stopwatch for {0}", new Object[] { testName });
-            final long startMillis = System.currentTimeMillis();
-            methodUnderTest.run();
-            final long duration = System.currentTimeMillis() - startMillis;
-            LOGGER.log(Level.INFO, "{0} took {1} ms", new Object[] { testName, duration });
-        }
-
-        interface RunnableWithException {
-            void run() throws Exception;
         }
     }
 
