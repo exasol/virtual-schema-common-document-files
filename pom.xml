@@ -12,10 +12,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>11</java.version>
-        <junit.version>5.7.1</junit.version>
+        <junit.version>5.8.1</junit.version>
         <junit.platform.version>1.6.2</junit.platform.version>
-        <jacoco.version>0.8.5</jacoco.version>
-        <vs-common-document.version>6.0.0</vs-common-document.version>
+        <jacoco.version>0.8.7</jacoco.version>
+        <vs-common-document.version>6.1.0</vs-common-document.version>
         <gpg.skip>true</gpg.skip>
         <!--
         M4 does not fail tests if beforeAll fails
@@ -72,7 +72,7 @@
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>parquet-io-java</artifactId>
-            <version>1.0.2</version>
+            <version>1.1.0</version>
         </dependency>
         <!-- Test dependencies -->
         <dependency>
@@ -101,13 +101,13 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>3.8.0</version>
+            <version>3.12.4</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>3.8.0</version>
+            <version>3.12.4</version>
             <scope>test</scope>
         </dependency>
         <!--Integration test dependencies-->
@@ -134,7 +134,7 @@
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>hamcrest-resultset-matcher</artifactId>
-            <version>1.4.0</version>
+            <version>1.5.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -348,7 +348,7 @@
             <plugin>
                 <groupId>com.exasol</groupId>
                 <artifactId>project-keeper-maven-plugin</artifactId>
-                <version>1.1.0</version>
+                <version>1.2.0</version>
                 <executions>
                     <execution>
                         <goals>

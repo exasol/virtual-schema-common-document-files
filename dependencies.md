@@ -31,7 +31,7 @@
 | ------------------------------------------------------- | ---------------------------------------------- |
 | [Maven Surefire Plugin][28]                             | [Apache License, Version 2.0][29]              |
 | [Maven Failsafe Plugin][30]                             | [Apache License, Version 2.0][29]              |
-| [JaCoCo :: Maven Plugin][20]                            | [Eclipse Public License 2.0][21]               |
+| [JaCoCo :: Maven Plugin][32]                            | [Eclipse Public License 2.0][21]               |
 | [Maven Jar Plugin][34]                                  | [The Apache Software License, Version 2.0][35] |
 | [Apache Maven Source Plugin][36]                        | [Apache License, Version 2.0][29]              |
 | [Apache Maven Compiler Plugin][38]                      | [Apache License, Version 2.0][29]              |
@@ -71,12 +71,13 @@
 [52]: http://maven.apache.org/plugins/maven-gpg-plugin/
 [21]: https://www.eclipse.org/legal/epl-2.0/
 [57]: http://www.eclipse.org/legal/epl-v10.html
+[32]: https://www.jacoco.org/jacoco/trunk/doc/maven.html
+[15]: https://github.com/mockito/mockito/blob/main/LICENSE
 [24]: https://github.com/exasol/hamcrest-resultset-matcher
 [60]: http://zlika.github.io/reproducible-build-maven-plugin
 [34]: http://maven.apache.org/plugins/maven-jar-plugin/
 [29]: https://www.apache.org/licenses/LICENSE-2.0.txt
 [46]: https://maven.apache.org/enforcer/maven-enforcer-plugin/
-[15]: https://github.com/mockito/mockito/blob/release/3.x/LICENSE
 [11]: https://www.eclipse.org/legal/epl-v20.html
 [66]: http://maven.apache.org/plugins/maven-install-plugin/
 [10]: https://junit.org/junit5/
