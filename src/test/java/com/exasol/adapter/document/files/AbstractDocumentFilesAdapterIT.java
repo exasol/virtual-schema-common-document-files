@@ -3,7 +3,7 @@ package com.exasol.adapter.document.files;
 import static com.exasol.matcher.ResultSetStructureMatcher.table;
 import static com.exasol.udfdebugging.PushDownTesting.getPushDownSql;
 import static com.exasol.udfdebugging.PushDownTesting.getSelectionThatIsSentToTheAdapter;
-import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.BINARY;
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.*;
 import static org.apache.parquet.schema.Type.Repetition.REQUIRED;
 import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -20,7 +20,7 @@ import java.util.Random;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import org.apache.parquet.schema.Type;
+import org.apache.parquet.schema.*;
 import org.apache.parquet.schema.Types;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.*;
@@ -30,6 +30,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.exasol.adapter.document.documentfetcher.files.parquet.ParquetTestSetup;
+import com.exasol.adapter.document.edml.*;
+import com.exasol.adapter.document.edml.serializer.EdmlSerializer;
 import com.exasol.matcher.TypeMatchMode;
 import com.exasol.performancetestrecorder.PerformanceTestRecorder;
 
@@ -50,6 +52,19 @@ public abstract class AbstractDocumentFilesAdapterIT {
         final String mappingTemplate = getMappingTemplate(resourceName);
         final String filledMapping = mappingTemplate.replace("DATA_FILES_DIR", this.dataFilesDirectory);
         createVirtualSchema(schemaName, filledMapping);
+    }
+
+    private void createVirtualSchemaWithMapping(final String schemaName, final Fields mapping,
+            final String dataFilePattern) throws IOException {
+        final EdmlDefinition edmlDefinition = EdmlDefinition.builder()//
+                .schema("https://schemas.exasol.com/edml-1.3.0.json")//
+                .destinationTable("BOOKS")//
+                .addSourceReferenceColumn(true)//
+                .mapping(mapping)//
+                .source(this.dataFilesDirectory + "/" + dataFilePattern)//
+                .build();
+        final String edmlString = new EdmlSerializer().serialize(edmlDefinition);
+        createVirtualSchema(schemaName, edmlString);
     }
 
     private String getMappingTemplate(final String resourceName) throws IOException {
@@ -232,14 +247,41 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     @Test
     void testReadParquetFile() throws IOException, SQLException {
-        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapParquetFile.json");
-        final Type idColumn = Types.primitive(BINARY, REQUIRED).named("data");
-        final ParquetTestSetup parquetTestSetup = new ParquetTestSetup(this.tempDir, idColumn);
-        parquetTestSetup.writeRow(row -> row.add("data", "my test string"));
+        final Fields mapping = Fields.builder()//
+                .mapField("data", ToVarcharMapping.builder().build())//
+                .mapField("isActive", ToBoolMapping.builder().destinationName("IS_ACTIVE").build())//
+                .mapField("my_date", ToDateMapping.builder().build())//
+                .mapField("my_time", ToDecimalMapping.builder().decimalPrecision(15).decimalScale(0).build())//
+                .mapField("my_timestamp", ToTimestampMapping.builder().build())//
+                .mapField("json", ToVarcharMapping.builder().build())//
+                .build();
+        createVirtualSchemaWithMapping(TEST_SCHEMA, mapping, "testData-*.parquet");
+        final Type stringColumn = Types.primitive(BINARY, REQUIRED).named("data");
+        final Type boolColumn = Types.primitive(BOOLEAN, REQUIRED).named("isActive");
+        final Type dateColumn = Types.primitive(INT32, REQUIRED).as(LogicalTypeAnnotation.dateType()).named("my_date");
+        final Type timeColumn = Types.primitive(INT32, REQUIRED)
+                .as(LogicalTypeAnnotation.timeType(true, LogicalTypeAnnotation.TimeUnit.MILLIS)).named("my_time");
+        final Type timestampColumn = Types.primitive(INT64, REQUIRED)
+                .as(LogicalTypeAnnotation.timestampType(true, LogicalTypeAnnotation.TimeUnit.MILLIS))
+                .named("my_timestamp");
+        final Type jsonColumn = Types.primitive(BINARY, REQUIRED).as(LogicalTypeAnnotation.jsonType()).named("json");
+        final ParquetTestSetup parquetTestSetup = new ParquetTestSetup(this.tempDir, stringColumn, boolColumn,
+                dateColumn, timeColumn, timestampColumn, jsonColumn);
+        final long a_timestamp = 1632384929000L;
+        parquetTestSetup.writeRow(row -> {
+            row.add("data", "my test string");
+            row.add("isActive", true);
+            row.add("my_date", (int) (a_timestamp / 24 / 60 / 60 / 1000)); // days since unix-epoch
+            row.add("my_time", 1000);// ms after midnight
+            row.add("my_timestamp", a_timestamp);// ms after midnight
+            row.add("json", "{\"my_value\": 2}");
+        });
         parquetTestSetup.closeWriter();
         uploadAsParquetFile(parquetTestSetup, 1);
-        final String query = "SELECT \"DATA\" FROM " + TEST_SCHEMA + ".BOOKS";
-        assertQuery(query, table().row("my test string").matches());
+        final String query = "SELECT \"DATA\", \"IS_ACTIVE\", \"MY_DATE\", \"MY_TIME\", \"MY_TIMESTAMP\", \"JSON\" FROM "
+                + TEST_SCHEMA + ".BOOKS";
+        assertQuery(query, table().row("my test string", true, new Date(a_timestamp), 1000, new Timestamp(a_timestamp),
+                "{\"my_value\": 2}").withUtcCalendar().matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
     }
 
     @ParameterizedTest
