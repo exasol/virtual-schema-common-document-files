@@ -19,7 +19,7 @@ For details see the [changelog of the virtual-schema-common-document](https://gi
 
 ## Features
 
-* #96: Added more tests for parquet types
+* #69: Added more tests for parquet types
 
 ## Refactoring
 
