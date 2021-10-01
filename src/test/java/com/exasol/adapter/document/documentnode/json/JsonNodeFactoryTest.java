@@ -5,15 +5,15 @@ import static org.hamcrest.Matchers.instanceOf;
 
 import java.util.stream.Stream;
 
-import javax.json.Json;
-import javax.json.JsonValue;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.holder.*;
+
+import jakarta.json.Json;
+import jakarta.json.JsonValue;
 
 class JsonNodeFactoryTest {
 

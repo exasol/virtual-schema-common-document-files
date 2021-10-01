@@ -4,12 +4,12 @@ import java.io.*;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import javax.json.*;
-import javax.json.spi.JsonProvider;
-
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.json.JsonNodeFactory;
 import com.exasol.errorreporting.ExaError;
+
+import jakarta.json.*;
+import jakarta.json.spi.JsonProvider;
 
 /**
  * This class iterates the lines of a JSON-Lines file an creates for each line a JSON {@link DocumentNode}.

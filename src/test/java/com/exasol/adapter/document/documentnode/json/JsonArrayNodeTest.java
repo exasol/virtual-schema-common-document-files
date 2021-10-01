@@ -8,14 +8,14 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import java.math.BigDecimal;
 import java.util.List;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-
 import org.junit.jupiter.api.Test;
 
 import com.exasol.adapter.document.documentnode.DocumentArray;
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.holder.BigDecimalHolderNode;
+
+import jakarta.json.Json;
+import jakarta.json.JsonArray;
 
 class JsonArrayNodeTest {
 
