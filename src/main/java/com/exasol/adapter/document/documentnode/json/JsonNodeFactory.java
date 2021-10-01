@@ -1,10 +1,10 @@
 package com.exasol.adapter.document.documentnode.json;
 
-import javax.json.*;
-
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.holder.*;
 import com.exasol.errorreporting.ExaError;
+
+import jakarta.json.*;
 
 /**
  * Factory for JSON {@link DocumentNode}s.

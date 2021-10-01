@@ -4,13 +4,13 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-
 import org.junit.jupiter.api.Test;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.holder.StringHolderNode;
+
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
 
 class JsonObjectNodeTest {
 

@@ -4,19 +4,19 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.json.*;
-
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.json.JsonNodeFactory;
 import com.exasol.adapter.document.files.stringfilter.StringFilter;
 import com.exasol.errorreporting.ExaError;
 
+import jakarta.json.*;
+
 /**
  * {@link DocumentFetcher} for JSON files.
  */
 public class JsonDocumentFetcher extends AbstractFilesDocumentFetcher {
-    private static final long serialVersionUID = 2766114889525275450L;
+    private static final long serialVersionUID = -5087387056451796363L;
     private static final JsonReaderFactory JSON_READER_FACTORY = Json.createReaderFactory(null);
 
     /**

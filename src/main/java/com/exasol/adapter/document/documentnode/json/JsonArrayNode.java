@@ -3,17 +3,15 @@ package com.exasol.adapter.document.documentnode.json;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.json.JsonArray;
-
 import com.exasol.adapter.document.documentnode.DocumentArray;
 import com.exasol.adapter.document.documentnode.DocumentNode;
+
+import jakarta.json.JsonArray;
 
 /**
  * This class represents JSON arrays.
  */
 public class JsonArrayNode implements DocumentArray {
-    private static final long serialVersionUID = -2812502174409591338L;
-    /** @serial */
     private final JsonArray jsonArray;
 
     /**
