@@ -4,6 +4,10 @@ Code name:
 
 ## Summary
 
+## Features:
+
+* #73: Improved parquet regression tests
+
 ## Refactoring
 
 * #71: Replaced javax.json by jakarta.json
