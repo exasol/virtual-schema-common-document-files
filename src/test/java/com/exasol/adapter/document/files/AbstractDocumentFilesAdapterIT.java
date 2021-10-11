@@ -18,6 +18,7 @@ import java.sql.*;
 import java.sql.Date;
 import java.util.*;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.parquet.schema.*;
@@ -82,7 +83,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     @BeforeEach
     void beforeEach(final TestInfo testInfo) {
-        System.out.println("Start..." + testInfo.getDisplayName());
+        LOGGER.log(Level.INFO, "Start... {0}", testInfo.getDisplayName());
         this.dataFilesDirectory = String.valueOf(System.currentTimeMillis());
     }
 
