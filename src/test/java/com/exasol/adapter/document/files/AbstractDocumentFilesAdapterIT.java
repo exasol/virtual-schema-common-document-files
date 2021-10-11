@@ -189,17 +189,17 @@ public abstract class AbstractDocumentFilesAdapterIT {
     @Test
     // TODO remove when SPOT-11018 is fixed
     void testFilterWithOrOnSourceReferenceWithBugfixForSPOT11018() throws IOException {
-        final String dataFilesDirectory = String.valueOf(System.currentTimeMillis());
         createJsonVirtualSchema();
         final String query = "SELECT ID FROM (SELECT ID, SOURCE_REFERENCE FROM " + TEST_SCHEMA
-                + ".BOOKS WHERE SOURCE_REFERENCE = '" + dataFilesDirectory + "/testData-1.json' OR SOURCE_REFERENCE = '"
-                + dataFilesDirectory + "/testData-2.json' ORDER BY SOURCE_REFERENCE ASC)";
+                + ".BOOKS WHERE SOURCE_REFERENCE = '" + this.dataFilesDirectory
+                + "/testData-1.json' OR SOURCE_REFERENCE = '" + this.dataFilesDirectory
+                + "/testData-2.json' ORDER BY SOURCE_REFERENCE ASC)";
         assertAll(//
                 () -> assertThat(getStatement().executeQuery(query), table().row("book-1").row("book-2").matches()), //
                 () -> assertThat(getPushDownSql(getStatement(), query), endsWith("WHERE TRUE")), // no post selection
                 () -> assertThat(getSelectionThatIsSentToTheAdapter(getStatement(), query),
-                        equalTo("(BOOKS.SOURCE_REFERENCE='" + dataFilesDirectory
-                                + "/testData-1.json') OR (BOOKS.SOURCE_REFERENCE='" + dataFilesDirectory
+                        equalTo("(BOOKS.SOURCE_REFERENCE='" + this.dataFilesDirectory
+                                + "/testData-1.json') OR (BOOKS.SOURCE_REFERENCE='" + this.dataFilesDirectory
                                 + "/testData-2.json')"))//
         );
     }
@@ -289,12 +289,6 @@ public abstract class AbstractDocumentFilesAdapterIT {
     @Tag("regression")
     void testLoadLargeParquetRows(final TestInfo testInfo) throws Exception {
         prepareAndRunParquetLoadingTest(1_000_000, 100, 10, 1, testInfo);
-    }
-
-    // @Test it takes too long (~10h) // todo
-    @Tag("regression")
-    void testLoadManyParquetFiles(final TestInfo testInfo) throws Exception {
-        prepareAndRunParquetLoadingTest(10, 100, 1_000_000, 1, testInfo);
     }
 
     @Test

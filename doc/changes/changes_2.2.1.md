@@ -4,9 +4,13 @@ Code name:
 
 ## Summary
 
-## Features:
+## Features
 
 * #73: Improved parquet regression tests
+
+## Bug Fixes
+
+#75: Fixed unstable test(`testFilterWithOrOnSourceReferenceWithBugfixForSPOT11018`)
 
 ## Refactoring
 
