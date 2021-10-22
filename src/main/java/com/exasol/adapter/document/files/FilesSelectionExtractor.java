@@ -24,7 +24,7 @@ import com.exasol.errorreporting.ExaError;
  * </p>
  */
 public class FilesSelectionExtractor {
-    public static final StringFilterFactory STRING_FILTER_FACTORY = new StringFilterFactory();
+    private static final StringFilterFactory STRING_FILTER_FACTORY = new StringFilterFactory();
     private static final Set<AbstractComparisonPredicate.Operator> SUPPORTED_OPERATORS = Set.of(EQUAL, LIKE);
     private final WildcardExpression sourceExpression;
 

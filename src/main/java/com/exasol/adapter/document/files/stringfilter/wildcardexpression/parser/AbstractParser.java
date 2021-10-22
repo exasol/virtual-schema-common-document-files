@@ -11,8 +11,11 @@ import com.exasol.adapter.document.files.stringfilter.wildcardexpression.fragmen
  * Abstract basis for parsers for {@link WildcardExpression}s.
  */
 public abstract class AbstractParser {
+    /** language specific escape character */
     protected final char escapeChar;
+    /** language specific wildcard that matches multiple characters */
     protected final char multiCharWildcard;
+    /** language specific wildcard that matches a single characters */
     protected final char singleCharWildcard;
 
     /**

@@ -13,6 +13,11 @@ public class InMemoryRandomAccessStream extends RandomAccessInputStream {
     private final byte[] data;
     long position = 0;
 
+    /**
+     * Create a new instance of {@link InMemoryRandomAccessStream}.
+     * 
+     * @param data data to wrap
+     */
     public InMemoryRandomAccessStream(final byte[] data) {
         this.data = data;
     }

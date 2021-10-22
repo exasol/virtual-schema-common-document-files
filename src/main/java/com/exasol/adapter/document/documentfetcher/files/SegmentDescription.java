@@ -6,8 +6,9 @@ import java.io.Serializable;
  * This class describes a segment of data.
  */
 public class SegmentDescription implements Serializable {
+    /** Segment description for no segmentation */
     public static final SegmentDescription NO_SEGMENTATION = new SegmentDescription(1, 0);
-    private static final long serialVersionUID = -6391949745846220794L;//
+    private static final long serialVersionUID = 4642659777595474828L;//
     /** @serial */
     private final int numberOfSegments;
     /** @serial */

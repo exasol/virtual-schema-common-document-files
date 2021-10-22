@@ -9,16 +9,14 @@ import com.exasol.adapter.document.files.stringfilter.StringFilter;
 import com.exasol.adapter.document.files.stringfilter.StringFilterVisitor;
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.fragments.CrossDirectoryMultiCharWildcard;
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.fragments.RegularCharacter;
-import com.exasol.adapter.document.files.stringfilter.wildcardexpression.parser.GlobParser;
-import com.exasol.adapter.document.files.stringfilter.wildcardexpression.parser.LikeParser;
-import com.exasol.adapter.document.files.stringfilter.wildcardexpression.parser.NonWildcardParser;
+import com.exasol.adapter.document.files.stringfilter.wildcardexpression.parser.*;
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.renderer.regex.DirectoryIgnoringRegexRenderer;
 
 /**
  * This class represents expressions with simple wildcards as can be expressed using the GLOB or SQL-LIKE syntax.
  */
 public class WildcardExpression implements StringFilter {
-    private static final long serialVersionUID = -9137643648656274318L;
+    private static final long serialVersionUID = 3873397815526160795L;
     /** @serial */
     private final ArrayList<WildcardExpressionFragment> fragments;
 
@@ -111,6 +109,12 @@ public class WildcardExpression implements StringFilter {
         return wildcardFreePrefixBuilder.toString();
     }
 
+    /**
+     * Get if the given fragment is a wildcard.
+     * 
+     * @param fragment fragment to check
+     * @return {@code true} if the fragment is a wildcard
+     */
     protected boolean isWildcard(final WildcardExpressionFragment fragment) {
         return !(fragment instanceof RegularCharacter);
     }
