@@ -14,6 +14,12 @@ import com.exasol.adapter.document.documentfetcher.files.randomaccessinputstream
 public final class SeekableInputStreamAdapter {
     private static final int COPY_BUFFER_SIZE = 8192;
 
+    /**
+     * Convert a {@link RandomAccessInputStream} to an {@link org.apache.parquet.io.InputFile}.
+     * 
+     * @param source stream to convert
+     * @return result
+     */
     public static org.apache.parquet.io.InputFile convert(final RandomAccessInputStream source) {
 
         return new org.apache.parquet.io.InputFile() {

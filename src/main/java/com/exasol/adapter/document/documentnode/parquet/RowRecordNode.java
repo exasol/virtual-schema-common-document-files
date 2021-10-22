@@ -8,11 +8,17 @@ import com.exasol.adapter.document.documentnode.DocumentObject;
 import com.exasol.adapter.document.documentnode.objectwrapper.ObjectWrapperDocumentNodeFactory;
 import com.exasol.parquetio.data.Row;
 
+/**
+ * {@link DocumentNode} that wraps {@link Row} data generated from parquet-io-java.
+ */
 public class RowRecordNode implements DocumentObject {
-    private static final long serialVersionUID = 6826167010410985933L;
-    /** @serial */
     private final Row row;
 
+    /**
+     * Create a new instance of {@link RowRecordNode}.
+     * 
+     * @param row row to wrap
+     */
     public RowRecordNode(final Row row) {
         this.row = row;
     }
