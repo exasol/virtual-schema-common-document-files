@@ -1,13 +1,9 @@
-package com.exasol.adapter.document.documentfetcher.files;
-
-import java.io.Serializable;
+package com.exasol.adapter.document.documentfetcher.files.segmentation;
 
 /**
- * This class describes a segment of data.
+ * This {@link SegmentDescription} segments a set of files by binning the hash sum of the filenames.
  */
-public class SegmentDescription implements Serializable {
-    /** Segment description for no segmentation */
-    public static final SegmentDescription NO_SEGMENTATION = new SegmentDescription(1, 0);
+public class HashSegmentDescription implements SegmentDescription {
     private static final long serialVersionUID = 4642659777595474828L;//
     /** @serial */
     private final int numberOfSegments;
@@ -15,12 +11,12 @@ public class SegmentDescription implements Serializable {
     private final int segmentId;
 
     /**
-     * Create a new instance of {@link SegmentDescription}.
+     * Create a new instance of {@link HashSegmentDescription}.
      *
      * @param numberOfSegments total number of segments
      * @param segmentId        number of this segment
      */
-    public SegmentDescription(final int numberOfSegments, final int segmentId) {
+    public HashSegmentDescription(final int numberOfSegments, final int segmentId) {
         this.numberOfSegments = numberOfSegments;
         this.segmentId = segmentId;
     }
@@ -41,5 +37,10 @@ public class SegmentDescription implements Serializable {
      */
     public int getSegmentId() {
         return this.segmentId;
+    }
+
+    @Override
+    public void accept(final SegmentDescriptionVisitor visitor) {
+        visitor.visit(this);
     }
 }

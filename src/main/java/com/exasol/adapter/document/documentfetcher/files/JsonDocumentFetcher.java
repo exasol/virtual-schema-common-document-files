@@ -7,7 +7,7 @@ import java.util.List;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.json.JsonNodeFactory;
-import com.exasol.adapter.document.files.stringfilter.StringFilter;
+import com.exasol.adapter.document.files.FileTypeSpecificDocumentFetcher;
 import com.exasol.errorreporting.ExaError;
 
 import jakarta.json.*;
@@ -15,24 +15,12 @@ import jakarta.json.*;
 /**
  * {@link DocumentFetcher} for JSON files.
  */
-public class JsonDocumentFetcher extends AbstractFilesDocumentFetcher {
-    private static final long serialVersionUID = -5087387056451796363L;
+public class JsonDocumentFetcher implements FileTypeSpecificDocumentFetcher {
+    private static final long serialVersionUID = -2427713570626934518L;
     private static final JsonReaderFactory JSON_READER_FACTORY = Json.createReaderFactory(null);
 
-    /**
-     * Create an instance of {@link JsonDocumentFetcher}.
-     * 
-     * @param filePattern        files to load
-     * @param segmentDescription segmentation for parallel execution
-     * @param fileLoaderFactory  dependency in injection of {@link FileLoaderFactory}.
-     */
-    public JsonDocumentFetcher(final StringFilter filePattern, final SegmentDescription segmentDescription,
-            final FileLoaderFactory fileLoaderFactory) {
-        super(filePattern, segmentDescription, fileLoaderFactory);
-    }
-
     @Override
-    protected Iterator<DocumentNode> readDocuments(final LoadedFile loadedFile) {
+    public Iterator<DocumentNode> readDocuments(final RemoteFile loadedFile) {
         try (final JsonReader jsonReader = buildJsonReader(loadedFile.getInputStream())) {
             final JsonValue jsonValue = jsonReader.readValue();
             return List.of(JsonNodeFactory.getInstance().getJsonNode(jsonValue)).iterator();

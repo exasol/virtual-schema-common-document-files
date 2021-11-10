@@ -12,5 +12,5 @@ public interface FileLoader {
      * 
      * @return content of the file
      */
-    public Iterator<LoadedFile> loadFiles();
+    public Iterator<RemoteFile> loadFiles();
 }

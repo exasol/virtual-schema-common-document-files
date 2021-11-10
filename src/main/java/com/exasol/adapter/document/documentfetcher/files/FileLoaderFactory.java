@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import com.exasol.ExaConnectionInformation;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
+import com.exasol.adapter.document.documentfetcher.files.segmentation.SegmentDescription;
 import com.exasol.adapter.document.files.stringfilter.StringFilter;
 
 /**

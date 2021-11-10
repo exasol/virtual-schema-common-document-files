@@ -51,7 +51,7 @@ The best practice for that task is to add a handler using `.onClose` to the stre
 Finally, we add a factory for the newly defined `DataLoader`. For that create a new class named `YOUR_TYPEFilesDataLoaderFactory`:
 
 ```java
-import com.exasol.adapter.document.documentfetcher.files.AbstractFilesDocumentFetcher;
+
 
 public class YOUR_TYPEFilesDataLoaderFactory extends AbstractFilesDocumentFetcherFactory {
 

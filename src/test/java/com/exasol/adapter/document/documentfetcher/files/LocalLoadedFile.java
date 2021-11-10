@@ -3,7 +3,7 @@ package com.exasol.adapter.document.documentfetcher.files;
 import java.io.*;
 import java.nio.file.Path;
 
-public class LocalLoadedFile extends LoadedFile {
+public class LocalLoadedFile extends RemoteFile {
     private final Path localFile;
 
     public LocalLoadedFile(final Path localFile) {
