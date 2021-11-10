@@ -9,6 +9,9 @@ import com.exasol.adapter.document.documentfetcher.files.segmentation.*;
 import com.exasol.adapter.document.files.stringfilter.*;
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
 
+/**
+ * Factory for {@link FilesDocumentFetcher}.
+ */
 public class FilesDocumentFetcherFactory {
     private static final int MAX_NUMBER_OF_FILES_TO_DISTRIBUTE_EXPLICITLY = 200;
 

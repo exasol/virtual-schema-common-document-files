@@ -10,6 +10,8 @@ import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 public interface FileTypeSpecificDocumentFetcherFactoryInterface {
     /**
      * Build a {@link FileTypeSpecificDocumentFetcher}.
+     * 
+     * @return built {@link FileTypeSpecificDocumentFetcher}
      */
     public FileTypeSpecificDocumentFetcher buildFileTypeSpecificDocumentFetcher();
 

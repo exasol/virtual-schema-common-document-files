@@ -8,6 +8,13 @@ import com.exasol.errorreporting.ExaError;
  * Factory for {@link FileTypeSpecificDocumentFetcher}.
  */
 public class FileTypeSpecificDocumentFetcherFactory {
+
+    /**
+     * Build a {@link FileTypeSpecificDocumentFetcher} for given file ending.
+     * 
+     * @param fileEnding file ending including {@code .}
+     * @return built {@link FileTypeSpecificDocumentFetcher}
+     */
     public FileTypeSpecificDocumentFetcher buildFileTypeSpecificDocumentFetcher(final String fileEnding) {
         return findFactory(fileEnding).buildFileTypeSpecificDocumentFetcher();
     }
