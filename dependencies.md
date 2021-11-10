@@ -76,6 +76,7 @@
 [9]: https://github.com/exasol/performance-test-recorder-java
 [48]: http://maven.apache.org/plugins/maven-dependency-plugin/
 [50]: http://www.mojohaus.org/versions-maven-plugin/
+[70]: http://anthonywhitford.com/lombok.maven/lombok-maven-plugin/
 [14]: http://opensource.org/licenses/BSD-3-Clause
 [46]: https://maven.apache.org/plugins/maven-compiler-plugin/
 [60]: http://maven.apache.org/plugins/maven-gpg-plugin/
@@ -90,7 +91,6 @@
 [7]: https://projects.eclipse.org/license/epl-2.0
 [37]: https://www.apache.org/licenses/LICENSE-2.0.txt
 [54]: https://maven.apache.org/enforcer/maven-enforcer-plugin/
-[70]: https://awhitford.github.com/lombok.maven/lombok-maven-plugin/
 [16]: https://www.eclipse.org/legal/epl-v20.html
 [76]: http://maven.apache.org/plugins/maven-install-plugin/
 [15]: https://junit.org/junit5/
