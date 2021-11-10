@@ -2,11 +2,10 @@ package com.exasol.adapter.document.files;
 
 import java.util.List;
 
-import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.files.JsonDocumentFetcher;
 
 /**
- * Factory for JSON {@link DocumentFetcher}.
+ * Factory for {@link FileTypeSpecificDocumentFetcher}.
  */
 public class JsonFilesDocumentFetcherFactory implements FileTypeSpecificDocumentFetcherFactoryInterface {
 

@@ -18,8 +18,8 @@ public interface FileTypeSpecificDocumentFetcher extends Serializable {
      * can be delayed using streams.
      * </p>
      *
-     * @param loadedFile stream of the files contents with additional description for logging
+     * @param remoteFile stream of the files contents with additional description for logging
      * @return read document nodes
      */
-    public Iterator<DocumentNode> readDocuments(RemoteFile loadedFile);
+    public Iterator<DocumentNode> readDocuments(RemoteFile remoteFile);
 }

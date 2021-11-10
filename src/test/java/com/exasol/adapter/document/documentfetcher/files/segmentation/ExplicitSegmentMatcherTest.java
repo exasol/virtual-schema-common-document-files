@@ -28,8 +28,8 @@ class ExplicitSegmentMatcherTest {
     }
 
     private RemoteFile getRemoteFileForName(final String fileName) {
-        final RemoteFile loadedFile = mock(RemoteFile.class);
-        when(loadedFile.getResourceName()).thenReturn(fileName);
-        return loadedFile;
+        final RemoteFile remoteFile = mock(RemoteFile.class);
+        when(remoteFile.getResourceName()).thenReturn(fileName);
+        return remoteFile;
     }
 }

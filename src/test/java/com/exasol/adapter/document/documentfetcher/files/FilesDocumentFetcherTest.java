@@ -38,8 +38,8 @@ class FilesDocumentFetcherTest {
 
     @Test
     void testSourceReferences() {
-        final List<RemoteFile> loadedFiles = List.of(mockLoadedFile("file-1"), mockLoadedFile("file-2"));
-        when(this.fileLoader.loadFiles()).thenReturn(loadedFiles.iterator());
+        final List<RemoteFile> remoteFiles = List.of(mockLoadedFile("file-1"), mockLoadedFile("file-2"));
+        when(this.fileLoader.loadFiles()).thenReturn(remoteFiles.iterator());
         when(this.loaderFactory.getLoader(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(this.fileLoader);
         final FileTypeSpecificDocumentFetcher fileTypeSpecificFetcher = mock(FileTypeSpecificDocumentFetcher.class);
         when(fileTypeSpecificFetcher.readDocuments(any()))

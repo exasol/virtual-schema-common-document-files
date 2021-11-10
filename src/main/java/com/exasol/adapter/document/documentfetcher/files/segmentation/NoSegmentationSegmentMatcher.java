@@ -7,7 +7,7 @@ import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
  */
 public class NoSegmentationSegmentMatcher implements SegmentMatcher {
     @Override
-    public boolean matches(final RemoteFile loadedFile) {
+    public boolean matches(final RemoteFile remoteFile) {
         return true;
     }
 }

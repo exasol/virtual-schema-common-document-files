@@ -72,7 +72,6 @@ public class FilesDocumentFetcherFactory {
 
     private List<SegmentDescription> buildExplicitSegmentation(final int numberOfSegments,
             final List<RemoteFile> firstFiles) {
-        final int numberOfFirstFiles = firstFiles.size();
         final List<RemoteFile>[] bins = distributeInEqualySizedBins(firstFiles, numberOfSegments);
         final List<SegmentDescription> segmentDescriptions = new ArrayList<>(numberOfSegments);
         for (final List<RemoteFile> bin : bins) {

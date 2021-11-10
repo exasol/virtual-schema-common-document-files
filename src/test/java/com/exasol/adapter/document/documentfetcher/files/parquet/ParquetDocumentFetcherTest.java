@@ -54,8 +54,8 @@ class ParquetDocumentFetcherTest {
     }
 
     private RowRecordNode runDocumentFetcherAndGetFirstResult(final Path parquetFile) {
-        final RemoteFile loadedFile = new LocalLoadedFile(parquetFile);
-        return (RowRecordNode) new ParquetDocumentFetcher().readDocuments(loadedFile).next();
+        final RemoteFile remoteFile = new LocalLoadedFile(parquetFile);
+        return (RowRecordNode) new ParquetDocumentFetcher().readDocuments(remoteFile).next();
     }
 
     private Path getListParquetFile() throws IOException {

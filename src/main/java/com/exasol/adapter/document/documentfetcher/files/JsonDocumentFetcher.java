@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 
-import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.json.JsonNodeFactory;
 import com.exasol.adapter.document.files.FileTypeSpecificDocumentFetcher;
@@ -16,18 +15,18 @@ import jakarta.json.*;
  * {@link FileTypeSpecificDocumentFetcher} for JSON files.
  */
 public class JsonDocumentFetcher implements FileTypeSpecificDocumentFetcher {
-    private static final long serialVersionUID = -2427713570626934518L;
+    private static final long serialVersionUID = 3335427484506659234L;
     private static final JsonReaderFactory JSON_READER_FACTORY = Json.createReaderFactory(null);
 
     @Override
-    public Iterator<DocumentNode> readDocuments(final RemoteFile loadedFile) {
-        try (final JsonReader jsonReader = buildJsonReader(loadedFile.getInputStream())) {
+    public Iterator<DocumentNode> readDocuments(final RemoteFile remoteFile) {
+        try (final JsonReader jsonReader = buildJsonReader(remoteFile.getInputStream())) {
             final JsonValue jsonValue = jsonReader.readValue();
             return List.of(JsonNodeFactory.getInstance().getJsonNode(jsonValue)).iterator();
         } catch (final JsonException jsonException) {
             throw new InputDataException(
                     ExaError.messageBuilder("E-VSDF-1").message("Error in input file {{JSON_FILE}}.")
-                            .parameter("JSON_FILE", loadedFile.getResourceName()).toString(),
+                            .parameter("JSON_FILE", remoteFile.getResourceName()).toString(),
                     jsonException);
         }
     }

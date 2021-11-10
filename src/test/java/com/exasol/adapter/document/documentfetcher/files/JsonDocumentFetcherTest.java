@@ -18,39 +18,39 @@ class JsonDocumentFetcherTest {
 
     @Test
     void testClosed() {
-        final AssertStreamIsClosedLoadedFile loadedFile = new AssertStreamIsClosedLoadedFile("{}");
+        final AssertStreamIsClosedLoadedFile remoteFile = new AssertStreamIsClosedLoadedFile("{}");
         final JsonDocumentFetcher jsonDocumentFetcher = new JsonDocumentFetcher();
-        jsonDocumentFetcher.readDocuments(loadedFile).forEachRemaining(x -> {
+        jsonDocumentFetcher.readDocuments(remoteFile).forEachRemaining(x -> {
             // just run through
         });
-        assertThat(loadedFile.isStreamClosed(), equalTo(true));
+        assertThat(remoteFile.isStreamClosed(), equalTo(true));
     }
 
     @Test
     void testReadDocument() {
-        final RemoteFile loadedFile = new StringLoadedFile("{\"id\": \"book-1\"}", "string source");
+        final RemoteFile remoteFile = new StringLoadedFile("{\"id\": \"book-1\"}", "string source");
         final JsonDocumentFetcher jsonDocumentFetcher = new JsonDocumentFetcher();
         final List<DocumentNode> result = new ArrayList<>();
-        jsonDocumentFetcher.readDocuments(loadedFile).forEachRemaining(result::add);
+        jsonDocumentFetcher.readDocuments(remoteFile).forEachRemaining(result::add);
         assertThat(result.size(), equalTo(1));
     }
 
     @Test
     void testReadDocumentWithSyntaxError() {
-        final RemoteFile loadedFile = new StringLoadedFile("{\ninvalid syntax\n}", "string source");
+        final RemoteFile remoteFile = new StringLoadedFile("{\ninvalid syntax\n}", "string source");
         final JsonDocumentFetcher jsonDocumentFetcher = new JsonDocumentFetcher();
         final InputDataException exception = assertThrows(InputDataException.class,
-                () -> jsonDocumentFetcher.readDocuments(loadedFile));
+                () -> jsonDocumentFetcher.readDocuments(remoteFile));
         assertThat(exception.getMessage(), equalTo("E-VSDF-1: Error in input file 'string source'."));
     }
 
     @ValueSource(strings = { "", " ", "   ", "\n", "\n " })
     @ParameterizedTest
     void testReadEmptyDocument(final String emptyDocumentVariant) {
-        final RemoteFile loadedFile = new StringLoadedFile(emptyDocumentVariant, "string source");
+        final RemoteFile remoteFile = new StringLoadedFile(emptyDocumentVariant, "string source");
         final JsonDocumentFetcher jsonDocumentFetcher = new JsonDocumentFetcher();
         final InputDataException inputDataException = assertThrows(InputDataException.class,
-                () -> jsonDocumentFetcher.readDocuments(loadedFile));
+                () -> jsonDocumentFetcher.readDocuments(remoteFile));
         assertThat(inputDataException.getMessage(), startsWith("E-VSDF-1: Error in input file 'string source'."));
     }
 }

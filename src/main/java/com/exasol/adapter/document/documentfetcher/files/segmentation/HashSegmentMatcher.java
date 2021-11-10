@@ -24,9 +24,9 @@ public class HashSegmentMatcher implements SegmentMatcher {
     }
 
     @Override
-    public boolean matches(final RemoteFile loadedFile) {
+    public boolean matches(final RemoteFile remoteFile) {
         @java.lang.SuppressWarnings("squid:S2676") // abs hashcode is intended here
-        final long hashNumber = Math.abs(loadedFile.getResourceName().hashCode());
+        final long hashNumber = Math.abs(remoteFile.getResourceName().hashCode());
         final int modulo = (int) (hashNumber % this.segmentDescription.getNumberOfSegments());
         return modulo == this.segmentDescription.getSegmentId();
     }

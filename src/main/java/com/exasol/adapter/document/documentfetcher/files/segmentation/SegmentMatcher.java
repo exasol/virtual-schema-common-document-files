@@ -9,8 +9,8 @@ public interface SegmentMatcher {
     /**
      * Matches file names that belong to the {@link SegmentDescription} passed to the constructor.
      *
-     * @param loadedFile file to match
+     * @param remoteFile file to match
      * @return {@code true} if file belongs to this partition
      */
-    boolean matches(RemoteFile loadedFile);
+    boolean matches(RemoteFile remoteFile);
 }

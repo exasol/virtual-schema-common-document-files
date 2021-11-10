@@ -9,10 +9,10 @@ import com.exasol.adapter.document.files.FileTypeSpecificDocumentFetcher;
  * {@link FileTypeSpecificDocumentFetcher} for the JSON lines file format.
  */
 public class JsonLinesDocumentFetcher implements FileTypeSpecificDocumentFetcher {
-    private static final long serialVersionUID = 1044464548669134464L;
+    private static final long serialVersionUID = -83401114228660759L;
 
     @Override
-    public Iterator<DocumentNode> readDocuments(final RemoteFile loadedFile) {
-        return new JsonLinesIterator(loadedFile);
+    public Iterator<DocumentNode> readDocuments(final RemoteFile remoteFile) {
+        return new JsonLinesIterator(remoteFile);
     }
 }

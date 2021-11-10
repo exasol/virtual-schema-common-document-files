@@ -2,11 +2,10 @@ package com.exasol.adapter.document.files;
 
 import java.util.List;
 
-import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.files.JsonLinesDocumentFetcher;
 
 /**
- * Factory for JSON-Lines {@link DocumentFetcher}s.
+ * Factory for {@link FileTypeSpecificDocumentFetcher}s.
  */
 public class JsonLinesFilesDocumentFetcherFactory implements FileTypeSpecificDocumentFetcherFactoryInterface {
     @Override

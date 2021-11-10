@@ -22,8 +22,8 @@ class HashSegmentMatcherTest {
         final int numRuns = 1000;
         for (int counter = 0; counter < numRuns; counter++) {
             final String fileName = "my-file-" + counter + ".json";
-            final RemoteFile loadedFile = getLoadedFileForName(fileName);
-            if (matcher.matches(loadedFile)) {
+            final RemoteFile remoteFile = getLoadedFileForName(fileName);
+            if (matcher.matches(remoteFile)) {
                 matches++;
             }
         }
@@ -31,9 +31,9 @@ class HashSegmentMatcherTest {
     }
 
     private RemoteFile getLoadedFileForName(final String fileName) {
-        final RemoteFile loadedFile = mock(RemoteFile.class);
-        when(loadedFile.getResourceName()).thenReturn(fileName);
-        return loadedFile;
+        final RemoteFile remoteFile = mock(RemoteFile.class);
+        when(remoteFile.getResourceName()).thenReturn(fileName);
+        return remoteFile;
     }
 
     @Test

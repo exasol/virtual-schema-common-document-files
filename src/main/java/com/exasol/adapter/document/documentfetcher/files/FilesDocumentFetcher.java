@@ -18,7 +18,7 @@ import lombok.Getter;
  * This is an abstract basis for {@link DocumentFetcher}s that fetch data from files.
  */
 public class FilesDocumentFetcher implements DocumentFetcher {
-    private static final long serialVersionUID = -6407330666075977620L;
+    private static final long serialVersionUID = -4438202224871103848L;
     /** @serial */
     @Getter
     private final StringFilter filePattern;
@@ -52,12 +52,12 @@ public class FilesDocumentFetcher implements DocumentFetcher {
         final String prefix = connectionInformation.getAddress();
         final Iterator<RemoteFile> files = this.fileLoaderFactory
                 .getLoader(this.filePattern, this.segmentDescription, connectionInformation).loadFiles();
-        return new FlatMapIterator<>(files, loadedFile -> readLoadedFile(loadedFile, prefix));
+        return new FlatMapIterator<>(files, remoteFile -> readLoadedFile(remoteFile, prefix));
     }
 
-    private Iterator<FetchedDocument> readLoadedFile(final RemoteFile loadedFile, final String prefix) {
-        final String relativeName = loadedFile.getResourceName().replaceFirst(Pattern.quote(prefix), "");
-        return new TransformingIterator<>(this.fileTypeSpecificDocumentFetcher.readDocuments(loadedFile),
+    private Iterator<FetchedDocument> readLoadedFile(final RemoteFile remoteFile, final String prefix) {
+        final String relativeName = remoteFile.getResourceName().replaceFirst(Pattern.quote(prefix), "");
+        return new TransformingIterator<>(this.fileTypeSpecificDocumentFetcher.readDocuments(remoteFile),
                 document -> new FetchedDocument(document, relativeName));
     }
 }
