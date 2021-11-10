@@ -25,11 +25,11 @@ class FilesDocumentFetcherFactoryTest {
 
     @Test
     void testBuildExplicitSegmentation() {
-        final List<DocumentFetcher> documentFetchers = runGetDocumentFetchers(32, 3);
+        final List<DocumentFetcher> documentFetchers = runGetDocumentFetchers(31, 3);
         assertAll(//
                 () -> assertThat(documentFetchers.size(), equalTo(3)),
                 () -> assertThat(countFilesInExplicitSegmentDescriptions(documentFetchers.get(0)), equalTo(11)),
-                () -> assertThat(countFilesInExplicitSegmentDescriptions(documentFetchers.get(1)), equalTo(11)),
+                () -> assertThat(countFilesInExplicitSegmentDescriptions(documentFetchers.get(1)), equalTo(10)),
                 () -> assertThat(countFilesInExplicitSegmentDescriptions(documentFetchers.get(2)), equalTo(10))//
         );
     }

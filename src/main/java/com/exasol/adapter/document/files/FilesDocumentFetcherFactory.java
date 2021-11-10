@@ -72,15 +72,26 @@ public class FilesDocumentFetcherFactory {
 
     private List<SegmentDescription> buildExplicitSegmentation(final int numberOfSegments,
             final List<RemoteFile> firstFiles) {
-        final List<SegmentDescription> segmentDescriptions = new ArrayList<>(numberOfSegments);
         final int numberOfFirstFiles = firstFiles.size();
-        final int filesPerPartition = (int) Math.ceil((double) numberOfFirstFiles / (double) numberOfSegments);
-        for (int segmentCounter = 0; segmentCounter < numberOfSegments; segmentCounter++) {
-            final int start = segmentCounter * filesPerPartition;
-            final int end = Math.min((segmentCounter + 1) * filesPerPartition, numberOfFirstFiles);
-            segmentDescriptions.add(new ExplicitSegmentDescription(firstFiles.subList(start, end)));
+        final List<RemoteFile>[] bins = distributeInEqualySizedBins(firstFiles, numberOfSegments);
+        final List<SegmentDescription> segmentDescriptions = new ArrayList<>(numberOfSegments);
+        for (final List<RemoteFile> bin : bins) {
+            segmentDescriptions.add(new ExplicitSegmentDescription(bin));
         }
         return segmentDescriptions;
+    }
+
+    private List<RemoteFile>[] distributeInEqualySizedBins(final List<RemoteFile> firstFiles, final int numberOfBins) {
+        final List<RemoteFile>[] bins = new List[numberOfBins];
+        for (int index = 0; index < numberOfBins; index++) {
+            bins[index] = new ArrayList<>();
+        }
+        int counter = 0;
+        for (final RemoteFile file : firstFiles) {
+            bins[counter % numberOfBins].add(file);
+            counter++;
+        }
+        return bins;
     }
 
     private List<SegmentDescription> buildHashSegmentation(final int numberOfSegments) {
