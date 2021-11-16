@@ -13,7 +13,7 @@ import com.exasol.errorreporting.ExaError;
 import jakarta.json.*;
 
 /**
- * {@link DocumentFetcher} for JSON files.
+ * {@link FileTypeSpecificDocumentFetcher} for JSON files.
  */
 public class JsonDocumentFetcher implements FileTypeSpecificDocumentFetcher {
     private static final long serialVersionUID = -2427713570626934518L;

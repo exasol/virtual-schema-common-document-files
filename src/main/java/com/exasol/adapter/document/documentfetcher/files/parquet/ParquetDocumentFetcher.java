@@ -16,7 +16,7 @@ import com.exasol.parquetio.data.Row;
 import com.exasol.parquetio.reader.RowParquetReader;
 
 /**
- * {@link DocumentFetcher} for parquet files.
+ * {@link FileTypeSpecificDocumentFetcher} for parquet files.
  */
 public class ParquetDocumentFetcher implements FileTypeSpecificDocumentFetcher {
     private static final long serialVersionUID = -470088959167071838L;

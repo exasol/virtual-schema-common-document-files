@@ -7,7 +7,7 @@ import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
  */
 public interface SegmentMatcher {
     /**
-     * Matches file names that belong to the {@link HashSegmentDescription} passed to the constructor.
+     * Matches file names that belong to the {@link SegmentDescription} passed to the constructor.
      *
      * @param loadedFile file to match
      * @return {@code true} if file belongs to this partition

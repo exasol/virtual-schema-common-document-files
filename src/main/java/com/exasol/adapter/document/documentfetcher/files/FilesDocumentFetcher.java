@@ -35,7 +35,7 @@ public class FilesDocumentFetcher implements DocumentFetcher {
      * 
      * @param filePattern                     files to load
      * @param segmentDescription              segmentation for parallel execution
-     * @param fileLoaderFactory               dependency in injection of {@link FileLoaderFactory}.
+     * @param fileLoaderFactory               dependency in injection of {@link FileLoaderFactory}
      * @param fileTypeSpecificDocumentFetcher file type specific document fetcher part
      */
     public FilesDocumentFetcher(final StringFilter filePattern, final SegmentDescription segmentDescription,
