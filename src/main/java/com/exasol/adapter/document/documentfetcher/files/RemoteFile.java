@@ -10,16 +10,16 @@ import com.exasol.errorreporting.ExaError;
 /**
  * This class describes a file loaded by the {@link FileLoader}.
  */
-public abstract class LoadedFile {
+public abstract class RemoteFile {
     private final String resourceName;
 
     /**
-     * Create a new instance of {@link LoadedFile}.
+     * Create a new instance of {@link RemoteFile}.
      *
      * @param resourceName description of the file e.g. file name; use for error messages
      */
     @SuppressWarnings("java:S5993") // public so that sub classes from other packages can call it
-    public LoadedFile(final String resourceName) {
+    public RemoteFile(final String resourceName) {
         this.resourceName = resourceName;
     }
 

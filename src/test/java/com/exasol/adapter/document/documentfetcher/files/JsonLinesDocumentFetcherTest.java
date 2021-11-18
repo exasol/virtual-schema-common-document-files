@@ -14,11 +14,11 @@ class JsonLinesDocumentFetcherTest {
 
     @Test
     void testReadDocuments() {
-        final JsonLinesDocumentFetcher documentFetcher = new JsonLinesDocumentFetcher(null, null, null);
-        final LoadedFile loadedFile = new StringLoadedFile("{\"id\": \"book-1\"}\n{\"id\": \"book-2\"}",
+        final JsonLinesDocumentFetcher documentFetcher = new JsonLinesDocumentFetcher();
+        final RemoteFile remoteFile = new StringLoadedFile("{\"id\": \"book-1\"}\n{\"id\": \"book-2\"}",
                 "string source");
         final List<DocumentNode> result = new ArrayList<>();
-        documentFetcher.readDocuments(loadedFile).forEachRemaining(result::add);
+        documentFetcher.readDocuments(remoteFile).forEachRemaining(result::add);
         assertThat(result.size(), equalTo(2));
     }
 }

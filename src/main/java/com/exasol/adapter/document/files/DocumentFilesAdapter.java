@@ -23,7 +23,7 @@ public abstract class DocumentFilesAdapter extends DocumentAdapter {
     @Override
     protected final QueryPlanner getQueryPlanner(final ExaConnectionInformation connectionInformation,
             final AdapterProperties adapterProperties) {
-        return new FilesQueryPlanner(getFileLoaderFactory());
+        return new FilesQueryPlanner(getFileLoaderFactory(), connectionInformation);
     }
 
     /**

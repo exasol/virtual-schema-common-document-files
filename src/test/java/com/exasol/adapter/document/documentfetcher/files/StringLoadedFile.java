@@ -3,7 +3,7 @@ package com.exasol.adapter.document.documentfetcher.files;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-public class StringLoadedFile extends LoadedFile {
+public class StringLoadedFile extends RemoteFile {
     private final String value;
 
     public StringLoadedFile(final String value, final String resourceName) {

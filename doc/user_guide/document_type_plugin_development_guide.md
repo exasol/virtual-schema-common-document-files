@@ -32,7 +32,7 @@ So start with creating a new class called `YOUR_TYPEDocumentFetcher` that extend
 The interface requires only a single method:
 
 ```java
-protected abstract Stream<DocumentNode<DocumentVisitorType>>readDocuments(InputStreamWithResourceName loadedFile);
+protected abstract Stream<DocumentNode<DocumentVisitorType>>readDocuments(InputStreamWithResourceName remoteFile);
 ```
 
 Inside this method, you need to load the data and convert it into your class structure implementing the `DocumentNode` interfaces. The parameter `InputStreamWithResourceName` consists of an `InputStream` from which you can parse the data and a file name, that you can use for logging.
@@ -40,7 +40,7 @@ Inside this method, you need to load the data and convert it into your class str
 Implement the method so that it converts the `loadedFile` into a `Stream<DocumentNode<YOUR_TYPEDocumentNodeVisitor>>` by parsing it and using the factory for your class structure. If your datatype has only one document per file, simply return `Set.of(YOUR_DOCUMTNT_NODE)`. Otherwise it is important to stream the data and not to collect it in a List first. For that implement a custom `Iterator` and `Iterable` and use:
 
 ```java
-return StreamSupport.stream(new YOUR_ITERABLE(loadedFile).spliterator(),false);
+return StreamSupport.stream(new YOUR_ITERABLE (remoteFile).spliterator(),false);
 ```
 
 Don't forget to close the input streams!
@@ -51,7 +51,7 @@ The best practice for that task is to add a handler using `.onClose` to the stre
 Finally, we add a factory for the newly defined `DataLoader`. For that create a new class named `YOUR_TYPEFilesDataLoaderFactory`:
 
 ```java
-import com.exasol.adapter.document.documentfetcher.files.AbstractFilesDocumentFetcher;
+
 
 public class YOUR_TYPEFilesDataLoaderFactory extends AbstractFilesDocumentFetcherFactory {
 

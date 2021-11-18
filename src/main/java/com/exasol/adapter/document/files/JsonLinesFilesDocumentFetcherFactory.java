@@ -2,22 +2,19 @@ package com.exasol.adapter.document.files;
 
 import java.util.List;
 
-import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
-import com.exasol.adapter.document.documentfetcher.files.*;
-import com.exasol.adapter.document.files.stringfilter.StringFilter;
+import com.exasol.adapter.document.documentfetcher.files.JsonLinesDocumentFetcher;
 
 /**
- * Factory for JSON-Lines {@link DocumentFetcher}s.
+ * Factory for {@link FileTypeSpecificDocumentFetcher}s.
  */
-public class JsonLinesFilesDocumentFetcherFactory extends AbstractFilesDocumentFetcherFactory {
+public class JsonLinesFilesDocumentFetcherFactory implements FileTypeSpecificDocumentFetcherFactoryInterface {
     @Override
     public List<String> getSupportedFileExtensions() {
         return List.of(".jsonl");
     }
 
     @Override
-    protected DocumentFetcher buildSingleDocumentFetcher(final FileLoaderFactory fileLoaderFactory,
-            final SegmentDescription segmentDescription, final StringFilter sourceFilter) {
-        return new JsonLinesDocumentFetcher(sourceFilter, segmentDescription, fileLoaderFactory);
+    public FileTypeSpecificDocumentFetcher buildFileTypeSpecificDocumentFetcher() {
+        return new JsonLinesDocumentFetcher();
     }
 }

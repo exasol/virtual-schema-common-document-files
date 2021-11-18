@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import org.apache.parquet.example.data.Group;
@@ -18,8 +17,8 @@ import org.apache.parquet.schema.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import com.exasol.adapter.document.documentfetcher.files.LoadedFile;
 import com.exasol.adapter.document.documentfetcher.files.LocalLoadedFile;
+import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
 import com.exasol.adapter.document.documentnode.DocumentArray;
 import com.exasol.adapter.document.documentnode.DocumentDecimalValue;
 import com.exasol.adapter.document.documentnode.parquet.RowRecordNode;
@@ -29,7 +28,7 @@ class ParquetDocumentFetcherTest {
     Path tempDir;
 
     @Test
-    void testReadInt() throws IOException, ExecutionException, InterruptedException {
+    void testReadInt() throws IOException {
         final Path parquetFile = getSingleValueParquetFile("my_value", Types.primitive(INT32, REQUIRED), 123);
         final DocumentDecimalValue valueNode = (DocumentDecimalValue) runDocumentFetcherAndGetFirstResult(parquetFile)
                 .get("my_value");
@@ -37,7 +36,7 @@ class ParquetDocumentFetcherTest {
     }
 
     @Test
-    void testReadDecimal() throws IOException, ExecutionException, InterruptedException {
+    void testReadDecimal() throws IOException {
         final Path parquetFile = getSingleValueParquetFile("my_value",
                 Types.primitive(INT32, REQUIRED).as(LogicalTypeAnnotation.decimalType(2, 8)), 123);
         final DocumentDecimalValue valueNode = (DocumentDecimalValue) runDocumentFetcherAndGetFirstResult(parquetFile)
@@ -46,7 +45,7 @@ class ParquetDocumentFetcherTest {
     }
 
     @Test
-    void testReadGroup() throws IOException, ExecutionException, InterruptedException {
+    void testReadGroup() throws IOException {
         final Path parquetFile = getListParquetFile();
         final DocumentArray array = (DocumentArray) runDocumentFetcherAndGetFirstResult(parquetFile).get("numbers");
         final List<Integer> results = array.getValuesList().stream()
@@ -55,8 +54,8 @@ class ParquetDocumentFetcherTest {
     }
 
     private RowRecordNode runDocumentFetcherAndGetFirstResult(final Path parquetFile) {
-        final LoadedFile loadedFile = new LocalLoadedFile(parquetFile);
-        return (RowRecordNode) new ParquetDocumentFetcher(null, null, null).readDocuments(loadedFile).next();
+        final RemoteFile remoteFile = new LocalLoadedFile(parquetFile);
+        return (RowRecordNode) new ParquetDocumentFetcher().readDocuments(remoteFile).next();
     }
 
     private Path getListParquetFile() throws IOException {

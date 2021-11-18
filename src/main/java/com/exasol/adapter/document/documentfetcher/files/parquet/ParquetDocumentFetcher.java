@@ -6,36 +6,23 @@ import java.util.Iterator;
 import org.apache.parquet.hadoop.ParquetReader;
 import org.apache.parquet.io.InputFile;
 
-import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
-import com.exasol.adapter.document.documentfetcher.files.*;
+import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
 import com.exasol.adapter.document.documentnode.DocumentNode;
-import com.exasol.adapter.document.files.stringfilter.StringFilter;
+import com.exasol.adapter.document.files.FileTypeSpecificDocumentFetcher;
 import com.exasol.adapter.document.iterators.AfterAllCallbackIterator;
 import com.exasol.errorreporting.ExaError;
 import com.exasol.parquetio.data.Row;
 import com.exasol.parquetio.reader.RowParquetReader;
 
 /**
- * {@link DocumentFetcher} for parquet files.
+ * {@link FileTypeSpecificDocumentFetcher} for parquet files.
  */
-public class ParquetDocumentFetcher extends AbstractFilesDocumentFetcher {
-    private static final long serialVersionUID = -363386922005840682L;
-
-    /**
-     * Create a new instance of {@link ParquetDocumentFetcher}.
-     *
-     * @param filePattern        files to load
-     * @param segmentDescription segmentation for parallel execution
-     * @param fileLoaderFactory  dependency in injection of {@link FileLoaderFactory}.
-     */
-    public ParquetDocumentFetcher(final StringFilter filePattern, final SegmentDescription segmentDescription,
-            final FileLoaderFactory fileLoaderFactory) {
-        super(filePattern, segmentDescription, fileLoaderFactory);
-    }
+public class ParquetDocumentFetcher implements FileTypeSpecificDocumentFetcher {
+    private static final long serialVersionUID = 4416738850532387816L;
 
     @Override
-    protected Iterator<DocumentNode> readDocuments(final LoadedFile loadedFile) {
-        final InputFile hadoopInputFile = SeekableInputStreamAdapter.convert(loadedFile.getRandomAccessInputStream());
+    public Iterator<DocumentNode> readDocuments(final RemoteFile remoteFile) {
+        final InputFile hadoopInputFile = SeekableInputStreamAdapter.convert(remoteFile.getRandomAccessInputStream());
         try {
             final ParquetReader<Row> reader = RowParquetReader.builder(hadoopInputFile).build();
             return new AfterAllCallbackIterator<>(new ParquetIterator(reader), () -> tryToCloseReader(reader));

@@ -4,42 +4,29 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 
-import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.json.JsonNodeFactory;
-import com.exasol.adapter.document.files.stringfilter.StringFilter;
+import com.exasol.adapter.document.files.FileTypeSpecificDocumentFetcher;
 import com.exasol.errorreporting.ExaError;
 
 import jakarta.json.*;
 
 /**
- * {@link DocumentFetcher} for JSON files.
+ * {@link FileTypeSpecificDocumentFetcher} for JSON files.
  */
-public class JsonDocumentFetcher extends AbstractFilesDocumentFetcher {
-    private static final long serialVersionUID = -5087387056451796363L;
+public class JsonDocumentFetcher implements FileTypeSpecificDocumentFetcher {
+    private static final long serialVersionUID = 3335427484506659234L;
     private static final JsonReaderFactory JSON_READER_FACTORY = Json.createReaderFactory(null);
 
-    /**
-     * Create an instance of {@link JsonDocumentFetcher}.
-     * 
-     * @param filePattern        files to load
-     * @param segmentDescription segmentation for parallel execution
-     * @param fileLoaderFactory  dependency in injection of {@link FileLoaderFactory}.
-     */
-    public JsonDocumentFetcher(final StringFilter filePattern, final SegmentDescription segmentDescription,
-            final FileLoaderFactory fileLoaderFactory) {
-        super(filePattern, segmentDescription, fileLoaderFactory);
-    }
-
     @Override
-    protected Iterator<DocumentNode> readDocuments(final LoadedFile loadedFile) {
-        try (final JsonReader jsonReader = buildJsonReader(loadedFile.getInputStream())) {
+    public Iterator<DocumentNode> readDocuments(final RemoteFile remoteFile) {
+        try (final JsonReader jsonReader = buildJsonReader(remoteFile.getInputStream())) {
             final JsonValue jsonValue = jsonReader.readValue();
             return List.of(JsonNodeFactory.getInstance().getJsonNode(jsonValue)).iterator();
         } catch (final JsonException jsonException) {
             throw new InputDataException(
                     ExaError.messageBuilder("E-VSDF-1").message("Error in input file {{JSON_FILE}}.")
-                            .parameter("JSON_FILE", loadedFile.getResourceName()).toString(),
+                            .parameter("JSON_FILE", remoteFile.getResourceName()).toString(),
                     jsonException);
         }
     }

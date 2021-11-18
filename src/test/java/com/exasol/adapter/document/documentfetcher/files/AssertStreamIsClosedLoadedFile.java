@@ -2,7 +2,7 @@ package com.exasol.adapter.document.documentfetcher.files;
 
 import java.io.InputStream;
 
-class AssertStreamIsClosedLoadedFile extends LoadedFile {
+class AssertStreamIsClosedLoadedFile extends RemoteFile {
     private final CloseCheckStream closeCheckStream;
 
     public AssertStreamIsClosedLoadedFile(final String content) {

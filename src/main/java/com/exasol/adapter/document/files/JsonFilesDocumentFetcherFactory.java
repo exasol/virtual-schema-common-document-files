@@ -2,19 +2,16 @@ package com.exasol.adapter.document.files;
 
 import java.util.List;
 
-import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
-import com.exasol.adapter.document.documentfetcher.files.*;
-import com.exasol.adapter.document.files.stringfilter.StringFilter;
+import com.exasol.adapter.document.documentfetcher.files.JsonDocumentFetcher;
 
 /**
- * Factory for JSON {@link DocumentFetcher}.
+ * Factory for {@link FileTypeSpecificDocumentFetcher}.
  */
-public class JsonFilesDocumentFetcherFactory extends AbstractFilesDocumentFetcherFactory {
+public class JsonFilesDocumentFetcherFactory implements FileTypeSpecificDocumentFetcherFactoryInterface {
 
     @Override
-    protected DocumentFetcher buildSingleDocumentFetcher(final FileLoaderFactory fileLoaderFactory,
-            final SegmentDescription segmentDescription, final StringFilter sourceFilter) {
-        return new JsonDocumentFetcher(sourceFilter, segmentDescription, fileLoaderFactory);
+    public FileTypeSpecificDocumentFetcher buildFileTypeSpecificDocumentFetcher() {
+        return new JsonDocumentFetcher();
     }
 
     @Override
