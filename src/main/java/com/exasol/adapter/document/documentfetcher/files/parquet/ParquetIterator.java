@@ -14,6 +14,7 @@ import com.exasol.parquetio.data.Row;
 /**
  * Iterator for parquet files.
  */
+//todo delete or use
 class ParquetIterator implements Iterator<DocumentNode> {
     private final ParquetReader<Row> reader;
     private Row next;

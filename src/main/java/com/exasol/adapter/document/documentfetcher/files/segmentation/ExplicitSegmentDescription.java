@@ -1,9 +1,6 @@
 package com.exasol.adapter.document.documentfetcher.files.segmentation;
 
-import java.util.HashSet;
-import java.util.List;
-
-import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
+import java.util.*;
 
 import lombok.Getter;
 
@@ -11,20 +8,22 @@ import lombok.Getter;
  * This {@link SegmentDescription} describes a segment by an explicit list of files.
  */
 public class ExplicitSegmentDescription implements SegmentDescription {
-    private static final long serialVersionUID = 2081718935447634522L;
+    private static final long serialVersionUID = -9092990439459054784L;
     /** @serial */
     @Getter
-    private final HashSet<String> segmentKeys;
+    private final HashMap<String, ArrayList<FileSegmentDescription>> segmentKeys;
 
     /**
      * Create a new instance of {@link SegmentDescription}.
      * 
      * @param filesToMatch list of files to match
      */
-    public ExplicitSegmentDescription(final List<RemoteFile> filesToMatch) {
-        this.segmentKeys = new HashSet<>();
-        for (final RemoteFile fileToMatch : filesToMatch) {
-            this.segmentKeys.add(fileToMatch.getResourceName());
+    public ExplicitSegmentDescription(final List<FileSegment> filesToMatch) {
+        this.segmentKeys = new HashMap<>();
+        for (final FileSegment segmentToMatch : filesToMatch) {
+            final String key = segmentToMatch.getFile().getResourceName();
+            this.segmentKeys.putIfAbsent(key, new ArrayList<>());
+            this.segmentKeys.get(key).add(segmentToMatch.getSegmentDescription());
         }
     }
 

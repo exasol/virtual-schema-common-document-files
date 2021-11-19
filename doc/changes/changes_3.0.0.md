@@ -5,6 +5,7 @@ Code name:
 ## Features
 
 * #77: Improved performance by distributing small amounts of files explicitly
+* #79: Improved performance by splitting reading of big parquet files
 
 ## Dependency Updates
 

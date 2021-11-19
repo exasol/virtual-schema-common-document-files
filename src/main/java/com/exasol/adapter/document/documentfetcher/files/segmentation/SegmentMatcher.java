@@ -1,5 +1,7 @@
 package com.exasol.adapter.document.documentfetcher.files.segmentation;
 
+import java.util.List;
+
 import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
 
 /**
@@ -7,10 +9,10 @@ import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
  */
 public interface SegmentMatcher {
     /**
-     * Matches file names that belong to the {@link SegmentDescription} passed to the constructor.
+     * Matches files that belong to the {@link SegmentDescription} passed to the constructor.
      *
      * @param remoteFile file to match
-     * @return {@code true} if file belongs to this partition
+     * @return List of segments of that file that matched. Empty list if file did not match.
      */
-    boolean matches(RemoteFile remoteFile);
+    List<FileSegment> getMatchingSegmentsFor(RemoteFile remoteFile);
 }
