@@ -4,10 +4,14 @@ import java.io.Serializable;
 
 import lombok.Data;
 
+/**
+ * This class describes a segment of a file.
+ */
 @Data
 public class FileSegmentDescription implements Serializable {
+    /** Constant for {@link FileSegmentDescription} of the entire file. */
     public static final FileSegmentDescription ENTIRE_FILE = new FileSegmentDescription(1, 0);
-    private static final long serialVersionUID = 1323376679618127370L;
+    private static final long serialVersionUID = 8989312140293872959L;
     /**
      * Total number of segments
      * 
