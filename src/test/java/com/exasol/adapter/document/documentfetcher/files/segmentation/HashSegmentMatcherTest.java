@@ -23,7 +23,7 @@ class HashSegmentMatcherTest {
         for (int counter = 0; counter < numRuns; counter++) {
             final String fileName = "my-file-" + counter + ".json";
             final RemoteFile remoteFile = getLoadedFileForName(fileName);
-            if (matcher.matches(remoteFile)) {
+            if (!matcher.getMatchingSegmentsFor(remoteFile).isEmpty()) {
                 matches++;
             }
         }
@@ -42,8 +42,8 @@ class HashSegmentMatcherTest {
         final SegmentMatcher matcher2 = new HashSegmentMatcher(SEGMENT_2_DESCRIPTION);
         for (int counter = 0; counter < 1000; counter++) {
             final String fileName = "my-file-" + counter + ".json";
-            assertThat(matcher1.matches(getLoadedFileForName(fileName)),
-                    not(equalTo(matcher2.matches(getLoadedFileForName(fileName)))));
+            assertThat(matcher1.getMatchingSegmentsFor(getLoadedFileForName(fileName)),
+                    not(equalTo(matcher2.getMatchingSegmentsFor(getLoadedFileForName(fileName)))));
         }
     }
 

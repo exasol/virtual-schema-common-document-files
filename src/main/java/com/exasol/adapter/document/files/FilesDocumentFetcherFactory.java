@@ -1,5 +1,7 @@
 package com.exasol.adapter.document.files;
 
+import static com.exasol.adapter.document.documentfetcher.files.segmentation.FileSegmentDescription.ENTIRE_FILE;
+
 import java.util.*;
 
 import com.exasol.ExaConnectionInformation;
@@ -35,7 +37,7 @@ public class FilesDocumentFetcherFactory {
         final StringFilter filterWithPreventedInjection = addPrefixToFilterToAvoidInjection(sourceFilter,
                 connectionInformation);
         final List<SegmentDescription> segmentDescriptions = buildSegmentDescriptions(fileLoaderFactory,
-                connectionInformation, numberOfSegments, filterWithPreventedInjection);
+                connectionInformation, numberOfSegments, filterWithPreventedInjection, fileTypeSpecificDocumentFetcher);
         for (final SegmentDescription segmentDescription : segmentDescriptions) {
             final DocumentFetcher documentFetcher = new FilesDocumentFetcher(filterWithPreventedInjection,
                     segmentDescription, fileLoaderFactory, fileTypeSpecificDocumentFetcher);
@@ -53,9 +55,8 @@ public class FilesDocumentFetcherFactory {
 
     private List<SegmentDescription> buildSegmentDescriptions(final FileLoaderFactory fileLoaderFactory,
             final ExaConnectionInformation connectionInformation, final int numberOfSegments,
-            final StringFilter filePattern) {
-        final FileLoader loader = fileLoaderFactory.getLoader(filePattern, new NoSegmentationSegmentDescription(),
-                connectionInformation);
+            final StringFilter filePattern, final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher) {
+        final FileLoader loader = fileLoaderFactory.getLoader(filePattern, connectionInformation);
         final Iterator<RemoteFile> iterator = loader.loadFiles();
         final List<RemoteFile> firstFiles = new ArrayList<>();
         int remoteFileCounter = 0;
@@ -66,27 +67,48 @@ public class FilesDocumentFetcherFactory {
         if (iterator.hasNext()) {
             return buildHashSegmentation(numberOfSegments);
         } else {
-            return buildExplicitSegmentation(numberOfSegments, firstFiles);
+            return buildExplicitSegmentation(numberOfSegments, firstFiles,
+                    fileTypeSpecificDocumentFetcher.supportsFileSplitting());
         }
     }
 
-    private List<SegmentDescription> buildExplicitSegmentation(final int numberOfSegments,
-            final List<RemoteFile> firstFiles) {
-        final List<RemoteFile>[] bins = distributeInEqualySizedBins(firstFiles, numberOfSegments);
+    private List<SegmentDescription> buildExplicitSegmentation(final int numberOfSegments, final List<RemoteFile> files,
+            final boolean fileSplittingIsSupported) {
+        final List<FileSegment> splitFiles = splitFilesIfRequired(numberOfSegments, files, fileSplittingIsSupported);
+        final List<FileSegment>[] bins = distributeInEqualySizedBins(splitFiles, numberOfSegments);
         final List<SegmentDescription> segmentDescriptions = new ArrayList<>(numberOfSegments);
-        for (final List<RemoteFile> bin : bins) {
+        for (final List<FileSegment> bin : bins) {
             segmentDescriptions.add(new ExplicitSegmentDescription(bin));
         }
         return segmentDescriptions;
     }
 
-    private List<RemoteFile>[] distributeInEqualySizedBins(final List<RemoteFile> firstFiles, final int numberOfBins) {
-        final List<RemoteFile>[] bins = new List[numberOfBins];
+    private List<FileSegment> splitFilesIfRequired(final int numberOfSegments, final List<RemoteFile> files,
+            final boolean fileSplittingIsSupported) {
+        final List<FileSegment> splitFiles = new ArrayList<>();
+        if (files.size() < numberOfSegments && fileSplittingIsSupported) {
+            final int factor = (int) Math.ceil((double) numberOfSegments / files.size());
+            for (final RemoteFile file : files) {
+                for (int splitCounter = 0; splitCounter < factor; splitCounter++) {
+                    splitFiles.add(new FileSegment(file, new FileSegmentDescription(factor, splitCounter)));
+                }
+            }
+        } else {
+            for (final RemoteFile file : files) {
+                splitFiles.add(new FileSegment(file, ENTIRE_FILE));
+            }
+        }
+        return splitFiles;
+    }
+
+    private List<FileSegment>[] distributeInEqualySizedBins(final List<FileSegment> firstFiles,
+            final int numberOfBins) {
+        final List<FileSegment>[] bins = new List[numberOfBins];
         for (int index = 0; index < numberOfBins; index++) {
             bins[index] = new ArrayList<>();
         }
         int counter = 0;
-        for (final RemoteFile file : firstFiles) {
+        for (final FileSegment file : firstFiles) {
             bins[counter % numberOfBins].add(file);
             counter++;
         }

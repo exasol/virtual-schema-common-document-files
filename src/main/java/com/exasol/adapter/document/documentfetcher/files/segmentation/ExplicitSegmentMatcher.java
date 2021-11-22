@@ -1,7 +1,6 @@
 package com.exasol.adapter.document.documentfetcher.files.segmentation;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
 
@@ -12,7 +11,7 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public class ExplicitSegmentMatcher implements SegmentMatcher {
-    private final Set<String> segmentKeys;
+    private final HashMap<String, ArrayList<FileSegmentDescription>> segmentKeys;
 
     /**
      * Create a new instance of {@link ExplicitSegmentMatcher}.
@@ -20,11 +19,20 @@ public class ExplicitSegmentMatcher implements SegmentMatcher {
      * @param segmentDescription segment description
      */
     public ExplicitSegmentMatcher(final ExplicitSegmentDescription segmentDescription) {
-        this.segmentKeys = new HashSet<>(segmentDescription.getSegmentKeys());
+        this.segmentKeys = segmentDescription.getSegmentKeys();
     }
 
     @Override
-    public boolean matches(final RemoteFile remoteFile) {
-        return this.segmentKeys.contains(remoteFile.getResourceName());
+    public List<FileSegment> getMatchingSegmentsFor(final RemoteFile remoteFile) {
+        final ArrayList<FileSegmentDescription> segments = this.segmentKeys.get(remoteFile.getResourceName());
+        if (segments == null) {
+            return Collections.emptyList();
+        } else {
+            final List<FileSegment> result = new ArrayList<>(segments.size());
+            for (final FileSegmentDescription segment : segments) {
+                result.add(new FileSegment(remoteFile, segment));
+            }
+            return result;
+        }
     }
 }

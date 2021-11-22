@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import com.exasol.ExaConnectionInformation;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
-import com.exasol.adapter.document.documentfetcher.files.segmentation.SegmentDescription;
 import com.exasol.adapter.document.files.stringfilter.StringFilter;
 
 /**
@@ -21,10 +20,8 @@ public interface FileLoaderFactory extends Serializable {
      * Get a {@link FileLoader}.
      *
      * @param filePattern           files to load
-     * @param segmentDescription    segmentation for parallel execution
      * @param connectionInformation connection to the data source
      * @return {@link FileLoader}
      */
-    public FileLoader getLoader(StringFilter filePattern, SegmentDescription segmentDescription,
-            ExaConnectionInformation connectionInformation);
+    public FileLoader getLoader(StringFilter filePattern, ExaConnectionInformation connectionInformation);
 }

@@ -1,5 +1,9 @@
 package com.exasol.adapter.document.documentfetcher.files.segmentation;
 
+import static com.exasol.adapter.document.documentfetcher.files.segmentation.FileSegmentDescription.ENTIRE_FILE;
+
+import java.util.List;
+
 import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
 
 /**
@@ -7,7 +11,7 @@ import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
  */
 public class NoSegmentationSegmentMatcher implements SegmentMatcher {
     @Override
-    public boolean matches(final RemoteFile remoteFile) {
-        return true;
+    public List<FileSegment> getMatchingSegmentsFor(final RemoteFile remoteFile) {
+        return List.of(new FileSegment(remoteFile, ENTIRE_FILE));
     }
 }

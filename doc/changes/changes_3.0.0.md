@@ -1,33 +1,23 @@
-# Virtual Schema for document data in files 3.0.0, released 2021-??-??
+# Virtual Schema for document data in files 3.0.0, released 2021-11-22
 
-Code name:
+Code name: Improved Parquet Loading Performance
+
+## Summary
+
+In this release we improved the performance for loading parquet files. The improvements will give you a speed-up when you load a few (<200) files.
 
 ## Features
 
 * #77: Improved performance by distributing small amounts of files explicitly
+* #79: Improved performance by splitting reading of big parquet files
 
 ## Dependency Updates
 
 ### Compile Dependency Updates
 
-* Updated `com.exasol:virtual-schema-common-document:6.1.0` to `6.1.1`
-* Added `jakarta.json:jakarta.json-api:2.0.1`
-
-### Runtime Dependency Updates
-
-* Added `org.glassfish:jakarta.json:2.0.1`
-
-### Test Dependency Updates
-
-* Updated `com.exasol:hamcrest-resultset-matcher:1.5.0` to `1.5.1`
-* Updated `com.exasol:udf-debugging-java:0.4.0` to `0.4.1`
-* Updated `com.exasol:virtual-schema-common-document:6.1.0` to `6.1.1`
-* Updated `org.mockito:mockito-core:3.12.4` to `4.0.0`
-* Updated `org.mockito:mockito-junit-jupiter:3.12.4` to `4.0.0`
+* Updated `com.exasol:parquet-io-java:1.1.0` to `1.2.0`
 
 ### Plugin Dependency Updates
 
-* Updated `com.exasol:error-code-crawler-maven-plugin:0.5.0` to `0.6.0`
-* Updated `com.exasol:project-keeper-maven-plugin:1.2.0` to `1.3.2`
-* Updated `org.apache.maven.plugins:maven-javadoc-plugin:3.2.0` to `3.3.1`
+* Updated `com.exasol:project-keeper-maven-plugin:1.3.1` to `1.3.2`
 * Added `org.projectlombok:lombok-maven-plugin:1.18.20.0`

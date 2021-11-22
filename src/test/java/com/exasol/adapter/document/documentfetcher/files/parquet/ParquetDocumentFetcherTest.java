@@ -1,5 +1,6 @@
 package com.exasol.adapter.document.documentfetcher.files.parquet;
 
+import static com.exasol.adapter.document.documentfetcher.files.segmentation.FileSegmentDescription.ENTIRE_FILE;
 import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.INT32;
 import static org.apache.parquet.schema.Type.Repetition.REQUIRED;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import com.exasol.adapter.document.documentfetcher.files.LocalLoadedFile;
 import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
+import com.exasol.adapter.document.documentfetcher.files.segmentation.FileSegment;
 import com.exasol.adapter.document.documentnode.DocumentArray;
 import com.exasol.adapter.document.documentnode.DocumentDecimalValue;
 import com.exasol.adapter.document.documentnode.parquet.RowRecordNode;
@@ -55,7 +57,8 @@ class ParquetDocumentFetcherTest {
 
     private RowRecordNode runDocumentFetcherAndGetFirstResult(final Path parquetFile) {
         final RemoteFile remoteFile = new LocalLoadedFile(parquetFile);
-        return (RowRecordNode) new ParquetDocumentFetcher().readDocuments(remoteFile).next();
+        return (RowRecordNode) new ParquetDocumentFetcher().readDocuments(new FileSegment(remoteFile, ENTIRE_FILE))
+                .next();
     }
 
     private Path getListParquetFile() throws IOException {

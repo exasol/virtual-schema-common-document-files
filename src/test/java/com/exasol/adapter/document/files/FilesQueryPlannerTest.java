@@ -35,7 +35,7 @@ class FilesQueryPlannerTest {
         final FileLoader loader = mock(FileLoader.class);
         when(loader.loadFiles()).thenAnswer(I -> Collections.emptyIterator());
         final FileLoaderFactory fileLoaderFactory = mock(FileLoaderFactory.class);
-        when(fileLoaderFactory.getLoader(any(), any(), any())).thenAnswer(I -> loader);
+        when(fileLoaderFactory.getLoader(any(), any())).thenAnswer(I -> loader);
         queryPlanner = new FilesQueryPlanner(fileLoaderFactory, mockConnectionInfoWithAddress(""));
     }
 

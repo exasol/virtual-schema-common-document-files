@@ -88,7 +88,7 @@ class FilesDocumentFetcherFactoryTest {
             remoteFiles.add(remoteFile);
         }
         when(fileLoader.loadFiles()).thenReturn(remoteFiles.iterator());
-        when(fileLoaderFactory.getLoader(any(), any(), any())).thenReturn(fileLoader);
+        when(fileLoaderFactory.getLoader(any(), any())).thenReturn(fileLoader);
         return fileLoaderFactory;
     }
 }
