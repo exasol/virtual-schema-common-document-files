@@ -1,5 +1,7 @@
 package com.exasol.adapter.document.documentfetcher.files.segmentation;
 
+import static com.exasol.adapter.document.documentfetcher.files.segmentation.FileSegmentDescription.ENTIRE_FILE;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -32,7 +34,7 @@ public class HashSegmentMatcher implements SegmentMatcher {
         final long hashNumber = Math.abs(remoteFile.getResourceName().hashCode());
         final int modulo = (int) (hashNumber % this.segmentDescription.getNumberOfSegments());
         if (modulo == this.segmentDescription.getSegmentId()) {
-            return List.of(new FileSegment(remoteFile, new FileSegmentDescription(1, 0)));
+            return List.of(new FileSegment(remoteFile, ENTIRE_FILE));
         } else {
             return Collections.emptyList();
         }

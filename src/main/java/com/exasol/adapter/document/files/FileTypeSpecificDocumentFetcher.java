@@ -26,7 +26,7 @@ public interface FileTypeSpecificDocumentFetcher extends Serializable {
     /**
      * Get if this document fetcher can read files partially.
      * <p>
-     * Supporting this feature improves performance when loading fewer files then available CPU cores in the cluster.
+     * Supporting this feature improves performance when loading fewer files than available CPU cores in the cluster.
      * </p>
      * 
      * @return {@code true} if this document fetcher supports file splitting

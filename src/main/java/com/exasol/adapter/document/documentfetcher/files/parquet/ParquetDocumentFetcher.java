@@ -19,13 +19,14 @@ import com.exasol.parquetio.splitter.ParquetFileSplitter;
  * {@link FileTypeSpecificDocumentFetcher} for parquet files.
  */
 public class ParquetDocumentFetcher implements FileTypeSpecificDocumentFetcher {
-    private static final long serialVersionUID = 2690553159739196764L;
+    private static final long serialVersionUID = 1657802428914102318L;
+    private static final long SPLIT_CHUNK_SIZE = 16L * 1024;
 
     @Override
     public Iterator<DocumentNode> readDocuments(final FileSegment segment) {
         final InputFile hadoopInputFile = SeekableInputStreamAdapter
                 .convert(segment.getFile().getRandomAccessInputStream());
-        final ParquetFileSplitter splitter = new ParquetFileSplitter(hadoopInputFile, 16L * 1024);
+        final ParquetFileSplitter splitter = new ParquetFileSplitter(hadoopInputFile, SPLIT_CHUNK_SIZE);
         final List<ChunkInterval> splits = splitter.getSplits();
         final List<ChunkInterval> thisSegment = new FileSegmentDescriptionMatcher(segment.getSegmentDescription())
                 .filter(splits);

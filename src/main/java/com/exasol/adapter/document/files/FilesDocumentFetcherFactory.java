@@ -1,5 +1,7 @@
 package com.exasol.adapter.document.files;
 
+import static com.exasol.adapter.document.documentfetcher.files.segmentation.FileSegmentDescription.ENTIRE_FILE;
+
 import java.util.*;
 
 import com.exasol.ExaConnectionInformation;
@@ -93,7 +95,7 @@ public class FilesDocumentFetcherFactory {
             }
         } else {
             for (final RemoteFile file : files) {
-                splitFiles.add(new FileSegment(file, new FileSegmentDescription(1, 0)));
+                splitFiles.add(new FileSegment(file, ENTIRE_FILE));
             }
         }
         return splitFiles;
