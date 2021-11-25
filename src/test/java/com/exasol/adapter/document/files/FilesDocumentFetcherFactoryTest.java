@@ -19,6 +19,7 @@ import com.exasol.adapter.document.documentfetcher.files.*;
 import com.exasol.adapter.document.documentfetcher.files.segmentation.ExplicitSegmentDescription;
 import com.exasol.adapter.document.documentfetcher.files.segmentation.HashSegmentDescription;
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
+import com.exasol.adapter.document.iterators.CloseableIteratorWrapper;
 
 class FilesDocumentFetcherFactoryTest {
     private static final WildcardExpression A_FILTER = WildcardExpression.fromGlob("test*");
@@ -87,7 +88,7 @@ class FilesDocumentFetcherFactoryTest {
             when(remoteFile.getResourceName()).thenReturn("product-" + counter + ".json");
             remoteFiles.add(remoteFile);
         }
-        when(fileLoader.loadFiles()).thenReturn(remoteFiles.iterator());
+        when(fileLoader.loadFiles()).thenReturn(new CloseableIteratorWrapper<>(remoteFiles.iterator()));
         when(fileLoaderFactory.getLoader(any(), any())).thenReturn(fileLoader);
         return fileLoaderFactory;
     }
