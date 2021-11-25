@@ -15,7 +15,7 @@
         <junit.version>5.8.1</junit.version>
         <junit.platform.version>1.6.2</junit.platform.version>
         <jacoco.version>0.8.7</jacoco.version>
-        <vs-common-document.version>7.0.0-SNAPSHOT</vs-common-document.version>
+        <vs-common-document.version>7.0.0</vs-common-document.version>
         <gpg.skip>true</gpg.skip>
         <!--
             M4 does not fail tests if beforeAll fails
