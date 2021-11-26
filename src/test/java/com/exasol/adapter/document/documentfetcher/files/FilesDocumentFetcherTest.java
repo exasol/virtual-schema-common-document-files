@@ -22,6 +22,7 @@ import com.exasol.adapter.document.documentfetcher.files.segmentation.NoSegmenta
 import com.exasol.adapter.document.documentnode.holder.StringHolderNode;
 import com.exasol.adapter.document.files.FileTypeSpecificDocumentFetcher;
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
+import com.exasol.adapter.document.iterators.CloseableIteratorWrapper;
 
 @ExtendWith(MockitoExtension.class)
 class FilesDocumentFetcherTest {
@@ -40,11 +41,11 @@ class FilesDocumentFetcherTest {
     @Test
     void testSourceReferences() {
         final List<RemoteFile> remoteFiles = List.of(mockLoadedFile("file-1"), mockLoadedFile("file-2"));
-        when(this.fileLoader.loadFiles()).thenReturn(remoteFiles.iterator());
+        when(this.fileLoader.loadFiles()).thenReturn(new CloseableIteratorWrapper<>(remoteFiles.iterator()));
         when(this.loaderFactory.getLoader(Mockito.any(), Mockito.any())).thenReturn(this.fileLoader);
         final FileTypeSpecificDocumentFetcher fileTypeSpecificFetcher = mock(FileTypeSpecificDocumentFetcher.class);
         when(fileTypeSpecificFetcher.readDocuments(any()))
-                .thenAnswer(invocation -> List.of(new StringHolderNode("")).iterator());
+                .thenAnswer(invocation -> new CloseableIteratorWrapper<>(List.of(new StringHolderNode("")).iterator()));
         final FilesDocumentFetcher documentFetcher = new FilesDocumentFetcher(
                 WildcardExpression.forNonWildcardString(""), new NoSegmentationSegmentDescription(), this.loaderFactory,
                 fileTypeSpecificFetcher);

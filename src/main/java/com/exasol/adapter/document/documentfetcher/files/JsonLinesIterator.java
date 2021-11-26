@@ -1,11 +1,11 @@
 package com.exasol.adapter.document.documentfetcher.files;
 
 import java.io.*;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.json.JsonNodeFactory;
+import com.exasol.adapter.document.iterators.CloseableIterator;
 import com.exasol.errorreporting.ExaError;
 
 import jakarta.json.*;
@@ -14,7 +14,7 @@ import jakarta.json.spi.JsonProvider;
 /**
  * This class iterates the lines of a JSON-Lines file an creates for each line a JSON {@link DocumentNode}.
  */
-class JsonLinesIterator implements Iterator<DocumentNode> {
+class JsonLinesIterator implements CloseableIterator<DocumentNode> {
     private static final JsonProvider JSON = JsonProvider.provider();
     private final BufferedReader jsonlReader;
     private final InputStreamReader inputStreamReader;
@@ -34,24 +34,12 @@ class JsonLinesIterator implements Iterator<DocumentNode> {
         readNextLine();
     }
 
-    private void closeResources() {
-        try {
-            this.inputStreamReader.close();
-            this.jsonlReader.close();
-        } catch (final IOException exception) {
-            // at least we tried...
-        }
-    }
-
     private void readNextLine() {
         try {
             do {
                 this.nextLine = this.jsonlReader.readLine();
                 this.lineCounter++;
             } while (this.nextLine != null && this.nextLine.isBlank());
-            if (!hasNext()) {
-                closeResources();
-            }
         } catch (final IOException exception) {
             throw new InputDataException(
                     ExaError.messageBuilder("E-VSDF-2").message("Failed to read from data file {{JSONL_FILE}}.")
@@ -81,6 +69,16 @@ class JsonLinesIterator implements Iterator<DocumentNode> {
                         .parameter("JSONL_FILE", this.resourceName).parameter("LINE", this.lineCounter).toString(),
                         exception);
             }
+        }
+    }
+
+    @Override
+    public void close() {
+        try {
+            this.inputStreamReader.close();
+            this.jsonlReader.close();
+        } catch (final IOException exception) {
+            // at least we tried...
         }
     }
 }

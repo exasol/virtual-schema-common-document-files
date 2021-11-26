@@ -1,10 +1,10 @@
 package com.exasol.adapter.document.files;
 
 import java.io.Serializable;
-import java.util.Iterator;
 
 import com.exasol.adapter.document.documentfetcher.files.segmentation.FileSegment;
 import com.exasol.adapter.document.documentnode.DocumentNode;
+import com.exasol.adapter.document.iterators.CloseableIterator;
 
 /**
  * Interface for file type specific document-fetcher implementations.
@@ -21,7 +21,7 @@ public interface FileTypeSpecificDocumentFetcher extends Serializable {
      * @param remoteFile stream of the files contents with additional description for logging
      * @return read document nodes
      */
-    public Iterator<DocumentNode> readDocuments(FileSegment remoteFile);
+    public CloseableIterator<DocumentNode> readDocuments(FileSegment remoteFile);
 
     /**
      * Get if this document fetcher can read files partially.

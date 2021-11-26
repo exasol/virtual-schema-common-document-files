@@ -2,7 +2,8 @@ package com.exasol.adapter.document.files;
 
 import static com.exasol.adapter.document.documentfetcher.files.segmentation.FileSegmentDescription.ENTIRE_FILE;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.exasol.ExaConnectionInformation;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
@@ -10,6 +11,7 @@ import com.exasol.adapter.document.documentfetcher.files.*;
 import com.exasol.adapter.document.documentfetcher.files.segmentation.*;
 import com.exasol.adapter.document.files.stringfilter.*;
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
+import com.exasol.adapter.document.iterators.CloseableIterator;
 
 /**
  * Factory for {@link FilesDocumentFetcher}.
@@ -57,18 +59,19 @@ public class FilesDocumentFetcherFactory {
             final ExaConnectionInformation connectionInformation, final int numberOfSegments,
             final StringFilter filePattern, final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher) {
         final FileLoader loader = fileLoaderFactory.getLoader(filePattern, connectionInformation);
-        final Iterator<RemoteFile> iterator = loader.loadFiles();
-        final List<RemoteFile> firstFiles = new ArrayList<>();
-        int remoteFileCounter = 0;
-        while (iterator.hasNext() && remoteFileCounter < MAX_NUMBER_OF_FILES_TO_DISTRIBUTE_EXPLICITLY) {
-            firstFiles.add(iterator.next());
-            remoteFileCounter++;
-        }
-        if (iterator.hasNext()) {
-            return buildHashSegmentation(numberOfSegments);
-        } else {
-            return buildExplicitSegmentation(numberOfSegments, firstFiles,
-                    fileTypeSpecificDocumentFetcher.supportsFileSplitting());
+        try (final CloseableIterator<RemoteFile> iterator = loader.loadFiles()) {
+            final List<RemoteFile> firstFiles = new ArrayList<>();
+            int remoteFileCounter = 0;
+            while (iterator.hasNext() && remoteFileCounter < MAX_NUMBER_OF_FILES_TO_DISTRIBUTE_EXPLICITLY) {
+                firstFiles.add(iterator.next());
+                remoteFileCounter++;
+            }
+            if (iterator.hasNext()) {
+                return buildHashSegmentation(numberOfSegments);
+            } else {
+                return buildExplicitSegmentation(numberOfSegments, firstFiles,
+                        fileTypeSpecificDocumentFetcher.supportsFileSplitting());
+            }
         }
     }
 

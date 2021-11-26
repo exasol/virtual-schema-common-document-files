@@ -1,6 +1,6 @@
 package com.exasol.adapter.document.documentfetcher.files;
 
-import java.util.Iterator;
+import com.exasol.adapter.document.iterators.CloseableIterator;
 
 /**
  * Classes implementing this interface load files from a specific files system type or network storage.
@@ -12,5 +12,5 @@ public interface FileLoader {
      * 
      * @return content of the file
      */
-    public Iterator<RemoteFile> loadFiles();
+    public CloseableIterator<RemoteFile> loadFiles();
 }
