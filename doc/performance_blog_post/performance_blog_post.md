@@ -20,7 +20,7 @@ First, it allows you to check whether a change helped or if it even made some fu
 
 So my first step was to write automated performance tests for the Parquet loading. Don't get me wrong. It's not that we did not have any tests before. Of course, we had unit and integration tests for the Virtual Schema that make sure that it works as expected. But since this is a rather new product we did not have automated performance tests yet.
 
-Until now, we checked the performance of Virtual Schema manually by starting a cluster and querying a parquet formatted dataset. However, for these performance improvements we needed more test cases and also more reliability.
+Until now, we checked the performance of Virtual Schema manually by starting a cluster and querying a Parquet formatted dataset. However, for these performance improvements we needed more test cases and also more reliability.
 
 While for our integration tests we use the docker version of Exasol (which is absolutely sufficient for functional testing), for the performance test we want to test with a real-live setup. So we decided to test with a 4 node cluster (with `c5.4xlarge` instance types) on AWS. There, we load the files from S3 using the [s3-document-files-virtual-schema](https://github.com/exasol/s3-document-files-virtual-schema).
 
@@ -28,7 +28,7 @@ The Virtual Schemas are built out of multiple layers:
 
 ![Stack of virtual schema layers](vsDocStack.png)
 
-The parquet loading implementation is located in the Document Files Virtual Schema. However, we can't test this directly. Instead, we decided to test the S3 implementation, since this is the most popular dialect.
+The Parquet loading implementation is located in the Document Files Virtual Schema. However, we can't test this directly. Instead, we decided to test the S3 implementation, since this is the most popular dialect.
 
 ### Test Quality
 
@@ -38,7 +38,7 @@ In order to make the tests more reliable we run each test 5 times. Then we drop 
 
 ### Test Fixtures
 
-For our performance test we need some test fixtures. For example one big parquet file on S3 that we load with a Virtual Schema and measure the performance.
+For our performance test we need some test fixtures. For example one big Parquet file on S3 that we load with a Virtual Schema and measure the performance.
 
 The simplest option for this is to create this file with a local tool and store it forever on S3. This approach has the advantage, that it's easy to create. On the other hand, it's hard to change, and it's also not apparent from the source code how the test data is created. Since out projects are open source, its also important that all external contributors can run the tests. This however would require us to make our S3 bucket publicly available which could cause additional costs.
 
@@ -64,23 +64,34 @@ The first test run generated the following results:
 | testLoadFewBigSalesParquetFiles    | 662.28    |
 | testLoadSalesParquetFiles          | 219.21    |
 
-The first 4 cases (`testLoadManyParquetRows`, `testLoadLargeParquetRows`, `testLoadManyParquetColumns` `testLoadManyParquetRowsFromOneFile`) all load the same amount of data. They just differ on how the data is distributed over rows, files and columns.
+The first 4 cases (`testLoadManyParquetRows`, `testLoadLargeParquetRows`, `testLoadManyParquetColumns` `testLoadManyParquetRowsFromOneFile`) all load the same amount of data (1 GB). They just differ on how the data is distributed over rows, files and columns.
 
-The same applies for the two trailing tests: While `testLoadFewBigSalesParquetFiles` distributes the rows over 200 files, `testLoadSalesParquetFiles` only over 8 files.
+This dataset consists of pseudo-random generated strings. The different test cases are built as show in the following table:
 
-![Performance test results of parquet file loading 1](slowParquetTestResults1.png)
-![Performance test results of parquet file loading 2](slowParquetTestResults2.png)
+| Test Case                          | String size in byte | Rows      | Files | Columns |
+|------------------------------------|---------------------|-----------|-------|---------|
+| testLoadManyParquetRowsFromOneFile | 1,000               | 1,000,000 | 1     | 1       |
+| testLoadManyParquetRows            | 100                 | 1000000   | 10    | 1       |
+| testLoadLargeParquetRows           | 1,000,000           | 100       | 10    | 1       |
+| testLoadManyParquetColumns         | 1000                | 1000      | 10    | 100     |
 
-In the charts it becomes clear that the Virtual Schema at that point has an issue with loading data from few big files. When loading from more files, it loads the same amount of data a lot quicker.
+You can observe that the product of all columns is always 1,000,000,000 so 1 GB.
 
-Starting with this analysis, we discussed with our product management and decided to invest into performance improvements for loading big parquet files. More precisely we set the goal to make improvements so that the `testLoadFewBigSalesParquetFiles` also runs in less than 250s.
+Similar the two trailing test split the same test data in 200 (`testLoadSalesParquetFiles`) or 8 `testLoadFewBigSalesParquetFiles`. There the data is exemplary sales data consisting of 7 decimal columns with 3,621,459,710 rows.
+
+![Performance test results of Parquet file loading 1](slowParquetTestResults1.png)
+![Performance test results of Parquet file loading 2](slowParquetTestResults2.png)
+
+From the charts, it becomes clear that the Virtual Schema at that point has an issue with loading data from few big files. When loading from more files, it loads the same amount of data a lot quicker.
+
+Starting with this analysis, we discussed with our product management and decided to invest into performance improvements for loading big Parquet files. More precisely we set the goal to make improvements so that the `testLoadFewBigSalesParquetFiles` also runs in less than 250s.
 
 ## Improving the Performance
 
-Next we analyzed the source code for possible reasons for the slow reading of big parquet files. We identified the following issues:
+Next we analyzed the source code for possible reasons for the slow reading of big Parquet files. We identified the following issues:
 
 * Unequal distribution
-* Too few parallelization for few parquet files
+* Too few parallelization for few Parquet files
 
 The query processing of the Files Virtual Schemas consists of two phases: A planning phase and an execution phase. In the planning phase the adapter analyzes the query and starts multiple workers (UDFs) that then run the execution phase. For technical reasons the workers can not communicate at the moment. So the Virtual Schema parallelizes the import job over multiple workers.
 
@@ -88,8 +99,7 @@ The query processing of the Files Virtual Schemas consists of two phases: A plan
 
 Until now this parallelization was realized using hash binning. So each worker received a range and then loaded files that names hash values fell into that range. That approach is great for distributing lots of files, since it does not require to list all files in advance. Doing so could cause memory overflow when distributing for example 1,000,000 files with long names.
 
-However, for only a few files, this is not very optimal.
-Imagine distributing 4 files over 4 workers. A good distribution is obvious here. Each worker receives one file. With hash binning it's however quite likely, that one worker receives two files and another receives none. This will increase the time for loading.
+However, for only a few files, this is not very optimal. Imagine distributing 4 files over 4 workers. A good distribution is obvious here. Each worker receives one file. With hash binning it's however quite likely, that one worker receives two files and another receives none. This will increase the time for loading.
 
 ![Example of file distribution](fileDistribution.png)
 
