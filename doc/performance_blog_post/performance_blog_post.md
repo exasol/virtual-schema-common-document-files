@@ -2,7 +2,7 @@
 
 Our [Virtual Schemas for document files](https://github.com/exasol/virtual-schema-common-document-files) allow our customer to integrate formatted data from files into their Exasol database. Our customers use this feature for integrating external data on demand into their analytics calculation and for building Extract, Transform and Load (ETL) pipelines.
 
-For Exasol speed matters. So does it for our integrations. For customers its crucial that the queries that include external data run as fast as possible. In this blog post I want to give some insight on the process of our recent performance improvements of the Virtual Schema for parquet files.
+For Exasol speed matters. So does it for our integrations. For customers it's crucial that the queries that include external data run as fast as possible. In this blog post I want to give you some insights from our recent performance improvements of the Virtual Schema for [Apache Parquet](https://parquet.apache.org/) files.
 
 ## How it Begins
 
