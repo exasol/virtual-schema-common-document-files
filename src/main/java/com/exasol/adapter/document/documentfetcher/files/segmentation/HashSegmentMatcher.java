@@ -30,13 +30,18 @@ public class HashSegmentMatcher implements SegmentMatcher {
 
     @Override
     public List<FileSegment> getMatchingSegmentsFor(final RemoteFile remoteFile) {
-        @java.lang.SuppressWarnings("squid:S2676") // abs hashcode is intended here
-        final long hashNumber = Math.abs(remoteFile.getResourceName().hashCode());
-        final int modulo = (int) (hashNumber % this.segmentDescription.getNumberOfSegments());
-        if (modulo == this.segmentDescription.getSegmentId()) {
+        if (matchesFile(remoteFile)) {
             return List.of(new FileSegment(remoteFile, ENTIRE_FILE));
         } else {
             return Collections.emptyList();
         }
+    }
+
+    @Override
+    public boolean matchesFile(final RemoteFile remoteFile) {
+        @java.lang.SuppressWarnings("squid:S2676") // abs hashcode is intended here
+        final long hashNumber = Math.abs(remoteFile.getResourceName().hashCode());
+        final int modulo = (int) (hashNumber % this.segmentDescription.getNumberOfSegments());
+        return modulo == this.segmentDescription.getSegmentId();
     }
 }

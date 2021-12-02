@@ -56,6 +56,6 @@ class FilesDocumentFetcherTest {
     }
 
     private RemoteFile mockLoadedFile(final String fileName) {
-        return new StringLoadedFile("", fileName);
+        return new RemoteFile(fileName, 0, new StringRemoteFileContent(""));
     }
 }

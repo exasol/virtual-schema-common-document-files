@@ -20,8 +20,8 @@ class JsonLinesDocumentFetcherTest {
     @Test
     void testReadDocuments() {
         final JsonLinesDocumentFetcher documentFetcher = new JsonLinesDocumentFetcher();
-        final RemoteFile remoteFile = new StringLoadedFile("{\"id\": \"book-1\"}\n{\"id\": \"book-2\"}",
-                "string source");
+        final RemoteFile remoteFile = new RemoteFile("", 0,
+                new StringRemoteFileContent("{\"id\": \"book-1\"}\n{\"id\": \"book-2\"}"));
         final List<DocumentNode> result = new ArrayList<>();
         documentFetcher.readDocuments(new FileSegment(remoteFile, ENTIRE_FILE)).forEachRemaining(result::add);
         assertThat(result.size(), equalTo(2));
@@ -30,7 +30,7 @@ class JsonLinesDocumentFetcherTest {
     @Test
     void testExceptionOnSegmentedFile() {
         final JsonLinesDocumentFetcher documentFetcher = new JsonLinesDocumentFetcher();
-        final RemoteFile remoteFile = new StringLoadedFile("{}", "string source");
+        final RemoteFile remoteFile = new RemoteFile("", 0, new StringRemoteFileContent("{}"));
         final FileSegment segment = new FileSegment(remoteFile, new FileSegmentDescription(2, 0));
         final IllegalStateException exception = assertThrows(IllegalStateException.class,
                 () -> documentFetcher.readDocuments(segment));

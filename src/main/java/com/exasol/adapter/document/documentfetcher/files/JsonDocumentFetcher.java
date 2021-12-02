@@ -19,7 +19,7 @@ import jakarta.json.*;
  * {@link FileTypeSpecificDocumentFetcher} for JSON files.
  */
 public class JsonDocumentFetcher implements FileTypeSpecificDocumentFetcher {
-    private static final long serialVersionUID = -1587476005325720732L;
+    private static final long serialVersionUID = 2783593249946168796L;
     private static final JsonReaderFactory JSON_READER_FACTORY = Json.createReaderFactory(null);
 
     @Override
@@ -30,7 +30,7 @@ public class JsonDocumentFetcher implements FileTypeSpecificDocumentFetcher {
                     .toString());
         }
         final RemoteFile remoteFile = segment.getFile();
-        try (final InputStream inputStream = remoteFile.getInputStream();
+        try (final InputStream inputStream = remoteFile.getContent().getInputStream();
                 final JsonReader jsonReader = buildJsonReader(inputStream)) {
             final JsonValue jsonValue = jsonReader.readValue();
             final DocumentNode jsonNode = JsonNodeFactory.getInstance().getJsonNode(jsonValue);

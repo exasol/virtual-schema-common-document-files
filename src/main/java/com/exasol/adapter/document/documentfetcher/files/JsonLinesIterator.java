@@ -28,7 +28,7 @@ class JsonLinesIterator implements CloseableIterator<DocumentNode> {
      * @param jsonlFile file loader for the JSON-Lines file
      */
     JsonLinesIterator(final RemoteFile jsonlFile) {
-        this.inputStreamReader = new InputStreamReader(jsonlFile.getInputStream());
+        this.inputStreamReader = new InputStreamReader(jsonlFile.getContent().getInputStream());
         this.jsonlReader = new BufferedReader(this.inputStreamReader);
         this.resourceName = jsonlFile.getResourceName();
         readNextLine();

@@ -14,4 +14,9 @@ public class NoSegmentationSegmentMatcher implements SegmentMatcher {
     public List<FileSegment> getMatchingSegmentsFor(final RemoteFile remoteFile) {
         return List.of(new FileSegment(remoteFile, ENTIRE_FILE));
     }
+
+    @Override
+    public boolean matchesFile(final RemoteFile remoteFile) {
+        return true;
+    }
 }
