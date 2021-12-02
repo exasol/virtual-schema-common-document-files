@@ -32,7 +32,7 @@ The Parquet loading implementation is located in the Document Files Virtual Sche
 
 ### Test Quality
 
-We measure the query performance by measuring the execution time of a query on a Virtual Schema table. By that, we measure the full execution time including network transmission, S3 loading, and so on. This of course adds some noise to our measurement. However, we decided on this strategy since it measures the time that our customers can expect.
+We measure the query performance by observing the execution time of a query on a Virtual Schema table. By that, we measure the full execution time including network transmission, S3 loading, and so on. This of course adds some noise to our measurement. However, we decided on this strategy since it evaluates the time that our customers can expect.
 
 In order to make the tests more reliable, we run each test 5 times. Then we drop the first 2 results since they are usually slower. Then we build the average of the remaining 3 runs. We decided on the average since it will again result in a value that customers can expect.
 
@@ -77,7 +77,7 @@ This dataset consists of pseudo-random generated strings. The different test cas
 
 You can observe that the product of all columns is always 1,000,000,000 so 1 GB.
 
-Similar the two trailing test split the same test data in 200 (`testLoadSalesParquetFiles`) or 8 `testLoadFewBigSalesParquetFiles`. There the data is exemplary sales data consisting of 7 decimal columns with 3,621,459,710 rows.
+The last two tests use exemplary sales data consisting of 7 decimal columns with 3,621,459,710 rows. These two tests split the the sales data into 8 (`testLoadFewBigSalesParquetFiles`) and 200 (`testLoadSalesParquetFiles`) files respectively.
 
 ![Performance test results of Parquet file loading 1](slowParquetTestResults1.png)
 ![Performance test results of Parquet file loading 2](slowParquetTestResults2.png)
@@ -93,11 +93,11 @@ Next, we analyzed the source code for possible reasons for the slow reading of b
 * Unequal distribution
 * Less parallelization for a few Parquet files
 
-The query processing of the Files Virtual Schemas consists of two phases: A planning phase and an execution phase. In the planning, phase the adapter analyzes the query and starts multiple workers (UDFs) that then run the execution phase. For technical reasons, the workers can not communicate at the moment. So the Virtual Schema parallelizes the import job over multiple workers.
+The query processing of the Files Virtual Schemas consists of two phases: A planning phase and an execution phase. In the planning phase, the adapter analyzes the query and starts multiple workers, using [User Defined Functions (UDFs)](https://docs.exasol.com/database_concepts/udf_scripts.htm), that then run the execution phase. Thus, Virtual Schema parallelizes the execution of external data import over multiple workers. For technical reasons, the workers can not communicate at the moment.
 
 ### Distributing the File
 
-Until now this parallelization was realized using hash binning. So each worker received a range and then loaded files that names hash values fell into that range. That approach is great for distributing lots of files since it does not require listing files in advance. Doing so could cause memory overflow when distributing for example 1,000,000 files with long names.
+Until now this parallelization was realized using hash binning. So each worker received a range and then loaded files where the hashs value of the file-name fell into that range. That approach is great for distributing lots of files since it does not require listing files in advance. Doing so could cause memory overflow when distributing for example 1,000,000 files with long names.
 
 However, for only a few files, this is not very optimal. Imagine distributing 4 files over 4 workers. A good distribution is obvious here. Each worker receives one file. With hash binning it's however quite likely, that one worker receives two files and another receives none. This will increase the time for loading.
 
@@ -107,7 +107,7 @@ To fix this issue we changed the implementation to distribute smaller number of 
 
 ### Splitting Large Files
 
-The second problem occurs, if there are 4 workers but only one file. In that case only one worker will be used. To mitigate this issue, we decided to split the file into multiple parts. That's not possible for all file formats. For example with JSON files where each file contains one document or one row. For parquet, however it is possible. Parquet files contain multiple rows and group these rows into blocks called `row groups`. We changed our Parquet reader so that it's capable of only reading specific row groups. By that, we can again distribute the work over all available workers.
+The second problem occurs, if there are 4 workers but only one file. In that case only one worker will be used. To mitigate this issue, we decided to split the file into multiple parts. That's not possible for all file formats. For example with JSON files where each file contains one document or one row. For Parquet, however it is possible. Parquet files contain multiple rows, and group these rows into blocks called `row groups`. We changed our Parquet reader so that it's capable of only reading specific row groups. By that, we can again distribute the work over all available workers.
 
 ## Results
 
