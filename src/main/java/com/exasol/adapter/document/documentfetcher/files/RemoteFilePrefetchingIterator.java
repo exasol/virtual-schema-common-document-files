@@ -96,7 +96,6 @@ public class RemoteFilePrefetchingIterator implements CloseableIterator<RemoteFi
      * @return {@link RemoteFile} from {@link #source} if it's not suitable for preloading
      */
     private Optional<RemoteFile> fillBuffer() {
-        // TODO improve to watch for memory
         while ((this.source.hasNext() || !this.retryQueue.isEmpty()) && this.buffer.size() < this.dynamicPrefetchSize) {
             if (this.retryQueue.isEmpty()) {
                 final RemoteFile nextFile = this.source.next();
