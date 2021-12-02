@@ -70,10 +70,10 @@ This dataset consists of pseudo-random generated strings. The different test cas
 
 | Test Case                          | String size in byte | Rows      | Files | Columns |
 |------------------------------------|---------------------|-----------|-------|---------|
-| testLoadManyParquetRowsFromOneFile | 1,000               | 1,000,000 | 1     | 1       |
 | testLoadManyParquetRows            | 100                 | 1000000   | 10    | 1       |
 | testLoadLargeParquetRows           | 1,000,000           | 100       | 10    | 1       |
 | testLoadManyParquetColumns         | 1000                | 1000      | 10    | 100     |
+| testLoadManyParquetRowsFromOneFile | 1,000               | 1,000,000 | 1     | 1       |
 
 You can observe that the product of all columns is always 1,000,000,000 so 1 GB.
 
