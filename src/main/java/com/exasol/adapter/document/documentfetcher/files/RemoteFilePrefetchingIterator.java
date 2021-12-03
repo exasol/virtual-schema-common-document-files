@@ -12,6 +12,7 @@ import com.exasol.errorreporting.ExaError;
  */
 public class RemoteFilePrefetchingIterator implements CloseableIterator<RemoteFile> {
     private static final int MAX_PREFETCH = 100;
+    private static final int MAX_PREFETCH_FILE_SIZE = 1_000_000;
     private final CloseableIterator<RemoteFile> source;
     private final Queue<LoadingRemoteFile> retryQueue;
     private final List<LoadingRemoteFile> buffer;
@@ -21,13 +22,13 @@ public class RemoteFilePrefetchingIterator implements CloseableIterator<RemoteFi
 
     /**
      * Create a new instance of {@link RemoteFilePrefetchingIterator}.
-     * 
+     *
      * @param source iterator to wrap
      */
     public RemoteFilePrefetchingIterator(final CloseableIterator<RemoteFile> source) {
         this.source = source;
         this.retryQueue = new LinkedList<>();
-        this.buffer = new ArrayList<>(MAX_PREFETCH);
+        this.buffer = new LinkedList<>();
         this.hasNext = true;
         loadNext();
     }
@@ -62,16 +63,19 @@ public class RemoteFilePrefetchingIterator implements CloseableIterator<RemoteFi
         } catch (final InterruptedException exception) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException(ExaError.messageBuilder("F-VSDF-21")
-                    .message("Interrupted while waiting for buffered ready or non-prefetchable file.").toString(), exception);
+                    .message("Interrupted while waiting for buffered ready or non-prefetchable file.").toString(),
+                    exception);
         }
     }
 
     private Optional<RemoteFile> findReady() {
-        for (final LoadingRemoteFile each : new ArrayList<>(this.buffer)) {
+        final Iterator<LoadingRemoteFile> iterator = this.buffer.iterator();
+        while (iterator.hasNext()) {
+            LoadingRemoteFile each = iterator.next();
             if (each.isDone()) {
                 try {
                     final RemoteFile loadedFile = each.getLoadedFile();
-                    this.buffer.remove(each);
+                    iterator.remove();
                     this.dynamicPrefetchSize += 0.1;
                     if (this.dynamicPrefetchSize > MAX_PREFETCH) {
                         this.dynamicPrefetchSize = MAX_PREFETCH;
@@ -79,7 +83,7 @@ public class RemoteFilePrefetchingIterator implements CloseableIterator<RemoteFi
                     return Optional.of(loadedFile);
                 } catch (final TooManyRequestsException exception) {
                     this.retryQueue.add(each);
-                    this.buffer.remove(each);
+                    iterator.remove();
                     this.dynamicPrefetchSize = this.buffer.size() - 1f;
                     if (this.dynamicPrefetchSize <= 0) {
                         this.dynamicPrefetchSize = 1;
@@ -92,14 +96,14 @@ public class RemoteFilePrefetchingIterator implements CloseableIterator<RemoteFi
 
     /**
      * Fill the buffer with preloaded files.
-     * 
+     *
      * @return {@link RemoteFile} from {@link #source} if it's not suitable for preloading
      */
     private Optional<RemoteFile> fillBuffer() {
         while ((this.source.hasNext() || !this.retryQueue.isEmpty()) && this.buffer.size() < this.dynamicPrefetchSize) {
             if (this.retryQueue.isEmpty()) {
                 final RemoteFile nextFile = this.source.next();
-                if (nextFile.getSize() > 1_000_000) {
+                if (nextFile.getSize() > MAX_PREFETCH_FILE_SIZE) {
                     return Optional.of(nextFile);
                 } else {
                     this.buffer.add(new LoadingRemoteFile(nextFile));
@@ -139,12 +143,12 @@ public class RemoteFilePrefetchingIterator implements CloseableIterator<RemoteFi
 
         public LoadingRemoteFile(final RemoteFile remoteFile) {
             this.remoteFile = remoteFile;
-            this.pendingContent = remoteFile.getContent().loadAssync();
+            this.pendingContent = remoteFile.getContent().loadAsync();
         }
 
         public void retry() {
             this.pendingContent.cancel(true);
-            this.pendingContent = this.remoteFile.getContent().loadAssync();
+            this.pendingContent = this.remoteFile.getContent().loadAsync();
         }
 
         public RemoteFile getLoadedFile() {

@@ -21,7 +21,7 @@ public class LocalRemoteFileContent implements RemoteFileContent {
     }
 
     @Override
-    public Future<byte[]> loadAssync() {
+    public Future<byte[]> loadAsync() {
         throw new UnsupportedOperationException();
     }
 }

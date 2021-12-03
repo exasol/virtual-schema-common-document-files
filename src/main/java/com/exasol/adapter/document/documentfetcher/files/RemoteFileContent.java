@@ -42,5 +42,5 @@ public interface RemoteFileContent {
      * 
      * @return future with the content
      */
-    public Future<byte[]> loadAssync();
+    public Future<byte[]> loadAsync();
 }

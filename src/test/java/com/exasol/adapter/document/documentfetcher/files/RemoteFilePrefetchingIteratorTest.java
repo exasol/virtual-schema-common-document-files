@@ -26,7 +26,7 @@ class RemoteFilePrefetchingIteratorTest {
         final CloseableIterator<RemoteFile> inputIterator = spy(new CloseableIteratorWrapper<>(
                 IntStream.range(0, 200).mapToObj(i -> new RemoteFile("", 1, content)).iterator()));
         final CloseableIterator<RemoteFile> iterator = new RemoteFilePrefetchingIterator(inputIterator);
-        verify(content, new Times(100)).loadAssync();
+        verify(content, new Times(100)).loadAsync();
         verify(inputIterator, new Times(100)).next();
         iterator.next();
         verify(inputIterator, new Times(101)).next();
@@ -42,7 +42,7 @@ class RemoteFilePrefetchingIteratorTest {
         iterator.forEachRemaining(result::add);
         assertThat(result.size(), Matchers.equalTo(200));
         verify(inputIterator, new Times(200)).next();
-        verify(content, new AtLeast(205)).loadAssync();
+        verify(content, new AtLeast(205)).loadAsync();
     }
 
     @Test
@@ -81,7 +81,7 @@ class RemoteFilePrefetchingIteratorTest {
         }
 
         @Override
-        public Future<byte[]> loadAssync() {
+        public Future<byte[]> loadAsync() {
             return new UnstableFuture();
         }
 

@@ -25,6 +25,6 @@ class InMemoryRemoteFileContentTest {
 
     @Test
     void testGetExceptionOnLoadAssync() {
-        assertThrows(UnsupportedOperationException.class, REMOTE_FILE_CONTENT::loadAssync);
+        assertThrows(UnsupportedOperationException.class, REMOTE_FILE_CONTENT::loadAsync);
     }
 }

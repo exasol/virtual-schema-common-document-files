@@ -34,7 +34,7 @@ public class InMemoryRemoteFileContent implements RemoteFileContent {
     }
 
     @Override
-    public Future<byte[]> loadAssync() {
+    public Future<byte[]> loadAsync() {
         throw new UnsupportedOperationException(ExaError.messageBuilder("F-VSDF-18")
                 .message("InMemoryRemoteFile does not support asynchronous access.").ticketMitigation().toString());
     }
