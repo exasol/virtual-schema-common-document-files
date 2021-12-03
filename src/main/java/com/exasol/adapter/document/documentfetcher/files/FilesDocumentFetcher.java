@@ -16,7 +16,7 @@ import lombok.Getter;
  * This is an abstract basis for {@link DocumentFetcher}s that fetch data from files.
  */
 public class FilesDocumentFetcher implements DocumentFetcher {
-    private static final long serialVersionUID = 3949396692027967976L;
+    private static final long serialVersionUID = 4889351438894233787L;
     /** @serial */
     @Getter
     private final StringFilter filePattern;
@@ -51,7 +51,9 @@ public class FilesDocumentFetcher implements DocumentFetcher {
         final CloseableIterator<RemoteFile> files = this.fileLoaderFactory
                 .getLoader(this.filePattern, connectionInformation).loadFiles();
         final SegmentMatcher segmentMatcher = SegmentMatcherFactory.buildSegmentMatcher(this.segmentDescription);
-        final FlatMapIterator<FileSegment, RemoteFile> segments = new FlatMapIterator<>(files,
+        final CloseableIterator<RemoteFile> filteredFiles = new FilteringIterator<>(files, segmentMatcher::matchesFile);
+        final CloseableIterator<RemoteFile> prefetchedFiles = new RemoteFilePrefetchingIterator(filteredFiles);
+        final CloseableIterator<FileSegment> segments = new FlatMapIterator<>(prefetchedFiles,
                 file -> new CloseableIteratorWrapper<>(segmentMatcher.getMatchingSegmentsFor(file).iterator()));
         return new FlatMapIterator<>(segments, segment -> readLoadedFile(segment, prefix));
     }

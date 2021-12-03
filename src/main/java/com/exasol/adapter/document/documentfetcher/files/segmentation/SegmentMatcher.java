@@ -15,4 +15,12 @@ public interface SegmentMatcher {
      * @return List of segments of that file that matched. Empty list if file did not match.
      */
     List<FileSegment> getMatchingSegmentsFor(RemoteFile remoteFile);
+
+    /**
+     * Get if a given file contains any relevant segment.
+     * 
+     * @param remoteFile file to match
+     * @return {@code true} if the file contains at least one relevant segment
+     */
+    boolean matchesFile(final RemoteFile remoteFile);
 }

@@ -41,15 +41,17 @@ class JsonLinesIteratorTest {
         final InputDataException exception = assertThrows(InputDataException.class,
                 () -> readJsonLines("{}\n{notQutes :: - \"wrong syntax}"));
         assertThat(exception.getMessage(),
-                startsWith("E-VSDF-3: Failed to parse JSON-Lines from 'string'. Invalid JSON document in line 2."));
+                startsWith("E-VSDF-3: Failed to parse JSON-Lines from ''. Invalid JSON document in line 2."));
     }
 
     @Test
     void testClose() {
-        final AssertStreamIsClosedLoadedFile assertStreamIsClosedLoadedFile = new AssertStreamIsClosedLoadedFile("");
-        final JsonLinesIterator jsonLinesIterator = new JsonLinesIterator(assertStreamIsClosedLoadedFile);
+        final AssertStreamIsClosedRemoteFileContent assertStreamIsClosedRemoteFileContent = new AssertStreamIsClosedRemoteFileContent(
+                "");
+        final JsonLinesIterator jsonLinesIterator = new JsonLinesIterator(
+                new RemoteFile("", 10, assertStreamIsClosedRemoteFileContent));
         jsonLinesIterator.close();
-        assertThat(assertStreamIsClosedLoadedFile.isStreamClosed(), equalTo(true));
+        assertThat(assertStreamIsClosedRemoteFileContent.isStreamClosed(), equalTo(true));
     }
 
     @Test
@@ -68,6 +70,6 @@ class JsonLinesIteratorTest {
     }
 
     private JsonLinesIterator getJsonLinesIterator(final String content) {
-        return new JsonLinesIterator(new StringLoadedFile(content, "string"));
+        return new JsonLinesIterator(new RemoteFile("", 0, new StringRemoteFileContent(content)));
     }
 }

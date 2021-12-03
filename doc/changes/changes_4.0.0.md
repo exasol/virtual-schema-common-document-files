@@ -2,6 +2,10 @@
 
 Code name:
 
+## Features
+
+* #83: Improved performance of loading many small files
+
 ## Dependency Updates
 
 ### Compile Dependency Updates

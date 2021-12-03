@@ -18,7 +18,7 @@ import org.apache.parquet.schema.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import com.exasol.adapter.document.documentfetcher.files.LocalLoadedFile;
+import com.exasol.adapter.document.documentfetcher.files.LocalRemoteFileContent;
 import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
 import com.exasol.adapter.document.documentfetcher.files.segmentation.FileSegment;
 import com.exasol.adapter.document.documentnode.DocumentArray;
@@ -56,7 +56,7 @@ class ParquetDocumentFetcherTest {
     }
 
     private RowRecordNode runDocumentFetcherAndGetFirstResult(final Path parquetFile) {
-        final RemoteFile remoteFile = new LocalLoadedFile(parquetFile);
+        final RemoteFile remoteFile = new RemoteFile("", 0, new LocalRemoteFileContent(parquetFile));
         return (RowRecordNode) new ParquetDocumentFetcher().readDocuments(new FileSegment(remoteFile, ENTIRE_FILE))
                 .next();
     }

@@ -2,12 +2,12 @@ package com.exasol.adapter.document.documentfetcher.files;
 
 import java.io.*;
 import java.nio.file.Path;
+import java.util.concurrent.Future;
 
-public class LocalLoadedFile extends RemoteFile {
+public class LocalRemoteFileContent implements RemoteFileContent {
     private final Path localFile;
 
-    public LocalLoadedFile(final Path localFile) {
-        super(localFile.toFile().getName());
+    public LocalRemoteFileContent(final Path localFile) {
         this.localFile = localFile;
     }
 
@@ -18,5 +18,10 @@ public class LocalLoadedFile extends RemoteFile {
         } catch (final FileNotFoundException exception) {
             throw new IllegalStateException(exception);
         }
+    }
+
+    @Override
+    public Future<byte[]> loadAsync() {
+        throw new UnsupportedOperationException();
     }
 }

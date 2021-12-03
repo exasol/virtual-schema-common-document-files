@@ -21,26 +21,31 @@ class JsonDocumentFetcherTest {
 
     @Test
     void testClosed() {
-        final AssertStreamIsClosedLoadedFile remoteFile = new AssertStreamIsClosedLoadedFile("{}");
+        final AssertStreamIsClosedRemoteFileContent spy = new AssertStreamIsClosedRemoteFileContent("{}");
         final JsonDocumentFetcher jsonDocumentFetcher = new JsonDocumentFetcher();
-        jsonDocumentFetcher.readDocuments(new FileSegment(remoteFile, ENTIRE_FILE)).forEachRemaining(x -> {
-            // just run through
-        });
-        assertThat(remoteFile.isStreamClosed(), equalTo(true));
+        jsonDocumentFetcher.readDocuments(new FileSegment(new RemoteFile("", 0, spy), ENTIRE_FILE))
+                .forEachRemaining(x -> {
+                    // just run through
+                });
+        assertThat(spy.isStreamClosed(), equalTo(true));
     }
 
     @Test
     void testReadDocument() {
-        final RemoteFile remoteFile = new StringLoadedFile("{\"id\": \"book-1\"}", "string source");
+        final RemoteFile remoteFile = getRemoteFileForString("{\"id\": \"book-1\"}");
         final JsonDocumentFetcher jsonDocumentFetcher = new JsonDocumentFetcher();
         final List<DocumentNode> result = new ArrayList<>();
         jsonDocumentFetcher.readDocuments(new FileSegment(remoteFile, ENTIRE_FILE)).forEachRemaining(result::add);
         assertThat(result.size(), equalTo(1));
     }
 
+    private RemoteFile getRemoteFileForString(final String content) {
+        return new RemoteFile("string source", 0, new StringRemoteFileContent(content));
+    }
+
     @Test
     void testReadDocumentWithSyntaxError() {
-        final RemoteFile remoteFile = new StringLoadedFile("{\ninvalid syntax\n}", "string source");
+        final RemoteFile remoteFile = getRemoteFileForString("{\ninvalid syntax\n}");
         final JsonDocumentFetcher jsonDocumentFetcher = new JsonDocumentFetcher();
         final FileSegment segment = new FileSegment(remoteFile, ENTIRE_FILE);
         final InputDataException exception = assertThrows(InputDataException.class,
@@ -51,7 +56,7 @@ class JsonDocumentFetcherTest {
     @ValueSource(strings = { "", " ", "   ", "\n", "\n " })
     @ParameterizedTest
     void testReadEmptyDocument(final String emptyDocumentVariant) {
-        final RemoteFile remoteFile = new StringLoadedFile(emptyDocumentVariant, "string source");
+        final RemoteFile remoteFile = getRemoteFileForString(emptyDocumentVariant);
         final JsonDocumentFetcher jsonDocumentFetcher = new JsonDocumentFetcher();
         final FileSegment segment = new FileSegment(remoteFile, ENTIRE_FILE);
         final InputDataException inputDataException = assertThrows(InputDataException.class,
@@ -61,7 +66,7 @@ class JsonDocumentFetcherTest {
 
     @Test
     void testExceptionForSegmentedFiles() {
-        final RemoteFile remoteFile = new StringLoadedFile("{}", "string source");
+        final RemoteFile remoteFile = getRemoteFileForString("{}");
         final JsonDocumentFetcher jsonDocumentFetcher = new JsonDocumentFetcher();
         final FileSegment segment = new FileSegment(remoteFile, new FileSegmentDescription(2, 0));
         final IllegalStateException exception = assertThrows(IllegalStateException.class,

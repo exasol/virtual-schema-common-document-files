@@ -35,4 +35,10 @@ public class ExplicitSegmentMatcher implements SegmentMatcher {
             return result;
         }
     }
+
+    @Override
+    public boolean matchesFile(final RemoteFile remoteFile) {
+        final ArrayList<FileSegmentDescription> segments = this.segmentKeys.get(remoteFile.getResourceName());
+        return segments != null && !segments.isEmpty();
+    }
 }
