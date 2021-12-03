@@ -62,7 +62,7 @@ public class RemoteFilePrefetchingIterator implements CloseableIterator<RemoteFi
         } catch (final InterruptedException exception) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException(ExaError.messageBuilder("F-VSDF-21")
-                    .message("Interrupted while waiting for prefetchable.").toString(), exception);
+                    .message("Interrupted while waiting for buffered ready or non-prefetchable file.").toString(), exception);
         }
     }
 
@@ -157,10 +157,10 @@ public class RemoteFilePrefetchingIterator implements CloseableIterator<RemoteFi
             } catch (final InterruptedException exception) {
                 Thread.currentThread().interrupt();
                 throw new IllegalStateException(ExaError.messageBuilder("E-VSDF-19")
-                        .message("Interrupted while loading waiting for file from s3.").toString(), exception);
+                        .message("Interrupted while waiting for file to load.").toString(), exception);
             } catch (final ExecutionException exception) {
                 throw new IllegalStateException(ExaError.messageBuilder("E-VSDF-20")
-                        .message("Error while loading waiting for file from s3.").toString(), exception);
+                        .message("Error while waiting for file to load.").toString(), exception);
             }
         }
 

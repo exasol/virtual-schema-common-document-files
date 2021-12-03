@@ -2,7 +2,7 @@
 
 Code name:
 
-## Features:
+## Features
 
 * #83: Improved performance of loading many small files
 
