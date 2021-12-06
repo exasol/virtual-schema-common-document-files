@@ -97,7 +97,7 @@ The query processing of the Files Virtual Schemas consists of two phases: A plan
 
 ### Distributing the File
 
-Until now this parallelization was realized using hash binning. So each worker received a range and then loaded files where the hashs value of the file-name fell into that range. That approach is great for distributing lots of files since it does not require listing files in advance. Doing so could cause memory overflow when distributing for example 1,000,000 files with long names.
+Until now this parallelization was realized using hash binning. With this approach, each worker receives a range and then loads files where the hash value of the file-name fells into that range. That approach is great for distributing lots of files since it does not require listing files in advance. Doing so could cause memory overflow when distributing for example 1,000,000 files with long names.
 
 However, for only a few files, this is not very optimal. Imagine distributing 4 files over 4 workers. A good distribution is obvious here. Each worker receives one file. With hash binning it's however quite likely, that one worker receives two files and another receives none. This will increase the time for loading.
 
