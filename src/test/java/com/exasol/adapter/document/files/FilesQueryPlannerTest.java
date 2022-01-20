@@ -1,6 +1,5 @@
 package com.exasol.adapter.document.files;
 
-import static com.exasol.adapter.document.files.ConnectionInfoMockFactory.mockConnectionInfoWithAddress;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
@@ -16,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.exasol.adapter.document.connection.ConnectionPropertiesReader;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.files.FileLoader;
 import com.exasol.adapter.document.documentfetcher.files.FileLoaderFactory;
@@ -37,7 +37,7 @@ class FilesQueryPlannerTest {
         when(loader.loadFiles()).thenAnswer(I -> new CloseableIteratorWrapper<>(Collections.emptyIterator()));
         final FileLoaderFactory fileLoaderFactory = mock(FileLoaderFactory.class);
         when(fileLoaderFactory.getLoader(any(), any())).thenAnswer(I -> loader);
-        queryPlanner = new FilesQueryPlanner(fileLoaderFactory, mockConnectionInfoWithAddress(""));
+        queryPlanner = new FilesQueryPlanner(fileLoaderFactory, mock(ConnectionPropertiesReader.class));
     }
 
     @Test

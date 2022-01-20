@@ -1,8 +1,6 @@
 package com.exasol.adapter.document.documentfetcher.files;
 
-import java.util.regex.Pattern;
-
-import com.exasol.ExaConnectionInformation;
+import com.exasol.adapter.document.connection.ConnectionPropertiesReader;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.FetchedDocument;
 import com.exasol.adapter.document.documentfetcher.files.segmentation.*;
@@ -16,7 +14,7 @@ import lombok.Getter;
  * This is an abstract basis for {@link DocumentFetcher}s that fetch data from files.
  */
 public class FilesDocumentFetcher implements DocumentFetcher {
-    private static final long serialVersionUID = 4889351438894233787L;
+    private static final long serialVersionUID = 4639469310585326277L;
     /** @serial */
     @Getter
     private final StringFilter filePattern;
@@ -46,8 +44,7 @@ public class FilesDocumentFetcher implements DocumentFetcher {
     }
 
     @Override
-    public final CloseableIterator<FetchedDocument> run(final ExaConnectionInformation connectionInformation) {
-        final String prefix = connectionInformation.getAddress();
+    public final CloseableIterator<FetchedDocument> run(final ConnectionPropertiesReader connectionInformation) {
         final CloseableIterator<RemoteFile> files = this.fileLoaderFactory
                 .getLoader(this.filePattern, connectionInformation).loadFiles();
         final SegmentMatcher segmentMatcher = SegmentMatcherFactory.buildSegmentMatcher(this.segmentDescription);
@@ -55,13 +52,12 @@ public class FilesDocumentFetcher implements DocumentFetcher {
         final CloseableIterator<RemoteFile> prefetchedFiles = new RemoteFilePrefetchingIterator(filteredFiles);
         final CloseableIterator<FileSegment> segments = new FlatMapIterator<>(prefetchedFiles,
                 file -> new CloseableIteratorWrapper<>(segmentMatcher.getMatchingSegmentsFor(file).iterator()));
-        return new FlatMapIterator<>(segments, segment -> readLoadedFile(segment, prefix));
+        return new FlatMapIterator<>(segments, this::readLoadedFile);
     }
 
-    private CloseableIterator<FetchedDocument> readLoadedFile(final FileSegment fileSegment, final String prefix) {
+    private CloseableIterator<FetchedDocument> readLoadedFile(final FileSegment fileSegment) {
         final RemoteFile remoteFile = fileSegment.getFile();
-        final String relativeName = remoteFile.getResourceName().replaceFirst(Pattern.quote(prefix), "");
         return new TransformingIterator<>(this.fileTypeSpecificDocumentFetcher.readDocuments(fileSegment),
-                document -> new FetchedDocument(document, relativeName));
+                document -> new FetchedDocument(document, remoteFile.getResourceName()));
     }
 }

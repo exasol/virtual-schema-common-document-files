@@ -1,6 +1,5 @@
 package com.exasol.adapter.document.documentfetcher.files;
 
-import static com.exasol.adapter.document.files.ConnectionInfoMockFactory.mockConnectionInfoWithAddress;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.ArgumentMatchers.any;
@@ -17,7 +16,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.exasol.ExaConnectionInformation;
+import com.exasol.adapter.document.connection.ConnectionPropertiesReader;
 import com.exasol.adapter.document.documentfetcher.files.segmentation.NoSegmentationSegmentDescription;
 import com.exasol.adapter.document.documentnode.holder.StringHolderNode;
 import com.exasol.adapter.document.files.FileTypeSpecificDocumentFetcher;
@@ -26,16 +25,16 @@ import com.exasol.adapter.document.iterators.CloseableIteratorWrapper;
 
 @ExtendWith(MockitoExtension.class)
 class FilesDocumentFetcherTest {
-    private static final String PREFIX = "prefix/";
     @Mock
     FileLoader fileLoader;
     @Mock
     FileLoaderFactory loaderFactory;
-    private ExaConnectionInformation connectionInformation;
+    @Mock
+    private ConnectionPropertiesReader connectionInformation;
 
     @BeforeEach
     void beforeEach() {
-        this.connectionInformation = mockConnectionInfoWithAddress(PREFIX);
+
     }
 
     @Test

@@ -2,42 +2,58 @@ package com.exasol.adapter.document.files;
 
 import java.util.Collections;
 
-import com.exasol.ExaConnectionInformation;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.capabilities.*;
-import com.exasol.adapter.document.DocumentAdapter;
+import com.exasol.adapter.document.DocumentAdapterDialect;
 import com.exasol.adapter.document.QueryPlanner;
+import com.exasol.adapter.document.connection.ConnectionPropertiesReader;
 import com.exasol.adapter.document.documentfetcher.files.FileLoaderFactory;
 import com.exasol.adapter.document.mapping.TableKeyFetcher;
 
 /**
  * This class is the entry point for the files Virtual Schema.
  */
-public abstract class DocumentFilesAdapter extends DocumentAdapter {
+public class DocumentFilesAdapter implements DocumentAdapterDialect {
+    private final String adapterName;
+    private final FileLoaderFactory fileLoaderFactory;
+
+    /**
+     * Create a new instance of {@link DocumentFilesAdapter}.
+     * 
+     * @param adapterName       adapter name
+     * @param fileLoaderFactory file storage specific file loader factory
+     */
+    public DocumentFilesAdapter(final String adapterName, final FileLoaderFactory fileLoaderFactory) {
+        this.adapterName = adapterName;
+        this.fileLoaderFactory = fileLoaderFactory;
+    }
 
     @Override
-    protected TableKeyFetcher getTableKeyFetcher(final ExaConnectionInformation connectionInformation) {
+    public TableKeyFetcher getTableKeyFetcher(final ConnectionPropertiesReader connectionInformation) {
         return (tableName, mappedColumns) -> Collections.emptyList();
     }
 
     @Override
-    protected final QueryPlanner getQueryPlanner(final ExaConnectionInformation connectionInformation,
+    public final QueryPlanner getQueryPlanner(final ConnectionPropertiesReader connectionInformation,
             final AdapterProperties adapterProperties) {
-        return new FilesQueryPlanner(getFileLoaderFactory(), connectionInformation);
+        return new FilesQueryPlanner(this.fileLoaderFactory, connectionInformation);
     }
 
-    /**
-     * Get the file backend specific {@link FileLoaderFactory}.
-     * 
-     * @return file backend specific {@link FileLoaderFactory}
-     */
-    protected abstract FileLoaderFactory getFileLoaderFactory();
+    @Override
+    public String getAdapterName() {
+        return this.adapterName;
+    }
 
     @Override
-    protected Capabilities getCapabilities() {
+    public Capabilities getCapabilities() {
         return Capabilities.builder().addMain(MainCapability.SELECTLIST_PROJECTION, MainCapability.FILTER_EXPRESSIONS)
                 .addPredicate(PredicateCapability.EQUAL, PredicateCapability.LIKE, PredicateCapability.AND,
                         PredicateCapability.OR, PredicateCapability.NOT)
                 .addLiteral(LiteralCapability.STRING).build();
+    }
+
+    @Override
+    public String getUserGuideUrl() {
+        return this.fileLoaderFactory.getUserGuideUrl();
     }
 }
