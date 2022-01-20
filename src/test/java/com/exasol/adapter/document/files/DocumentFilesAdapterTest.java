@@ -6,7 +6,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.mock;
 
 import java.util.Collections;
 
@@ -15,13 +15,14 @@ import org.junit.jupiter.api.Test;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.capabilities.*;
 import com.exasol.adapter.document.QueryPlanner;
+import com.exasol.adapter.document.documentfetcher.files.FileLoaderFactory;
 import com.exasol.adapter.document.mapping.TableKeyFetcher;
 
 class DocumentFilesAdapterTest {
 
     @Test
     void testGetCapabilities() {
-        final DocumentFilesAdapter adapter = spy(DocumentFilesAdapter.class);
+        final DocumentFilesAdapter adapter = new DocumentFilesAdapter("", mock(FileLoaderFactory.class));
         final Capabilities capabilities = adapter.getCapabilities();
         assertAll(//
                 () -> assertThat(capabilities.getMainCapabilities(),
@@ -35,14 +36,14 @@ class DocumentFilesAdapterTest {
 
     @Test
     void testGetQueryPlanner() {
-        final DocumentFilesAdapter adapter = spy(DocumentFilesAdapter.class);
+        final DocumentFilesAdapter adapter = new DocumentFilesAdapter("", mock(FileLoaderFactory.class));
         assertThat(adapter.getQueryPlanner(null, new AdapterProperties(Collections.emptyMap())),
                 instanceOf(QueryPlanner.class));
     }
 
     @Test
     void testGetTableKeyFetcher() throws TableKeyFetcher.NoKeyFoundException {
-        final DocumentFilesAdapter adapter = spy(DocumentFilesAdapter.class);
+        final DocumentFilesAdapter adapter = new DocumentFilesAdapter("", mock(FileLoaderFactory.class));
         final TableKeyFetcher tableKeyFetcher = adapter.getTableKeyFetcher(null);
         assertThat(tableKeyFetcher.fetchKeyForTable(null, Collections.emptyList()), containsInAnyOrder());
     }

@@ -2,7 +2,7 @@ package com.exasol.adapter.document.documentfetcher.files;
 
 import java.io.Serializable;
 
-import com.exasol.ExaConnectionInformation;
+import com.exasol.adapter.document.connection.ConnectionPropertiesReader;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.files.stringfilter.StringFilter;
 
@@ -19,9 +19,16 @@ public interface FileLoaderFactory extends Serializable {
     /**
      * Get a {@link FileLoader}.
      *
-     * @param filePattern           files to load
-     * @param connectionInformation connection to the data source
+     * @param filePattern              files to load
+     * @param connectionPropertyReader reader for connection properties like remote database credentials
      * @return {@link FileLoader}
      */
-    public FileLoader getLoader(StringFilter filePattern, ExaConnectionInformation connectionInformation);
+    public FileLoader getLoader(StringFilter filePattern, final ConnectionPropertiesReader connectionPropertyReader);
+
+    /**
+     * Get the URL of the file type specific to user guide.
+     *
+     * @return user guide URL
+     */
+    public String getUserGuideUrl();
 }

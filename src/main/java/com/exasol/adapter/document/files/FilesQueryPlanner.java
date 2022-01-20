@@ -2,8 +2,8 @@ package com.exasol.adapter.document.files;
 
 import java.util.List;
 
-import com.exasol.ExaConnectionInformation;
 import com.exasol.adapter.document.QueryPlanner;
+import com.exasol.adapter.document.connection.ConnectionPropertiesReader;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.files.FileLoaderFactory;
 import com.exasol.adapter.document.queryplan.*;
@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class FilesQueryPlanner implements QueryPlanner {
     private final FileLoaderFactory fileLoaderFactory;
-    private final ExaConnectionInformation connectionInformation;
+    private final ConnectionPropertiesReader connectionInformation;
 
     @Override
     public QueryPlan planQuery(final RemoteTableQuery remoteTableQuery, final int maxNumberOfParallelFetchers) {

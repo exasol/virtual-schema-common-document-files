@@ -1,6 +1,5 @@
 package com.exasol.adapter.document.files;
 
-import static com.exasol.adapter.document.files.ConnectionInfoMockFactory.mockConnectionInfoWithAddress;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -13,7 +12,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.exasol.ExaConnectionInformation;
+import com.exasol.adapter.document.connection.ConnectionPropertiesReader;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.files.*;
 import com.exasol.adapter.document.documentfetcher.files.segmentation.ExplicitSegmentDescription;
@@ -51,22 +50,12 @@ class FilesDocumentFetcherFactoryTest {
 
     private HashSegmentDescription getHashSegmentDescription(final DocumentFetcher documentFetcher) {
         final FilesDocumentFetcher filesDocumentFetcher = (FilesDocumentFetcher) documentFetcher;
-        final HashSegmentDescription segmentDescription = (HashSegmentDescription) filesDocumentFetcher
-                .getSegmentDescription();
-        return segmentDescription;
-    }
-
-    @Test
-    void testPrefixIsAdded() {
-        final List<DocumentFetcher> documentFetchers = runGetDocumentFetchers(1, 1);
-        final FilesDocumentFetcher documentFetcher = (FilesDocumentFetcher) documentFetchers.get(0);
-        assertThat(documentFetcher.getFilePattern().toString(), equalTo(
-                "(prefix/test<DirectoryLimitedMultiCharWildcard>) AND (prefix/<CrossDirectoryMultiCharWildcard>)"));
+        return (HashSegmentDescription) filesDocumentFetcher.getSegmentDescription();
     }
 
     private List<DocumentFetcher> runGetDocumentFetchers(final int numberOfFiles, final int maxFetcher) {
         final FileLoaderFactory fileLoaderFactory = mockFileLoaderFactory(numberOfFiles);
-        final ExaConnectionInformation connectionInformation = mockConnectionInfoWithAddress("prefix/");
+        final ConnectionPropertiesReader connectionInformation = mock(ConnectionPropertiesReader.class);
         final var fileTypeSpecificDocumentFetcher = mock(FileTypeSpecificDocumentFetcher.class);
         return new FilesDocumentFetcherFactory().buildDocumentFetcherForQuery(A_FILTER, maxFetcher, fileLoaderFactory,
                 connectionInformation, fileTypeSpecificDocumentFetcher);

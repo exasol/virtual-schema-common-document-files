@@ -5,12 +5,11 @@ import static com.exasol.adapter.document.documentfetcher.files.segmentation.Fil
 import java.util.ArrayList;
 import java.util.List;
 
-import com.exasol.ExaConnectionInformation;
+import com.exasol.adapter.document.connection.ConnectionPropertiesReader;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.files.*;
 import com.exasol.adapter.document.documentfetcher.files.segmentation.*;
-import com.exasol.adapter.document.files.stringfilter.*;
-import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
+import com.exasol.adapter.document.files.stringfilter.StringFilter;
 import com.exasol.adapter.document.iterators.CloseableIterator;
 
 /**
@@ -32,31 +31,22 @@ public class FilesDocumentFetcherFactory {
      */
     public List<DocumentFetcher> buildDocumentFetcherForQuery(final StringFilter sourceFilter,
             final int maxNumberOfParallelFetchers, final FileLoaderFactory fileLoaderFactory,
-            final ExaConnectionInformation connectionInformation,
+            final ConnectionPropertiesReader connectionInformation,
             final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher) {
         final List<DocumentFetcher> documentFetchers = new ArrayList<>(maxNumberOfParallelFetchers);
         final int numberOfSegments = sourceFilter.hasWildcard() ? maxNumberOfParallelFetchers : 1;
-        final StringFilter filterWithPreventedInjection = addPrefixToFilterToAvoidInjection(sourceFilter,
-                connectionInformation);
         final List<SegmentDescription> segmentDescriptions = buildSegmentDescriptions(fileLoaderFactory,
-                connectionInformation, numberOfSegments, filterWithPreventedInjection, fileTypeSpecificDocumentFetcher);
+                connectionInformation, numberOfSegments, sourceFilter, fileTypeSpecificDocumentFetcher);
         for (final SegmentDescription segmentDescription : segmentDescriptions) {
-            final DocumentFetcher documentFetcher = new FilesDocumentFetcher(filterWithPreventedInjection,
-                    segmentDescription, fileLoaderFactory, fileTypeSpecificDocumentFetcher);
+            final DocumentFetcher documentFetcher = new FilesDocumentFetcher(sourceFilter, segmentDescription,
+                    fileLoaderFactory, fileTypeSpecificDocumentFetcher);
             documentFetchers.add(documentFetcher);
         }
         return documentFetchers;
     }
 
-    private StringFilter addPrefixToFilterToAvoidInjection(final StringFilter sourceFilter,
-            final ExaConnectionInformation connectionInformation) {
-        final String prefix = connectionInformation.getAddress();
-        final StringFilter filePatternWithPrefix = new PrefixPrepender().prependStaticPrefix(prefix, sourceFilter);
-        return new StringFilterFactory().and(filePatternWithPrefix, WildcardExpression.forNonWildcardPrefix(prefix));
-    }
-
     private List<SegmentDescription> buildSegmentDescriptions(final FileLoaderFactory fileLoaderFactory,
-            final ExaConnectionInformation connectionInformation, final int numberOfSegments,
+            final ConnectionPropertiesReader connectionInformation, final int numberOfSegments,
             final StringFilter filePattern, final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher) {
         final FileLoader loader = fileLoaderFactory.getLoader(filePattern, connectionInformation);
         try (final CloseableIterator<RemoteFile> iterator = loader.loadFiles()) {
