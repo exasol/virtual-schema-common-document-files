@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -31,11 +30,6 @@ class FilesDocumentFetcherTest {
     FileLoaderFactory loaderFactory;
     @Mock
     private ConnectionPropertiesReader connectionInformation;
-
-    @BeforeEach
-    void beforeEach() {
-
-    }
 
     @Test
     void testSourceReferences() {
