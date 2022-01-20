@@ -26,7 +26,7 @@ public interface FileLoaderFactory extends Serializable {
     public FileLoader getLoader(StringFilter filePattern, final ConnectionPropertiesReader connectionPropertyReader);
 
     /**
-     * Get the URL of the file type specific user guide.
+     * Get the URL of the file type specific to user guide.
      *
      * @return user guide URL
      */

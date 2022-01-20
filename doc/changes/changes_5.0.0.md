@@ -7,7 +7,7 @@ This release added common implementation parts for switching to unified connecti
 This release has breaking API changes:
 
 * The dialects must now implement UdfEntryPoint and call GenericUdfCallHandler.
-* The dialect Java API changed
+* The Java dialect API has changed
 
 ## Dependency Updates
 
