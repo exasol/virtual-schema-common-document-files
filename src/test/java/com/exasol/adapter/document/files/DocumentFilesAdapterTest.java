@@ -15,14 +15,14 @@ import org.junit.jupiter.api.Test;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.capabilities.*;
 import com.exasol.adapter.document.QueryPlanner;
-import com.exasol.adapter.document.documentfetcher.files.FileLoaderFactory;
+import com.exasol.adapter.document.documentfetcher.files.FileFinderFactory;
 import com.exasol.adapter.document.mapping.TableKeyFetcher;
 
 class DocumentFilesAdapterTest {
 
     @Test
     void testGetCapabilities() {
-        final DocumentFilesAdapter adapter = new DocumentFilesAdapter("", mock(FileLoaderFactory.class));
+        final DocumentFilesAdapter adapter = new DocumentFilesAdapter("", mock(FileFinderFactory.class));
         final Capabilities capabilities = adapter.getCapabilities();
         assertAll(//
                 () -> assertThat(capabilities.getMainCapabilities(),
@@ -36,14 +36,14 @@ class DocumentFilesAdapterTest {
 
     @Test
     void testGetQueryPlanner() {
-        final DocumentFilesAdapter adapter = new DocumentFilesAdapter("", mock(FileLoaderFactory.class));
+        final DocumentFilesAdapter adapter = new DocumentFilesAdapter("", mock(FileFinderFactory.class));
         assertThat(adapter.getQueryPlanner(null, new AdapterProperties(Collections.emptyMap())),
                 instanceOf(QueryPlanner.class));
     }
 
     @Test
     void testGetTableKeyFetcher() throws TableKeyFetcher.NoKeyFoundException {
-        final DocumentFilesAdapter adapter = new DocumentFilesAdapter("", mock(FileLoaderFactory.class));
+        final DocumentFilesAdapter adapter = new DocumentFilesAdapter("", mock(FileFinderFactory.class));
         final TableKeyFetcher tableKeyFetcher = adapter.getTableKeyFetcher(null);
         assertThat(tableKeyFetcher.fetchKeyForTable(null, Collections.emptyList()), containsInAnyOrder());
     }

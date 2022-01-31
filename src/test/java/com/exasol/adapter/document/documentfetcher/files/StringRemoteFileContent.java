@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
-
 public class StringRemoteFileContent implements RemoteFileContent {
     private final String value;
 

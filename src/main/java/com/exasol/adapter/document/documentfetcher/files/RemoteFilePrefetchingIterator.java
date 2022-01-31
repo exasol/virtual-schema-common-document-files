@@ -71,7 +71,7 @@ public class RemoteFilePrefetchingIterator implements CloseableIterator<RemoteFi
     private Optional<RemoteFile> findReady() {
         final Iterator<LoadingRemoteFile> iterator = this.buffer.iterator();
         while (iterator.hasNext()) {
-            LoadingRemoteFile each = iterator.next();
+            final LoadingRemoteFile each = iterator.next();
             if (each.isDone()) {
                 try {
                     final RemoteFile loadedFile = each.getLoadedFile();

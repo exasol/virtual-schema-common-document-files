@@ -5,7 +5,7 @@ import java.util.List;
 import com.exasol.adapter.document.QueryPlanner;
 import com.exasol.adapter.document.connection.ConnectionPropertiesReader;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
-import com.exasol.adapter.document.documentfetcher.files.FileLoaderFactory;
+import com.exasol.adapter.document.documentfetcher.files.FileFinderFactory;
 import com.exasol.adapter.document.queryplan.*;
 import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
 
@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public class FilesQueryPlanner implements QueryPlanner {
-    private final FileLoaderFactory fileLoaderFactory;
+    private final FileFinderFactory fileFinderFactory;
     private final ConnectionPropertiesReader connectionInformation;
 
     @Override
@@ -31,7 +31,7 @@ public class FilesQueryPlanner implements QueryPlanner {
         final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher = new FileTypeSpecificDocumentFetcherFactory()
                 .buildFileTypeSpecificDocumentFetcher("." + sourceString.getFileType());
         final List<DocumentFetcher> documentFetchers = new FilesDocumentFetcherFactory().buildDocumentFetcherForQuery(
-                splitSelection.getSourceFilter(), maxNumberOfParallelFetchers, this.fileLoaderFactory,
+                splitSelection.getSourceFilter(), maxNumberOfParallelFetchers, this.fileFinderFactory,
                 this.connectionInformation, fileTypeSpecificDocumentFetcher);
         return new FetchQueryPlan(documentFetchers, splitSelection.getPostSelection());
     }

@@ -14,7 +14,7 @@ import lombok.Getter;
  * This is an abstract basis for {@link DocumentFetcher}s that fetch data from files.
  */
 public class FilesDocumentFetcher implements DocumentFetcher {
-    private static final long serialVersionUID = 4639469310585326277L;
+    private static final long serialVersionUID = 3556762980241219699L;
     /** @serial */
     @Getter
     private final StringFilter filePattern;
@@ -22,7 +22,7 @@ public class FilesDocumentFetcher implements DocumentFetcher {
     @Getter
     private final SegmentDescription segmentDescription;
     /** @serial */
-    private final FileLoaderFactory fileLoaderFactory;
+    private final FileFinderFactory fileFinderFactory;
     /** @serial */
     private final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher;
 
@@ -31,22 +31,23 @@ public class FilesDocumentFetcher implements DocumentFetcher {
      * 
      * @param filePattern                     files to load
      * @param segmentDescription              segmentation for parallel execution
-     * @param fileLoaderFactory               dependency in injection of {@link FileLoaderFactory}
+     * @param fileFinderFactory               dependency in injection of {@link FileFinderFactory}
      * @param fileTypeSpecificDocumentFetcher file type specific document fetcher part
      */
     public FilesDocumentFetcher(final StringFilter filePattern, final SegmentDescription segmentDescription,
-            final FileLoaderFactory fileLoaderFactory,
+            final FileFinderFactory fileFinderFactory,
             final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher) {
         this.filePattern = filePattern;
         this.segmentDescription = segmentDescription;
-        this.fileLoaderFactory = fileLoaderFactory;
+        this.fileFinderFactory = fileFinderFactory;
         this.fileTypeSpecificDocumentFetcher = fileTypeSpecificDocumentFetcher;
     }
 
     @Override
     public final CloseableIterator<FetchedDocument> run(final ConnectionPropertiesReader connectionInformation) {
-        final CloseableIterator<RemoteFile> files = this.fileLoaderFactory
-                .getLoader(this.filePattern, connectionInformation).loadFiles();
+        final RemoteFileFinder remoteFileFinder = this.fileFinderFactory.getFinder(this.filePattern,
+                connectionInformation);
+        final CloseableIterator<RemoteFile> files = remoteFileFinder.loadFiles();
         final SegmentMatcher segmentMatcher = SegmentMatcherFactory.buildSegmentMatcher(this.segmentDescription);
         final CloseableIterator<RemoteFile> filteredFiles = new FilteringIterator<>(files, segmentMatcher::matchesFile);
         final CloseableIterator<RemoteFile> prefetchedFiles = new RemoteFilePrefetchingIterator(filteredFiles);

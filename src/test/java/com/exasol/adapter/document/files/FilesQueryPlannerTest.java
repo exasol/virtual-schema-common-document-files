@@ -17,8 +17,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.exasol.adapter.document.connection.ConnectionPropertiesReader;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
-import com.exasol.adapter.document.documentfetcher.files.FileLoader;
-import com.exasol.adapter.document.documentfetcher.files.FileLoaderFactory;
+import com.exasol.adapter.document.documentfetcher.files.FileFinderFactory;
+import com.exasol.adapter.document.documentfetcher.files.RemoteFileFinder;
 import com.exasol.adapter.document.iterators.CloseableIteratorWrapper;
 import com.exasol.adapter.document.mapping.SourceReferenceColumnMapping;
 import com.exasol.adapter.document.mapping.TableMapping;
@@ -33,11 +33,11 @@ class FilesQueryPlannerTest {
 
     @BeforeAll
     static void beforeAll() {
-        final FileLoader loader = mock(FileLoader.class);
+        final RemoteFileFinder loader = mock(RemoteFileFinder.class);
         when(loader.loadFiles()).thenAnswer(I -> new CloseableIteratorWrapper<>(Collections.emptyIterator()));
-        final FileLoaderFactory fileLoaderFactory = mock(FileLoaderFactory.class);
-        when(fileLoaderFactory.getLoader(any(), any())).thenAnswer(I -> loader);
-        queryPlanner = new FilesQueryPlanner(fileLoaderFactory, mock(ConnectionPropertiesReader.class));
+        final FileFinderFactory fileFinderFactory = mock(FileFinderFactory.class);
+        when(fileFinderFactory.getFinder(any(), any())).thenAnswer(I -> loader);
+        queryPlanner = new FilesQueryPlanner(fileFinderFactory, mock(ConnectionPropertiesReader.class));
     }
 
     @Test
