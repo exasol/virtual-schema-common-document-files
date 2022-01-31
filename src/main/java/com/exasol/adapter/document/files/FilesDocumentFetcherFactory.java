@@ -24,31 +24,31 @@ public class FilesDocumentFetcherFactory {
      * @param sourceFilter                    filter for the source file names
      * @param maxNumberOfParallelFetchers     the maximum amount of {@link DocumentFetcher}s that can be used in
      *                                        parallel
-     * @param fileLoaderFactory               dependency injection of {@link FileLoaderFactory}
+     * @param fileFinderFactory               dependency injection of {@link FileFinderFactory}
      * @param connectionInformation           connection information
      * @param fileTypeSpecificDocumentFetcher file type specific document fetcher
      * @return built {@link DocumentFetcher}
      */
     public List<DocumentFetcher> buildDocumentFetcherForQuery(final StringFilter sourceFilter,
-            final int maxNumberOfParallelFetchers, final FileLoaderFactory fileLoaderFactory,
+            final int maxNumberOfParallelFetchers, final FileFinderFactory fileFinderFactory,
             final ConnectionPropertiesReader connectionInformation,
             final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher) {
         final List<DocumentFetcher> documentFetchers = new ArrayList<>(maxNumberOfParallelFetchers);
         final int numberOfSegments = sourceFilter.hasWildcard() ? maxNumberOfParallelFetchers : 1;
-        final List<SegmentDescription> segmentDescriptions = buildSegmentDescriptions(fileLoaderFactory,
+        final List<SegmentDescription> segmentDescriptions = buildSegmentDescriptions(fileFinderFactory,
                 connectionInformation, numberOfSegments, sourceFilter, fileTypeSpecificDocumentFetcher);
         for (final SegmentDescription segmentDescription : segmentDescriptions) {
             final DocumentFetcher documentFetcher = new FilesDocumentFetcher(sourceFilter, segmentDescription,
-                    fileLoaderFactory, fileTypeSpecificDocumentFetcher);
+                    fileFinderFactory, fileTypeSpecificDocumentFetcher);
             documentFetchers.add(documentFetcher);
         }
         return documentFetchers;
     }
 
-    private List<SegmentDescription> buildSegmentDescriptions(final FileLoaderFactory fileLoaderFactory,
+    private List<SegmentDescription> buildSegmentDescriptions(final FileFinderFactory fileFinderFactory,
             final ConnectionPropertiesReader connectionInformation, final int numberOfSegments,
             final StringFilter filePattern, final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher) {
-        final FileLoader loader = fileLoaderFactory.getLoader(filePattern, connectionInformation);
+        final RemoteFileFinder loader = fileFinderFactory.getFinder(filePattern, connectionInformation);
         try (final CloseableIterator<RemoteFile> iterator = loader.loadFiles()) {
             final List<RemoteFile> firstFiles = new ArrayList<>();
             int remoteFileCounter = 0;

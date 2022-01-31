@@ -25,17 +25,17 @@ import com.exasol.adapter.document.iterators.CloseableIteratorWrapper;
 @ExtendWith(MockitoExtension.class)
 class FilesDocumentFetcherTest {
     @Mock
-    FileLoader fileLoader;
+    RemoteFileFinder remoteFileFinder;
     @Mock
-    FileLoaderFactory loaderFactory;
+    FileFinderFactory loaderFactory;
     @Mock
     private ConnectionPropertiesReader connectionInformation;
 
     @Test
     void testSourceReferences() {
         final List<RemoteFile> remoteFiles = List.of(mockLoadedFile("file-1"), mockLoadedFile("file-2"));
-        when(this.fileLoader.loadFiles()).thenReturn(new CloseableIteratorWrapper<>(remoteFiles.iterator()));
-        when(this.loaderFactory.getLoader(Mockito.any(), Mockito.any())).thenReturn(this.fileLoader);
+        when(this.remoteFileFinder.loadFiles()).thenReturn(new CloseableIteratorWrapper<>(remoteFiles.iterator()));
+        when(this.loaderFactory.getFinder(Mockito.any(), Mockito.any())).thenReturn(this.remoteFileFinder);
         final FileTypeSpecificDocumentFetcher fileTypeSpecificFetcher = mock(FileTypeSpecificDocumentFetcher.class);
         when(fileTypeSpecificFetcher.readDocuments(any()))
                 .thenAnswer(invocation -> new CloseableIteratorWrapper<>(List.of(new StringHolderNode("")).iterator()));

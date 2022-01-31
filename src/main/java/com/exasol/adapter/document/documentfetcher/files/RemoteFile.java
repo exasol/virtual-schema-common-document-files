@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.With;
 
 /**
- * This class describes a file loaded by the {@link FileLoader}.
+ * This class describes a file loaded by the {@link RemoteFileFinder}.
  */
 @Data
 public class RemoteFile {

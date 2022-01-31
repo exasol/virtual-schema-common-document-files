@@ -5,7 +5,7 @@ import com.exasol.adapter.document.iterators.CloseableIterator;
 /**
  * Classes implementing this interface load files from a specific files system type or network storage.
  */
-public interface FileLoader {
+public interface RemoteFileFinder {
 
     /**
      * Get the content of the file as stream.

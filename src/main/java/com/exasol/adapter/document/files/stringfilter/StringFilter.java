@@ -2,15 +2,15 @@ package com.exasol.adapter.document.files.stringfilter;
 
 import java.io.Serializable;
 
-import com.exasol.adapter.document.documentfetcher.files.FileLoader;
+import com.exasol.adapter.document.documentfetcher.files.RemoteFileFinder;
 import com.exasol.adapter.document.files.stringfilter.matcher.Matcher;
 import com.exasol.adapter.document.files.stringfilter.matcher.MatcherFactory;
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.renderer.regex.DirectoryAwareRegexRenderer;
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.renderer.regex.DirectoryIgnoringRegexRenderer;
 
 /**
- * This class represents a filter for file names. Using this class you can filter which files the {@link FileLoader}s
- * will load.
+ * This class represents a filter for file names. Using this class you can filter which files the
+ * {@link RemoteFileFinder}s will load.
  */
 public interface StringFilter extends Serializable {
 

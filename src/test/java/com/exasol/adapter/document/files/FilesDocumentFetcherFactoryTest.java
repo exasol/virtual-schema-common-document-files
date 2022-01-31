@@ -54,10 +54,10 @@ class FilesDocumentFetcherFactoryTest {
     }
 
     private List<DocumentFetcher> runGetDocumentFetchers(final int numberOfFiles, final int maxFetcher) {
-        final FileLoaderFactory fileLoaderFactory = mockFileLoaderFactory(numberOfFiles);
+        final FileFinderFactory fileFinderFactory = mockFileLoaderFactory(numberOfFiles);
         final ConnectionPropertiesReader connectionInformation = mock(ConnectionPropertiesReader.class);
         final var fileTypeSpecificDocumentFetcher = mock(FileTypeSpecificDocumentFetcher.class);
-        return new FilesDocumentFetcherFactory().buildDocumentFetcherForQuery(A_FILTER, maxFetcher, fileLoaderFactory,
+        return new FilesDocumentFetcherFactory().buildDocumentFetcherForQuery(A_FILTER, maxFetcher, fileFinderFactory,
                 connectionInformation, fileTypeSpecificDocumentFetcher);
     }
 
@@ -68,17 +68,17 @@ class FilesDocumentFetcherFactoryTest {
         return segmentDescription.getSegmentKeys().size();
     }
 
-    private FileLoaderFactory mockFileLoaderFactory(final int numFiles) {
-        final FileLoaderFactory fileLoaderFactory = mock(FileLoaderFactory.class);
-        final FileLoader fileLoader = mock(FileLoader.class);
+    private FileFinderFactory mockFileLoaderFactory(final int numFiles) {
+        final FileFinderFactory fileFinderFactory = mock(FileFinderFactory.class);
+        final RemoteFileFinder remoteFileFinder = mock(RemoteFileFinder.class);
         final List<RemoteFile> remoteFiles = new ArrayList<>(numFiles);
         for (int counter = 0; counter < numFiles; counter++) {
             final RemoteFile remoteFile = mock(RemoteFile.class);
             when(remoteFile.getResourceName()).thenReturn("product-" + counter + ".json");
             remoteFiles.add(remoteFile);
         }
-        when(fileLoader.loadFiles()).thenReturn(new CloseableIteratorWrapper<>(remoteFiles.iterator()));
-        when(fileLoaderFactory.getLoader(any(), any())).thenReturn(fileLoader);
-        return fileLoaderFactory;
+        when(remoteFileFinder.loadFiles()).thenReturn(new CloseableIteratorWrapper<>(remoteFiles.iterator()));
+        when(fileFinderFactory.getFinder(any(), any())).thenReturn(remoteFileFinder);
+        return fileFinderFactory;
     }
 }

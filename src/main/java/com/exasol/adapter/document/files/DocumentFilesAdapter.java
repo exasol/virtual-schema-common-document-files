@@ -7,7 +7,7 @@ import com.exasol.adapter.capabilities.*;
 import com.exasol.adapter.document.DocumentAdapterDialect;
 import com.exasol.adapter.document.QueryPlanner;
 import com.exasol.adapter.document.connection.ConnectionPropertiesReader;
-import com.exasol.adapter.document.documentfetcher.files.FileLoaderFactory;
+import com.exasol.adapter.document.documentfetcher.files.FileFinderFactory;
 import com.exasol.adapter.document.mapping.TableKeyFetcher;
 
 /**
@@ -15,17 +15,17 @@ import com.exasol.adapter.document.mapping.TableKeyFetcher;
  */
 public class DocumentFilesAdapter implements DocumentAdapterDialect {
     private final String adapterName;
-    private final FileLoaderFactory fileLoaderFactory;
+    private final FileFinderFactory fileFinderFactory;
 
     /**
      * Create a new instance of {@link DocumentFilesAdapter}.
      * 
      * @param adapterName       adapter name
-     * @param fileLoaderFactory file storage specific file loader factory
+     * @param fileFinderFactory file storage specific file loader factory
      */
-    public DocumentFilesAdapter(final String adapterName, final FileLoaderFactory fileLoaderFactory) {
+    public DocumentFilesAdapter(final String adapterName, final FileFinderFactory fileFinderFactory) {
         this.adapterName = adapterName;
-        this.fileLoaderFactory = fileLoaderFactory;
+        this.fileFinderFactory = fileFinderFactory;
     }
 
     @Override
@@ -36,7 +36,7 @@ public class DocumentFilesAdapter implements DocumentAdapterDialect {
     @Override
     public final QueryPlanner getQueryPlanner(final ConnectionPropertiesReader connectionInformation,
             final AdapterProperties adapterProperties) {
-        return new FilesQueryPlanner(this.fileLoaderFactory, connectionInformation);
+        return new FilesQueryPlanner(this.fileFinderFactory, connectionInformation);
     }
 
     @Override
@@ -54,6 +54,6 @@ public class DocumentFilesAdapter implements DocumentAdapterDialect {
 
     @Override
     public String getUserGuideUrl() {
-        return this.fileLoaderFactory.getUserGuideUrl();
+        return this.fileFinderFactory.getUserGuideUrl();
     }
 }
