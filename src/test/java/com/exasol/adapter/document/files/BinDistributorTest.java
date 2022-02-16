@@ -1,4 +1,4 @@
-package com.exasol.adapter.document.documentfetcher.files;
+package com.exasol.adapter.document.files;
 
 import static com.exasol.adapter.document.documentfetcher.files.segmentation.FileSegmentDescription.ENTIRE_FILE;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
 import com.exasol.adapter.document.documentfetcher.files.segmentation.FileSegment;
 
 class BinDistributorTest {

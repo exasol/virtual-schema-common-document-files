@@ -1,4 +1,4 @@
-package com.exasol.adapter.document.documentfetcher.files;
+package com.exasol.adapter.document.files;
 
 import java.util.*;
 
@@ -7,9 +7,20 @@ import com.exasol.errorreporting.ExaError;
 
 import lombok.Getter;
 
-public class BinDistributor {
+/**
+ * This class distributes {@link FileSegment}s into bins of more or less equal size, where size means the sum of the
+ * file size of the segments.
+ */
+class BinDistributor {
 
-    public List<FileSegment>[] distributeInBins(final List<FileSegment> segments, final int numberOfBins) {
+    /**
+     * Distribute {@link FileSegment}s in bins.
+     * 
+     * @param segments     segments to distribute
+     * @param numberOfBins number of bins
+     * @return bins
+     */
+    List<FileSegment>[] distributeInBins(final List<FileSegment> segments, final int numberOfBins) {
         if (numberOfBins <= 0) {
             throw new IllegalStateException(
                     ExaError.messageBuilder("F-VSDF-23").message("Number of bins must be > 0").toString());
