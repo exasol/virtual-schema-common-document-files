@@ -97,10 +97,36 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
+    @Tag("regression")
+    void testReadFewJsonFiles(final TestInfo testInfo) throws Exception {
+        createJsonVirtualSchema();
+        for (int runCounter = 0; runCounter < 5; runCounter++) {
+            PerformanceTestRecorder.getInstance().recordExecution(testInfo, () -> {
+                final ResultSet result = getStatement()
+                        .executeQuery("SELECT ID, SOURCE_REFERENCE FROM " + TEST_SCHEMA + ".BOOKS ORDER BY ID ASC;");
+                assertThat(result, table().row("book-1", this.dataFilesDirectory + "/testData-1.json")
+                        .row("book-2", this.dataFilesDirectory + "/testData-2.json").matches());
+            });
+        }
+    }
+
+    @Test
     void testReadJsonLines() throws SQLException, IOException {
         createJsonLinesVirtualSchema();
         final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
         assertThat(result, table().row("book-1").row("book-2").matches());
+    }
+
+    @Test
+    @Tag("regression")
+    void testReadSmallJsonLines(final TestInfo testInfo) throws Exception {
+        createJsonLinesVirtualSchema();
+        for (int runCounter = 0; runCounter < 5; runCounter++) {
+            PerformanceTestRecorder.getInstance().recordExecution(testInfo, () -> {
+                final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
+                assertThat(result, table().row("book-1").row("book-2").matches());
+            });
+        }
     }
 
     @Test
