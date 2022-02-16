@@ -17,6 +17,8 @@ import com.exasol.adapter.document.iterators.CloseableIterator;
  */
 public class FilesDocumentFetcherFactory {
     private static final int MAX_NUMBER_OF_FILES_TO_DISTRIBUTE_EXPLICITLY = 200;
+    private static final int ONE_MB = 1_000_000;
+    private static final int MIN_SIZE_PER_WORKER = ONE_MB;
 
     /**
      * Builds {@link DocumentFetcher}s for a given query.
@@ -67,13 +69,33 @@ public class FilesDocumentFetcherFactory {
 
     private List<SegmentDescription> buildExplicitSegmentation(final int numberOfSegments, final List<RemoteFile> files,
             final boolean fileSplittingIsSupported) {
-        final List<FileSegment> splitFiles = splitFilesIfRequired(numberOfSegments, files, fileSplittingIsSupported);
-        final List<FileSegment>[] bins = distributeInEqualySizedBins(splitFiles, numberOfSegments);
-        final List<SegmentDescription> segmentDescriptions = new ArrayList<>(numberOfSegments);
+        final int numberOfWorkers = limitWorkerCountByFileSize(numberOfSegments, files);
+        final List<FileSegment> splitFiles = splitFilesIfRequired(numberOfWorkers, files, fileSplittingIsSupported);
+        final List<FileSegment>[] bins = new BinDistributor().distributeInBins(splitFiles, numberOfWorkers);
+        final List<SegmentDescription> segmentDescriptions = new ArrayList<>(numberOfWorkers);
         for (final List<FileSegment> bin : bins) {
-            segmentDescriptions.add(new ExplicitSegmentDescription(bin));
+            if (!bin.isEmpty()) {
+                segmentDescriptions.add(new ExplicitSegmentDescription(bin));
+            }
         }
         return segmentDescriptions;
+    }
+
+    private int limitWorkerCountByFileSize(final int numberOfSegments, final List<RemoteFile> files) {
+        final long sum = getTotalSize(files);
+        final int calculatedWorkerCount = (int) (sum / MIN_SIZE_PER_WORKER);
+        if (calculatedWorkerCount < 1) {
+            return 1;
+        }
+        return Math.min(numberOfSegments, calculatedWorkerCount);
+    }
+
+    private long getTotalSize(final List<RemoteFile> files) {
+        long sum = 0;
+        for (final RemoteFile file : files) {
+            sum += file.getSize();
+        }
+        return sum;
     }
 
     private List<FileSegment> splitFilesIfRequired(final int numberOfSegments, final List<RemoteFile> files,
@@ -82,8 +104,12 @@ public class FilesDocumentFetcherFactory {
         if (files.size() < numberOfSegments && fileSplittingIsSupported) {
             final int factor = (int) Math.ceil((double) numberOfSegments / files.size());
             for (final RemoteFile file : files) {
-                for (int splitCounter = 0; splitCounter < factor; splitCounter++) {
-                    splitFiles.add(new FileSegment(file, new FileSegmentDescription(factor, splitCounter)));
+                if (isFileWorthSplitting(file)) {
+                    for (int splitCounter = 0; splitCounter < factor; splitCounter++) {
+                        splitFiles.add(new FileSegment(file, new FileSegmentDescription(factor, splitCounter)));
+                    }
+                } else {
+                    splitFiles.add(new FileSegment(file, ENTIRE_FILE));
                 }
             }
         } else {
@@ -94,18 +120,8 @@ public class FilesDocumentFetcherFactory {
         return splitFiles;
     }
 
-    private List<FileSegment>[] distributeInEqualySizedBins(final List<FileSegment> firstFiles,
-            final int numberOfBins) {
-        final List<FileSegment>[] bins = new List[numberOfBins];
-        for (int index = 0; index < numberOfBins; index++) {
-            bins[index] = new ArrayList<>();
-        }
-        int counter = 0;
-        for (final FileSegment file : firstFiles) {
-            bins[counter % numberOfBins].add(file);
-            counter++;
-        }
-        return bins;
+    private boolean isFileWorthSplitting(final RemoteFile file) {
+        return file.getSize() > ONE_MB;
     }
 
     private List<SegmentDescription> buildHashSegmentation(final int numberOfSegments) {

@@ -9,7 +9,16 @@ import lombok.Data;
  */
 @Data
 public class FileSegment {
-    private static final long serialVersionUID = 1323376679618127370L;
+    private static final long serialVersionUID = -4769959252871575175L;
     private final RemoteFile file;
     private final FileSegmentDescription segmentDescription;
+
+    /**
+     * Get an estimated size of this segment.
+     * 
+     * @return estimated size in bytes
+     */
+    public long estimateSize() {
+        return this.file.getSize() / this.segmentDescription.getNumberOfSegments();
+    }
 }
