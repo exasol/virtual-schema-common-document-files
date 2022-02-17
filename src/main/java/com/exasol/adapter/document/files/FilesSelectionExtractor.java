@@ -1,5 +1,6 @@
 package com.exasol.adapter.document.files;
 
+import static com.exasol.adapter.document.querypredicate.AbstractComparisonPredicate.LIKE_ESCAPE_CHAR;
 import static com.exasol.adapter.document.querypredicate.AbstractComparisonPredicate.Operator.EQUAL;
 import static com.exasol.adapter.document.querypredicate.AbstractComparisonPredicate.Operator.LIKE;
 
@@ -106,7 +107,7 @@ public class FilesSelectionExtractor {
     }
 
     private StringFilter extractFromLikeExpression(final String sourceStringFilter) {
-        return WildcardExpression.fromLike(sourceStringFilter, '\\');// TODO remove hardcoded escape char
+        return WildcardExpression.fromLike(sourceStringFilter, LIKE_ESCAPE_CHAR.charAt(0));
     }
 
     /**
