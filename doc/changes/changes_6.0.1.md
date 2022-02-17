@@ -8,7 +8,7 @@ Code name:
 
 ## Documentation
 
-* #94: Document how a query can filter on SOURCE_REFERENCE
+* #94: Documented how a query can filter on SOURCE_REFERENCE column
 
 ## Dependency Updates
 

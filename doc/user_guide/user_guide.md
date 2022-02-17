@@ -50,7 +50,7 @@ source: "test.my-strange-ending(import-as:json)"
 
 ## Filtering
 
-The files Virtual Schema allows you to efficiently filter the files to load by selections with `=` or `LIKE` on the `SOURCE_REFERENCE` column.
+The files Virtual Schema allows you to efficiently filter the files to load by using selections `=` or `LIKE` on the `SOURCE_REFERENCE` column.
 
 Consider the following query:
 
@@ -58,22 +58,22 @@ Consider the following query:
 SELECT * FROM LOGS WHERE SOURCE_REFERENCE = 'log_files/2022-01-01.parquet'
 ```
 
-Even so we might have thousands of log files this query will only transfer exactly one dataset. You can also use like expressions. For example, you can load all log files of 2020-01 by:
+Even so we might have thousands of log files this query will only transfer exactly one dataset. You can also use like expressions. For example, you can load all log files of the month `2020-01` by:
 
 ```sql
 SELECT * FROM LOGS WHERE SOURCE_REFERENCE LIKE 'log_files/2022-01-?.parquet'
 ``` 
 
-You can also create the patterns dynamically. For example the following query loads all log files of the current mont:
+You can also create the patterns dynamically. For example the following query loads all log files of the current month:
 
 ```sql
 SELECT * FROM LOGS WHERE SOURCE_REFERENCE LIKE 'log_files/' || TO_CHAR(NOW(), 'YYYY-MM') || '-%.json'
 ```
 
-The Virtual Schema can only push down selections on the `SOURCE_REFERENCE` column. If you add more predicates like in the following example, the Virtual Schema will only read all files matching `log_files/2022-01-?.parquet` and apply the `AND SERVITY = 'warn'` filter afterwards. So the second filter will not reduce the amount of data that needs to be transferred.
+The Virtual Schema can only push down selections on the `SOURCE_REFERENCE` column. If you add more predicates like in the following example, the Virtual Schema will only read all files matching `log_files/2022-01-?.parquet` and apply the `AND SEVERITY = 'warn'` filter afterwards. So the second filter will not reduce the amount of data that needs to be transferred.
 
 ```sql
-SELECT * FROM LOGS WHERE SOURCE_REFERENCE LIKE 'log_files/2022-01-?.parquet' AND SERVITY = 'warn'
+SELECT * FROM LOGS WHERE SOURCE_REFERENCE LIKE 'log_files/2022-01-?.parquet' AND SEVERITY = 'warn'
 ```
 
 ## Known Issues:
