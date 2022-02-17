@@ -6,6 +6,10 @@ Code name:
 
 * Added regression tests for #91
 
+## Documentation
+
+* #94: Document how a query can filter on SOURCE_REFERENCE
+
 ## Dependency Updates
 
 ### Compile Dependency Updates
