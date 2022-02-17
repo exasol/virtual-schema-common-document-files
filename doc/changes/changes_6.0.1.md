@@ -10,6 +10,10 @@ Code name:
 
 * #94: Documented how a query can filter on SOURCE_REFERENCE column
 
+## Bug Fixes
+
+* #91: Removed overhead when loading only a few files on a big cluster
+
 ## Dependency Updates
 
 ### Compile Dependency Updates
