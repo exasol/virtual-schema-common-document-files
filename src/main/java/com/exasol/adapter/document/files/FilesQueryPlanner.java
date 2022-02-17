@@ -33,6 +33,10 @@ public class FilesQueryPlanner implements QueryPlanner {
         final List<DocumentFetcher> documentFetchers = new FilesDocumentFetcherFactory().buildDocumentFetcherForQuery(
                 splitSelection.getSourceFilter(), maxNumberOfParallelFetchers, this.fileFinderFactory,
                 this.connectionInformation, fileTypeSpecificDocumentFetcher);
-        return new FetchQueryPlan(documentFetchers, splitSelection.getPostSelection());
+        if (documentFetchers.isEmpty()) {
+            return new EmptyQueryPlan();
+        } else {
+            return new FetchQueryPlan(documentFetchers, splitSelection.getPostSelection());
+        }
     }
 }
