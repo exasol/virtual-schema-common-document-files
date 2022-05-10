@@ -1,4 +1,4 @@
-# Virtual Schema for document data in files 6.0.2, released 2022-??-??
+# Virtual Schema for document data in files 6.0.2, released 2022-05-10
 
 Code name: 6.0.2: Upgrade dependencies compare to 6.0.1
 
