@@ -14,6 +14,7 @@ Code name: 6.0.2: Upgrade dependencies compare to 6.0.1
 
 ### Test Dependency Updates
 
+* Added `com.exasol:test-db-builder-java:3.3.2`
 * Updated `com.exasol:udf-debugging-java:0.5.0` to `0.6.0`
 * Updated `org.jacoco:org.jacoco.agent:0.8.7` to `0.8.8`
 * Updated `org.jacoco:org.jacoco.core:0.8.7` to `0.8.8`

@@ -149,6 +149,13 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <!-- Explicitly require new version to fix CVE-2022-21724. This can be removed once udf-debugging-java also upgrades test-db-builder-java. -->
+            <groupId>com.exasol</groupId>
+            <artifactId>test-db-builder-java</artifactId>
+            <version>3.3.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>performance-test-recorder-java</artifactId>
             <version>0.1.0</version>
