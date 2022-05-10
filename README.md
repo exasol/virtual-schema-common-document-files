@@ -32,6 +32,9 @@ Please, use one of the file source-specific dialects from the list below. If thi
 
 * [S3](https://github.com/exasol/s3-document-files-virtual-schema/)
 * [Exasol BucketFS](https://github.com/exasol/bucketfs-document-files-virtual-schema/)
+* [Google Cloud Storage](https://github.com/exasol/google-cloud-storage-document-files-virtual-schema)
+* [Azure Blob Storage](https://github.com/exasol/azure-blob-storage-document-files-virtual-schema)
+* [Azure Data Lake Storage Gen2](https://github.com/exasol/azure-data-lake-storage-gen2-document-files-virtual-schema)
 
 ## Additional Information
 
