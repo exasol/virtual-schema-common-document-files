@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.exasol</groupId>
     <artifactId>virtual-schema-common-document-files</artifactId>
-    <version>6.0.2</version>
+    <version>7.0.0</version>
     <name>Virtual Schema for document data in files</name>
     <description>Adapter for document data access from files.</description>
     <url>https://github.com/exasol/virtual-schema-common-document-files/</url>
@@ -11,33 +12,13 @@
         <junit.version>5.8.2</junit.version>
         <junit.platform.version>1.6.2</junit.platform.version>
         <jacoco.version>0.8.8</jacoco.version>
-        <vs-common-document.version>8.1.1</vs-common-document.version>
+        <vs-common-document.version>9.0.0</vs-common-document.version>
         <!--
             M4 does not fail tests if beforeAll fails
             M5 fails in integration tests with a strange error
             -->
         <surefire.and.failsafe.plugin.version>3.0.0-M3</surefire.and.failsafe.plugin.version>
     </properties>
-    <licenses>
-        <license>
-            <name>MIT</name>
-            <url>https://opensource.org/licenses/MIT</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-    <developers>
-        <developer>
-            <name>Exasol</name>
-            <email>opensource@exasol.com</email>
-            <organization>Exasol AG</organization>
-            <organizationUrl>https://www.exasol.com/</organizationUrl>
-        </developer>
-    </developers>
-    <scm>
-        <connection>scm:git:https://github.com/exasol/virtual-schema-common-document-files.git</connection>
-        <developerConnection>scm:git:https://github.com/exasol/virtual-schema-common-document-files.git</developerConnection>
-        <url>https://github.com/exasol/virtual-schema-common-document-files/tree/master</url>
-    </scm>
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
@@ -114,6 +95,8 @@
             <artifactId>jakarta.json</artifactId>
             <version>2.0.1</version>
             <scope>runtime</scope>
+            <!-- For some reason we need the module classifier here. Without  there is no registration of the service loader in META-INF. We assume it's something to do with the use of yasson in the vs-common-document. -->
+            <classifier>module</classifier>
         </dependency>
         <!--Integration test dependencies-->
         <dependency>
@@ -145,14 +128,7 @@
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>udf-debugging-java</artifactId>
-            <version>0.6.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <!-- Explicitly require new version to fix CVE-2022-21724. This can be removed once udf-debugging-java also upgrades test-db-builder-java. -->
-            <groupId>com.exasol</groupId>
-            <artifactId>test-db-builder-java</artifactId>
-            <version>3.3.2</version>
+            <version>0.6.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -302,7 +278,7 @@
     <parent>
         <artifactId>virtual-schema-common-document-files-generated-parent</artifactId>
         <groupId>com.exasol</groupId>
-        <version>6.0.2</version>
+        <version>7.0.0</version>
         <relativePath>pk_generated_parent.pom</relativePath>
     </parent>
 </project>

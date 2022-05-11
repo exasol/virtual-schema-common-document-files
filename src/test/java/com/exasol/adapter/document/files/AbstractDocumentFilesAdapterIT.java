@@ -56,7 +56,6 @@ public abstract class AbstractDocumentFilesAdapterIT {
     private void createVirtualSchemaWithMapping(final String schemaName, final Fields mapping,
             final String dataFilePattern) throws IOException {
         final EdmlDefinition edmlDefinition = EdmlDefinition.builder()//
-                .schema("https://schemas.exasol.com/edml-1.3.0.json")//
                 .destinationTable("BOOKS")//
                 .addSourceReferenceColumn(true)//
                 .mapping(mapping)//
