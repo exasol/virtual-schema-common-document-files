@@ -1,7 +1,7 @@
 # Virtual Schema for Files
 
 [![Build Status](https://github.com/exasol/virtual-schema-common-document-files/actions/workflows/ci-build.yml/badge.svg)](https://github.com/exasol/virtual-schema-common-document-files/actions/workflows/ci-build.yml)
-[![Maven Central](https://img.shields.io/maven-central/v/com.exasol/virtual-schema-common-document-files)](https://search.maven.org/artifact/com.exasol/virtual-schema-common-document-files)
+[![Maven Central – Virtual Schema for document data in files](https://img.shields.io/maven-central/v/com.exasol/virtual-schema-common-document-files)](https://search.maven.org/artifact/com.exasol/virtual-schema-common-document-files)
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=com.exasol%3Avirtual-schema-common-document-files&metric=alert_status)](https://sonarcloud.io/dashboard?id=com.exasol%3Avirtual-schema-common-document-files)
 
@@ -32,6 +32,9 @@ Please, use one of the file source-specific dialects from the list below. If thi
 
 * [S3](https://github.com/exasol/s3-document-files-virtual-schema/)
 * [Exasol BucketFS](https://github.com/exasol/bucketfs-document-files-virtual-schema/)
+* [Google Cloud Storage](https://github.com/exasol/google-cloud-storage-document-files-virtual-schema)
+* [Azure Blob Storage](https://github.com/exasol/azure-blob-storage-document-files-virtual-schema)
+* [Azure Data Lake Storage Gen2](https://github.com/exasol/azure-data-lake-storage-gen2-document-files-virtual-schema)
 
 ## Additional Information
 
