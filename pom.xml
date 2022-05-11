@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.exasol</groupId>
     <artifactId>virtual-schema-common-document-files</artifactId>
-    <version>6.0.1</version>
+    <version>7.0.0</version>
     <name>Virtual Schema for document data in files</name>
     <description>Adapter for document data access from files.</description>
     <url>https://github.com/exasol/virtual-schema-common-document-files</url>
@@ -14,8 +14,8 @@
         <java.version>11</java.version>
         <junit.version>5.8.2</junit.version>
         <junit.platform.version>1.6.2</junit.platform.version>
-        <jacoco.version>0.8.7</jacoco.version>
-        <vs-common-document.version>8.1.1</vs-common-document.version>
+        <jacoco.version>0.8.8</jacoco.version>
+        <vs-common-document.version>9.0.0</vs-common-document.version>
         <gpg.skip>true</gpg.skip>
         <!--
             M4 does not fail tests if beforeAll fails
@@ -101,25 +101,27 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>4.3.1</version>
+            <version>4.5.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>4.3.1</version>
+            <version>4.5.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>jakarta.json</groupId>
             <artifactId>jakarta.json-api</artifactId>
-            <version>2.0.1</version>
+            <version>2.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish</groupId>
             <artifactId>jakarta.json</artifactId>
             <version>2.0.1</version>
             <scope>runtime</scope>
+            <!-- For some reason we need the module classifier here. Without  there is no registration of the service loader in META-INF. We assume it's something to do with the use of yasson in the vs-common-document. -->
+            <classifier>module</classifier>
         </dependency>
         <!--Integration test dependencies-->
         <dependency>
@@ -151,7 +153,7 @@
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>udf-debugging-java</artifactId>
-            <version>0.5.0</version>
+            <version>0.6.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -162,7 +164,7 @@
         <dependency>
             <artifactId>lombok</artifactId>
             <groupId>org.projectlombok</groupId>
-            <version>1.18.22</version>
+            <version>1.18.24</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

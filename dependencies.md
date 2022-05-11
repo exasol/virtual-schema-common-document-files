@@ -91,12 +91,12 @@
 [7]: https://projects.eclipse.org/license/epl-2.0
 [37]: https://www.apache.org/licenses/LICENSE-2.0.txt
 [54]: https://maven.apache.org/enforcer/maven-enforcer-plugin/
+[31]: https://github.com/exasol/udf-debugging-java/
 [16]: https://www.eclipse.org/legal/epl-v20.html
 [76]: http://maven.apache.org/plugins/maven-install-plugin/
 [15]: https://junit.org/junit5/
 [52]: https://sonatype.github.io/ossindex-maven/maven-plugin/
 [6]: https://github.com/eclipse-ee4j/jsonp
-[31]: https://github.com/exasol/udf-debugging-java
 [44]: https://maven.apache.org/plugins/maven-source-plugin/
 [8]: https://projects.eclipse.org/license/secondary-gpl-2.0-cp
 [13]: http://hamcrest.org/JavaHamcrest/
