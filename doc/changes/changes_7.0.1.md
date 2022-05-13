@@ -18,6 +18,5 @@ Code name: Dependency Updates
 
 * Removed `org.apache.maven.plugins:maven-dependency-plugin:2.8`
 * Removed `org.apache.maven.plugins:maven-failsafe-plugin:3.0.0-M3`
-* Updated `org.apache.maven.plugins:maven-jar-plugin:3.2.2` to `2.4`
 * Updated `org.apache.maven.plugins:maven-surefire-plugin:3.0.0-M3` to `3.0.0-M5`
 * Updated `org.jacoco:jacoco-maven-plugin:0.8.8` to `0.8.7`
