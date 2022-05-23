@@ -193,7 +193,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
         }
     }
 
-    // @Test //TODO re-enable when SPOT-11018 is fixed; See #41
+    @Test //TODO re-enable when SPOT-11018 is fixed; See #41
     void testFilterWithOrOnSourceReference() throws IOException {
         createJsonVirtualSchema();
         final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS WHERE SOURCE_REFERENCE = '"
@@ -203,9 +203,9 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 () -> assertThat(getStatement().executeQuery(query), table().row("book-1").row("book-2").matches()), //
                 () -> assertThat(getPushDownSql(getStatement(), query), endsWith("WHERE TRUE")), // no post selection
                 () -> assertThat(getSelectionThatIsSentToTheAdapter(getStatement(), query),
-                        equalTo("BOOKS.SOURCE_REFERENCE='" + this.dataFilesDirectory
-                                + "/testData-1.json' OR BOOKS.SOURCE_REFERENCE='" + this.dataFilesDirectory
-                                + "testData-2.json'"))//
+                        equalTo("(BOOKS.SOURCE_REFERENCE='" + this.dataFilesDirectory
+                                + "/testData-1.json') OR (BOOKS.SOURCE_REFERENCE='" + this.dataFilesDirectory
+                                + "/testData-2.json')"))//
         );
     }
 

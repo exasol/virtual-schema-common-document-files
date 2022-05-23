@@ -1,3 +1,4 @@
+com.exasol.adapter.document.files.CsvFilesDocumentFetcherFactory
 com.exasol.adapter.document.files.JsonFilesDocumentFetcherFactory
 com.exasol.adapter.document.files.JsonLinesFilesDocumentFetcherFactory
 com.exasol.adapter.document.files.ParquetFilesDocumentFetcherFactory
