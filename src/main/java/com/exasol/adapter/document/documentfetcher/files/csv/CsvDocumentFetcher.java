@@ -42,7 +42,7 @@ public class CsvDocumentFetcher implements FileTypeSpecificDocumentFetcher {
                 final CsvReader csvReader = buildCsvReader(inputStream)) {
             //documentation on readDocuments
             //https://github.com/exasol/virtual-schema-common-document-files/blob/main/doc/user_guide/document_type_plugin_development_guide.md#the-documentfetcher
-            List csvNodesList = new ArrayList<String>();
+            List csvNodesList = new ArrayList<DocumentNode>();
             for (final Iterator<CsvRow> iterator = csvReader.iterator(); iterator.hasNext();) {
 
                 final CsvRow csvRow = iterator.next();
