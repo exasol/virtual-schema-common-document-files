@@ -68,7 +68,7 @@ class CsvIterator implements CloseableIterator<DocumentNode> {
         if (this.nextLine == null) {
             throw new NoSuchElementException();
         }
-        try (final CsvReader csvReader = buildCsvReader(nextLine)) {//JSON.createReader(new StringReader(this.nextLine))) {
+        try (final CsvReader csvReader = buildCsvReader(nextLine)) {
             //read out the value
             //you could probably rewrite this in a smarter way with 1 builder for the whole csv File or csv segment but as long as it works + this is probably just as memory efficient.
             final CsvRow csvRow = csvReader.iterator().next();
@@ -76,10 +76,12 @@ class CsvIterator implements CloseableIterator<DocumentNode> {
             readNextLine();
             //create the node
             return new CsvObjectNode(csvRow);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            throw new InputDataException(ExaError.messageBuilder("E-VSDF-25").message(
+                            "Failed to parse CSV-Lines from {{CSV_FILE}}. Invalid CSV row in line {{LINE}}.")
+                    .parameter("CSV_FILE", this.resourceName).parameter("LINE", this.lineCounter).toString(),
+                    exception);
         }
-        return null;
     }
 
     @Override
