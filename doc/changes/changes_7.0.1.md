@@ -1,19 +1,12 @@
-# Virtual Schema for document data in files 7.1.0, released 2022-??-??
+# Virtual Schema for document data in files 7.0.1, released 2022-05-13
 
-Code name:
-
-## Summary
-
-## Features
-
-* ISSUE_NUMBER: description
+Code name: Dependency Updates
 
 ## Dependency Updates
 
 ### Compile Dependency Updates
 
 * Updated `com.exasol:virtual-schema-common-document:9.0.0` to `9.0.1`
-* Added `de.siegmar:fastcsv:2.1.0`
 
 ### Test Dependency Updates
 
