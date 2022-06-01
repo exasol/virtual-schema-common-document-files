@@ -19,7 +19,7 @@ public class CsvDocumentFetcher implements FileTypeSpecificDocumentFetcher {
     @Override
     public CloseableIterator<DocumentNode> readDocuments(final FileSegment segment) {
         if (!segment.getSegmentDescription().equals(FileSegmentDescription.ENTIRE_FILE)) {
-            throw new IllegalStateException(ExaError.messageBuilder("F-VSDF-17")
+            throw new IllegalStateException(ExaError.messageBuilder("F-VSDF-26")
                     .message("The CsvDocumentFetcher does not support loading split files.").ticketMitigation()
                     .toString());
         }

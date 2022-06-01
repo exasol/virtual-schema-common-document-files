@@ -38,14 +38,6 @@ class CsvIteratorTest {
         assertThat(csvIterator.hasNext(), equalTo(false));
     }
 
-//    @Test
-//    void testSyntaxError() {
-//        final InputDataException exception = assertThrows(InputDataException.class,
-//                () -> readCsvLines("{}\n{notQutes :: - \"wrong syntax}"));
-//        assertThat(exception.getMessage(),
-//                startsWith("E-VSDF-3: Failed to parse CSV-Lines from ''. Invalid CSV document in line 2."));
-//    }
-
     @Test
     void testClose() {
         final AssertStreamIsClosedRemoteFileContent assertStreamIsClosedRemoteFileContent = new AssertStreamIsClosedRemoteFileContent(

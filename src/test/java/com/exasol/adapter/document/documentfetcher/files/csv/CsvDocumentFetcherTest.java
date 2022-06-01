@@ -36,6 +36,6 @@ class CsvDocumentFetcherTest {
         final FileSegment segment = new FileSegment(remoteFile, new FileSegmentDescription(2, 0));
         final IllegalStateException exception = Assert.assertThrows(IllegalStateException.class,
                 () -> documentFetcher.readDocuments(segment));
-        assertThat(exception.getMessage(), startsWith("F-VSDF-17"));
+        assertThat(exception.getMessage(), startsWith("F-VSDF-26"));
     }
 }

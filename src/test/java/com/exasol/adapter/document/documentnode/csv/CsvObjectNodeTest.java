@@ -13,7 +13,6 @@ class CsvObjectNodeTest {
     public static final CsvReader csvReader = CsvReader.builder().build("foo1,bar1\r\nfoo2,bar2");
     public static final DocumentNode firstLineNode = new CsvObjectNode(csvReader.iterator().next());
     public static final CsvObjectNode firstLineCsvNode = (CsvObjectNode) firstLineNode;
-    //public static final DocumentNode secondLineNode = new CsvObjectNode(csvReader.iterator().next());
     @Test
     void testCreation() {
 
@@ -33,7 +32,7 @@ class CsvObjectNodeTest {
         assertThat(firstLineCsvNode.hasKey("unknownKey"), equalTo(false));
     }
     @Test
-    void testNotHasKey2() {
+    void testNotHasKeyString() {
         assertThat(firstLineCsvNode.hasKey("2"),equalTo(false));
     }
     @Test
@@ -42,11 +41,20 @@ class CsvObjectNodeTest {
         final StringHolderNode result = (StringHolderNode) firstLineCsvNode.get("0");
         assertThat(result.getValue(), equalTo("foo1"));
     }
+    @Test
+    void testGetWithParentheses() {
+        final CsvReader csvReaderParentheses = CsvReader.builder().build("\"foo1\",\"bar1\"\r\n\"foo2\",\"bar2\"");
+        final DocumentNode firstLineNodeParentheses = new CsvObjectNode(csvReaderParentheses.iterator().next());
+        final CsvObjectNode firstLineCsvNodeParentheses = (CsvObjectNode) firstLineNodeParentheses;
+        final StringHolderNode result = (StringHolderNode) firstLineCsvNodeParentheses.get("0");
 
+        assertThat(result.getValue(), equalTo("foo1"));
+    }
     @Test
     void testGetKeyValueMap() {
         final CsvObjectNode objectNode = (CsvObjectNode) firstLineNode;
         final StringHolderNode result = (StringHolderNode) objectNode.getKeyValueMap().get("0");
         assertThat(result.getValue(), equalTo("foo1"));
     }
+
 }

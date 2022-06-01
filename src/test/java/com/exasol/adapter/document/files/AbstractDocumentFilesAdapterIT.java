@@ -115,6 +115,12 @@ public abstract class AbstractDocumentFilesAdapterIT {
         final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
         assertThat(result, table().row("book-1").row("book-2").matches());
     }
+    @Test
+    void testReadCsv() throws SQLException, IOException {
+        createCsvVirtualSchema();
+        final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
+        assertThat(result, table().row("book-1").row("book-2").matches());
+    }
 
     @Test
     @Tag("regression")
@@ -413,5 +419,10 @@ public abstract class AbstractDocumentFilesAdapterIT {
     private void createJsonLinesVirtualSchema() throws IOException {
         createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapJsonLinesFile.json");
         uploadDataFileFromResources("test.jsonl");
+    }
+
+    private void createCsvVirtualSchema() throws IOException {
+        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapCsvFile.csv");
+        uploadDataFileFromResources("test.csv");
     }
 }

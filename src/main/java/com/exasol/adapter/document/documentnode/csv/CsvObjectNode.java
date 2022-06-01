@@ -51,5 +51,4 @@ public class CsvObjectNode implements DocumentObject {
             return false;
         }
     }
-        //return this.csvRow.containsKey(key);
 }
