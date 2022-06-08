@@ -69,6 +69,7 @@
 [1]: https://opensource.org/licenses/MIT
 [21]: https://github.com/mockito/mockito
 [9]: https://github.com/exasol/performance-test-recorder-java
+[40]: https://www.mojohaus.org/flatten-maven-plugin/
 [48]: http://www.mojohaus.org/versions-maven-plugin/
 [56]: https://github.com/exasol/project-keeper/
 [16]: http://opensource.org/licenses/BSD-3-Clause
@@ -88,7 +89,6 @@
 [34]: http://sonarsource.github.io/sonar-scanner-maven/
 [37]: https://www.apache.org/licenses/LICENSE-2.0.txt
 [38]: https://maven.apache.org/enforcer/maven-enforcer-plugin/
-[64]: https://awhitford.github.com/lombok.maven/lombok-maven-plugin/
 [0]: https://github.com/exasol/virtual-schema-common-document/
 [29]: https://github.com/exasol/udf-debugging-java/
 [18]: https://www.eclipse.org/legal/epl-v20.html
@@ -96,8 +96,8 @@
 [17]: https://junit.org/junit5/
 [42]: https://sonatype.github.io/ossindex-maven/maven-plugin/
 [52]: https://maven.apache.org/plugins/maven-gpg-plugin/
-[40]: https://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin
 [6]: https://github.com/eclipse-ee4j/jsonp
+[64]: https://anthonywhitford.com/lombok.maven/lombok-maven-plugin/
 [54]: https://maven.apache.org/plugins/maven-source-plugin/
 [8]: https://projects.eclipse.org/license/secondary-gpl-2.0-cp
 [15]: http://hamcrest.org/JavaHamcrest/

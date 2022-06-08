@@ -422,7 +422,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     private void createCsvVirtualSchema() throws IOException {
-        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapCsvFile.csv");
+        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapCsvFile.json");
         uploadDataFileFromResources("test.csv");
     }
 }

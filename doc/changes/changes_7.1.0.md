@@ -12,18 +12,9 @@ Code name:
 
 ### Compile Dependency Updates
 
-* Updated `com.exasol:virtual-schema-common-document:9.0.0` to `9.0.1`
 * Added `de.siegmar:fastcsv:2.1.0`
-
-### Test Dependency Updates
-
-* Updated `com.exasol:virtual-schema-common-document:9.0.0` to `9.0.1`
-* Removed `org.jacoco:org.jacoco.agent:0.8.8`
-* Removed `org.jacoco:org.jacoco.core:0.8.8`
 
 ### Plugin Dependency Updates
 
-* Removed `org.apache.maven.plugins:maven-dependency-plugin:2.8`
-* Removed `org.apache.maven.plugins:maven-failsafe-plugin:3.0.0-M3`
-* Updated `org.apache.maven.plugins:maven-surefire-plugin:3.0.0-M3` to `3.0.0-M5`
-* Updated `org.jacoco:jacoco-maven-plugin:0.8.8` to `0.8.7`
+* Updated `com.exasol:project-keeper-maven-plugin:2.3.2` to `2.4.6`
+* Updated `org.jacoco:jacoco-maven-plugin:0.8.7` to `0.8.8`
