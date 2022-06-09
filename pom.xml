@@ -121,12 +121,7 @@
             <groupId>com.exasol</groupId>
             <artifactId>performance-test-recorder-java</artifactId>
             <version>0.1.0</version>
-        </dependency>
-        <dependency>
-            <artifactId>lombok</artifactId>
-            <groupId>org.projectlombok</groupId>
-            <version>1.18.24</version>
-            <scope>provided</scope>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>

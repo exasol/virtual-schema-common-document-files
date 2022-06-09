@@ -15,10 +15,12 @@ This release fixes vulnerabilities in dependencies by updating compile dependenc
 ### Compile Dependency Updates
 
 * Updated `com.exasol:parquet-io-java:1.3.0` to `1.3.1`
+* Removed `com.exasol:performance-test-recorder-java:0.1.0`
 
 ### Test Dependency Updates
 
 * Added `com.exasol:exasol-test-setup-abstraction-java:0.3.2`
+* Added `com.exasol:performance-test-recorder-java:0.1.0`
 * Updated `org.mockito:mockito-core:4.5.1` to `4.6.1`
 * Updated `org.mockito:mockito-junit-jupiter:4.5.1` to `4.6.1`
 
