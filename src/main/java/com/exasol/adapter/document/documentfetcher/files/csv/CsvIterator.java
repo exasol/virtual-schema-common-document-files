@@ -24,6 +24,8 @@ class CsvIterator implements CloseableIterator<DocumentNode> {
     private String nextLine = null;
     private long lineCounter = 0;
     private final String resourceName;
+    private final boolean headers = false;
+    private final boolean useHeadersForMapping=false;
 
     /**
      * Create a new instance of {@link CsvIterator}.

@@ -4,9 +4,13 @@
   "destinationTable": "BOOKS",
   "description": "Maps MY_BOOKS to BOOKS",
   "addSourceReferenceColumn": true,
+  "additionalConfiguration": {
+    "csv-headers": true,
+    "csv-headers-for-mapping": true
+  },
   "mapping": {
     "fields": {
-      "0": {
+      "id": {
         "toVarcharMapping": {
           "destinationName": "ID"
         }

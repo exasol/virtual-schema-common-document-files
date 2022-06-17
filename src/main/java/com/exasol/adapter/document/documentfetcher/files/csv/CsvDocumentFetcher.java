@@ -15,7 +15,10 @@ import java.io.InputStream;
 public class CsvDocumentFetcher implements FileTypeSpecificDocumentFetcher {
     private static final long serialVersionUID = 2783593249946168796L;
     //private static final CsvReaderFactory CSV_READER_FACTORY = Csv.createReaderFactory(null);
-
+    private static String additionalConfiguration;
+    public void setAdditionalConfiguration(String additionalConfiguration){
+        this.additionalConfiguration = additionalConfiguration;
+    }
     @Override
     public CloseableIterator<DocumentNode> readDocuments(final FileSegment segment) {
         if (!segment.getSegmentDescription().equals(FileSegmentDescription.ENTIRE_FILE)) {
@@ -40,9 +43,4 @@ public class CsvDocumentFetcher implements FileTypeSpecificDocumentFetcher {
         return false;
     }
 
-    //todo: add support for custom settings
-    private CsvReader buildCsvReader(final InputStream inputStream) {
-            //todo: can I do a string conversion here?
-            return CsvReader.builder().build(inputStream.toString());
-    }
 }

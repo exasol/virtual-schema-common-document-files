@@ -6,7 +6,7 @@
 | Dependency                                   | License                                                                                                      |
 | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | [Common Virtual Schema for document data][0] | [MIT][1]                                                                                                     |
-| [Parquet for Java][2]                        | [MIT][1]                                                                                                     |
+| [Parquet for Java][2]                        | [MIT License][3]                                                                                             |
 | [error-reporting-java][4]                    | [MIT][1]                                                                                                     |
 | [Jakarta JSON Processing API][6]             | [Eclipse Public License 2.0][7]; [GNU General Public License, version 2 with the GNU Classpath Exception][8] |
 | [Performance Test Recorder Java][9]          | [MIT][1]                                                                                                     |
@@ -60,7 +60,6 @@
 | [Maven Site Plugin 3][76]                               | [The Apache Software License, Version 2.0][41] |
 
 [4]: https://github.com/exasol/error-reporting-java
-[2]: https://github.com/exasol/parquet-io-java
 [41]: http://www.apache.org/licenses/LICENSE-2.0.txt
 [11]: https://projectlombok.org
 [46]: https://maven.apache.org/surefire/maven-surefire-plugin/
@@ -69,6 +68,7 @@
 [1]: https://opensource.org/licenses/MIT
 [21]: https://github.com/mockito/mockito
 [9]: https://github.com/exasol/performance-test-recorder-java
+[3]: https://github.com/exasol/parquet-io-java/blob/main/LICENSE
 [40]: https://www.mojohaus.org/flatten-maven-plugin/
 [48]: http://www.mojohaus.org/versions-maven-plugin/
 [56]: https://github.com/exasol/project-keeper/
@@ -96,6 +96,7 @@
 [17]: https://junit.org/junit5/
 [42]: https://sonatype.github.io/ossindex-maven/maven-plugin/
 [52]: https://maven.apache.org/plugins/maven-gpg-plugin/
+[2]: https://github.com/exasol/parquet-io-java/
 [6]: https://github.com/eclipse-ee4j/jsonp
 [64]: https://anthonywhitford.com/lombok.maven/lombok-maven-plugin/
 [54]: https://maven.apache.org/plugins/maven-source-plugin/

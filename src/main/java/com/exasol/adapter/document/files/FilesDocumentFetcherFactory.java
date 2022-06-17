@@ -8,6 +8,7 @@ import java.util.List;
 import com.exasol.adapter.document.connection.ConnectionPropertiesReader;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.files.*;
+import com.exasol.adapter.document.documentfetcher.files.csv.CsvDocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.files.segmentation.*;
 import com.exasol.adapter.document.files.stringfilter.StringFilter;
 import com.exasol.adapter.document.iterators.CloseableIterator;
@@ -32,9 +33,9 @@ public class FilesDocumentFetcherFactory {
      * @return built {@link DocumentFetcher}
      */
     public List<DocumentFetcher> buildDocumentFetcherForQuery(final StringFilter sourceFilter,
-            final int maxNumberOfParallelFetchers, final FileFinderFactory fileFinderFactory,
-            final ConnectionPropertiesReader connectionInformation,
-            final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher) {
+                                                              final int maxNumberOfParallelFetchers, final FileFinderFactory fileFinderFactory,
+                                                              final ConnectionPropertiesReader connectionInformation,
+                                                              final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher) {
         final List<DocumentFetcher> documentFetchers = new ArrayList<>(maxNumberOfParallelFetchers);
         final int numberOfSegments = sourceFilter.hasWildcard() ? maxNumberOfParallelFetchers : 1;
         final List<SegmentDescription> segmentDescriptions = buildSegmentDescriptions(fileFinderFactory,
@@ -48,8 +49,8 @@ public class FilesDocumentFetcherFactory {
     }
 
     private List<SegmentDescription> buildSegmentDescriptions(final FileFinderFactory fileFinderFactory,
-            final ConnectionPropertiesReader connectionInformation, final int numberOfSegments,
-            final StringFilter filePattern, final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher) {
+                                                              final ConnectionPropertiesReader connectionInformation, final int numberOfSegments,
+                                                              final StringFilter filePattern, final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher) {
         final RemoteFileFinder loader = fileFinderFactory.getFinder(filePattern, connectionInformation);
         try (final CloseableIterator<RemoteFile> iterator = loader.loadFiles()) {
             final List<RemoteFile> firstFiles = new ArrayList<>();
@@ -68,7 +69,7 @@ public class FilesDocumentFetcherFactory {
     }
 
     private List<SegmentDescription> buildExplicitSegmentation(final int numberOfSegments, final List<RemoteFile> files,
-            final boolean fileSplittingIsSupported) {
+                                                               final boolean fileSplittingIsSupported) {
         final int numberOfWorkers = limitWorkerCountByFileSize(numberOfSegments, files);
         final List<FileSegment> splitFiles = splitFilesIfRequired(numberOfWorkers, files, fileSplittingIsSupported);
         final List<FileSegment>[] bins = new BinDistributor().distributeInBins(splitFiles, numberOfWorkers);
@@ -99,7 +100,7 @@ public class FilesDocumentFetcherFactory {
     }
 
     private List<FileSegment> splitFilesIfRequired(final int numberOfSegments, final List<RemoteFile> files,
-            final boolean fileSplittingIsSupported) {
+                                                   final boolean fileSplittingIsSupported) {
         final List<FileSegment> splitFiles = new ArrayList<>();
         if (files.size() < numberOfSegments && fileSplittingIsSupported) {
             final int factor = (int) Math.ceil((double) numberOfSegments / files.size());

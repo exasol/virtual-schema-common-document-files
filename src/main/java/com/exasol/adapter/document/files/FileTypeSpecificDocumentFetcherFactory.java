@@ -10,7 +10,7 @@ import com.exasol.errorreporting.ExaError;
 public class FileTypeSpecificDocumentFetcherFactory {
 
     /**
-     * Build a {@link FileTypeSpecificDocumentFetcher} for given file ending.
+     * Build a {@link FileTypeSpecificDocumentFetcher} for a given file name extension.
      * 
      * @param fileEnding file ending including {@code .}
      * @return built {@link FileTypeSpecificDocumentFetcher}
@@ -18,7 +18,7 @@ public class FileTypeSpecificDocumentFetcherFactory {
     public FileTypeSpecificDocumentFetcher buildFileTypeSpecificDocumentFetcher(final String fileEnding) {
         return findFactory(fileEnding).buildFileTypeSpecificDocumentFetcher();
     }
-
+    //you select the factory and then return the document fetcher
     private FileTypeSpecificDocumentFetcherFactoryInterface findFactory(final String fileEnding) {
         final ServiceLoader<FileTypeSpecificDocumentFetcherFactoryInterface> loader = ServiceLoader
                 .load(FileTypeSpecificDocumentFetcherFactoryInterface.class);
