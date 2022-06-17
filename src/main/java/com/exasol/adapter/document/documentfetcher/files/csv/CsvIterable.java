@@ -10,18 +10,21 @@ import java.util.Iterator;
  */
 class CsvIterable implements Iterable<DocumentNode> {
     private final RemoteFile csvFile;
+    private final CsvConfiguration csvConfiguration;
 
     /**
      * Create a new instance of {@link CsvIterable}.
      * 
      * @param csvFile CSV file
      */
-    CsvIterable(final RemoteFile csvFile) {
+    CsvIterable(final RemoteFile csvFile,final CsvConfiguration csvConfiguration) {
+
         this.csvFile = csvFile;
+        this.csvConfiguration = csvConfiguration;
     }
 
     @Override
     public Iterator<DocumentNode> iterator() {
-        return new CsvIterator(this.csvFile);
+        return new CsvIterator(this.csvFile,this.csvConfiguration);
     }
 }
