@@ -30,19 +30,21 @@ public class FilesDocumentFetcherFactory {
      * @param fileFinderFactory               dependency injection of {@link FileFinderFactory}
      * @param connectionInformation           connection information
      * @param fileTypeSpecificDocumentFetcher file type specific document fetcher
+     * @param additionalConfiguration additional configuration
      * @return built {@link DocumentFetcher}
      */
     public List<DocumentFetcher> buildDocumentFetcherForQuery(final StringFilter sourceFilter,
                                                               final int maxNumberOfParallelFetchers, final FileFinderFactory fileFinderFactory,
                                                               final ConnectionPropertiesReader connectionInformation,
-                                                              final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher) {
+                                                              final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher,
+                                                              final String additionalConfiguration) {
         final List<DocumentFetcher> documentFetchers = new ArrayList<>(maxNumberOfParallelFetchers);
         final int numberOfSegments = sourceFilter.hasWildcard() ? maxNumberOfParallelFetchers : 1;
         final List<SegmentDescription> segmentDescriptions = buildSegmentDescriptions(fileFinderFactory,
                 connectionInformation, numberOfSegments, sourceFilter, fileTypeSpecificDocumentFetcher);
         for (final SegmentDescription segmentDescription : segmentDescriptions) {
             final DocumentFetcher documentFetcher = new FilesDocumentFetcher(sourceFilter, segmentDescription,
-                    fileFinderFactory, fileTypeSpecificDocumentFetcher);
+                    fileFinderFactory, fileTypeSpecificDocumentFetcher, additionalConfiguration);
             documentFetchers.add(documentFetcher);
         }
         return documentFetchers;

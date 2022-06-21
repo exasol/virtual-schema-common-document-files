@@ -35,10 +35,10 @@ public class FilesQueryPlanner implements QueryPlanner {
         String fileEnding ="." + sourceString.getFileType();
         final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher = new FileTypeSpecificDocumentFetcherFactory()
                 .buildFileTypeSpecificDocumentFetcher(fileEnding);
-        addAdditionalConfigurationIfSupported(fileTypeSpecificDocumentFetcher, fileEnding,additionalConfiguration );
+        //addAdditionalConfigurationIfSupported(fileTypeSpecificDocumentFetcher, fileEnding,additionalConfiguration );
         final List<DocumentFetcher> documentFetchers = new FilesDocumentFetcherFactory().buildDocumentFetcherForQuery(
                 splitSelection.getSourceFilter(), maxNumberOfParallelFetchers, this.fileFinderFactory,
-                this.connectionInformation, fileTypeSpecificDocumentFetcher);
+                this.connectionInformation, fileTypeSpecificDocumentFetcher, additionalConfiguration);
         if (documentFetchers.isEmpty()) {
             return new EmptyQueryPlan();
         } else {
