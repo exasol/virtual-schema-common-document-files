@@ -121,7 +121,24 @@ public abstract class AbstractDocumentFilesAdapterIT {
         final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
         assertThat(result, table().row("book-1").row("book-2").matches());
     }
-
+    @Test
+    void testReadCsvHeaders() throws SQLException, IOException {
+        createCsvVirtualSchemaHeaders();
+        final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
+        assertThat(result, table().row("book-1").row("book-2").matches());
+    }
+    @Test
+    void testReadCsvNoHeaders() throws SQLException, IOException {
+        createCsvVirtualSchemaNoHeaders();
+        final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
+        assertThat(result, table().row("book-1").row("book-2").matches());
+    }
+    @Test
+    void testReadCsvDifferentDelimiter() throws SQLException, IOException {
+        createCsvVirtualSchemaDifferentDelimiter();
+        final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
+        assertThat(result, table().row("book-1").row("book-2").matches());
+    }
     @Test
     @Tag("regression")
     void testReadSmallJsonLines(final TestInfo testInfo) throws Exception {
@@ -424,5 +441,17 @@ public abstract class AbstractDocumentFilesAdapterIT {
     private void createCsvVirtualSchema() throws IOException {
         createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapCsvFile.json");
         uploadDataFileFromResources("test.csv");
+    }
+    private void createCsvVirtualSchemaNoHeaders() throws IOException {
+        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapCsvFileAdditionalConfigurationNoHeaders.json");
+        uploadDataFileFromResources("testCsvNoHeaders.csv");
+    }
+    private void createCsvVirtualSchemaHeaders() throws IOException {
+        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapCsvFileAdditionalConfigurationHeaders.json");
+        uploadDataFileFromResources("testCsvHeaders.csv");
+    }
+    private void createCsvVirtualSchemaDifferentDelimiter() throws IOException {
+        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapCsvFileDifferentDelimiter.json");
+        uploadDataFileFromResources("testCsvDifferentDelimiter.csv");
     }
 }

@@ -27,6 +27,11 @@ public class CsvObjectNode implements DocumentObject {
         this.csvRow = csvRow;
         this.hasHeaders=false;
     }
+    /**
+     * Create a new instance of {@link CsvObjectNode}.
+     *
+     * @param csvRow Named CSV row to wrap
+     */
     public CsvObjectNode(final NamedCsvRow csvRow) {
         this.namedCsvRow = csvRow;
         this.hasHeaders=true;

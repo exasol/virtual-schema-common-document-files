@@ -22,6 +22,10 @@ public class CsvDocumentFetcher implements FileTypeSpecificDocumentFetcher {
     private static final long serialVersionUID = 2783593249946168796L;
     //private static final CsvReaderFactory CSV_READER_FACTORY = Csv.createReaderFactory(null);
     private static String additionalConfiguration;
+
+    /**
+     * @param additionalConfiguration Setter for additional configuration
+     */
     public void setAdditionalConfiguration(String additionalConfiguration){
         this.additionalConfiguration = additionalConfiguration;
     }

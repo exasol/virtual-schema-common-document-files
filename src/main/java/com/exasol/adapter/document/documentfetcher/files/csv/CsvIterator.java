@@ -4,7 +4,6 @@ import com.exasol.adapter.document.documentfetcher.files.InputDataException;
 import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.csv.CsvObjectNode;
-import com.exasol.adapter.document.documentnode.json.JsonNodeFactory;
 import com.exasol.adapter.document.iterators.CloseableIterator;
 import com.exasol.errorreporting.ExaError;
 import de.siegmar.fastcsv.reader.CsvReader;
@@ -102,7 +101,7 @@ try {
     }
     private void readOutConfiguration(CsvConfiguration csvConfiguration) {
         if (csvConfiguration != null){
-            hasHeaders = csvConfiguration.getHeaders();
+            hasHeaders = csvConfiguration.getHasHeaders();
         }
     }
 }

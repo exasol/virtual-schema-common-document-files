@@ -1,16 +1,12 @@
 {
   "$schema": "https://schemas.exasol.com/edml-1.4.0.json",
-  "source": "DATA_FILES_DIR/test.csv",
+  "source": "DATA_FILES_DIR/testCsvDifferentDelimiter.csv",
   "destinationTable": "BOOKS",
   "description": "Maps MY_BOOKS to BOOKS",
   "addSourceReferenceColumn": true,
-  "additionalConfiguration": {
-    "csv-headers": true,
-    "csv-headers-for-mapping": true
-  },
   "mapping": {
     "fields": {
-      "id": {
+      "0": {
         "toVarcharMapping": {
           "destinationName": "ID"
         }
