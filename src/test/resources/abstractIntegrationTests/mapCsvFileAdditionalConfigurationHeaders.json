@@ -9,7 +9,7 @@
   },
   "mapping": {
     "fields": {
-      "0": {
+      "id": {
         "toVarcharMapping": {
           "destinationName": "ID"
         }

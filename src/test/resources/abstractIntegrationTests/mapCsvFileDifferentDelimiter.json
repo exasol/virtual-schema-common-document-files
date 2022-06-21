@@ -4,6 +4,9 @@
   "destinationTable": "BOOKS",
   "description": "Maps MY_BOOKS to BOOKS",
   "addSourceReferenceColumn": true,
+  "additionalConfiguration": {
+    "csv-headers": true
+  },
   "mapping": {
     "fields": {
       "0": {
