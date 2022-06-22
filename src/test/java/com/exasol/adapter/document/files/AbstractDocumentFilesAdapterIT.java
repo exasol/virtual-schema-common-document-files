@@ -216,7 +216,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
         }
     }
 
-    @Test //TODO re-enable when SPOT-11018 is fixed; See #41
+    @Test //SPOT-11018 (fixed) https://github.com/exasol/virtual-schema-common-document-files/issues/41
     void testFilterWithOrOnSourceReference() throws IOException {
         createJsonVirtualSchema();
         final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS WHERE SOURCE_REFERENCE = '"
@@ -236,7 +236,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
      * This test is a workaround for #41 that occurs at {@link #testFilterWithOrOnSourceReference()}
      */
     @Test
-    // TODO remove when SPOT-11018 is fixed
+    // workaround for SPOT-11018 https://github.com/exasol/virtual-schema-common-document-files/issues/41
     void testFilterWithOrOnSourceReferenceWithBugfixForSPOT11018() throws IOException {
         createJsonVirtualSchema();
         final String query = "SELECT ID FROM (SELECT ID, SOURCE_REFERENCE FROM " + TEST_SCHEMA
