@@ -49,7 +49,6 @@ public class CsvDocumentFetcher implements FileTypeSpecificDocumentFetcher {
             JsonReader jsonReader = Json.createReader(new StringReader(additionalConfiguration));
             JsonObject additionalConfigurationJson = jsonReader.readObject();
             boolean hasHeaders = additionalConfigurationJson.getBoolean("csv-headers",false);
-
             return new CsvConfiguration(hasHeaders);
         }
         return null;
