@@ -111,15 +111,17 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <!-- Explicitly upgrade dependency to fix vulnerabilities -->
+            <groupId>com.exasol</groupId>
+            <artifactId>exasol-test-setup-abstraction-java</artifactId>
+            <version>0.3.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>performance-test-recorder-java</artifactId>
             <version>0.1.0</version>
-        </dependency>
-        <dependency>
-            <artifactId>lombok</artifactId>
-            <groupId>org.projectlombok</groupId>
-            <version>1.18.24</version>
-            <scope>provided</scope>
+            <scope>test</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/de.siegmar/fastcsv -->
         <dependency>
@@ -143,23 +145,21 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>versions-maven-plugin</artifactId>
-                <version>2.10.0</version>
+                <version>2.11.0</version>
             </plugin>
             <plugin>
                 <groupId>org.sonatype.ossindex.maven</groupId>
                 <artifactId>ossindex-maven-plugin</artifactId>
+                <version>3.2.0</version>
                 <configuration>
                     <excludeVulnerabilityIds>
                         <!-- com.google.guava:guava: https://ossindex.sonatype.org/vulnerability/sonatype-2020-0926
-                        Excluded because we assume that the attacker does not have local access to the machine. -->
+                        Excluded because we assume that the attacker does not have access to the machine. -->
                         <exclude>sonatype-2020-0926</exclude>
                         <!-- io.netty:netty-handler: https://ossindex.sonatype.org/vulnerability/sonatype-2020-0026
-                        Not a vulnerability in netty but how it is configured by the client com.azure:azure-core-http-netty. -->
+                        Not a vulnerability in netty but how it is configured by the client software.amazon.awssdk:netty-nio-client
+                        which is only used in tests. -->
                         <exclude>sonatype-2020-0026</exclude>
-                        <!-- io.netty:netty-codec-http: https://ossindex.sonatype.org/vulnerability/CVE-2022-24823
-                        Excluded because we assume that the attacker does not have local access to the machine.
-                        Can be removed once com.azure:azure-core-http-netty upgrades to a newer netty version. -->
-                        <!--                        <exclude>CVE-2022-24823</exclude>-->
                     </excludeVulnerabilityIds>
                 </configuration>
             </plugin>

@@ -1,12 +1,14 @@
-# Virtual Schema for document data in files 7.1.0, released 2022-??-??
+# Virtual Schema for document data in files 7.0.2, released 2022-06-09
 
-Code name:
+Code name: 7.0.2: Upgrade dependencies on 7.0.1
 
 ## Summary
 
+This release fixes vulnerabilities in dependencies by updating compile dependency.
+
 ## Features
 
-* ISSUE_NUMBER: description
+* #104: Upgraded dependencies to fix vulnerabilities
 
 ## Dependency Updates
 
@@ -14,15 +16,11 @@ Code name:
 
 * Updated `com.exasol:parquet-io-java:1.3.0` to `1.3.1`
 * Removed `com.exasol:performance-test-recorder-java:0.1.0`
-* Updated `com.exasol:virtual-schema-common-document:9.0.1` to `9.1.0`
-* Added `de.siegmar:fastcsv:2.1.0`
 
 ### Test Dependency Updates
 
 * Added `com.exasol:exasol-test-setup-abstraction-java:0.3.2`
 * Added `com.exasol:performance-test-recorder-java:0.1.0`
-* Updated `com.exasol:udf-debugging-java:0.6.1` to `0.6.2`
-* Updated `com.exasol:virtual-schema-common-document:9.0.1` to `9.1.0`
 * Updated `org.mockito:mockito-core:4.5.1` to `4.6.1`
 * Updated `org.mockito:mockito-junit-jupiter:4.5.1` to `4.6.1`
 
