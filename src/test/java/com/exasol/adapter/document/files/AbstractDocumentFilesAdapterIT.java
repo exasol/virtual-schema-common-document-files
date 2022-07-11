@@ -21,6 +21,7 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.exasol.adapter.document.documentfetcher.files.csv.CsvTestSetup;
 import org.apache.parquet.schema.*;
 import org.apache.parquet.schema.Types;
 import org.hamcrest.Matcher;
@@ -56,7 +57,22 @@ public abstract class AbstractDocumentFilesAdapterIT {
     private void createVirtualSchemaWithMapping(final String schemaName, final Fields mapping,
             final String dataFilePattern) throws IOException {
         final EdmlDefinition edmlDefinition = EdmlDefinition.builder()//
-                .destinationTable("BOOKS")//
+                .destinationTable("BOOKS")
+                .additionalConfiguration("")//
+                .addSourceReferenceColumn(true)//
+                .mapping(mapping)//
+                .source(this.dataFilesDirectory + "/" + dataFilePattern)//
+                .build();
+        final String edmlString = new EdmlSerializer().serialize(edmlDefinition);
+        createVirtualSchema(schemaName, edmlString);
+    }
+
+    private void createVirtualSchemaWithMapping(final String schemaName, final Fields mapping,
+                                                final String dataFilePattern, final String additionalConfiguration) throws IOException {
+        final EdmlDefinition edmlDefinition = EdmlDefinition.builder()//
+                .destinationTable("BOOKS")
+                //TODO: check this, probably needs to be changed in edml-java
+                .additionalConfiguration(additionalConfiguration)//
                 .addSourceReferenceColumn(true)//
                 .mapping(mapping)//
                 .source(this.dataFilesDirectory + "/" + dataFilePattern)//
@@ -407,6 +423,91 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
+    @Tag("regression")
+    void testLoadManyCsvRowsFromOneFile(final TestInfo testInfo) throws Exception {
+        prepareAndRunCsvLoadingTest(1_000, 1_000_000, 1, 1, testInfo);
+    }
+
+    @Test
+    @Tag("regression")
+    void testLoadManyCsvRows(final TestInfo testInfo) throws Exception {
+        prepareAndRunCsvLoadingTest(100, 1_000_000, 10, 1, testInfo);
+    }
+
+    @Test
+    @Tag("regression")
+    void testLoadLargeCsvRows(final TestInfo testInfo) throws Exception {
+        prepareAndRunCsvLoadingTest(1_000_000, 100, 10, 1, testInfo);
+    }
+
+    @Test
+    @Tag("regression")
+    void testLoadManyCsvColumns(final TestInfo testInfo) throws Exception {
+        prepareAndRunCsvLoadingTest(1_000, 1_000, 10, 100, testInfo);
+    }
+
+
+    void prepareAndRunCsvLoadingTest(final int itemSize, final long rowCount, final int fileCount,
+                                         final int columnCount, final TestInfo testInfo) throws Exception {
+        prepareCsvLoadingTest(itemSize, rowCount, fileCount, columnCount);
+        for (int runCounter = 0; runCounter < 5; runCounter++) {
+            runSingleCsvLoadingTest(rowCount, fileCount, testInfo);
+        }
+    }
+
+    private void prepareCsvLoadingTest(final int itemSize, final long rowCount, final int fileCount,
+                                           final int columnCount) throws IOException {
+        final Random random = new Random(1);
+        final Fields.FieldsBuilder fieldsBuilder = Fields.builder();
+        for (int columnCounter = 0; columnCounter < columnCount; columnCounter++) {
+            fieldsBuilder.mapField("data" + columnCounter,
+                    ToVarcharMapping.builder().varcharColumnSize(2_000_000).build());
+        }
+        final Fields mapping = fieldsBuilder.build();
+        createVirtualSchemaWithMapping(TEST_SCHEMA, mapping, "testData-*.csv","");
+        for (int fileCounter = 0; fileCounter < fileCount; fileCounter++) {
+            LOGGER.info("started creating CSV file");
+            final Path csvFile = createCsvFile(itemSize, rowCount, columnCount, random);
+            LOGGER.info("done creating; uploading...");
+            uploadAsCsvFile(csvFile, fileCounter);
+            LOGGER.info("done uploading");
+        }
+    }
+
+    private void runSingleCsvLoadingTest(final long rowCount, final int fileCount, final TestInfo testInfo)
+            throws Exception {
+        final String query = "SELECT COUNT(*) FROM " + TEST_SCHEMA + ".BOOKS";
+        PerformanceTestRecorder.getInstance().recordExecution(testInfo,
+                () -> assertQuery(query, table().row(rowCount * fileCount).matches()));
+    }
+
+    private Path createCsvFile(final int itemSize, final long rowCount, final int columnCount, final Random random)
+            throws IOException {
+        final List<String> columns = createCsvColumnDefinitions(columnCount);
+        final CsvTestSetup csvTestSetup = new CsvTestSetup(this.tempDir, columns);
+        for (long rowCounter = 0; rowCounter < rowCount; rowCounter++) {
+            List<String> row = new ArrayList<String>();
+            final byte[] data = new byte[itemSize];
+            for (int columnCounter = 0; columnCounter < columnCount; columnCounter++) {
+                random.nextBytes(data);
+                //final String columnName = "data" + columnCounter;
+                row.add(new String(data, StandardCharsets.US_ASCII));
+            }
+            csvTestSetup.writeRow(row);
+        }
+        csvTestSetup.closeWriter();
+        return csvTestSetup.getCsvFile();
+    }
+
+    private List<String> createCsvColumnDefinitions(final int columnCount) {
+        final List<String> columns = new ArrayList<>(columnCount);
+        for (int columnCounter = 0; columnCounter < columnCount; columnCounter++) {
+            columns.add("data" + columnCounter);
+        }
+        return columns;
+    }
+
+    @Test
     void testOverrideFileType() throws IOException, SQLException {
         createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapJsonLinesFileWithStrangeExtension.json");
         uploadDataFile(
@@ -419,6 +520,10 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     private void uploadAsParquetFile(final Path parquetFile, final int fileCount) {
         uploadDataFile(parquetFile, this.dataFilesDirectory + "/testData-" + fileCount + ".parquet");
+    }
+
+    private void uploadAsCsvFile(final Path csvFile, final int fileCount) {
+        uploadDataFile(csvFile, this.dataFilesDirectory + "/testData-" + fileCount + ".csv");
     }
 
     private void assertQuery(final String query, final Matcher<ResultSet> matcher) throws SQLException {
