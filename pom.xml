@@ -198,6 +198,7 @@
                                 <include>abstractIntegrationTests/*</include>
                                 <include>**/ParquetTestSetup*</include>
                                 <include>**/ParquetTestWriterBuilder*</include>
+                                <include>**/CsvTestSetup*</include>
                             </includes>
                         </configuration>
                     </execution>

@@ -35,7 +35,6 @@ public class FilesQueryPlanner implements QueryPlanner {
         String fileEnding ="." + sourceString.getFileType();
         final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher = new FileTypeSpecificDocumentFetcherFactory()
                 .buildFileTypeSpecificDocumentFetcher(fileEnding);
-        //addAdditionalConfigurationIfSupported(fileTypeSpecificDocumentFetcher, fileEnding,additionalConfiguration );
         final List<DocumentFetcher> documentFetchers = new FilesDocumentFetcherFactory().buildDocumentFetcherForQuery(
                 splitSelection.getSourceFilter(), maxNumberOfParallelFetchers, this.fileFinderFactory,
                 this.connectionInformation, fileTypeSpecificDocumentFetcher, additionalConfiguration);
@@ -43,13 +42,6 @@ public class FilesQueryPlanner implements QueryPlanner {
             return new EmptyQueryPlan();
         } else {
             return new FetchQueryPlan(documentFetchers, splitSelection.getPostSelection());
-        }
-    }
-
-    private void addAdditionalConfigurationIfSupported(FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher, String fileEnding, String additionalConfiguration) {
-        if (fileEnding.equals(".csv")){
-            CsvDocumentFetcher csvDocumentFetcher =(CsvDocumentFetcher)fileTypeSpecificDocumentFetcher;
-            csvDocumentFetcher.setAdditionalConfiguration(additionalConfiguration);
         }
     }
 }

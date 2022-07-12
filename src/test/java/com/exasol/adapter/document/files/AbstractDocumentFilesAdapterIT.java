@@ -421,6 +421,10 @@ public abstract class AbstractDocumentFilesAdapterIT {
         }
         return columns;
     }
+    @Test
+    void testLoadCsvRows(final TestInfo testInfo) throws Exception {
+        prepareAndRunCsvLoadingTestNoMeasure(100, 100, 10, 10, testInfo);
+    }
 
     @Test
     @Tag("regression")
@@ -446,12 +450,20 @@ public abstract class AbstractDocumentFilesAdapterIT {
         prepareAndRunCsvLoadingTest(1_000, 1_000, 10, 100, testInfo);
     }
 
-
     void prepareAndRunCsvLoadingTest(final int itemSize, final long rowCount, final int fileCount,
-                                         final int columnCount, final TestInfo testInfo) throws Exception {
+                                     final int columnCount, final TestInfo testInfo) throws Exception {
+        prepareAndRunCsvLoadingTest(itemSize, rowCount, fileCount, columnCount, testInfo,true);
+
+    }
+    void prepareAndRunCsvLoadingTestNoMeasure(final int itemSize, final long rowCount, final int fileCount,
+                                     final int columnCount, final TestInfo testInfo) throws Exception {
+        prepareAndRunCsvLoadingTest(itemSize, rowCount, fileCount, columnCount, testInfo, false);
+    }
+    void prepareAndRunCsvLoadingTest(final int itemSize, final long rowCount, final int fileCount,
+                                         final int columnCount, final TestInfo testInfo, final boolean measure) throws Exception {
         prepareCsvLoadingTest(itemSize, rowCount, fileCount, columnCount);
         for (int runCounter = 0; runCounter < 5; runCounter++) {
-            runSingleCsvLoadingTest(rowCount, fileCount, testInfo);
+            runSingleCsvLoadingTest(rowCount, fileCount, testInfo,measure);
         }
     }
 
@@ -464,7 +476,10 @@ public abstract class AbstractDocumentFilesAdapterIT {
                     ToVarcharMapping.builder().varcharColumnSize(2_000_000).build());
         }
         final Fields mapping = fieldsBuilder.build();
-        createVirtualSchemaWithMapping(TEST_SCHEMA, mapping, "testData-*.csv","");
+        final String additionalConfiguration = "{\n" +
+                "    \"csv-headers\": true\n" +
+                "  }";
+        createVirtualSchemaWithMapping(TEST_SCHEMA, mapping, "testData-*.csv",additionalConfiguration);
         for (int fileCounter = 0; fileCounter < fileCount; fileCounter++) {
             LOGGER.info("started creating CSV file");
             final Path csvFile = createCsvFile(itemSize, rowCount, columnCount, random);
@@ -474,11 +489,15 @@ public abstract class AbstractDocumentFilesAdapterIT {
         }
     }
 
-    private void runSingleCsvLoadingTest(final long rowCount, final int fileCount, final TestInfo testInfo)
+    private void runSingleCsvLoadingTest(final long rowCount, final int fileCount, final TestInfo testInfo, final boolean measure)
             throws Exception {
         final String query = "SELECT COUNT(*) FROM " + TEST_SCHEMA + ".BOOKS";
-        PerformanceTestRecorder.getInstance().recordExecution(testInfo,
-                () -> assertQuery(query, table().row(rowCount * fileCount).matches()));
+        if (measure) {
+            PerformanceTestRecorder.getInstance().recordExecution(testInfo,
+                    () -> assertQuery(query, table().row(rowCount * fileCount).matches()));
+        } else {
+            assertQuery(query, table().row(rowCount * fileCount).matches());
+        }
     }
 
     private Path createCsvFile(final int itemSize, final long rowCount, final int columnCount, final Random random)
