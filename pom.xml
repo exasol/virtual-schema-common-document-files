@@ -160,6 +160,8 @@
                         Not a vulnerability in netty but how it is configured by the client software.amazon.awssdk:netty-nio-client
                         which is only used in tests. -->
                         <exclude>sonatype-2020-0026</exclude>
+                        <!-- https://ossindex.sonatype.org/vulnerability/CVE-2022-2047?component-type=maven&component-name=org.eclipse.jetty/jetty-client -->
+                        <exclude>sonatype-2022-2047</exclude>
                     </excludeVulnerabilityIds>
                 </configuration>
             </plugin>
