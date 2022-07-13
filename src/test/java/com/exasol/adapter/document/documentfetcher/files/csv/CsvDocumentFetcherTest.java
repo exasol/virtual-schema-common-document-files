@@ -7,11 +7,14 @@ import com.exasol.adapter.document.documentnode.DocumentNode;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.exasol.adapter.document.documentfetcher.files.csv.CsvConfigurationHelper.getCsvConfiguration;
 import static com.exasol.adapter.document.documentfetcher.files.segmentation.FileSegmentDescription.ENTIRE_FILE;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.startsWith;
@@ -38,4 +41,25 @@ class CsvDocumentFetcherTest {
                 () -> documentFetcher.readDocuments(segment));
         assertThat(exception.getMessage(), startsWith("F-VSDF-26"));
     }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {""})
+    void testEmptyOrNullAdditionalConfigurationToCSVConfiguration(String additionalConfig){
+      CsvConfiguration csvConfiguration=  getCsvConfiguration(additionalConfig);
+      assertThat(csvConfiguration, equalTo(null));
+    }
+    @ParameterizedTest
+    @ValueSource(strings = {" ", "{"})
+    void testInvalidAdditionalConfigurationToCSVConfiguration(String additionalConfig){
+        assertThrows(jakarta.json.stream.JsonParsingException.class, () -> { getCsvConfiguration(additionalConfig);});
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = { "{    \"csv-headers\": false  }, FALSE", "{    \"csv-headers\": true  }, TRUE" }, nullValues = { "null" })
+    void testAdditionalConfigurationToCSVConfigurationHeaders(String additionalConfig,Boolean hasHeaders){
+        CsvConfiguration csvConfiguration=  getCsvConfiguration(additionalConfig);
+        assertThat(csvConfiguration.getHasHeaders(),equalTo(hasHeaders));
+    }
+
 }

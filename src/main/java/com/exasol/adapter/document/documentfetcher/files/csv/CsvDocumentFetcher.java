@@ -13,6 +13,8 @@ import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonReader;
 
+import static com.exasol.adapter.document.documentfetcher.files.csv.CsvConfigurationHelper.getCsvConfiguration;
+
 /**
  * {@link FileTypeSpecificDocumentFetcher} for CSV files.
  */
@@ -41,20 +43,11 @@ public class CsvDocumentFetcher implements FileTypeSpecificDocumentFetcher {
         }
         // documentation on readDocuments
         // https://github.com/exasol/virtual-schema-common-document-files/blob/main/doc/user_guide/document_type_plugin_development_guide.md#the-documentfetcher
-        return new CsvIterator(segment.getFile(), getCsvConfiguration());
+        return new CsvIterator(segment.getFile(), getCsvConfiguration(this.additionalConfiguration));
 
     }
 
-    private CsvConfiguration getCsvConfiguration() {
-        if (additionalConfiguration != null && !additionalConfiguration.isEmpty()) {
-            try (JsonReader jsonReader = Json.createReader(new StringReader(additionalConfiguration))) {
-                JsonObject additionalConfigurationJson = jsonReader.readObject();
-                boolean hasHeaders = additionalConfigurationJson.getBoolean("csv-headers", false);
-                return new CsvConfiguration(hasHeaders);
-            }
-        }
-        return null;
-    }
+
 
     @Override
     public boolean supportsFileSplitting() {
