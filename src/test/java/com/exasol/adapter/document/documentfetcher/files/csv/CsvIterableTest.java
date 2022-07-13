@@ -4,11 +4,8 @@ import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
 import com.exasol.adapter.document.documentfetcher.files.StringRemoteFileContent;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.equalToObject;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.not;
 
 public class CsvIterableTest {
     @Test
