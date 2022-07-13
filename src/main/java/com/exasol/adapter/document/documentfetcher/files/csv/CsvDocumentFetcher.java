@@ -18,9 +18,14 @@ import jakarta.json.JsonReader;
  */
 public class CsvDocumentFetcher implements FileTypeSpecificDocumentFetcher {
     private static final long serialVersionUID = 2783593249946168796L;
+    /**
+     * Contains additional configuration (serialised)
+     */
     private String additionalConfiguration;
 
     /**
+     * Setter for additional configuration options
+     *
      * @param additionalConfiguration Setter for additional configuration
      */
     public void setAdditionalConfiguration(String additionalConfiguration) {
