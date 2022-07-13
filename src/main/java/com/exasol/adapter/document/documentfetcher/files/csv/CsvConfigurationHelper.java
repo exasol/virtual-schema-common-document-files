@@ -16,8 +16,8 @@ public class CsvConfigurationHelper {
     /**
      * get a csv configuration from the additionalConfiguration string( which contains a nameless serialised JSON object)
      *
-     * @param additionalConfiguration
-     * @return CsvConfiguration object
+     * @param additionalConfiguration additionalConfiguration string( which contains a nameless serialised JSON object)
+     * @return CsvConfiguration CsvConfiguration
      */
     public static CsvConfiguration getCsvConfiguration(String additionalConfiguration) {
         if (additionalConfiguration != null && !additionalConfiguration.isEmpty()) {
