@@ -10,11 +10,14 @@ import java.io.StringReader;
  * Helper class for csv configuration method(s)
  */
 public class CsvConfigurationHelper {
+    private CsvConfigurationHelper(){
+        //Add a private constructor to hide the implicit public one.
+    }
     /**
      * get a csv configuration from the additionalConfiguration string( which contains a nameless serialised JSON object)
      *
      * @param additionalConfiguration
-     * @return
+     * @return CsvConfiguration object
      */
     public static CsvConfiguration getCsvConfiguration(String additionalConfiguration) {
         if (additionalConfiguration != null && !additionalConfiguration.isEmpty()) {

@@ -57,8 +57,7 @@ public class FilesSelectionExtractor {
             final DnfOr or = selectionExtractionResult.getSelectedSelection();
             return new Result(postSelection,
                     STRING_FILTER_FACTORY.and(extractStringValueFromDnfOr(or), this.sourceExpression));
-        } catch (final UnsupportedOperationException exception) {
-            return new Result(selection, this.sourceExpression);
+        } catch (final UnsupportedOperationException exception) {return new Result(selection, this.sourceExpression);
         }
     }
 
