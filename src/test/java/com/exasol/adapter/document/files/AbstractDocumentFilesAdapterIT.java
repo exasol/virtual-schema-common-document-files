@@ -71,7 +71,6 @@ public abstract class AbstractDocumentFilesAdapterIT {
                                                 final String dataFilePattern, final String additionalConfiguration) throws IOException {
         final EdmlDefinition edmlDefinition = EdmlDefinition.builder()//
                 .destinationTable("BOOKS")
-                //TODO: check this, probably needs to be changed in edml-java
                 .additionalConfiguration(additionalConfiguration)//
                 .addSourceReferenceColumn(true)//
                 .mapping(mapping)//

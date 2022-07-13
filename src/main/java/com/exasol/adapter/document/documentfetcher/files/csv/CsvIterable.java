@@ -18,7 +18,6 @@ class CsvIterable implements Iterable<DocumentNode> {
      * @param csvFile CSV file
      */
     CsvIterable(final RemoteFile csvFile,final CsvConfiguration csvConfiguration) {
-
         this.csvFile = csvFile;
         this.csvConfiguration = csvConfiguration;
     }

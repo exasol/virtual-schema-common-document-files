@@ -14,9 +14,8 @@ public class CsvTestSetup {
 
     public CsvTestSetup(final Path tempDir, final List<String> columns) throws IOException {
         this.csvFile = Files.createTempFile(tempDir, "testData", ".csv");
-        //Files.delete(this.csvFile); //TODO: this doesn't seem to make much sense, check in parquet test setup as well???
+        //Files.delete(this.csvFile); //disabled for now
         this.csvWriter = CsvWriter.builder().build(new FileWriter(csvFile.toFile()));
-        //todo: maybe write headers with writeRow(columns)
         this.csvWriter.writeRow(columns);
     }
 
