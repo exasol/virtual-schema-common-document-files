@@ -148,12 +148,12 @@ public abstract class AbstractDocumentFilesAdapterIT {
         final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
         assertThat(result, table().row("book-1").row("book-2").matches());
     }
-    @Test
-    void testReadCsvDifferentDelimiter() throws SQLException, IOException {
-        createCsvVirtualSchemaDifferentDelimiter();
-        final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
-        assertThat(result, table().row("book-1").row("book-2").matches());
-    }
+//    @Test
+//    void testReadCsvDifferentDelimiter() throws SQLException, IOException {
+//        createCsvVirtualSchemaDifferentDelimiter();
+//        final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
+//        assertThat(result, table().row("book-1").row("book-2").matches());
+//    }
     @Test
     @Tag("regression")
     void testReadSmallJsonLines(final TestInfo testInfo) throws Exception {
@@ -168,7 +168,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     @Test
     void testJsonDataTypesAsVarcharColumn() throws SQLException, IOException {
-        final ResultSet result = getDataTypesTestResult("mapDataTypesToVarchar.json");
+        final ResultSet result = getJsonDataTypesTestResult("mapDataTypesToVarchar.json");
         assertThat(result, table("VARCHAR", "VARCHAR")//
                 .row("false", "false")//
                 .row("null", equalTo(null))//
@@ -180,7 +180,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     @Test
     void testJsonDataTypesAsDecimal() throws SQLException, IOException {
-        final ResultSet result = getDataTypesTestResult("mapDataTypesToDecimal.json");
+        final ResultSet result = getJsonDataTypesTestResult("mapDataTypesToDecimal.json");
         assertThat(result, table("VARCHAR", "DECIMAL")//
                 .row("false", equalTo(null))//
                 .row("null", equalTo(null))//
@@ -192,7 +192,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     @Test
     void testJsonDataTypesAsJson() throws SQLException, IOException {
-        final ResultSet result = getDataTypesTestResult("mapDataTypesToJson.json");
+        final ResultSet result = getJsonDataTypesTestResult("mapDataTypesToJson.json");
         assertThat(result, table("VARCHAR", "VARCHAR")//
                 .row("false", "false")//
                 .row("null", null)//
@@ -201,11 +201,33 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 .row("true", "true")//
                 .matches());
     }
+    //everything in a csv is currently read out into a stringholdernode,
+    //this is a problem when using anything  else than toVarcharmapping in the edml definition (toBoolMapping,toDecimalMapping, ...)
+    //the workaround currently is to use SQL conversion functions in the query itself
+    @Test
+    void testCsvDataTypesConversion() throws SQLException, IOException {
+        final ResultSet result = getCsvDataTypesTestResult("mapCsvToVarchar.json");
+        assertThat(result, table("VARCHAR", "VARCHAR", "VARCHAR", "VARCHAR", "VARCHAR")
+                .row("1.23","null","test","true","false")//
+                .matches());
+    }
 
-    private ResultSet getDataTypesTestResult(final String mappingFileName) throws SQLException, IOException {
+    private ResultSet getJsonDataTypesTestResult(final String mappingFileName) throws SQLException, IOException {
+        String dataFile = "dataTypeTests.jsonl";
+        return getDatatypesTestResult(mappingFileName, dataFile);
+    }
+
+    private ResultSet getDatatypesTestResult(String mappingFileName, String dataFile) throws IOException, SQLException {
         createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, mappingFileName);
-        uploadDataFileFromResources("dataTypeTests.jsonl");
+        uploadDataFileFromResources(dataFile);
         return getStatement().executeQuery("SELECT * FROM " + TEST_SCHEMA + ".DATA_TYPES ORDER BY TYPE ASC;");
+    }
+
+    private ResultSet getCsvDataTypesTestResult(final String mappingFileName) throws SQLException, IOException {
+        String dataFile = "dataTypeTests.csv";
+        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, mappingFileName);
+        uploadDataFileFromResources(dataFile);
+        return getStatement().executeQuery("SELECT * FROM " + TEST_SCHEMA + ".DATA_TYPES");
     }
 
     private void uploadDataFileFromResources(final String resourceName) {
@@ -231,7 +253,12 @@ public abstract class AbstractDocumentFilesAdapterIT {
         }
     }
 
-    @Test //SPOT-11018 (fixed) https://github.com/exasol/virtual-schema-common-document-files/issues/41
+    /**
+     * SPOT-11018 (fixed) https://github.com/exasol/virtual-schema-common-document-files/issues/41
+     *
+     * @throws IOException
+     */
+    @Test
     void testFilterWithOrOnSourceReference() throws IOException {
         createJsonVirtualSchema();
         final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS WHERE SOURCE_REFERENCE = '"
@@ -249,9 +276,10 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     /**
      * This test is a workaround for #41 that occurs at {@link #testFilterWithOrOnSourceReference()}
+     * SPOT-11018 https://github.com/exasol/virtual-schema-common-document-files/issues/41
      */
     @Test
-    // workaround for SPOT-11018 https://github.com/exasol/virtual-schema-common-document-files/issues/41
+    // workaround for
     void testFilterWithOrOnSourceReferenceWithBugfixForSPOT11018() throws IOException {
         createJsonVirtualSchema();
         final String query = "SELECT ID FROM (SELECT ID, SOURCE_REFERENCE FROM " + TEST_SCHEMA

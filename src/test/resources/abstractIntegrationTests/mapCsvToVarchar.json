@@ -1,0 +1,32 @@
+{
+  "$schema": "https://schemas.exasol.com/edml-1.4.0.json",
+  "source": "DATA_FILES_DIR/dataTypeTests.csv",
+  "destinationTable": "DATA_TYPES",
+  "additionalConfiguration": {
+    "csv-headers": true
+  },
+  "mapping": {
+    "fields": {
+      "number": {
+        "toVarcharMapping": {
+        }
+      },
+      "null": {
+        "toVarcharMapping": {
+        }
+      },
+      "string": {
+        "toVarcharMapping": {
+        }
+      },
+      "true": {
+        "toVarcharMapping": {
+        }
+      },
+      "false": {
+        "toVarcharMapping": {
+        }
+      }
+    }
+  }
+}
