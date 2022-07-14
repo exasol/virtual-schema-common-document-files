@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.stream.Stream;
 
+import com.exasol.adapter.document.documentfetcher.files.csv.CsvDocumentFetcher;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,7 +25,8 @@ class FileTypeSpecificDocumentFetcherFactoryTest {
         return Stream.of(//
                 Arguments.of(".json", JsonDocumentFetcher.class),
                 Arguments.of(".parquet", ParquetDocumentFetcher.class),
-                Arguments.of(".jsonl", JsonLinesDocumentFetcher.class)//
+                Arguments.of(".jsonl", JsonLinesDocumentFetcher.class),
+                Arguments.of(".csv", CsvDocumentFetcher.class)//
         );
     }
 
