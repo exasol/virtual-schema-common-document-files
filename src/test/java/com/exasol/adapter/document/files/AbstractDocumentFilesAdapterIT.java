@@ -206,12 +206,19 @@ public abstract class AbstractDocumentFilesAdapterIT {
     //the workaround currently is to use SQL conversion functions in the query itself
     @Test
     void testCsvDataTypesConversion() throws SQLException, IOException {
-        final ResultSet result = getCsvDataTypesTestResult("mapCsvToVarchar.json");
+        final ResultSet result = getCsvDataTypesTestResult("mapCsvToVarchar.json","dataTypeTests.csv","SELECT * FROM " + TEST_SCHEMA + ".DATA_TYPES");
         assertThat(result, table("VARCHAR", "VARCHAR", "VARCHAR", "VARCHAR", "VARCHAR")
                 .row("1.23","null","test","true","false")//
                 .matches());
     }
-
+    @Test
+    void testCsvDataTypesConversionWorkaround() throws SQLException, IOException {
+        final ResultSet result = getCsvDataTypesTestResult("mapCsvToVarcharWorkaround.json","dataTypeWorkaroundTests.csv",
+                "SELECT CONVERT( BOOLEAN, BOOLEANCOLUMN ) CONVERTEDBOOLEAN FROM " + TEST_SCHEMA + ".DATA_TYPES");
+        assertThat(result, table("BOOLEAN")
+                .row(false)//
+                .matches());
+    }
     private ResultSet getJsonDataTypesTestResult(final String mappingFileName) throws SQLException, IOException {
         String dataFile = "dataTypeTests.jsonl";
         return getDatatypesTestResult(mappingFileName, dataFile);
@@ -223,11 +230,10 @@ public abstract class AbstractDocumentFilesAdapterIT {
         return getStatement().executeQuery("SELECT * FROM " + TEST_SCHEMA + ".DATA_TYPES ORDER BY TYPE ASC;");
     }
 
-    private ResultSet getCsvDataTypesTestResult(final String mappingFileName) throws SQLException, IOException {
-        String dataFile = "dataTypeTests.csv";
+    private ResultSet getCsvDataTypesTestResult(final String mappingFileName,String dataFile,String sqlQuery) throws SQLException, IOException {
         createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, mappingFileName);
         uploadDataFileFromResources(dataFile);
-        return getStatement().executeQuery("SELECT * FROM " + TEST_SCHEMA + ".DATA_TYPES");
+        return getStatement().executeQuery(sqlQuery);
     }
 
     private void uploadDataFileFromResources(final String resourceName) {
