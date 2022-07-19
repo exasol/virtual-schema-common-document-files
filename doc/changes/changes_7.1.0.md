@@ -1,4 +1,4 @@
-# Virtual Schema for document data in files 7.1.0, released 2022-07-19
+# Virtual Schema for document data in files 7.1.0, released 2022-07-20
 
 Code name: CSV Support
 
