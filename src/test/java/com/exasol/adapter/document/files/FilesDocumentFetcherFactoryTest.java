@@ -79,7 +79,7 @@ class FilesDocumentFetcherFactoryTest {
         final var fileTypeSpecificDocumentFetcher = mock(FileTypeSpecificDocumentFetcher.class);
         when(fileTypeSpecificDocumentFetcher.supportsFileSplitting()).thenReturn(supportsFileSplitting);
         return new FilesDocumentFetcherFactory().buildDocumentFetcherForQuery(A_FILTER, maxFetcher, fileFinderFactory,
-                connectionInformation, fileTypeSpecificDocumentFetcher,null);
+                connectionInformation, fileTypeSpecificDocumentFetcher, null);
     }
 
     private int countFilesInExplicitSegmentDescriptions(final DocumentFetcher documentFetcher) {

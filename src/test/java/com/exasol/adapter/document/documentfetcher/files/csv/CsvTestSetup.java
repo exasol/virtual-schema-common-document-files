@@ -1,12 +1,12 @@
 package com.exasol.adapter.document.documentfetcher.files.csv;
 
-import de.siegmar.fastcsv.writer.CsvWriter;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+
+import de.siegmar.fastcsv.writer.CsvWriter;
 
 public class CsvTestSetup {
     private final Path csvFile;
@@ -14,8 +14,8 @@ public class CsvTestSetup {
 
     public CsvTestSetup(final Path tempDir, final List<String> columns) throws IOException {
         this.csvFile = Files.createTempFile(tempDir, "testData", ".csv");
-        //Files.delete(this.csvFile); //disabled for now
-        this.csvWriter = CsvWriter.builder().build(new FileWriter(csvFile.toFile()));
+        // Files.delete(this.csvFile); //disabled for now
+        this.csvWriter = CsvWriter.builder().build(new FileWriter(this.csvFile.toFile()));
         this.csvWriter.writeRow(columns);
     }
 
@@ -23,7 +23,7 @@ public class CsvTestSetup {
         return this.csvFile;
     }
 
-    public CsvTestSetup writeRow(final List<String > values) throws IOException {
+    public CsvTestSetup writeRow(final List<String> values) throws IOException {
 
         this.csvWriter.writeRow(values);
         return this;

@@ -1,6 +1,6 @@
 package com.exasol.adapter.document.documentfetcher.files.csv;
 
-import java.io.StringReader;
+import static com.exasol.adapter.document.documentfetcher.files.csv.CsvConfigurationHelper.getCsvConfiguration;
 
 import com.exasol.adapter.document.documentfetcher.files.segmentation.FileSegment;
 import com.exasol.adapter.document.documentfetcher.files.segmentation.FileSegmentDescription;
@@ -8,12 +8,6 @@ import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.files.FileTypeSpecificDocumentFetcher;
 import com.exasol.adapter.document.iterators.CloseableIterator;
 import com.exasol.errorreporting.ExaError;
-
-import jakarta.json.Json;
-import jakarta.json.JsonObject;
-import jakarta.json.JsonReader;
-
-import static com.exasol.adapter.document.documentfetcher.files.csv.CsvConfigurationHelper.getCsvConfiguration;
 
 /**
  * {@link FileTypeSpecificDocumentFetcher} for CSV files.
@@ -30,7 +24,7 @@ public class CsvDocumentFetcher implements FileTypeSpecificDocumentFetcher {
      *
      * @param additionalConfiguration Setter for additional configuration
      */
-    public void setAdditionalConfiguration(String additionalConfiguration) {
+    public void setAdditionalConfiguration(final String additionalConfiguration) {
         this.additionalConfiguration = additionalConfiguration;
     }
 
@@ -46,8 +40,6 @@ public class CsvDocumentFetcher implements FileTypeSpecificDocumentFetcher {
         return new CsvIterator(segment.getFile(), getCsvConfiguration(this.additionalConfiguration));
 
     }
-
-
 
     @Override
     public boolean supportsFileSplitting() {
