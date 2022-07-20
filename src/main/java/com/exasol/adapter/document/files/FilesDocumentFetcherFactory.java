@@ -7,7 +7,10 @@ import java.util.List;
 
 import com.exasol.adapter.document.connection.ConnectionPropertiesReader;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
-import com.exasol.adapter.document.documentfetcher.files.*;
+import com.exasol.adapter.document.documentfetcher.files.FileFinderFactory;
+import com.exasol.adapter.document.documentfetcher.files.FilesDocumentFetcher;
+import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
+import com.exasol.adapter.document.documentfetcher.files.RemoteFileFinder;
 import com.exasol.adapter.document.documentfetcher.files.segmentation.*;
 import com.exasol.adapter.document.files.stringfilter.StringFilter;
 import com.exasol.adapter.document.iterators.CloseableIterator;
@@ -29,19 +32,21 @@ public class FilesDocumentFetcherFactory {
      * @param fileFinderFactory               dependency injection of {@link FileFinderFactory}
      * @param connectionInformation           connection information
      * @param fileTypeSpecificDocumentFetcher file type specific document fetcher
+     * @param additionalConfiguration         additional configuration
      * @return built {@link DocumentFetcher}
      */
     public List<DocumentFetcher> buildDocumentFetcherForQuery(final StringFilter sourceFilter,
             final int maxNumberOfParallelFetchers, final FileFinderFactory fileFinderFactory,
             final ConnectionPropertiesReader connectionInformation,
-            final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher) {
+            final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher,
+            final String additionalConfiguration) {
         final List<DocumentFetcher> documentFetchers = new ArrayList<>(maxNumberOfParallelFetchers);
         final int numberOfSegments = sourceFilter.hasWildcard() ? maxNumberOfParallelFetchers : 1;
         final List<SegmentDescription> segmentDescriptions = buildSegmentDescriptions(fileFinderFactory,
                 connectionInformation, numberOfSegments, sourceFilter, fileTypeSpecificDocumentFetcher);
         for (final SegmentDescription segmentDescription : segmentDescriptions) {
             final DocumentFetcher documentFetcher = new FilesDocumentFetcher(sourceFilter, segmentDescription,
-                    fileFinderFactory, fileTypeSpecificDocumentFetcher);
+                    fileFinderFactory, fileTypeSpecificDocumentFetcher, additionalConfiguration);
             documentFetchers.add(documentFetcher);
         }
         return documentFetchers;

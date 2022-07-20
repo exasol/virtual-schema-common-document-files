@@ -31,6 +31,11 @@ JSON-Lines files store one JSON document per line. In contrast to using a JSON a
 File extension: `.parquet`
 
 Parallelization: Yes
+### CSV Files
+
+File extension: `.csv`
+
+Parallelization: No
 
 ## Mapping Multiple Files
 

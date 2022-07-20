@@ -41,7 +41,7 @@ class FilesDocumentFetcherTest {
                 .thenAnswer(invocation -> new CloseableIteratorWrapper<>(List.of(new StringHolderNode("")).iterator()));
         final FilesDocumentFetcher documentFetcher = new FilesDocumentFetcher(
                 WildcardExpression.forNonWildcardString(""), new NoSegmentationSegmentDescription(), this.loaderFactory,
-                fileTypeSpecificFetcher);
+                fileTypeSpecificFetcher,null);
         final List<String> sourceReferences = new ArrayList<>();
         documentFetcher.run(this.connectionInformation)
                 .forEachRemaining(loaded -> sourceReferences.add(loaded.getSourcePath()));

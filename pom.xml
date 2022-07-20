@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.exasol</groupId>
+
     <artifactId>virtual-schema-common-document-files</artifactId>
-    <version>7.0.2</version>
+    <version>7.1.0</version>
     <name>Virtual Schema for document data in files</name>
     <description>Adapter for document data access from files.</description>
     <url>https://github.com/exasol/virtual-schema-common-document-files/</url>
     <properties>
         <junit.version>5.8.2</junit.version>
-        <vs-common-document.version>9.0.1</vs-common-document.version>
+        <vs-common-document.version>9.1.1</vs-common-document.version>
     </properties>
     <distributionManagement>
         <snapshotRepository>
@@ -107,7 +107,7 @@
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>udf-debugging-java</artifactId>
-            <version>0.6.1</version>
+            <version>0.6.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -122,6 +122,12 @@
             <artifactId>performance-test-recorder-java</artifactId>
             <version>0.1.0</version>
             <scope>test</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/de.siegmar/fastcsv -->
+        <dependency>
+            <groupId>de.siegmar</groupId>
+            <artifactId>fastcsv</artifactId>
+            <version>2.1.0</version>
         </dependency>
     </dependencies>
     <build>
@@ -154,6 +160,8 @@
                         Not a vulnerability in netty but how it is configured by the client software.amazon.awssdk:netty-nio-client
                         which is only used in tests. -->
                         <exclude>sonatype-2020-0026</exclude>
+                        <!-- https://ossindex.sonatype.org/vulnerability/CVE-2022-2047?component-type=maven&component-name=org.eclipse.jetty/jetty-client -->
+                        <exclude>CVE-2022-2047</exclude>
                     </excludeVulnerabilityIds>
                 </configuration>
             </plugin>
@@ -192,6 +200,7 @@
                                 <include>abstractIntegrationTests/*</include>
                                 <include>**/ParquetTestSetup*</include>
                                 <include>**/ParquetTestWriterBuilder*</include>
+                                <include>**/CsvTestSetup*</include>
                             </includes>
                         </configuration>
                     </execution>
@@ -237,7 +246,7 @@
     <parent>
         <artifactId>virtual-schema-common-document-files-generated-parent</artifactId>
         <groupId>com.exasol</groupId>
-        <version>7.0.2</version>
+        <version>7.1.0</version>
         <relativePath>pk_generated_parent.pom</relativePath>
     </parent>
 </project>

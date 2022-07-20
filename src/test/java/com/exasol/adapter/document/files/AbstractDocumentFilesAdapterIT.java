@@ -21,12 +21,14 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.parquet.schema.*;
+import org.apache.parquet.schema.LogicalTypeAnnotation;
+import org.apache.parquet.schema.Type;
 import org.apache.parquet.schema.Types;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 
+import com.exasol.adapter.document.documentfetcher.files.csv.CsvTestSetup;
 import com.exasol.adapter.document.documentfetcher.files.parquet.ParquetTestSetup;
 import com.exasol.adapter.document.edml.*;
 import com.exasol.adapter.document.edml.serializer.EdmlSerializer;
@@ -56,7 +58,19 @@ public abstract class AbstractDocumentFilesAdapterIT {
     private void createVirtualSchemaWithMapping(final String schemaName, final Fields mapping,
             final String dataFilePattern) throws IOException {
         final EdmlDefinition edmlDefinition = EdmlDefinition.builder()//
-                .destinationTable("BOOKS")//
+                .destinationTable("BOOKS").additionalConfiguration("")//
+                .addSourceReferenceColumn(true)//
+                .mapping(mapping)//
+                .source(this.dataFilesDirectory + "/" + dataFilePattern)//
+                .build();
+        final String edmlString = new EdmlSerializer().serialize(edmlDefinition);
+        createVirtualSchema(schemaName, edmlString);
+    }
+
+    private void createVirtualSchemaWithMapping(final String schemaName, final Fields mapping,
+            final String dataFilePattern, final String additionalConfiguration) throws IOException {
+        final EdmlDefinition edmlDefinition = EdmlDefinition.builder()//
+                .destinationTable("BOOKS").additionalConfiguration(additionalConfiguration)//
                 .addSourceReferenceColumn(true)//
                 .mapping(mapping)//
                 .source(this.dataFilesDirectory + "/" + dataFilePattern)//
@@ -74,7 +88,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     /**
      * Create a virtual schema in the test database.
-     * 
+     *
      * @param schemaName name of the virtual schema
      * @param mapping    mapping file content
      */
@@ -117,6 +131,27 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
+    void testReadCsv() throws SQLException, IOException {
+        createCsvVirtualSchema();
+        final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
+        assertThat(result, table().row("book-1").row("book-2").matches());
+    }
+
+    @Test
+    void testReadCsvHeaders() throws SQLException, IOException {
+        createCsvVirtualSchemaHeaders();
+        final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
+        assertThat(result, table().row("book-1").row("book-2").matches());
+    }
+
+    @Test
+    void testReadCsvNoHeaders() throws SQLException, IOException {
+        createCsvVirtualSchemaNoHeaders();
+        final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
+        assertThat(result, table().row("book-1").row("book-2").matches());
+    }
+
+    @Test
     @Tag("regression")
     void testReadSmallJsonLines(final TestInfo testInfo) throws Exception {
         createJsonLinesVirtualSchema();
@@ -130,7 +165,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     @Test
     void testJsonDataTypesAsVarcharColumn() throws SQLException, IOException {
-        final ResultSet result = getDataTypesTestResult("mapDataTypesToVarchar.json");
+        final ResultSet result = getJsonDataTypesTestResult("mapDataTypesToVarchar.json");
         assertThat(result, table("VARCHAR", "VARCHAR")//
                 .row("false", "false")//
                 .row("null", equalTo(null))//
@@ -142,7 +177,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     @Test
     void testJsonDataTypesAsDecimal() throws SQLException, IOException {
-        final ResultSet result = getDataTypesTestResult("mapDataTypesToDecimal.json");
+        final ResultSet result = getJsonDataTypesTestResult("mapDataTypesToDecimal.json");
         assertThat(result, table("VARCHAR", "DECIMAL")//
                 .row("false", equalTo(null))//
                 .row("null", equalTo(null))//
@@ -154,7 +189,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     @Test
     void testJsonDataTypesAsJson() throws SQLException, IOException {
-        final ResultSet result = getDataTypesTestResult("mapDataTypesToJson.json");
+        final ResultSet result = getJsonDataTypesTestResult("mapDataTypesToJson.json");
         assertThat(result, table("VARCHAR", "VARCHAR")//
                 .row("false", "false")//
                 .row("null", null)//
@@ -164,10 +199,46 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 .matches());
     }
 
-    private ResultSet getDataTypesTestResult(final String mappingFileName) throws SQLException, IOException {
+    // everything in a csv is currently read out into a stringholdernode,
+    // this is a problem when using anything else than toVarcharmapping in the edml definition
+    // (toBoolMapping,toDecimalMapping, ...)
+    // the workaround currently is to use SQL conversion functions in the query itself
+    @Test
+    void testCsvDataTypesConversion() throws SQLException, IOException {
+        final ResultSet result = getCsvDataTypesTestResult("mapCsvToVarchar.json", "dataTypeTests.csv",
+                "SELECT * FROM " + TEST_SCHEMA + ".DATA_TYPES");
+        assertThat(result,
+                table("VARCHAR", "VARCHAR", "VARCHAR", "VARCHAR", "VARCHAR")
+                        .row("1.23", "null", "test", "true", "false")//
+                        .matches());
+    }
+
+    @Test
+    void testCsvDataTypesConversionWorkaround() throws SQLException, IOException {
+        final ResultSet result = getCsvDataTypesTestResult("mapCsvToVarcharWorkaround.json",
+                "dataTypeWorkaroundTests.csv",
+                "SELECT CONVERT( BOOLEAN, BOOLEANCOLUMN ) CONVERTEDBOOLEAN FROM " + TEST_SCHEMA + ".DATA_TYPES");
+        assertThat(result, table("BOOLEAN").row(false)//
+                .matches());
+    }
+
+    private ResultSet getJsonDataTypesTestResult(final String mappingFileName) throws SQLException, IOException {
+        final String dataFile = "dataTypeTests.jsonl";
+        return getDatatypesTestResult(mappingFileName, dataFile);
+    }
+
+    private ResultSet getDatatypesTestResult(final String mappingFileName, final String dataFile)
+            throws IOException, SQLException {
         createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, mappingFileName);
-        uploadDataFileFromResources("dataTypeTests.jsonl");
+        uploadDataFileFromResources(dataFile);
         return getStatement().executeQuery("SELECT * FROM " + TEST_SCHEMA + ".DATA_TYPES ORDER BY TYPE ASC;");
+    }
+
+    private ResultSet getCsvDataTypesTestResult(final String mappingFileName, final String dataFile,
+            final String sqlQuery) throws SQLException, IOException {
+        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, mappingFileName);
+        uploadDataFileFromResources(dataFile);
+        return getStatement().executeQuery(sqlQuery);
     }
 
     private void uploadDataFileFromResources(final String resourceName) {
@@ -193,7 +264,12 @@ public abstract class AbstractDocumentFilesAdapterIT {
         }
     }
 
-    // @Test //TODO re-enable when SPOT-11018 is fixed; See #41
+    /**
+     * SPOT-11018 (fixed) https://github.com/exasol/virtual-schema-common-document-files/issues/41
+     *
+     * @throws IOException
+     */
+    @Test
     void testFilterWithOrOnSourceReference() throws IOException {
         createJsonVirtualSchema();
         final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS WHERE SOURCE_REFERENCE = '"
@@ -203,17 +279,18 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 () -> assertThat(getStatement().executeQuery(query), table().row("book-1").row("book-2").matches()), //
                 () -> assertThat(getPushDownSql(getStatement(), query), endsWith("WHERE TRUE")), // no post selection
                 () -> assertThat(getSelectionThatIsSentToTheAdapter(getStatement(), query),
-                        equalTo("BOOKS.SOURCE_REFERENCE='" + this.dataFilesDirectory
-                                + "/testData-1.json' OR BOOKS.SOURCE_REFERENCE='" + this.dataFilesDirectory
-                                + "testData-2.json'"))//
+                        equalTo("(BOOKS.SOURCE_REFERENCE='" + this.dataFilesDirectory
+                                + "/testData-1.json') OR (BOOKS.SOURCE_REFERENCE='" + this.dataFilesDirectory
+                                + "/testData-2.json')"))//
         );
     }
 
     /**
-     * This test is a workaround for #41 that occurs at {@link #testFilterWithOrOnSourceReference()}
+     * This test is a workaround for #41 that occurs at {@link #testFilterWithOrOnSourceReference()} SPOT-11018
+     * https://github.com/exasol/virtual-schema-common-document-files/issues/41
      */
     @Test
-    // TODO remove when SPOT-11018 is fixed
+    // workaround for
     void testFilterWithOrOnSourceReferenceWithBugfixForSPOT11018() throws IOException {
         createJsonVirtualSchema();
         final String query = "SELECT ID FROM (SELECT ID, SOURCE_REFERENCE FROM " + TEST_SCHEMA
@@ -384,6 +461,111 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
+    void testLoadCsvRows(final TestInfo testInfo) throws Exception {
+        prepareAndRunCsvLoadingTestNoMeasure(100, 100, 10, 10, testInfo);
+    }
+
+    @Test
+    @Tag("regression")
+    void testLoadManyCsvRowsFromOneFile(final TestInfo testInfo) throws Exception {
+        prepareAndRunCsvLoadingTest(1_000, 1_000_000, 1, 1, testInfo);
+    }
+
+    @Test
+    @Tag("regression")
+    void testLoadManyCsvRows(final TestInfo testInfo) throws Exception {
+        prepareAndRunCsvLoadingTest(100, 1_000_000, 10, 1, testInfo);
+    }
+
+    @Test
+    @Tag("regression")
+    void testLoadLargeCsvRows(final TestInfo testInfo) throws Exception {
+        prepareAndRunCsvLoadingTest(1_000_000, 100, 10, 1, testInfo);
+    }
+
+    @Test
+    @Tag("regression")
+    void testLoadManyCsvColumns(final TestInfo testInfo) throws Exception {
+        prepareAndRunCsvLoadingTest(1_000, 1_000, 10, 100, testInfo);
+    }
+
+    void prepareAndRunCsvLoadingTest(final int itemSize, final long rowCount, final int fileCount,
+            final int columnCount, final TestInfo testInfo) throws Exception {
+        prepareAndRunCsvLoadingTest(itemSize, rowCount, fileCount, columnCount, testInfo, true);
+
+    }
+
+    void prepareAndRunCsvLoadingTestNoMeasure(final int itemSize, final long rowCount, final int fileCount,
+            final int columnCount, final TestInfo testInfo) throws Exception {
+        prepareAndRunCsvLoadingTest(itemSize, rowCount, fileCount, columnCount, testInfo, false);
+    }
+
+    void prepareAndRunCsvLoadingTest(final int itemSize, final long rowCount, final int fileCount,
+            final int columnCount, final TestInfo testInfo, final boolean measure) throws Exception {
+        prepareCsvLoadingTest(itemSize, rowCount, fileCount, columnCount);
+        for (int runCounter = 0; runCounter < 5; runCounter++) {
+            runSingleCsvLoadingTest(rowCount, fileCount, testInfo, measure);
+        }
+    }
+
+    private void prepareCsvLoadingTest(final int itemSize, final long rowCount, final int fileCount,
+            final int columnCount) throws IOException {
+        final Random random = new Random(1);
+        final Fields.FieldsBuilder fieldsBuilder = Fields.builder();
+        for (int columnCounter = 0; columnCounter < columnCount; columnCounter++) {
+            fieldsBuilder.mapField("data" + columnCounter,
+                    ToVarcharMapping.builder().varcharColumnSize(2_000_000).build());
+        }
+        final Fields mapping = fieldsBuilder.build();
+        final String additionalConfiguration = "{\n" + "    \"csv-headers\": true\n" + "  }";
+        createVirtualSchemaWithMapping(TEST_SCHEMA, mapping, "testData-*.csv", additionalConfiguration);
+        for (int fileCounter = 0; fileCounter < fileCount; fileCounter++) {
+            LOGGER.info("started creating CSV file");
+            final Path csvFile = createCsvFile(itemSize, rowCount, columnCount, random);
+            LOGGER.info("done creating; uploading...");
+            uploadAsCsvFile(csvFile, fileCounter);
+            LOGGER.info("done uploading");
+        }
+    }
+
+    private void runSingleCsvLoadingTest(final long rowCount, final int fileCount, final TestInfo testInfo,
+            final boolean measure) throws Exception {
+        final String query = "SELECT COUNT(*) FROM " + TEST_SCHEMA + ".BOOKS";
+        if (measure) {
+            PerformanceTestRecorder.getInstance().recordExecution(testInfo,
+                    () -> assertQuery(query, table().row(rowCount * fileCount).matches()));
+        } else {
+            assertQuery(query, table().row(rowCount * fileCount).matches());
+        }
+    }
+
+    private Path createCsvFile(final int itemSize, final long rowCount, final int columnCount, final Random random)
+            throws IOException {
+        final List<String> columns = createCsvColumnDefinitions(columnCount);
+        final CsvTestSetup csvTestSetup = new CsvTestSetup(this.tempDir, columns);
+        for (long rowCounter = 0; rowCounter < rowCount; rowCounter++) {
+            final List<String> row = new ArrayList<>();
+            final byte[] data = new byte[itemSize];
+            for (int columnCounter = 0; columnCounter < columnCount; columnCounter++) {
+                random.nextBytes(data);
+                // final String columnName = "data" + columnCounter;
+                row.add(new String(data, StandardCharsets.US_ASCII));
+            }
+            csvTestSetup.writeRow(row);
+        }
+        csvTestSetup.closeWriter();
+        return csvTestSetup.getCsvFile();
+    }
+
+    private List<String> createCsvColumnDefinitions(final int columnCount) {
+        final List<String> columns = new ArrayList<>(columnCount);
+        for (int columnCounter = 0; columnCounter < columnCount; columnCounter++) {
+            columns.add("data" + columnCounter);
+        }
+        return columns;
+    }
+
+    @Test
     void testOverrideFileType() throws IOException, SQLException {
         createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapJsonLinesFileWithStrangeExtension.json");
         uploadDataFile(
@@ -396,6 +578,10 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     private void uploadAsParquetFile(final Path parquetFile, final int fileCount) {
         uploadDataFile(parquetFile, this.dataFilesDirectory + "/testData-" + fileCount + ".parquet");
+    }
+
+    private void uploadAsCsvFile(final Path csvFile, final int fileCount) {
+        uploadDataFile(csvFile, this.dataFilesDirectory + "/testData-" + fileCount + ".csv");
     }
 
     private void assertQuery(final String query, final Matcher<ResultSet> matcher) throws SQLException {
@@ -413,5 +599,25 @@ public abstract class AbstractDocumentFilesAdapterIT {
     private void createJsonLinesVirtualSchema() throws IOException {
         createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapJsonLinesFile.json");
         uploadDataFileFromResources("test.jsonl");
+    }
+
+    private void createCsvVirtualSchema() throws IOException {
+        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapCsvFile.json");
+        uploadDataFileFromResources("test.csv");
+    }
+
+    private void createCsvVirtualSchemaNoHeaders() throws IOException {
+        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapCsvFileAdditionalConfigurationNoHeaders.json");
+        uploadDataFileFromResources("testCsvNoHeaders.csv");
+    }
+
+    private void createCsvVirtualSchemaHeaders() throws IOException {
+        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapCsvFileAdditionalConfigurationHeaders.json");
+        uploadDataFileFromResources("testCsvHeaders.csv");
+    }
+
+    private void createCsvVirtualSchemaDifferentDelimiter() throws IOException {
+        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapCsvFileDifferentDelimiter.json");
+        uploadDataFileFromResources("testCsvDifferentDelimiter.csv");
     }
 }

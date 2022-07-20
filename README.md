@@ -22,6 +22,7 @@ Supported document types:
 * JSON
 * [JSON-Lines (one json document per line)](https://jsonlines.org/)
 * Parquet
+* CSV
 
 You can also [add support for different document types](doc/user_guide/document_type_plugin_development_guide.md).
 

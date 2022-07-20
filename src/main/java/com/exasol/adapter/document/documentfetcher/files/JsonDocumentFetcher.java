@@ -32,9 +32,13 @@ public class JsonDocumentFetcher implements FileTypeSpecificDocumentFetcher {
         final RemoteFile remoteFile = segment.getFile();
         try (final InputStream inputStream = remoteFile.getContent().getInputStream();
                 final JsonReader jsonReader = buildJsonReader(inputStream)) {
+            //will read out the json object
             final JsonValue jsonValue = jsonReader.readValue();
+            //exasol specific Document node gets created
             final DocumentNode jsonNode = JsonNodeFactory.getInstance().getJsonNode(jsonValue);
+            //1 element, the json object is returned in a list
             return new CloseableIteratorWrapper<>(List.of(jsonNode).iterator());
+
         } catch (final JsonException | IOException jsonException) {
             throw new InputDataException(
                     ExaError.messageBuilder("E-VSDF-1").message("Error in input file {{JSON_FILE}}.")
@@ -42,6 +46,8 @@ public class JsonDocumentFetcher implements FileTypeSpecificDocumentFetcher {
                     jsonException);
         }
     }
+
+
 
     @Override
     public boolean supportsFileSplitting() {

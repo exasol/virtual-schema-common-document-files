@@ -28,7 +28,7 @@ public interface FileTypeSpecificDocumentFetcher extends Serializable {
      * <p>
      * Supporting this feature improves performance when loading fewer files than available CPU cores in the cluster.
      * </p>
-     * 
+     *
      * @return {@code true} if this document fetcher supports file splitting
      */
     public boolean supportsFileSplitting();
