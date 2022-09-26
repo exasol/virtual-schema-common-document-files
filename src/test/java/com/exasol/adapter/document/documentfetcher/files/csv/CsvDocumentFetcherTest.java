@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
@@ -36,7 +35,7 @@ class CsvDocumentFetcherTest {
         final CsvDocumentFetcher documentFetcher = new CsvDocumentFetcher();
         final RemoteFile remoteFile = new RemoteFile("", 0, new StringRemoteFileContent("{}"));
         final FileSegment segment = new FileSegment(remoteFile, new FileSegmentDescription(2, 0));
-        final IllegalStateException exception = Assert.assertThrows(IllegalStateException.class,
+        final IllegalStateException exception = assertThrows(IllegalStateException.class,
                 () -> documentFetcher.readDocuments(segment));
         assertThat(exception.getMessage(), startsWith("F-VSDF-26"));
     }
