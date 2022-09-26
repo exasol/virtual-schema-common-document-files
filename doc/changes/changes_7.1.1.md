@@ -15,12 +15,13 @@ This release fixes [sonatype-2022-5401](https://ossindex.sonatype.org/vulnerabil
 ### Compile Dependency Updates
 
 * Updated `com.exasol:error-reporting-java:0.4.1` to `1.0.0`
-* Updated `com.exasol:parquet-io-java:1.3.1` to `1.3.2`
+* Updated `com.exasol:parquet-io-java:1.3.1` to `1.3.3`
 * Updated `de.siegmar:fastcsv:2.1.0` to `2.2.0`
 * Updated `jakarta.json:jakarta.json-api:2.1.0` to `2.1.1`
 
 ### Test Dependency Updates
 
+* Removed `com.exasol:exasol-test-setup-abstraction-java:0.3.2`
 * Updated `com.exasol:hamcrest-resultset-matcher:1.5.1` to `1.5.2`
 * Updated `com.exasol:performance-test-recorder-java:0.1.0` to `0.1.1`
 * Updated `com.exasol:udf-debugging-java:0.6.2` to `0.6.4`
