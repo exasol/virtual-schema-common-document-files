@@ -45,10 +45,20 @@ public class FilesDocumentFetcher implements DocumentFetcher {
         this.additionalConfiguration = additionalConfiguration;
     }
 
+    /**
+     * Get the file pattern.
+     * 
+     * @return file pattern
+     */
     public StringFilter getFilePattern() {
         return filePattern;
     }
 
+    /**
+     * Get the segment description.
+     * 
+     * @return the segment description
+     */
     public SegmentDescription getSegmentDescription() {
         return segmentDescription;
     }

@@ -13,11 +13,16 @@ import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
  * This class plans the query on document files. For that, it resolves the matching {@link FilesDocumentFetcherFactory}
  * depending on the file extension of the request.
  */
-
 public class FilesQueryPlanner implements QueryPlanner {
     private final FileFinderFactory fileFinderFactory;
     private final ConnectionPropertiesReader connectionInformation;
 
+    /**
+     * Create a new {@link FilesQueryPlanner}.
+     * 
+     * @param fileFinderFactory     the file finder factory
+     * @param connectionInformation connection information reader
+     */
     public FilesQueryPlanner(final FileFinderFactory fileFinderFactory,
             final ConnectionPropertiesReader connectionInformation) {
         this.fileFinderFactory = fileFinderFactory;

@@ -8,6 +8,11 @@ import java.util.List;
 public class FileSegmentDescriptionMatcher {
     private final FileSegmentDescription segmentDescription;
 
+    /**
+     * Create a new {@link FileSegmentDescriptionMatcher}.
+     * 
+     * @param segmentDescription the segment description
+     */
     public FileSegmentDescriptionMatcher(final FileSegmentDescription segmentDescription) {
         this.segmentDescription = segmentDescription;
     }
