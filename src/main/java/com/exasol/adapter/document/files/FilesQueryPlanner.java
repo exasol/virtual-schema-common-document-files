@@ -6,21 +6,23 @@ import com.exasol.adapter.document.QueryPlanner;
 import com.exasol.adapter.document.connection.ConnectionPropertiesReader;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.files.FileFinderFactory;
-import com.exasol.adapter.document.queryplan.EmptyQueryPlan;
-import com.exasol.adapter.document.queryplan.FetchQueryPlan;
-import com.exasol.adapter.document.queryplan.QueryPlan;
+import com.exasol.adapter.document.queryplan.*;
 import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
-
-import lombok.RequiredArgsConstructor;
 
 /**
  * This class plans the query on document files. For that, it resolves the matching {@link FilesDocumentFetcherFactory}
  * depending on the file extension of the request.
  */
-@RequiredArgsConstructor
+
 public class FilesQueryPlanner implements QueryPlanner {
     private final FileFinderFactory fileFinderFactory;
     private final ConnectionPropertiesReader connectionInformation;
+
+    public FilesQueryPlanner(final FileFinderFactory fileFinderFactory,
+            final ConnectionPropertiesReader connectionInformation) {
+        this.fileFinderFactory = fileFinderFactory;
+        this.connectionInformation = connectionInformation;
+    }
 
     @Override
     public QueryPlan planQuery(final RemoteTableQuery remoteTableQuery, final int maxNumberOfParallelFetchers) {
@@ -31,9 +33,9 @@ public class FilesQueryPlanner implements QueryPlanner {
         if (splitSelection.getSourceFilter().hasContradiction()) {
             return new EmptyQueryPlan();
         }
-        String additionalConfiguration = remoteTableQuery.getFromTable().getAdditionalConfiguration();
+        final String additionalConfiguration = remoteTableQuery.getFromTable().getAdditionalConfiguration();
         // .csv,.json,.jsonlines,.parquet, etc.
-        String fileEnding = "." + sourceString.getFileType();
+        final String fileEnding = "." + sourceString.getFileType();
         final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher = new FileTypeSpecificDocumentFetcherFactory()
                 .buildFileTypeSpecificDocumentFetcher(fileEnding);
         final List<DocumentFetcher> documentFetchers = new FilesDocumentFetcherFactory().buildDocumentFetcherForQuery(

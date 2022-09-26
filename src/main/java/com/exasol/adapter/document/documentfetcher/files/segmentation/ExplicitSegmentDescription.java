@@ -2,15 +2,12 @@ package com.exasol.adapter.document.documentfetcher.files.segmentation;
 
 import java.util.*;
 
-import lombok.Getter;
-
 /**
  * This {@link SegmentDescription} describes a segment by an explicit list of files.
  */
 public class ExplicitSegmentDescription implements SegmentDescription {
     private static final long serialVersionUID = -9092990439459054784L;
     /** @serial */
-    @Getter
     private final HashMap<String, ArrayList<FileSegmentDescription>> segmentKeys;
 
     /**
@@ -25,6 +22,10 @@ public class ExplicitSegmentDescription implements SegmentDescription {
             this.segmentKeys.putIfAbsent(key, new ArrayList<>());
             this.segmentKeys.get(key).add(segmentToMatch.getSegmentDescription());
         }
+    }
+
+    public HashMap<String, ArrayList<FileSegmentDescription>> getSegmentKeys() {
+        return segmentKeys;
     }
 
     @Override

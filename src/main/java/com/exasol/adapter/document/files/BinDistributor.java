@@ -5,8 +5,6 @@ import java.util.*;
 import com.exasol.adapter.document.documentfetcher.files.segmentation.FileSegment;
 import com.exasol.errorreporting.ExaError;
 
-import lombok.Getter;
-
 /**
  * This class distributes {@link FileSegment}s into bins of more or less equal size, where size means the sum of the
  * file size of the segments.
@@ -79,10 +77,16 @@ class BinDistributor {
     }
 
     private static class Bin {
-        @Getter
         private final List<FileSegment> segments = new ArrayList<>();
-        @Getter
         private long size = 0;
+
+        public List<FileSegment> getSegments() {
+            return segments;
+        }
+
+        public long getSize() {
+            return size;
+        }
 
         public void addSegment(final FileSegment segment) {
             this.segments.add(segment);
