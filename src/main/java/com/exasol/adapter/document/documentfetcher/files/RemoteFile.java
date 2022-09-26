@@ -6,7 +6,7 @@ import java.util.Objects;
  * This class describes a file loaded by the {@link RemoteFileFinder}.
  */
 
-public final class RemoteFile {
+public class RemoteFile {
 
     private final String resourceName;
     private final long size;

@@ -7,6 +7,6 @@ import nl.jqno.equalsverifier.EqualsVerifier;
 class RemoteFileTest {
     @Test
     void testEqualsContract() {
-        EqualsVerifier.forClass(RemoteFile.class).verify();
+        EqualsVerifier.simple().forClass(RemoteFile.class).verify();
     }
 }
