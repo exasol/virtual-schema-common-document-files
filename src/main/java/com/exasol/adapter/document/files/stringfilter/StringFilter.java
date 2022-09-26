@@ -54,7 +54,7 @@ public interface StringFilter extends Serializable {
     /**
      * Get a directory aware {@link Matcher} for this filter.
      *
-     * @param directorySeparator the separator between directories (e.g. {@code /}).
+     * @param directorySeparator separator between directories (e.g. {@code /}).
      * @return directory aware {@link Matcher} for this filter
      */
     public default Matcher getDirectoryAwareMatcher(final String directorySeparator) {

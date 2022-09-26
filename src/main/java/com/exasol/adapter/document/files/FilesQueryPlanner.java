@@ -20,7 +20,7 @@ public class FilesQueryPlanner implements QueryPlanner {
     /**
      * Create a new {@link FilesQueryPlanner}.
      * 
-     * @param fileFinderFactory     the file finder factory
+     * @param fileFinderFactory     file finder factory
      * @param connectionInformation connection information reader
      */
     public FilesQueryPlanner(final FileFinderFactory fileFinderFactory,

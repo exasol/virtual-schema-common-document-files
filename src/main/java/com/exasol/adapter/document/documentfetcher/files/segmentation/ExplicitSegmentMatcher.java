@@ -22,7 +22,7 @@ public class ExplicitSegmentMatcher implements SegmentMatcher {
     /**
      * Create a new instance of {@link ExplicitSegmentMatcher}.
      * 
-     * @param segmentKeys the segment keys
+     * @param segmentKeys segment keys
      */
     public ExplicitSegmentMatcher(final Map<String, ArrayList<FileSegmentDescription>> segmentKeys) {
         this.segmentKeys = segmentKeys;

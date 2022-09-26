@@ -57,7 +57,7 @@ public class FilesDocumentFetcher implements DocumentFetcher {
     /**
      * Get the segment description.
      * 
-     * @return the segment description
+     * @return segment description
      */
     public SegmentDescription getSegmentDescription() {
         return segmentDescription;

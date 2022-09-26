@@ -27,7 +27,7 @@ public class ExplicitSegmentDescription implements SegmentDescription {
     /**
      * Get the segment keys.
      * 
-     * @return the segment keys
+     * @return segment keys
      */
     public Map<String, ArrayList<FileSegmentDescription>> getSegmentKeys() {
         return segmentKeys;

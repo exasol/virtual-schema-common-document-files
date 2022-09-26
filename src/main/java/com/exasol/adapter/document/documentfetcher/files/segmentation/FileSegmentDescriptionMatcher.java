@@ -11,7 +11,7 @@ public class FileSegmentDescriptionMatcher {
     /**
      * Create a new {@link FileSegmentDescriptionMatcher}.
      * 
-     * @param segmentDescription the segment description
+     * @param segmentDescription segment description
      */
     public FileSegmentDescriptionMatcher(final FileSegmentDescription segmentDescription) {
         this.segmentDescription = segmentDescription;

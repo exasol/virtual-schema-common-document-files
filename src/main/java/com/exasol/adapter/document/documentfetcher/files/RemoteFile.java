@@ -28,7 +28,7 @@ public class RemoteFile {
     /**
      * Get the name of the file.
      *
-     * @return the name of the file
+     * @return name of the file
      */
     public String getResourceName() {
         return this.resourceName;
@@ -37,7 +37,7 @@ public class RemoteFile {
     /**
      * Get the file size in bytes.
      *
-     * @return the file size in bytes
+     * @return file size in bytes
      */
     public long getSize() {
         return this.size;
@@ -46,7 +46,7 @@ public class RemoteFile {
     /**
      * Get the file content.
      *
-     * @return the file content
+     * @return file content
      */
     public RemoteFileContent getContent() {
         return this.content;
