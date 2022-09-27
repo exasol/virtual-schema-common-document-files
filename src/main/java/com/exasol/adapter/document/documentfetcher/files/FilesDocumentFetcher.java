@@ -9,18 +9,14 @@ import com.exasol.adapter.document.files.FileTypeSpecificDocumentFetcher;
 import com.exasol.adapter.document.files.stringfilter.StringFilter;
 import com.exasol.adapter.document.iterators.*;
 
-import lombok.Getter;
-
 /**
  * This is a basis for {@link DocumentFetcher}s that fetches data/documents from files.
  */
 public class FilesDocumentFetcher implements DocumentFetcher {
     private static final long serialVersionUID = 3556762980241219699L;
     /** @serial */
-    @Getter
     private final StringFilter filePattern;
     /** @serial */
-    @Getter
     private final SegmentDescription segmentDescription;
     /** @serial */
     private final FileFinderFactory fileFinderFactory;
@@ -29,7 +25,6 @@ public class FilesDocumentFetcher implements DocumentFetcher {
     /** @serial */
     private final String additionalConfiguration;
 
-
     /**
      * Create a new instance of {@link FilesDocumentFetcher}.
      * 
@@ -37,16 +32,35 @@ public class FilesDocumentFetcher implements DocumentFetcher {
      * @param segmentDescription              segmentation for parallel execution
      * @param fileFinderFactory               dependency in injection of {@link FileFinderFactory}
      * @param fileTypeSpecificDocumentFetcher file type specific document fetcher part
-     * @param additionalConfiguration additional configuration
+     * @param additionalConfiguration         additional configuration
      */
     public FilesDocumentFetcher(final StringFilter filePattern, final SegmentDescription segmentDescription,
             final FileFinderFactory fileFinderFactory,
-            final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher, final String additionalConfiguration) {
+            final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher,
+            final String additionalConfiguration) {
         this.filePattern = filePattern;
         this.segmentDescription = segmentDescription;
         this.fileFinderFactory = fileFinderFactory;
         this.fileTypeSpecificDocumentFetcher = fileTypeSpecificDocumentFetcher;
-        this.additionalConfiguration= additionalConfiguration;
+        this.additionalConfiguration = additionalConfiguration;
+    }
+
+    /**
+     * Get the file pattern.
+     * 
+     * @return file pattern
+     */
+    public StringFilter getFilePattern() {
+        return filePattern;
+    }
+
+    /**
+     * Get the segment description.
+     * 
+     * @return segment description
+     */
+    public SegmentDescription getSegmentDescription() {
+        return segmentDescription;
     }
 
     @Override
@@ -64,10 +78,10 @@ public class FilesDocumentFetcher implements DocumentFetcher {
 
     private CloseableIterator<FetchedDocument> readLoadedFile(final FileSegment fileSegment) {
         final RemoteFile remoteFile = fileSegment.getFile();
-        //add the property if csv
-        if(this.fileTypeSpecificDocumentFetcher instanceof CsvDocumentFetcher){
-            CsvDocumentFetcher csvDocumentFetcher = (CsvDocumentFetcher) this.fileTypeSpecificDocumentFetcher;
-        csvDocumentFetcher.setAdditionalConfiguration(this.additionalConfiguration);
+        // add the property if csv
+        if (this.fileTypeSpecificDocumentFetcher instanceof CsvDocumentFetcher) {
+            final CsvDocumentFetcher csvDocumentFetcher = (CsvDocumentFetcher) this.fileTypeSpecificDocumentFetcher;
+            csvDocumentFetcher.setAdditionalConfiguration(this.additionalConfiguration);
         }
         return new TransformingIterator<>(this.fileTypeSpecificDocumentFetcher.readDocuments(fileSegment),
                 document -> new FetchedDocument(document, remoteFile.getResourceName()));

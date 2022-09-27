@@ -4,14 +4,11 @@ import java.util.*;
 
 import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
 
-import lombok.RequiredArgsConstructor;
-
 /**
  * Matcher for {@link ExplicitSegmentDescription}s.
  */
-@RequiredArgsConstructor
 public class ExplicitSegmentMatcher implements SegmentMatcher {
-    private final HashMap<String, ArrayList<FileSegmentDescription>> segmentKeys;
+    private final Map<String, ArrayList<FileSegmentDescription>> segmentKeys;
 
     /**
      * Create a new instance of {@link ExplicitSegmentMatcher}.
@@ -19,7 +16,16 @@ public class ExplicitSegmentMatcher implements SegmentMatcher {
      * @param segmentDescription segment description
      */
     public ExplicitSegmentMatcher(final ExplicitSegmentDescription segmentDescription) {
-        this.segmentKeys = segmentDescription.getSegmentKeys();
+        this(segmentDescription.getSegmentKeys());
+    }
+
+    /**
+     * Create a new instance of {@link ExplicitSegmentMatcher}.
+     * 
+     * @param segmentKeys segment keys
+     */
+    public ExplicitSegmentMatcher(final Map<String, ArrayList<FileSegmentDescription>> segmentKeys) {
+        this.segmentKeys = segmentKeys;
     }
 
     @Override

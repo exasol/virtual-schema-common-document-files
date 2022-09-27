@@ -2,14 +2,20 @@ package com.exasol.adapter.document.documentfetcher.files.segmentation;
 
 import java.util.List;
 
-import lombok.RequiredArgsConstructor;
-
 /**
  * This class matches part descriptions of a file against a {@link FileSegmentDescription}.
  */
-@RequiredArgsConstructor
 public class FileSegmentDescriptionMatcher {
     private final FileSegmentDescription segmentDescription;
+
+    /**
+     * Create a new {@link FileSegmentDescriptionMatcher}.
+     * 
+     * @param segmentDescription segment description
+     */
+    public FileSegmentDescriptionMatcher(final FileSegmentDescription segmentDescription) {
+        this.segmentDescription = segmentDescription;
+    }
 
     /**
      * Matches part descriptions of a file against a {@link FileSegmentDescription}.

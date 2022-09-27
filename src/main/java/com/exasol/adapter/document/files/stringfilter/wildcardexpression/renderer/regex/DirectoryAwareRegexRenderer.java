@@ -13,7 +13,7 @@ public class DirectoryAwareRegexRenderer extends AbstractRegexRenderer {
     /**
      * Create a new instance of {@link DirectoryAwareRegexRenderer}.
      * 
-     * @param directorySeparator the separator between directories (e.g. {@code /}).
+     * @param directorySeparator separator between directories (e.g. {@code /}).
      */
     public DirectoryAwareRegexRenderer(final String directorySeparator) {
         super("[^" + Pattern.quote(directorySeparator) + "]");

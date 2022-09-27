@@ -17,7 +17,7 @@ public class MatcherFactory {
     /**
      * Create a new instance of {@link MatcherFactory}.
      * 
-     * @param regexRenderer the {@link RegexRenderer} to use for converting {@link WildcardExpression} into regular
+     * @param regexRenderer {@link RegexRenderer} to use for converting {@link WildcardExpression} into regular
      *                      expressions.
      */
     public MatcherFactory(final RegexRenderer regexRenderer) {

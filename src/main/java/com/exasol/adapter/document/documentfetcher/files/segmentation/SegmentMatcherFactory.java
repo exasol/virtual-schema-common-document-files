@@ -1,7 +1,5 @@
 package com.exasol.adapter.document.documentfetcher.files.segmentation;
 
-import lombok.Getter;
-
 /**
  * This class builds {@link SegmentMatcher}s for given {@link SegmentDescription}s.
  */
@@ -24,8 +22,11 @@ public class SegmentMatcherFactory {
     }
 
     private static class MatcherBuildingVisitor implements SegmentDescriptionVisitor {
-        @Getter
         private SegmentMatcher segmentMatcher;
+
+        public SegmentMatcher getSegmentMatcher() {
+            return segmentMatcher;
+        }
 
         @Override
         public void visit(final HashSegmentDescription segmentDescription) {

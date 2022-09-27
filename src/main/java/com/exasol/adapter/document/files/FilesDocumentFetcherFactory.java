@@ -27,8 +27,7 @@ public class FilesDocumentFetcherFactory {
      * Builds {@link DocumentFetcher}s for a given query.
      *
      * @param sourceFilter                    filter for the source file names
-     * @param maxNumberOfParallelFetchers     the maximum amount of {@link DocumentFetcher}s that can be used in
-     *                                        parallel
+     * @param maxNumberOfParallelFetchers     maximum amount of {@link DocumentFetcher}s that can be used in parallel
      * @param fileFinderFactory               dependency injection of {@link FileFinderFactory}
      * @param connectionInformation           connection information
      * @param fileTypeSpecificDocumentFetcher file type specific document fetcher
