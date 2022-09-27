@@ -1,4 +1,4 @@
-# Virtual Schema for document data in files 7.1.1, released 2022-09-26
+# Virtual Schema for document data in files 7.1.1, released 2022-09-27
 
 Code name: Fix vulnerabilities in dependencies
 
