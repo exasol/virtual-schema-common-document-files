@@ -27,7 +27,7 @@ Document-based virtual schemas are characterized by
 
 You cannot directly use this adapter. Please, use one of the dialects for specific storage variants below.
 
-* [S3](https://github.com/exasol/s3-document-files-virtual-schema/)
+* [AWS S3](https://github.com/exasol/s3-document-files-virtual-schema/)
 * [Exasol BucketFS](https://github.com/exasol/bucketfs-document-files-virtual-schema/)
 * [Google Cloud Storage](https://github.com/exasol/google-cloud-storage-document-files-virtual-schema)
 * [Azure Blob Storage](https://github.com/exasol/azure-blob-storage-document-files-virtual-schema)
