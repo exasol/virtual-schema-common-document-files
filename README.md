@@ -15,27 +15,35 @@
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=com.exasol%3Avirtual-schema-common-document-files&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard?id=com.exasol%3Avirtual-schema-common-document-files)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=com.exasol%3Avirtual-schema-common-document-files&metric=ncloc)](https://sonarcloud.io/dashboard?id=com.exasol%3Avirtual-schema-common-document-files)
 
-This Virtual Schemas allows you to access documents stored in files like any regular Exasol table.
+Virtual Schema Common Document Files allows you to query data stored in a document file in the same way as if the data was stored in a regular Exasol database table.
 
-Supported document types:
+This module is part of a larger project called [Virtual Schemas](https://github.com/exasol/virtual-schemas) covering document based dialects as well as JDBC based, see complete list of [dialects](https://github.com/exasol/virtual-schemas/blob/main/doc/user-guide/dialects.md).
 
+Document-based virtual schemas are characterized by
+* a *storage* that is basically a container hosting the document files and also defining the access control and type of account needed to access the files and
+* a *document type* defining the format of the document containing the data.
+
+## Storage Variants
+
+You cannot directly use this adapter. Please, use one of the dialects for specific storage variants below.
+
+* [AWS S3](https://github.com/exasol/s3-document-files-virtual-schema/)
+* [Exasol BucketFS](https://github.com/exasol/bucketfs-document-files-virtual-schema/)
+* [Google Cloud Storage](https://github.com/exasol/google-cloud-storage-document-files-virtual-schema)
+* [Azure Blob Storage](https://github.com/exasol/azure-blob-storage-document-files-virtual-schema)
+* [Azure Data Lake Storage Gen2](https://github.com/exasol/azure-data-lake-storage-gen2-document-files-virtual-schema)
+
+If this list does not contain your file source you can [implement your own file source](doc/user_guide/dialect_development_guide.md).
+
+## Document Types
+
+Each storage variant can contain documents using any of the following supported document types:
 * JSON
 * [JSON-Lines (one json document per line)](https://jsonlines.org/)
 * Parquet
 * CSV
 
-You can also [add support for different document types](doc/user_guide/document_type_plugin_development_guide.md).
-
-## Official Dialects:
-
-You cannot directly use this adapter!
-Please, use one of the file source-specific dialects from the list below. If this list does not contain your file source you can [implement your own file source](doc/user_guide/dialect_development_guide.md).
-
-* [S3](https://github.com/exasol/s3-document-files-virtual-schema/)
-* [Exasol BucketFS](https://github.com/exasol/bucketfs-document-files-virtual-schema/)
-* [Google Cloud Storage](https://github.com/exasol/google-cloud-storage-document-files-virtual-schema)
-* [Azure Blob Storage](https://github.com/exasol/azure-blob-storage-document-files-virtual-schema)
-* [Azure Data Lake Storage Gen2](https://github.com/exasol/azure-data-lake-storage-gen2-document-files-virtual-schema)
+You can also [add support for other document types](doc/user_guide/document_type_plugin_development_guide.md).
 
 ## Additional Information
 
