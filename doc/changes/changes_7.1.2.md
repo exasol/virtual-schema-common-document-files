@@ -1,4 +1,4 @@
-# Virtual Schema for document data in files 7.1.2, released 2022-??-??
+# Virtual Schema for document data in files 7.1.2, released 2022-10-26
 
 Code name: Documentation Update
 
