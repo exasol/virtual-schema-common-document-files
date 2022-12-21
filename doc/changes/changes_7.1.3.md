@@ -6,6 +6,8 @@ Code name: Dependency Upgrade
 
 Updated dependencies to use artifacts from Maven Central as repository maven.exasol.com has been discontinued.
 
+Replaced transitive dependency com.fasterxml.jackson.core:jackson-core via parquet-io-java / hadoop with an newer version. Additionally excluded vulnerabilities to sonatype-2022-6438 and CVE-2021-37533. The latter only affects the FTP client which is not used by VSDF or parquet.
+
 ## Changes
 
 * #117: Updated dependencies
@@ -15,6 +17,8 @@ Updated dependencies to use artifacts from Maven Central as repository maven.exa
 ### Compile Dependency Updates
 
 * Updated `com.exasol:virtual-schema-common-document:9.1.1` to `9.1.2`
+* Added `com.fasterxml.jackson.core:jackson-databind:2.14.1`
+* Added `com.fasterxml.woodstox:woodstox-core:5.4.0`
 * Updated `de.siegmar:fastcsv:2.2.0` to `2.2.1`
 
 ### Test Dependency Updates
