@@ -9,7 +9,7 @@
     <url>https://github.com/exasol/virtual-schema-common-document-files/</url>
     <properties>
         <junit.version>5.9.1</junit.version>
-        <vs-common-document.version>9.1.1</vs-common-document.version>
+        <vs-common-document.version>9.1.2</vs-common-document.version>
     </properties>
     <distributionManagement>
         <snapshotRepository>
