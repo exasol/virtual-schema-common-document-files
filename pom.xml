@@ -3,12 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.exasol</groupId>
     <artifactId>virtual-schema-common-document-files</artifactId>
-    <version>7.1.4</version>
+    <version>7.2.0</version>
     <name>Virtual Schema for document data in files</name>
     <description>Adapter for document data access from files.</description>
     <url>https://github.com/exasol/virtual-schema-common-document-files/</url>
     <properties>
-        <junit.version>5.9.1</junit.version>
+        <junit.version>5.9.2</junit.version>
         <vs-common-document.version>9.1.2</vs-common-document.version>
     </properties>
     <distributionManagement>
@@ -87,14 +87,8 @@
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>4.10.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>4.10.0</version>
+            <version>5.0.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -127,7 +121,7 @@
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>udf-debugging-java</artifactId>
-            <version>0.6.6</version>
+            <version>0.6.7</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -192,7 +186,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.2</version>
                 <executions>
                     <execution>
                         <goals>
@@ -218,7 +211,7 @@
     <parent>
         <artifactId>virtual-schema-common-document-files-generated-parent</artifactId>
         <groupId>com.exasol</groupId>
-        <version>7.1.4</version>
+        <version>7.2.0</version>
         <relativePath>pk_generated_parent.pom</relativePath>
     </parent>
 </project>
