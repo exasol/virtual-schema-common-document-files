@@ -81,7 +81,3 @@ The Virtual Schema can only push down selections on the `SOURCE_REFERENCE` colum
 ```sql
 SELECT * FROM LOGS WHERE SOURCE_REFERENCE LIKE 'log_files/2022-01-%.parquet' AND SEVERITY = 'warn'
 ```
-
-## Known Issues:
-
-* Certain virtual-schema queries can cause a database crash. For details see [#41](https://github.com/exasol/virtual-schema-common-document-files/issues/41).
