@@ -1,8 +1,10 @@
-# Virtual Schema for Document Data in Files 7.2.0, released 2023-??-??
+# Virtual Schema for Document Data in Files 7.2.0, released 2023-03-21
 
-Code name: Auto-inference for Parquet files
+Code name: Auto-inference for Parquet
 
 ## Summary
+
+This release adds automatic schema inference for Parquet files. This means that you don't need to specify a `mapping` element in the EDML definition. Instead the mapping will be automatically detected. See the [EDML user guide](https://github.com/exasol/virtual-schema-common-document/blob/main/doc/user_guide/edml_user_guide.md#automatic-mapping-inference) for details.
 
 ## Features
 
