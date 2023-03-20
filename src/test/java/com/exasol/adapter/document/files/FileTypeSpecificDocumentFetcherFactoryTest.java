@@ -45,15 +45,6 @@ class FileTypeSpecificDocumentFetcherFactoryTest {
                 "E-VSDF-13: Could not find a file type implementation for '.unknown-type'. Please check the file extension."));
     }
 
-    static Stream<Arguments> getBuiltinSchemaFetcherCases() {
-        return Stream.of(//
-                Arguments.of(".json", JsonDocumentFetcher.class),
-                Arguments.of(".parquet", ParquetDocumentFetcher.class),
-                Arguments.of(".jsonl", JsonLinesDocumentFetcher.class), //
-                Arguments.of(".csv", CsvDocumentFetcher.class)//
-        );
-    }
-
     @ParameterizedTest
     @CsvSource({ ".json", ".parquet", ".jsonl", ".csv" })
     void testSchemaFetcherBuiltinTypes(final String ending) {
