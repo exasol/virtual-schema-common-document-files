@@ -19,11 +19,11 @@ public class ParquetSchemaFetcher implements SingleFileSchemaFetcher {
 
     @Override
     public MappingDefinition fetchSchema(final RemoteFile remoteFile) {
-        final MessageType schema = extracted(remoteFile);
+        final MessageType schema = getType(remoteFile);
         return new ParquetColumnToMappingDefinitionConverter().convert(schema);
     }
 
-    private MessageType extracted(final RemoteFile remoteFile) {
+    private MessageType getType(final RemoteFile remoteFile) {
         final InputFile inputFile = SeekableInputStreamAdapter
                 .convert(remoteFile.getContent().getRandomAccessInputStream());
         try (final var reader = ParquetFileReader.open(inputFile)) {

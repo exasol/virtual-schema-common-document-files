@@ -27,7 +27,7 @@ class FilesSchemaFetcher implements SchemaFetcher {
     public Optional<MappingDefinition> fetchSchema(final String source) {
         final SourceString sourceString = new SourceString(source);
         final FileTypeSpecificSchemaFetcher mappingFetcher = this.documentFetcherFactory
-                .buildFileTypeSpecificMappingFetcher("." + sourceString.getFileType());
+                .buildFileTypeSpecificSchemaFetcher("." + sourceString.getFileType());
         final RemoteFileFinder fileFinder = this.fileFinderFactory
                 .getFinder(WildcardExpression.fromGlob(sourceString.getFilePattern()), this.connectionInformation);
         return mappingFetcher.fetchSchema(fileFinder);

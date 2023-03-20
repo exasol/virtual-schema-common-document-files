@@ -88,12 +88,7 @@ class ParquetColumnToMappingDefinitionConverter {
                     .destinationName(buildColumnName(primitiveType)).build();
         }
 
-        /**
-         * Get the result.
-         *
-         * @return result
-         */
-        public MappingDefinition getResult() {
+        private MappingDefinition getResult() {
             return this.result;
         }
     }

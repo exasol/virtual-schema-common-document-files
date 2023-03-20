@@ -25,7 +25,7 @@ public class FileTypeSpecificDocumentFetcherFactory {
      * @param fileEnding file ending including {@code .}
      * @return built {@link FileTypeSpecificSchemaFetcher}
      */
-    public FileTypeSpecificSchemaFetcher buildFileTypeSpecificMappingFetcher(final String fileEnding) {
+    public FileTypeSpecificSchemaFetcher buildFileTypeSpecificSchemaFetcher(final String fileEnding) {
         return findFactory(fileEnding).buildFileTypeSpecificMappingFetcher();
     }
 
