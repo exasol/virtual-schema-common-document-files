@@ -33,8 +33,9 @@ public class ParquetTestSetup {
         return this;
     }
 
-    public void closeWriter() throws IOException {
+    public ParquetTestSetup closeWriter() throws IOException {
         this.parquetWriter.close();
+        return this;
     }
 
     @FunctionalInterface

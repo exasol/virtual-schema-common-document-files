@@ -8,7 +8,9 @@ import static org.apache.parquet.schema.Type.Repetition.REQUIRED;
 import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,6 +18,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.sql.*;
 import java.sql.Date;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -79,8 +83,10 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     private void createVirtualSchemaWithMapping(final String schemaName, final EdmlDefinition edmlDefinition) {
         final String edmlString = new EdmlSerializer().serialize(edmlDefinition);
-        LOGGER.fine(() -> "Using EDML '" + edmlString + "'");
+        LOGGER.fine(() -> "Creating virtual schema '" + schemaName + "' using EDML '" + edmlString + "'");
+        final Instant start = Instant.now();
         createVirtualSchema(schemaName, edmlString);
+        LOGGER.fine(() -> "Virtual schema '" + schemaName + "' created in " + Duration.between(start, Instant.now()));
     }
 
     private String getMappingTemplate(final String resourceName) throws IOException {
@@ -389,19 +395,16 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 .as(LogicalTypeAnnotation.timestampType(true, LogicalTypeAnnotation.TimeUnit.MILLIS))
                 .named("my_timestamp");
         final Type jsonColumn = Types.primitive(BINARY, REQUIRED).as(LogicalTypeAnnotation.jsonType()).named("json");
-        final ParquetTestSetup parquetTestSetup = new ParquetTestSetup(this.tempDir, stringColumn, boolColumn,
-                dateColumn, timeColumn, timestampColumn, jsonColumn);
         final long a_timestamp = 1632384929000L;
-        parquetTestSetup.writeRow(row -> {
-            row.add("data", "my test string");
-            row.add("isActive", true);
-            row.add("my_date", (int) (a_timestamp / 24 / 60 / 60 / 1000)); // days since unix-epoch
-            row.add("my_time", 1000);// ms after midnight
-            row.add("my_timestamp", a_timestamp);// ms after midnight
-            row.add("json", "{\"my_value\": 2}");
-        });
-        parquetTestSetup.closeWriter();
-        uploadAsParquetFile(parquetTestSetup.getParquetFile(), 1);
+        uploadAsParquetFile(parquetFile(stringColumn, boolColumn, dateColumn, timeColumn, timestampColumn, jsonColumn) //
+                .writeRow(row -> {
+                    row.add("data", "my test string");
+                    row.add("isActive", true);
+                    row.add("my_date", (int) (a_timestamp / 24 / 60 / 60 / 1000)); // days since unix-epoch
+                    row.add("my_time", 1000);// ms after midnight
+                    row.add("my_timestamp", a_timestamp);// ms after midnight
+                    row.add("json", "{\"my_value\": 2}");
+                }).closeWriter(), 1);
 
         final String source = this.dataFilesDirectory + "/testData-*.parquet";
         createVirtualSchemaWithMapping(TEST_SCHEMA,
@@ -411,6 +414,43 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 + TEST_SCHEMA + ".BOOKS";
         assertQuery(query, table().row("my test string", true, new Date(a_timestamp), 1000, new Timestamp(a_timestamp),
                 "{\"my_value\": 2}").withUtcCalendar().matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
+    }
+
+    @Test
+    void testReadMultipleParquetFilesWithAutomaticInference() throws IOException, SQLException {
+        final Type stringColumn = Types.primitive(BINARY, REQUIRED).named("data");
+        uploadAsParquetFile(parquetFile(stringColumn).writeRow(row -> row.add("data", "row1")).closeWriter(), 1);
+        uploadAsParquetFile(parquetFile(stringColumn).writeRow(row -> row.add("data", "row2")).closeWriter(), 2);
+
+        final String source = this.dataFilesDirectory + "/testData-*.parquet";
+        createVirtualSchemaWithMapping(TEST_SCHEMA, EdmlDefinition.builder().source(source).destinationTable("BOOKS")
+                .addSourceReferenceColumn(true).build());
+
+        final String query = "SELECT \"DATA\" FROM " + TEST_SCHEMA + ".BOOKS ORDER BY SOURCE_REFERENCE";
+        assertQuery(query, table().row("row1").row("row2").withUtcCalendar().matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
+    }
+
+    @Test
+    void testReadParquetFileWithAutomaticInferenceMissingInputFile() throws IOException, SQLException {
+        final String source = this.dataFilesDirectory + "/file-does-not-exist-*.parquet";
+        final EdmlDefinition edmlDefinition = EdmlDefinition.builder().source(source).destinationTable("BOOKS").build();
+        final RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> createVirtualSchemaWithMapping(TEST_SCHEMA, edmlDefinition));
+        assertThat(exception.getCause().getMessage(),
+                containsString(
+                        "E-VSD-102: Schema auto inference for source '" + source + "' failed. Known mitigations:\n"
+                                + "* Make sure that the input files exist at '" + source + "'"));
+    }
+
+    @Test
+    void testReadJsonFileWithAutomaticInferenceNotSupported() throws IOException, SQLException {
+        final String source = this.dataFilesDirectory + "/auto-inference-unsupported-*.json";
+        final EdmlDefinition edmlDefinition = EdmlDefinition.builder().source(source).destinationTable("BOOKS").build();
+        final RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> createVirtualSchemaWithMapping(TEST_SCHEMA, edmlDefinition));
+        assertThat(exception.getCause().getMessage(),
+                containsString("E-VSD-101: This virtual schema does not support auto inference for source '" + source
+                        + "'. Please specify the 'mapping' element in the JSON EDML definition."));
     }
 
     @Test
@@ -443,6 +483,10 @@ public abstract class AbstractDocumentFilesAdapterIT {
         for (int runCounter = 0; runCounter < 5; runCounter++) {
             runSingleParquetLoadingTest(rowCount, fileCount, testInfo);
         }
+    }
+
+    private ParquetTestSetup parquetFile(final Type... columnTypes) throws IOException {
+        return new ParquetTestSetup(this.tempDir, columnTypes);
     }
 
     private void prepareParquetLoadingTest(final int itemSize, final long rowCount, final int fileCount,
@@ -613,6 +657,10 @@ public abstract class AbstractDocumentFilesAdapterIT {
         assertThat(result, table().row("book-1").row("book-2").matches());
     }
 
+    private void uploadAsParquetFile(final ParquetTestSetup parquetFile, final int fileCount) {
+        uploadAsParquetFile(parquetFile.getParquetFile(), fileCount);
+    }
+
     private void uploadAsParquetFile(final Path parquetFile, final int fileCount) {
         uploadDataFile(parquetFile, this.dataFilesDirectory + "/testData-" + fileCount + ".parquet");
     }
@@ -622,9 +670,12 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     private void assertQuery(final String query, final Matcher<ResultSet> matcher) throws SQLException {
+        LOGGER.finest(() -> "Executing query '" + query + "'");
+        final Instant start = Instant.now();
         try (final ResultSet result = getStatement().executeQuery(query)) {
             assertThat(result, matcher);
         }
+        LOGGER.fine(() -> "Executed query in " + Duration.between(start, Instant.now()));
     }
 
     protected void createJsonVirtualSchema() throws IOException {
