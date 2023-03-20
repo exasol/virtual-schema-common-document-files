@@ -47,7 +47,7 @@ public class FilesSelectionExtractor {
     public Result splitSelection(final QueryPredicate selection) {
         try {
             final SelectionExtractor selectionExtractor = new SelectionExtractor(
-                    comparison -> comparison instanceof ColumnLiteralComparisonPredicate
+                    comparison -> (comparison instanceof ColumnLiteralComparisonPredicate)
                             && comparison.getComparedColumns().stream()
                                     .anyMatch(SourceReferenceColumnMapping.class::isInstance)
                             && SUPPORTED_OPERATORS.contains(comparison.getOperator()));
@@ -57,7 +57,8 @@ public class FilesSelectionExtractor {
             final DnfOr or = selectionExtractionResult.getSelectedSelection();
             return new Result(postSelection,
                     STRING_FILTER_FACTORY.and(extractStringValueFromDnfOr(or), this.sourceExpression));
-        } catch (final UnsupportedOperationException exception) {return new Result(selection, this.sourceExpression);
+        } catch (final UnsupportedOperationException exception) {
+            return new Result(selection, this.sourceExpression);
         }
     }
 

@@ -17,4 +17,9 @@ public class JsonLinesFilesDocumentFetcherFactory implements FileTypeSpecificDoc
     public FileTypeSpecificDocumentFetcher buildFileTypeSpecificDocumentFetcher() {
         return new JsonLinesDocumentFetcher();
     }
+
+    @Override
+    public FileTypeSpecificSchemaFetcher buildFileTypeSpecificMappingFetcher() {
+        return FileTypeSpecificSchemaFetcher.unsupported();
+    }
 }

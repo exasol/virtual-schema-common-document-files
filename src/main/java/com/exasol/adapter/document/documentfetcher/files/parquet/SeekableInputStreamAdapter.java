@@ -9,14 +9,14 @@ import org.apache.parquet.io.SeekableInputStream;
 import com.exasol.adapter.document.documentfetcher.files.randomaccessinputstream.RandomAccessInputStream;
 
 /**
- * Adapted from https://github.com/haifengl/smile/blob/master/io/src/main/java/smile/io/LocalInputFile.java
+ * Adapted from {@link RandomAccessInputStream} to {@link org.apache.parquet.io.InputFile}.
  */
 public final class SeekableInputStreamAdapter {
     private static final int COPY_BUFFER_SIZE = 8192;
 
     /**
      * Convert a {@link RandomAccessInputStream} to an {@link org.apache.parquet.io.InputFile}.
-     * 
+     *
      * @param source stream to convert
      * @return result
      */
@@ -100,8 +100,9 @@ public final class SeekableInputStreamAdapter {
                         int n = 0;
                         do {
                             final int count = this.read(bytes, offset + n, length - n);
-                            if (count < 0)
+                            if (count < 0) {
                                 throw new EOFException();
+                            }
                             n += count;
                         } while (n < length);
                     }
@@ -150,12 +151,12 @@ public final class SeekableInputStreamAdapter {
         int nextReadLength = Math.min(byteBufr.remaining(), tmpBuf.length);
         int bytesRead = 0;
 
-        while (nextReadLength > 0 && (bytesRead = rdr.read(tmpBuf, 0, nextReadLength)) >= 0) {
+        while ((nextReadLength > 0) && ((bytesRead = rdr.read(tmpBuf, 0, nextReadLength)) >= 0)) {
             byteBufr.put(tmpBuf, 0, bytesRead);
             nextReadLength = Math.min(byteBufr.remaining(), tmpBuf.length);
         }
 
-        if (bytesRead < 0 && byteBufr.remaining() > 0) {
+        if ((bytesRead < 0) && (byteBufr.remaining() > 0)) {
             throw new EOFException("Reached the end of stream with " + byteBufr.remaining() + " bytes left to read");
         }
     }

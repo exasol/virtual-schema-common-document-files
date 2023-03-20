@@ -11,18 +11,27 @@ public class FileTypeSpecificDocumentFetcherFactory {
 
     /**
      * Build a {@link FileTypeSpecificDocumentFetcher} for a given file name extension.
-     * 
+     *
      * @param fileEnding file ending including {@code .}
      * @return built {@link FileTypeSpecificDocumentFetcher}
      */
     public FileTypeSpecificDocumentFetcher buildFileTypeSpecificDocumentFetcher(final String fileEnding) {
         return findFactory(fileEnding).buildFileTypeSpecificDocumentFetcher();
     }
-    //you select the factory and then return the document fetcher
+
+    /**
+     * Build a {@link FileTypeSpecificSchemaFetcher} for a given file name extension.
+     *
+     * @param fileEnding file ending including {@code .}
+     * @return built {@link FileTypeSpecificSchemaFetcher}
+     */
+    public FileTypeSpecificSchemaFetcher buildFileTypeSpecificMappingFetcher(final String fileEnding) {
+        return findFactory(fileEnding).buildFileTypeSpecificMappingFetcher();
+    }
+
+    // you select the factory and then return the document fetcher
     private FileTypeSpecificDocumentFetcherFactoryInterface findFactory(final String fileEnding) {
-        final ServiceLoader<FileTypeSpecificDocumentFetcherFactoryInterface> loader = ServiceLoader
-                .load(FileTypeSpecificDocumentFetcherFactoryInterface.class);
-        return loader.stream()
+        return ServiceLoader.load(FileTypeSpecificDocumentFetcherFactoryInterface.class).stream()
                 .filter(x -> x.get().getSupportedFileExtensions().stream().anyMatch(fileEnding::equalsIgnoreCase))//
                 .findAny()
                 .orElseThrow(() -> new UnsupportedOperationException(ExaError.messageBuilder("E-VSDF-13")

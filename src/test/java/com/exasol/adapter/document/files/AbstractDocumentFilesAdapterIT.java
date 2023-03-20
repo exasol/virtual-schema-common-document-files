@@ -63,8 +63,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 .mapping(mapping)//
                 .source(this.dataFilesDirectory + "/" + dataFilePattern)//
                 .build();
-        final String edmlString = new EdmlSerializer().serialize(edmlDefinition);
-        createVirtualSchema(schemaName, edmlString);
+        createVirtualSchemaWithMapping(schemaName, edmlDefinition);
     }
 
     private void createVirtualSchemaWithMapping(final String schemaName, final Fields mapping,
@@ -75,7 +74,12 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 .mapping(mapping)//
                 .source(this.dataFilesDirectory + "/" + dataFilePattern)//
                 .build();
+        createVirtualSchemaWithMapping(schemaName, edmlDefinition);
+    }
+
+    private void createVirtualSchemaWithMapping(final String schemaName, final EdmlDefinition edmlDefinition) {
         final String edmlString = new EdmlSerializer().serialize(edmlDefinition);
+        LOGGER.fine(() -> "Using EDML '" + edmlString + "'");
         createVirtualSchema(schemaName, edmlString);
     }
 
@@ -266,8 +270,6 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     /**
      * SPOT-11018 (fixed) https://github.com/exasol/virtual-schema-common-document-files/issues/41
-     *
-     * @throws IOException
      */
     @Test
     void testFilterWithOrOnSourceReference() throws IOException {
@@ -370,6 +372,41 @@ public abstract class AbstractDocumentFilesAdapterIT {
         });
         parquetTestSetup.closeWriter();
         uploadAsParquetFile(parquetTestSetup.getParquetFile(), 1);
+        final String query = "SELECT \"DATA\", \"IS_ACTIVE\", \"MY_DATE\", \"MY_TIME\", \"MY_TIMESTAMP\", \"JSON\" FROM "
+                + TEST_SCHEMA + ".BOOKS";
+        assertQuery(query, table().row("my test string", true, new Date(a_timestamp), 1000, new Timestamp(a_timestamp),
+                "{\"my_value\": 2}").withUtcCalendar().matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
+    }
+
+    @Test
+    void testReadParquetFileWithAutomaticInference() throws IOException, SQLException {
+        final Type stringColumn = Types.primitive(BINARY, REQUIRED).named("data");
+        final Type boolColumn = Types.primitive(BOOLEAN, REQUIRED).named("isActive");
+        final Type dateColumn = Types.primitive(INT32, REQUIRED).as(LogicalTypeAnnotation.dateType()).named("my_date");
+        final Type timeColumn = Types.primitive(INT32, REQUIRED)
+                .as(LogicalTypeAnnotation.timeType(true, LogicalTypeAnnotation.TimeUnit.MILLIS)).named("my_time");
+        final Type timestampColumn = Types.primitive(INT64, REQUIRED)
+                .as(LogicalTypeAnnotation.timestampType(true, LogicalTypeAnnotation.TimeUnit.MILLIS))
+                .named("my_timestamp");
+        final Type jsonColumn = Types.primitive(BINARY, REQUIRED).as(LogicalTypeAnnotation.jsonType()).named("json");
+        final ParquetTestSetup parquetTestSetup = new ParquetTestSetup(this.tempDir, stringColumn, boolColumn,
+                dateColumn, timeColumn, timestampColumn, jsonColumn);
+        final long a_timestamp = 1632384929000L;
+        parquetTestSetup.writeRow(row -> {
+            row.add("data", "my test string");
+            row.add("isActive", true);
+            row.add("my_date", (int) (a_timestamp / 24 / 60 / 60 / 1000)); // days since unix-epoch
+            row.add("my_time", 1000);// ms after midnight
+            row.add("my_timestamp", a_timestamp);// ms after midnight
+            row.add("json", "{\"my_value\": 2}");
+        });
+        parquetTestSetup.closeWriter();
+        uploadAsParquetFile(parquetTestSetup.getParquetFile(), 1);
+
+        final String source = this.dataFilesDirectory + "/testData-*.parquet";
+        createVirtualSchemaWithMapping(TEST_SCHEMA,
+                EdmlDefinition.builder().source(source).destinationTable("BOOKS").build());
+
         final String query = "SELECT \"DATA\", \"IS_ACTIVE\", \"MY_DATE\", \"MY_TIME\", \"MY_TIMESTAMP\", \"JSON\" FROM "
                 + TEST_SCHEMA + ".BOOKS";
         assertQuery(query, table().row("my test string", true, new Date(a_timestamp), 1000, new Timestamp(a_timestamp),

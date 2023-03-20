@@ -18,4 +18,9 @@ public class JsonFilesDocumentFetcherFactory implements FileTypeSpecificDocument
     public List<String> getSupportedFileExtensions() {
         return List.of(".json");
     }
+
+    @Override
+    public FileTypeSpecificSchemaFetcher buildFileTypeSpecificMappingFetcher() {
+        return FileTypeSpecificSchemaFetcher.unsupported();
+    }
 }

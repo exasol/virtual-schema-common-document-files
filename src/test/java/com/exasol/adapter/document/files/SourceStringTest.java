@@ -15,7 +15,6 @@ class SourceStringTest {
     @ValueSource(strings = { "test.txt", "test/test.txt", "test.1.txt" })
     void testGetFileTypeWithExtension(final String sourceString) {
         assertThat(new SourceString(sourceString).getFileType(), equalTo("txt"));
-
     }
 
     @Test

@@ -9,6 +9,7 @@ import com.exasol.adapter.document.QueryPlanner;
 import com.exasol.adapter.document.connection.ConnectionPropertiesReader;
 import com.exasol.adapter.document.documentfetcher.files.FileFinderFactory;
 import com.exasol.adapter.document.mapping.TableKeyFetcher;
+import com.exasol.adapter.document.mapping.auto.SchemaFetcher;
 
 /**
  * This class is the entry point for the files Virtual Schema.
@@ -19,7 +20,7 @@ public class DocumentFilesAdapter implements DocumentAdapterDialect {
 
     /**
      * Create a new instance of {@link DocumentFilesAdapter}.
-     * 
+     *
      * @param adapterName       adapter name
      * @param fileFinderFactory file storage specific file loader factory
      */
@@ -31,6 +32,12 @@ public class DocumentFilesAdapter implements DocumentAdapterDialect {
     @Override
     public TableKeyFetcher getTableKeyFetcher(final ConnectionPropertiesReader connectionInformation) {
         return (tableName, mappedColumns) -> Collections.emptyList();
+    }
+
+    @Override
+    public SchemaFetcher getSchemaFetcher(final ConnectionPropertiesReader connectionInformation) {
+        return new FilesSchemaFetcher(this.fileFinderFactory, new FileTypeSpecificDocumentFetcherFactory(),
+                connectionInformation);
     }
 
     @Override
