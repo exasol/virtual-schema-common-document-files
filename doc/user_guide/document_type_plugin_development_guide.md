@@ -51,8 +51,6 @@ The best practice for that task is to add a handler using `.onClose` to the stre
 Finally, we add a factory for the newly defined `DataLoader`. For that create a new class named `YOUR_TYPEFilesDataLoaderFactory`:
 
 ```java
-
-
 public class YOUR_TYPEFilesDataLoaderFactory extends AbstractFilesDocumentFetcherFactory {
 
     @Override
@@ -71,7 +69,7 @@ public class YOUR_TYPEFilesDataLoaderFactory extends AbstractFilesDocumentFetche
 Now we introduce the new `DataLoaderFactory` to the generic adapter. To do so create a file `META_INF/services/com.exasol.adapter.document.files.FilesDocumentFetcherFactory` with the fully qualified name of your `DocumentFetcherFactory`. For Example:
 
 ```
-com.exasol.adapter.document.files.YOUT_TYPEDocumentFetcherFactory
+com.exasol.adapter.document.files.YOUR_TYPEFilesDataLoaderFactory
 ``` 
 
 ## Tests
