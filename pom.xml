@@ -137,13 +137,6 @@
                         <!-- org.apache.hadoop:hadoop-hdfs-client:jar:3.3.4 -->
                         <!-- Rationale for exclusion: No update available, yet. -->
                         <exclude>sonatype-2022-5732</exclude>
-                        <!-- com.fasterxml.jackson.core:jackson-core:jar:2.14.1
-                             Currently no fixed version available. -->
-                        <exclude>sonatype-2022-6438</exclude>
-                        <!-- com.fasterxml.jackson.core:jackson-core:jar:2.14.1
-                             via parquet-io-java / hadoop.
-                             Affects FTP client which is not used by VSDF or parquet. -->
-                        <exclude>CVE-2021-37533</exclude>
                     </excludeVulnerabilityIds>
                 </configuration>
             </plugin>
