@@ -9,7 +9,7 @@ import org.apache.parquet.io.SeekableInputStream;
 import com.exasol.adapter.document.documentfetcher.files.randomaccessinputstream.RandomAccessInputStream;
 
 /**
- * Adapted from {@link RandomAccessInputStream} to {@link org.apache.parquet.io.InputFile}.
+ * Converts {@link RandomAccessInputStream} to {@link org.apache.parquet.io.InputFile}.
  */
 public final class SeekableInputStreamAdapter {
     private static final int COPY_BUFFER_SIZE = 8192;

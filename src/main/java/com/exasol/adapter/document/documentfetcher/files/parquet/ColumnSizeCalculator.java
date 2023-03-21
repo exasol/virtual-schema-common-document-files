@@ -1,7 +1,7 @@
 package com.exasol.adapter.document.documentfetcher.files.parquet;
 
 /**
- * This class contains methods and constants for calculating INTEGER and VARCHAR column sizes.
+ * This class contains methods and constants for calculating {@code INTEGER} and {@code VARCHAR} column sizes.
  */
 class ColumnSizeCalculator {
     static final int INT_32_DIGITS = getNumberOfDigitsForInt(32);
