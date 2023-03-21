@@ -33,7 +33,7 @@ This release adds automatic schema inference for Parquet files. This means that 
 ### Plugin Dependency Updates
 
 * Updated `com.exasol:error-code-crawler-maven-plugin:1.2.1` to `1.2.2`
-* Updated `com.exasol:project-keeper-maven-plugin:2.9.1` to `2.9.4`
+* Updated `com.exasol:project-keeper-maven-plugin:2.9.1` to `2.9.5`
 * Updated `org.apache.maven.plugins:maven-deploy-plugin:3.0.0` to `3.1.0`
 * Updated `org.apache.maven.plugins:maven-enforcer-plugin:3.1.0` to `3.2.1`
 * Updated `org.apache.maven.plugins:maven-jar-plugin:3.2.2` to `3.3.0`
