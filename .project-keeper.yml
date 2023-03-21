@@ -3,3 +3,5 @@ sources:
     path: pom.xml
     modules:
       - maven_central
+excludes:
+  - "E-PK-CORE-18: Outdated content: '.github/workflows/ci-build.yml'"
