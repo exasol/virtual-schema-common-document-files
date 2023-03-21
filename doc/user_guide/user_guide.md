@@ -31,6 +31,7 @@ JSON-Lines files store one JSON document per line. In contrast to using a JSON a
 File extension: `.parquet`
 
 Parallelization: Yes
+
 ### CSV Files
 
 File extension: `.csv`
@@ -43,7 +44,7 @@ For some file type (for example JSON) each source file contains only a single do
 
 You can use `*`, `**` and `?` as wildcard characters, where `*` matches multiple characters and `?` a single one. So, for example, if your data files are named `book-1.json`, `book-2.json` and so on, you can refer to them as `book-*.json`.
 
-While `*` and `?` do not match cross directories, `**` also matches recursively into nested directories. For file source, that do not have directory structures (like S3 ) `*` and `**` have the same behaviour.
+While `*` and `?` do not match cross directories, `**` also matches recursively into nested directories. For file source, that do not have directory structures (like S3) `*` and `**` have the same behaviour.
 
 ## Overriding Auto-detected File Type
 
@@ -63,7 +64,7 @@ Consider the following query:
 SELECT * FROM LOGS WHERE SOURCE_REFERENCE = 'log_files/2022-01-01.parquet'
 ```
 
-Even so we might have thousands of log files this query will only transfer exactly one dataset. You can also use like expressions. For example, you can load all log files of the month `2020-01` by:
+Even so we might have thousands of log files this query will only transfer exactly one dataset. You can also use `LIKE` expressions. For example, you can load all log files of the month `2020-01` by:
 
 ```sql
 SELECT * FROM LOGS WHERE SOURCE_REFERENCE LIKE 'log_files/2022-01-%.parquet'
@@ -80,7 +81,3 @@ The Virtual Schema can only push down selections on the `SOURCE_REFERENCE` colum
 ```sql
 SELECT * FROM LOGS WHERE SOURCE_REFERENCE LIKE 'log_files/2022-01-%.parquet' AND SEVERITY = 'warn'
 ```
-
-## Known Issues:
-
-* Certain virtual-schema queries can cause a database crash. For details see [#41](https://github.com/exasol/virtual-schema-common-document-files/issues/41).

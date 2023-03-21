@@ -4,6 +4,9 @@
 .classpath
 .project
 # .settings : we need Eclipse settings for code formatter and clean-up rules
+/.settings/org.eclipse.jdt.apt.core.prefs
+/.settings/org.eclipse.core.resources.prefs
+/.settings/org.eclipse.jdt.core.prefs
 target
 .cache
 dependency-reduced-pom.xml

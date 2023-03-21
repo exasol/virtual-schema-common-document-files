@@ -25,11 +25,12 @@ class RemoteFilePrefetchingIteratorTest {
         final StringRemoteFileContent content = spy(new StringRemoteFileContent("test"));
         final CloseableIterator<RemoteFile> inputIterator = spy(new CloseableIteratorWrapper<>(
                 IntStream.range(0, 200).mapToObj(i -> new RemoteFile("", 1, content)).iterator()));
-        final CloseableIterator<RemoteFile> iterator = new RemoteFilePrefetchingIterator(inputIterator);
-        verify(content, new Times(100)).loadAsync();
-        verify(inputIterator, new Times(100)).next();
-        iterator.next();
-        verify(inputIterator, new Times(101)).next();
+        try (final CloseableIterator<RemoteFile> iterator = new RemoteFilePrefetchingIterator(inputIterator)) {
+            verify(content, new Times(100)).loadAsync();
+            verify(inputIterator, new Times(100)).next();
+            iterator.next();
+            verify(inputIterator, new Times(101)).next();
+        }
     }
 
     @Test
@@ -37,12 +38,13 @@ class RemoteFilePrefetchingIteratorTest {
         final UnstableRemoteFileContent content = spy(new UnstableRemoteFileContent());
         final CloseableIterator<RemoteFile> inputIterator = spy(new CloseableIteratorWrapper<>(
                 IntStream.range(0, 200).mapToObj(i -> new RemoteFile("", 1, content)).iterator()));
-        final CloseableIterator<RemoteFile> iterator = new RemoteFilePrefetchingIterator(inputIterator);
-        final List<RemoteFile> result = new ArrayList<>();
-        iterator.forEachRemaining(result::add);
-        assertThat(result.size(), Matchers.equalTo(200));
-        verify(inputIterator, new Times(200)).next();
-        verify(content, new AtLeast(205)).loadAsync();
+        try (final CloseableIterator<RemoteFile> iterator = new RemoteFilePrefetchingIterator(inputIterator)) {
+            final List<RemoteFile> result = new ArrayList<>();
+            iterator.forEachRemaining(result::add);
+            assertThat(result.size(), Matchers.equalTo(200));
+            verify(inputIterator, new Times(200)).next();
+            verify(content, new AtLeast(205)).loadAsync();
+        }
     }
 
     @Test
@@ -50,8 +52,9 @@ class RemoteFilePrefetchingIteratorTest {
         final StringRemoteFileContent content = new StringRemoteFileContent("test");
         final CloseableIterator<RemoteFile> spy = spy(new CloseableIteratorWrapper<>(
                 IntStream.range(0, 200).mapToObj(i -> new RemoteFile("", 10_000_000, content)).iterator()));
-        final CloseableIterator<RemoteFile> iterator = new RemoteFilePrefetchingIterator(spy);
-        verify(spy, new Times(1)).next();
+        try (final CloseableIterator<RemoteFile> iterator = new RemoteFilePrefetchingIterator(spy)) {
+            verify(spy, new Times(1)).next();
+        }
     }
 
     @Test
@@ -59,10 +62,11 @@ class RemoteFilePrefetchingIteratorTest {
         final StringRemoteFileContent content = new StringRemoteFileContent("test");
         final CloseableIterator<RemoteFile> spy = spy(new CloseableIteratorWrapper<>(
                 IntStream.range(0, 200).mapToObj(i -> new RemoteFile("", 1, content)).iterator()));
-        final CloseableIterator<RemoteFile> iterator = new RemoteFilePrefetchingIterator(spy);
-        final List<RemoteFile> result = new ArrayList<>();
-        iterator.forEachRemaining(result::add);
-        assertThat(result.size(), Matchers.equalTo(200));
+        try (final CloseableIterator<RemoteFile> iterator = new RemoteFilePrefetchingIterator(spy)) {
+            final List<RemoteFile> result = new ArrayList<>();
+            iterator.forEachRemaining(result::add);
+            assertThat(result.size(), Matchers.equalTo(200));
+        }
     }
 
     @Test

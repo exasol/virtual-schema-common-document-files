@@ -24,7 +24,7 @@ public interface FileTypeSpecificDocumentFetcher extends Serializable {
     public CloseableIterator<DocumentNode> readDocuments(FileSegment remoteFile);
 
     /**
-     * Get if this document fetcher can read files partially.
+     * Check if this document fetcher can read files partially.
      * <p>
      * Supporting this feature improves performance when loading fewer files than available CPU cores in the cluster.
      * </p>

@@ -10,10 +10,17 @@ import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 public interface FileTypeSpecificDocumentFetcherFactoryInterface {
     /**
      * Build a {@link FileTypeSpecificDocumentFetcher}.
-     * 
+     *
      * @return built {@link FileTypeSpecificDocumentFetcher}
      */
     public FileTypeSpecificDocumentFetcher buildFileTypeSpecificDocumentFetcher();
+
+    /**
+     * Build a {@link FileTypeSpecificSchemaFetcher}.
+     *
+     * @return built {@link FileTypeSpecificSchemaFetcher}
+     */
+    public FileTypeSpecificSchemaFetcher buildFileTypeSpecificMappingFetcher();
 
     /**
      * Get the file extensions for that this factory can build {@link DocumentFetcher}s.
