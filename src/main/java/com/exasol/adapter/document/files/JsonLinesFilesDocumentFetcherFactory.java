@@ -20,6 +20,6 @@ public class JsonLinesFilesDocumentFetcherFactory implements FileTypeSpecificDoc
 
     @Override
     public FileTypeSpecificSchemaFetcher buildFileTypeSpecificMappingFetcher() {
-        return FileTypeSpecificSchemaFetcher.unsupported();
+        return FileTypeSpecificSchemaFetcher.empty();
     }
 }

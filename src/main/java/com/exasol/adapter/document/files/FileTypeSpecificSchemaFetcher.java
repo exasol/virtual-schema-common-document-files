@@ -24,14 +24,14 @@ public interface FileTypeSpecificSchemaFetcher {
     Optional<MappingDefinition> fetchSchema(RemoteFileFinder fileFinder);
 
     /**
-     * Create a new "unsupported" {@link FileTypeSpecificSchemaFetcher} that always returns an empty {@link Optional}.
+     * Create a new {@link FileTypeSpecificSchemaFetcher} that always returns an empty {@link Optional}.
      *
      * Use this in {@link FileTypeSpecificDocumentFetcherFactoryInterface#buildFileTypeSpecificMappingFetcher()} for
      * file types that do not support detecting the mapping.
      *
      * @return a {@link FileTypeSpecificSchemaFetcher} that always returns an empty {@link Optional}
      */
-    public static FileTypeSpecificSchemaFetcher unsupported() {
+    public static FileTypeSpecificSchemaFetcher empty() {
         return (final RemoteFileFinder fileFinder) -> Optional.empty();
     }
 

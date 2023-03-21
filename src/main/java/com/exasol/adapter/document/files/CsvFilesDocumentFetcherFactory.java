@@ -21,6 +21,6 @@ public class CsvFilesDocumentFetcherFactory implements FileTypeSpecificDocumentF
 
     @Override
     public FileTypeSpecificSchemaFetcher buildFileTypeSpecificMappingFetcher() {
-        return FileTypeSpecificSchemaFetcher.unsupported();
+        return FileTypeSpecificSchemaFetcher.empty();
     }
 }

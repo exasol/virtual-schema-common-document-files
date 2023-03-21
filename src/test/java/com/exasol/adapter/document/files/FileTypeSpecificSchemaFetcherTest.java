@@ -37,7 +37,7 @@ class FileTypeSpecificSchemaFetcherTest {
 
     @Test
     void unsupported() {
-        assertTrue(FileTypeSpecificSchemaFetcher.unsupported().fetchSchema(null).isEmpty());
+        assertTrue(FileTypeSpecificSchemaFetcher.empty().fetchSchema(null).isEmpty());
     }
 
     @Test
