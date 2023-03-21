@@ -77,7 +77,7 @@
             <artifactId>jakarta.json</artifactId>
             <version>2.0.1</version>
             <scope>runtime</scope>
-            <!-- For some reason we need the module classifier here. Without  there is no registration of the service loader in META-INF. We assume it's something to do with the use of yasson in the vs-common-document. -->
+            <!-- For some reason we need the module classifier here. Without there is no registration of the service loader in META-INF. We assume it's something to do with the use of yasson in the vs-common-document. -->
             <classifier>module</classifier>
         </dependency>
         <!--Integration test dependencies-->
