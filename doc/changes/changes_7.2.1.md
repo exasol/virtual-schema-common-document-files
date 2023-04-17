@@ -15,7 +15,6 @@ This release removes duplicate classes from dependencies.
 ### Compile Dependency Updates
 
 * Updated `com.exasol:parquet-io-java:2.0.1` to `2.0.2`
-* Added `io.deephaven:deephaven-csv:0.10.0`
 
 ### Test Dependency Updates
 
