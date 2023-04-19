@@ -17,12 +17,15 @@ import com.exasol.errorreporting.ExaError;
  */
 public class CsvDocumentFetcher implements FileTypeSpecificDocumentFetcher {
     private static final long serialVersionUID = 2783593249946168796L;
-    /**
-     * Contains additional configuration (serialised)
-     */
+    /** Additional configuration serialized as JSON */
     private String additionalConfiguration;
     private final List<ColumnMapping> csvColumns;
 
+    /**
+     * Create a new instance.
+     * 
+     * @param csvColumns the expected types of the CSV columns
+     */
     public CsvDocumentFetcher(final List<ColumnMapping> csvColumns) {
         this.csvColumns = csvColumns;
     }
