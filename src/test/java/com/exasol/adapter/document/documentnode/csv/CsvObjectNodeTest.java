@@ -1,5 +1,6 @@
 package com.exasol.adapter.document.documentnode.csv;
 
+import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -66,6 +67,6 @@ class CsvObjectNodeTest {
 
     private CsvObjectNode create(final String csvContent) {
         final CsvReader csvReaderParentheses = CsvReader.builder().build(csvContent);
-        return new CsvObjectNode(new CsvValueTypeConverter(), csvReaderParentheses.iterator().next());
+        return new CsvObjectNode(CsvValueTypeConverter.create(emptyList()), csvReaderParentheses.iterator().next());
     }
 }
