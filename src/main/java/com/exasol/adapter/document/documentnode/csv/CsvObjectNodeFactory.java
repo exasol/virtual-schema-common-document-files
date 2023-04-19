@@ -23,7 +23,7 @@ public class CsvObjectNodeFactory {
      * @return a new {@link CsvObjectNodeFactory}
      */
     public static CsvObjectNodeFactory create(final List<ColumnMapping> csvColumns) {
-        return new CsvObjectNodeFactory(new CsvValueTypeConverter(csvColumns));
+        return new CsvObjectNodeFactory(CsvValueTypeConverter.create(csvColumns));
     }
 
     CsvObjectNodeFactory(final CsvValueTypeConverter typeConverter) {

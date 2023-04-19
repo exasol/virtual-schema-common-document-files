@@ -8,17 +8,18 @@ import com.exasol.adapter.document.mapping.ColumnMapping;
 
 class CsvValueTypeConverter {
 
-    CsvValueTypeConverter() {
+    private CsvValueTypeConverter() {
     }
 
-    CsvValueTypeConverter(final List<ColumnMapping> csvColumns) {
+    static CsvValueTypeConverter create(final List<ColumnMapping> csvColumns) {
+        return new CsvValueTypeConverter();
     }
 
-    public DocumentNode convert(final String value, final int columnIndex) {
+    DocumentNode convert(final String value, final int columnIndex) {
         return new StringHolderNode(value);
     }
 
-    public DocumentNode convert(final String value, final String columnName) {
+    DocumentNode convert(final String value, final String columnName) {
         return new StringHolderNode(value);
     }
 }
