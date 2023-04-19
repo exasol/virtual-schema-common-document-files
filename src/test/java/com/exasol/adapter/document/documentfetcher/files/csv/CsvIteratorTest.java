@@ -14,6 +14,7 @@ import com.exasol.adapter.document.documentnode.DocumentNode;
 class CsvIteratorTest {
     public static final String CSV_EXAMPLE = "test-1\ntest-2";
     public static final String CSV_WITH_HEADERS_EXAMPLE = "header-1\ntest-1\ntest-2";
+    public static final String CSV_WITH_DUPLICATE_HEADERS_EXAMPLE = "header,header\ntest-1a,test-1b\ntest-2a,test-2b";
 
     @Test
     void testReadLines() {
@@ -25,6 +26,13 @@ class CsvIteratorTest {
     void testWithHeadersReadLines() {
         final List<DocumentNode> result = readCsvWithHeadersLines(CSV_WITH_HEADERS_EXAMPLE);
         assertThat(result.size(), equalTo(2));
+    }
+
+    @Test
+    void testWithDuplicateHeadersReadLines() {
+        final IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> getCsvWithHeadersIterator(CSV_WITH_DUPLICATE_HEADERS_EXAMPLE));
+        assertThat(exception.getMessage(), equalTo("Duplicate header field 'header' found"));
     }
 
     @Test
@@ -63,8 +71,8 @@ class CsvIteratorTest {
     void testClose() {
         final AssertStreamIsClosedRemoteFileContent assertStreamIsClosedRemoteFileContent = new AssertStreamIsClosedRemoteFileContent(
                 "");
-        final CsvIterator csvIterator = new CsvIterator(new RemoteFile("", 10, assertStreamIsClosedRemoteFileContent),
-                new CsvConfiguration(false));
+        final CsvIterator csvIterator = CsvIterator.create(
+                new RemoteFile("", 10, assertStreamIsClosedRemoteFileContent), null, new CsvConfiguration(false));
         csvIterator.close();
         assertThat(assertStreamIsClosedRemoteFileContent.isStreamClosed(), equalTo(true));
     }
@@ -73,8 +81,8 @@ class CsvIteratorTest {
     void testWithHeadersClose() {
         final AssertStreamIsClosedRemoteFileContent assertStreamIsClosedRemoteFileContent = new AssertStreamIsClosedRemoteFileContent(
                 "");
-        final CsvIterator csvIterator = new CsvIterator(new RemoteFile("", 10, assertStreamIsClosedRemoteFileContent),
-                new CsvConfiguration(true));
+        final CsvIterator csvIterator = CsvIterator.create(
+                new RemoteFile("", 10, assertStreamIsClosedRemoteFileContent), null, new CsvConfiguration(true));
         csvIterator.close();
         assertThat(assertStreamIsClosedRemoteFileContent.isStreamClosed(), equalTo(true));
     }
@@ -110,11 +118,12 @@ class CsvIteratorTest {
     }
 
     private CsvIterator getCsvIterator(final String content) {
-        return new CsvIterator(new RemoteFile("", 0, new StringRemoteFileContent(content)),
+        return CsvIterator.create(new RemoteFile("", 0, new StringRemoteFileContent(content)), null,
                 new CsvConfiguration(false));
     }
 
     private CsvIterator getCsvWithHeadersIterator(final String content) {
-        return new CsvIterator(new RemoteFile("", 0, new StringRemoteFileContent(content)), new CsvConfiguration(true));
+        return CsvIterator.create(new RemoteFile("", 0, new StringRemoteFileContent(content)), null,
+                new CsvConfiguration(true));
     }
 }

@@ -2,56 +2,71 @@ package com.exasol.adapter.document.documentfetcher.files.csv;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 import com.exasol.adapter.document.documentfetcher.files.InputDataException;
 import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
 import com.exasol.adapter.document.documentnode.DocumentNode;
-import com.exasol.adapter.document.documentnode.csv.CsvObjectNode;
+import com.exasol.adapter.document.documentnode.csv.CsvObjectNodeFactory;
 import com.exasol.adapter.document.iterators.CloseableIterator;
+import com.exasol.adapter.document.mapping.ColumnMapping;
 import com.exasol.errorreporting.ExaError;
 
 import de.siegmar.fastcsv.reader.CsvReader;
-import de.siegmar.fastcsv.reader.CsvRow;
 import de.siegmar.fastcsv.reader.NamedCsvReader;
-import de.siegmar.fastcsv.reader.NamedCsvRow;
 
 /**
- * This class iterates the lines of a JSON-Lines file an creates for each line a JSON {@link DocumentNode}.
+ * This class iterates the lines of a CSV file and creates a {@link CsvObjectNode} for each line.
  */
 class CsvIterator implements CloseableIterator<DocumentNode> {
     // efficient reading of characters, arrays and lines
     private final InputStreamReader inputStreamReader;
-    private long lineCounter = 0;
     private final String resourceName;
-    private boolean hasHeaders = false;
-    private CsvReader csvReader;
-    private NamedCsvReader namedCsvReader;
+    private long lineCounter = 0;
+    private final Iterator<DocumentNode> delegate;
+
+    private CsvIterator(final InputStreamReader inputStreamReader, final String resourceName,
+            final Iterator<DocumentNode> delegate) {
+        this.inputStreamReader = inputStreamReader;
+        this.resourceName = resourceName;
+        this.delegate = delegate;
+    }
 
     /**
      * Create a new instance of {@link CsvIterator}.
-     * 
-     * @param csvFile file loader for the CSV file
+     *
+     * @param csvFile          file loader for the CSV file
+     * @param csvColumns       columns of the CSV file
+     * @param csvConfiguration CSV file configuration
      */
-    CsvIterator(final RemoteFile csvFile, final CsvConfiguration csvConfiguration) {
-        this.inputStreamReader = new InputStreamReader(csvFile.getContent().getInputStream());
-        this.resourceName = csvFile.getResourceName();
-        readOutConfiguration(csvConfiguration);
-        // fetch the first line in the file to be read out
-        if (hasHeaders) {
-            namedCsvReader = NamedCsvReader.builder().build(inputStreamReader);
+    static CsvIterator create(final RemoteFile csvFile, final List<ColumnMapping> csvColumns,
+            final CsvConfiguration csvConfiguration) {
+        final InputStreamReader inputStreamReader = new InputStreamReader(csvFile.getContent().getInputStream());
+        final String resourceName = csvFile.getResourceName();
+        final CsvObjectNodeFactory nodeFactory = CsvObjectNodeFactory.create(csvColumns);
+        final Iterator<DocumentNode> delegate = createDelegate(csvConfiguration, nodeFactory, inputStreamReader);
+        return new CsvIterator(inputStreamReader, resourceName, delegate);
+    }
+
+    private static Iterator<DocumentNode> createDelegate(final CsvConfiguration csvConfiguration,
+            final CsvObjectNodeFactory nodeFactory, final InputStreamReader inputStreamReader) {
+        if (hasHeaders(csvConfiguration)) {
+            return new ConvertingCsvIterator<>(NamedCsvReader.builder().build(inputStreamReader), nodeFactory::create);
         } else {
-            csvReader = CsvReader.builder().build(inputStreamReader);
+            return new ConvertingCsvIterator<>(CsvReader.builder().build(inputStreamReader), nodeFactory::create);
         }
+    }
+
+    private static boolean hasHeaders(final CsvConfiguration csvConfiguration) {
+        if (csvConfiguration != null) {
+            return csvConfiguration.getHasHeaders();
+        }
+        return false;
     }
 
     @Override
     public boolean hasNext() {
-        if (hasHeaders) {
-            return namedCsvReader.iterator().hasNext();
-        } else {
-            return csvReader.iterator().hasNext();
-        }
+        return this.delegate.hasNext();
     }
 
     @Override
@@ -60,16 +75,9 @@ class CsvIterator implements CloseableIterator<DocumentNode> {
             throw new NoSuchElementException();
         }
         try {
-            if (hasHeaders) {
-                final NamedCsvRow namedCsvRow = namedCsvReader.iterator().next();
-                this.lineCounter++;
-                return new CsvObjectNode(namedCsvRow);
-            } else {
-                final CsvRow csvRow = csvReader.iterator().next();
-                this.lineCounter++;
-                return new CsvObjectNode(csvRow);
-            }
-        } catch (Exception exception) {
+            this.lineCounter++;
+            return this.delegate.next();
+        } catch (final Exception exception) {
             throw new InputDataException(
                     ExaError.messageBuilder("E-VSDF-25")
                             .message("Failed to parse CSV-Lines from {{CSV_FILE}}. Invalid CSV row in line {{LINE}}.")
@@ -84,12 +92,6 @@ class CsvIterator implements CloseableIterator<DocumentNode> {
             this.inputStreamReader.close();
         } catch (final IOException exception) {
             // at least we tried...
-        }
-    }
-
-    private void readOutConfiguration(CsvConfiguration csvConfiguration) {
-        if (csvConfiguration != null) {
-            hasHeaders = csvConfiguration.getHasHeaders();
         }
     }
 }

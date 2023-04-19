@@ -3,6 +3,7 @@ package com.exasol.adapter.document.files;
 import java.util.List;
 
 import com.exasol.adapter.document.documentfetcher.files.JsonDocumentFetcher;
+import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
 
 /**
  * Factory for {@link FileTypeSpecificDocumentFetcher}.
@@ -10,7 +11,8 @@ import com.exasol.adapter.document.documentfetcher.files.JsonDocumentFetcher;
 public class JsonFilesDocumentFetcherFactory implements FileTypeSpecificDocumentFetcherFactoryInterface {
 
     @Override
-    public FileTypeSpecificDocumentFetcher buildFileTypeSpecificDocumentFetcher() {
+    public FileTypeSpecificDocumentFetcher buildFileTypeSpecificDocumentFetcher(
+            final RemoteTableQuery remoteTableQuery) {
         return new JsonDocumentFetcher();
     }
 

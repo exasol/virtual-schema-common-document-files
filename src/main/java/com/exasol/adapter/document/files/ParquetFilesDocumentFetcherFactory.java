@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.exasol.adapter.document.documentfetcher.files.parquet.ParquetDocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.files.parquet.ParquetSchemaFetcher;
+import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
 
 /**
  * Factory for Parquet file {@link FileTypeSpecificDocumentFetcher}s.
@@ -15,7 +16,8 @@ public class ParquetFilesDocumentFetcherFactory implements FileTypeSpecificDocum
     }
 
     @Override
-    public FileTypeSpecificDocumentFetcher buildFileTypeSpecificDocumentFetcher() {
+    public FileTypeSpecificDocumentFetcher buildFileTypeSpecificDocumentFetcher(
+            final RemoteTableQuery remoteTableQuery) {
         return new ParquetDocumentFetcher();
     }
 
