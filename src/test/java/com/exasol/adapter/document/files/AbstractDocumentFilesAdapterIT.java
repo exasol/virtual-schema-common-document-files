@@ -175,7 +175,24 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testCsvWithTypes() throws IOException, SQLException {
+    void testReadCsvWithDuplicateHeader() throws IOException, SQLException {
+        final Fields mapping = Fields.builder()//
+                .mapField("col", ToVarcharMapping.builder().destinationName("my_col").build()) //
+                .build();
+        final EdmlDefinitionBuilder edmlDefinition = csvEdmlWithHeader(mapping, "testData-*.csv")
+                .addSourceReferenceColumn(false);
+        createVirtualSchemaWithMapping(TEST_SCHEMA, edmlDefinition);
+
+        uploadFileContent("testData-1.csv", List.of("col, col", //
+                "val1, val2"));
+        final String query = "SELECT * FROM " + TEST_SCHEMA + ".BOOKS";
+        assertQuery(query, table("VARCHAR") //
+                .row("val1") //
+                .withUtcCalendar().matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
+    }
+
+    @Test
+    void testReadCsvWithTypes() throws IOException, SQLException {
         final Fields mapping = Fields.builder()//
                 .mapField("str", ToVarcharMapping.builder().build()) //
                 .mapField("bool", ToBoolMapping.builder().destinationName("IS_ACTIVE").build())//
