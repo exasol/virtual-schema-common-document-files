@@ -19,6 +19,7 @@ public class CsvDocumentFetcher implements FileTypeSpecificDocumentFetcher {
     private static final long serialVersionUID = 2783593249946168796L;
     /** Additional configuration serialized as JSON */
     private String additionalConfiguration;
+    /** Expected CSV columns */
     private final List<ColumnMapping> csvColumns;
 
     /**

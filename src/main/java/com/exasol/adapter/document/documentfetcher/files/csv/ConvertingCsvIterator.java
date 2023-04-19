@@ -11,8 +11,8 @@ class ConvertingCsvIterator<T> implements Iterator<DocumentNode> {
     private final Iterator<T> delegate;
     private final Function<T, DocumentNode> converter;
 
-    ConvertingCsvIterator(final Iterable<T> namedCsvReader, final Function<T, DocumentNode> converter) {
-        this.delegate = namedCsvReader.iterator();
+    ConvertingCsvIterator(final Iterable<T> delegate, final Function<T, DocumentNode> converter) {
+        this.delegate = delegate.iterator();
         this.converter = converter;
     }
 
