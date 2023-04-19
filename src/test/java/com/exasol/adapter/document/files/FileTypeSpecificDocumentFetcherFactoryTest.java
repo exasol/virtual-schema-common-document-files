@@ -45,8 +45,9 @@ class FileTypeSpecificDocumentFetcherFactoryTest {
 
     @Test
     void testBuildDocumentFetcherUnsupportedFileType() {
+        final RemoteTableQuery remoteQuery = remoteQuery();
         final UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
-                () -> FACTORY.buildFileTypeSpecificDocumentFetcher(".unknown-type", remoteQuery()));
+                () -> FACTORY.buildFileTypeSpecificDocumentFetcher(".unknown-type", remoteQuery));
         assertThat(exception.getMessage(), equalTo(
                 "E-VSDF-13: Could not find a file type implementation for '.unknown-type'. Please check the file extension."));
     }
