@@ -64,7 +64,7 @@ class CsvIteratorTest {
         final AssertStreamIsClosedRemoteFileContent assertStreamIsClosedRemoteFileContent = new AssertStreamIsClosedRemoteFileContent(
                 "");
         final CsvIterator csvIterator = new CsvIterator(new RemoteFile("", 10, assertStreamIsClosedRemoteFileContent),
-                new CsvConfiguration(false));
+                null, new CsvConfiguration(false));
         csvIterator.close();
         assertThat(assertStreamIsClosedRemoteFileContent.isStreamClosed(), equalTo(true));
     }
@@ -74,7 +74,7 @@ class CsvIteratorTest {
         final AssertStreamIsClosedRemoteFileContent assertStreamIsClosedRemoteFileContent = new AssertStreamIsClosedRemoteFileContent(
                 "");
         final CsvIterator csvIterator = new CsvIterator(new RemoteFile("", 10, assertStreamIsClosedRemoteFileContent),
-                new CsvConfiguration(true));
+                null, new CsvConfiguration(true));
         csvIterator.close();
         assertThat(assertStreamIsClosedRemoteFileContent.isStreamClosed(), equalTo(true));
     }
@@ -110,11 +110,12 @@ class CsvIteratorTest {
     }
 
     private CsvIterator getCsvIterator(final String content) {
-        return new CsvIterator(new RemoteFile("", 0, new StringRemoteFileContent(content)),
+        return new CsvIterator(new RemoteFile("", 0, new StringRemoteFileContent(content)), null,
                 new CsvConfiguration(false));
     }
 
     private CsvIterator getCsvWithHeadersIterator(final String content) {
-        return new CsvIterator(new RemoteFile("", 0, new StringRemoteFileContent(content)), new CsvConfiguration(true));
+        return new CsvIterator(new RemoteFile("", 0, new StringRemoteFileContent(content)), null,
+                new CsvConfiguration(true));
     }
 }
