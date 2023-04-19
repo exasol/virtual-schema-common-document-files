@@ -33,14 +33,14 @@ class FileTypeSpecificDocumentFetcherFactoryTest {
     @ParameterizedTest
     @MethodSource({ "getBuiltinTypeCases" })
     void testDocumentFetcherBuiltinTypes(final String ending, final Class<?> expectedClass) {
-        final FileTypeSpecificDocumentFetcher result = FACTORY.buildFileTypeSpecificDocumentFetcher(ending);
+        final FileTypeSpecificDocumentFetcher result = FACTORY.buildFileTypeSpecificDocumentFetcher(ending, null);
         assertThat(result, Matchers.instanceOf(expectedClass));
     }
 
     @Test
     void testBuildDocumentFetcherUnsupportedFileType() {
         final UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
-                () -> FACTORY.buildFileTypeSpecificDocumentFetcher(".unknown-type"));
+                () -> FACTORY.buildFileTypeSpecificDocumentFetcher(".unknown-type", null));
         assertThat(exception.getMessage(), equalTo(
                 "E-VSDF-13: Could not find a file type implementation for '.unknown-type'. Please check the file extension."));
     }

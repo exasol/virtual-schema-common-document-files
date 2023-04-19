@@ -2,11 +2,14 @@ package com.exasol.adapter.document.documentfetcher.files.csv;
 
 import static com.exasol.adapter.document.documentfetcher.files.csv.CsvConfigurationHelper.getCsvConfiguration;
 
+import java.util.List;
+
 import com.exasol.adapter.document.documentfetcher.files.segmentation.FileSegment;
 import com.exasol.adapter.document.documentfetcher.files.segmentation.FileSegmentDescription;
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.files.FileTypeSpecificDocumentFetcher;
 import com.exasol.adapter.document.iterators.CloseableIterator;
+import com.exasol.adapter.document.mapping.ColumnMapping;
 import com.exasol.errorreporting.ExaError;
 
 /**
@@ -18,6 +21,11 @@ public class CsvDocumentFetcher implements FileTypeSpecificDocumentFetcher {
      * Contains additional configuration (serialised)
      */
     private String additionalConfiguration;
+    private final List<ColumnMapping> csvColumns;
+
+    public CsvDocumentFetcher(final List<ColumnMapping> csvColumns) {
+        this.csvColumns = csvColumns;
+    }
 
     /**
      * Setter for additional configuration options
@@ -35,10 +43,7 @@ public class CsvDocumentFetcher implements FileTypeSpecificDocumentFetcher {
                     .message("The CsvDocumentFetcher does not support loading split files.").ticketMitigation()
                     .toString());
         }
-        // documentation on readDocuments
-        // https://github.com/exasol/virtual-schema-common-document-files/blob/main/doc/user_guide/document_type_plugin_development_guide.md#the-documentfetcher
-        return new CsvIterator(segment.getFile(), getCsvConfiguration(this.additionalConfiguration));
-
+        return new CsvIterator(segment.getFile(), this.csvColumns, getCsvConfiguration(this.additionalConfiguration));
     }
 
     @Override

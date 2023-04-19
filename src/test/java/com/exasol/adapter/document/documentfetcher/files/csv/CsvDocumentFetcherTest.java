@@ -23,7 +23,7 @@ import com.exasol.adapter.document.documentnode.DocumentNode;
 class CsvDocumentFetcherTest {
     @Test
     void testReadDocuments() {
-        final CsvDocumentFetcher documentFetcher = new CsvDocumentFetcher();
+        final CsvDocumentFetcher documentFetcher = new CsvDocumentFetcher(null);
         final RemoteFile remoteFile = new RemoteFile("", 0, new StringRemoteFileContent("book-1\nbook-2"));
         final List<DocumentNode> result = new ArrayList<>();
         documentFetcher.readDocuments(new FileSegment(remoteFile, ENTIRE_FILE)).forEachRemaining(result::add);
@@ -32,7 +32,7 @@ class CsvDocumentFetcherTest {
 
     @Test
     void testExceptionOnSegmentedFile() {
-        final CsvDocumentFetcher documentFetcher = new CsvDocumentFetcher();
+        final CsvDocumentFetcher documentFetcher = new CsvDocumentFetcher(null);
         final RemoteFile remoteFile = new RemoteFile("", 0, new StringRemoteFileContent("{}"));
         final FileSegment segment = new FileSegment(remoteFile, new FileSegmentDescription(2, 0));
         final IllegalStateException exception = assertThrows(IllegalStateException.class,

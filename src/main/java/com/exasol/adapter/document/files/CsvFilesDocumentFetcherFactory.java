@@ -3,6 +3,7 @@ package com.exasol.adapter.document.files;
 import java.util.List;
 
 import com.exasol.adapter.document.documentfetcher.files.csv.CsvDocumentFetcher;
+import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
 
 /**
  * Factory for {@link FileTypeSpecificDocumentFetcher}.
@@ -10,8 +11,9 @@ import com.exasol.adapter.document.documentfetcher.files.csv.CsvDocumentFetcher;
 public class CsvFilesDocumentFetcherFactory implements FileTypeSpecificDocumentFetcherFactoryInterface {
 
     @Override
-    public FileTypeSpecificDocumentFetcher buildFileTypeSpecificDocumentFetcher() {
-        return new CsvDocumentFetcher();
+    public FileTypeSpecificDocumentFetcher buildFileTypeSpecificDocumentFetcher(
+            final RemoteTableQuery remoteTableQuery) {
+        return new CsvDocumentFetcher(remoteTableQuery.getFromTable().getColumns());
     }
 
     @Override

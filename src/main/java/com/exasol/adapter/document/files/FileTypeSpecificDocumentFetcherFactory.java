@@ -2,6 +2,7 @@ package com.exasol.adapter.document.files;
 
 import java.util.ServiceLoader;
 
+import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
 import com.exasol.errorreporting.ExaError;
 
 /**
@@ -12,11 +13,13 @@ public class FileTypeSpecificDocumentFetcherFactory {
     /**
      * Build a {@link FileTypeSpecificDocumentFetcher} for a given file name extension.
      *
-     * @param fileEnding file ending including {@code .}
+     * @param fileEnding       file ending including the leading {@code "."}
+     * @param remoteTableQuery the document query
      * @return built {@link FileTypeSpecificDocumentFetcher}
      */
-    public FileTypeSpecificDocumentFetcher buildFileTypeSpecificDocumentFetcher(final String fileEnding) {
-        return findFactory(fileEnding).buildFileTypeSpecificDocumentFetcher();
+    public FileTypeSpecificDocumentFetcher buildFileTypeSpecificDocumentFetcher(final String fileEnding,
+            final RemoteTableQuery remoteTableQuery) {
+        return findFactory(fileEnding).buildFileTypeSpecificDocumentFetcher(remoteTableQuery);
     }
 
     /**

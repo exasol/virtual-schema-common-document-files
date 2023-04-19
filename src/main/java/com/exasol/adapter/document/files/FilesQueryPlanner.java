@@ -19,7 +19,7 @@ public class FilesQueryPlanner implements QueryPlanner {
 
     /**
      * Create a new {@link FilesQueryPlanner}.
-     * 
+     *
      * @param fileFinderFactory     file finder factory
      * @param connectionInformation connection information reader
      */
@@ -42,7 +42,7 @@ public class FilesQueryPlanner implements QueryPlanner {
         // .csv,.json,.jsonlines,.parquet, etc.
         final String fileEnding = "." + sourceString.getFileType();
         final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher = new FileTypeSpecificDocumentFetcherFactory()
-                .buildFileTypeSpecificDocumentFetcher(fileEnding);
+                .buildFileTypeSpecificDocumentFetcher(fileEnding, remoteTableQuery);
         final List<DocumentFetcher> documentFetchers = new FilesDocumentFetcherFactory().buildDocumentFetcherForQuery(
                 splitSelection.getSourceFilter(), maxNumberOfParallelFetchers, this.fileFinderFactory,
                 this.connectionInformation, fileTypeSpecificDocumentFetcher, additionalConfiguration);

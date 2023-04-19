@@ -12,7 +12,7 @@ import jakarta.json.*;
 import jakarta.json.spi.JsonProvider;
 
 /**
- * This class iterates the lines of a JSON-Lines file an creates for each line a JSON {@link DocumentNode}.
+ * This class iterates the lines of a JSON-Lines file and creates for each line a JSON {@link DocumentNode}.
  */
 class JsonLinesIterator implements CloseableIterator<DocumentNode> {
     private static final JsonProvider JSON = JsonProvider.provider();
@@ -24,7 +24,7 @@ class JsonLinesIterator implements CloseableIterator<DocumentNode> {
 
     /**
      * Create a new instance of {@link JsonLinesIterator}.
-     * 
+     *
      * @param jsonlFile file loader for the JSON-Lines file
      */
     JsonLinesIterator(final RemoteFile jsonlFile) {
@@ -39,7 +39,7 @@ class JsonLinesIterator implements CloseableIterator<DocumentNode> {
             do {
                 this.nextLine = this.jsonlReader.readLine();
                 this.lineCounter++;
-            } while (this.nextLine != null && this.nextLine.isBlank());
+            } while ((this.nextLine != null) && this.nextLine.isBlank());
         } catch (final IOException exception) {
             throw new InputDataException(
                     ExaError.messageBuilder("E-VSDF-2").message("Failed to read from data file {{JSONL_FILE}}.")
