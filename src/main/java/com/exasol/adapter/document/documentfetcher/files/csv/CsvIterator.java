@@ -8,6 +8,7 @@ import com.exasol.adapter.document.documentfetcher.files.InputDataException;
 import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.csv.CsvObjectNode;
+import com.exasol.adapter.document.documentnode.csv.NamedCsvObjectNode;
 import com.exasol.adapter.document.iterators.CloseableIterator;
 import com.exasol.adapter.document.mapping.ColumnMapping;
 import com.exasol.errorreporting.ExaError;
@@ -52,9 +53,10 @@ class CsvIterator implements CloseableIterator<DocumentNode> {
     private static Iterator<DocumentNode> createDelegate(final CsvConfiguration csvConfiguration,
             final InputStreamReader inputStreamReader) {
         if (hasHeaders(csvConfiguration)) {
-            return new NamedCsvIterator(NamedCsvReader.builder().build(inputStreamReader));
+            return new ConvertingCsvIterator<>(NamedCsvReader.builder().build(inputStreamReader),
+                    NamedCsvObjectNode::new);
         } else {
-            return new SimpleCsvIterator(CsvReader.builder().build(inputStreamReader));
+            return new ConvertingCsvIterator<>(CsvReader.builder().build(inputStreamReader), CsvObjectNode::new);
         }
     }
 

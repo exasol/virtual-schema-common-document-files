@@ -2,19 +2,18 @@ package com.exasol.adapter.document.documentfetcher.files.csv;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.function.Function;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
-import com.exasol.adapter.document.documentnode.csv.NamedCsvObjectNode;
 
-import de.siegmar.fastcsv.reader.NamedCsvReader;
-import de.siegmar.fastcsv.reader.NamedCsvRow;
+class ConvertingCsvIterator<T> implements Iterator<DocumentNode> {
 
-class NamedCsvIterator implements Iterator<DocumentNode> {
+    private final Iterator<T> delegate;
+    private final Function<T, DocumentNode> converter;
 
-    private final Iterator<NamedCsvRow> delegate;
-
-    NamedCsvIterator(final NamedCsvReader namedCsvReader) {
+    ConvertingCsvIterator(final Iterable<T> namedCsvReader, final Function<T, DocumentNode> converter) {
         this.delegate = namedCsvReader.iterator();
+        this.converter = converter;
     }
 
     @Override
@@ -27,7 +26,7 @@ class NamedCsvIterator implements Iterator<DocumentNode> {
         if (!hasNext()) {
             throw new NoSuchElementException();
         }
-        final NamedCsvRow namedCsvRow = this.delegate.next();
-        return new NamedCsvObjectNode(namedCsvRow);
+        final T csvRow = this.delegate.next();
+        return converter.apply(csvRow);
     }
 }
