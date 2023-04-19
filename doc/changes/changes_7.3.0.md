@@ -9,6 +9,7 @@ This release adds support for other data types than VARCHAR in CSV files, see th
 ## Features
 
 * #125: Added support for data types in CSV files
+
 ## Dependency Updates
 
 ### Test Dependency Updates
