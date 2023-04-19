@@ -14,6 +14,7 @@ import com.exasol.adapter.document.documentnode.DocumentNode;
 class CsvIteratorTest {
     public static final String CSV_EXAMPLE = "test-1\ntest-2";
     public static final String CSV_WITH_HEADERS_EXAMPLE = "header-1\ntest-1\ntest-2";
+    public static final String CSV_WITH_DUPLICATE_HEADERS_EXAMPLE = "header,header\ntest-1a,test-1b\ntest-2a,test-2b";
 
     @Test
     void testReadLines() {
@@ -25,6 +26,13 @@ class CsvIteratorTest {
     void testWithHeadersReadLines() {
         final List<DocumentNode> result = readCsvWithHeadersLines(CSV_WITH_HEADERS_EXAMPLE);
         assertThat(result.size(), equalTo(2));
+    }
+
+    @Test
+    void testWithDuplicateHeadersReadLines() {
+        final IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> getCsvWithHeadersIterator(CSV_WITH_DUPLICATE_HEADERS_EXAMPLE));
+        assertThat(exception.getMessage(), equalTo("Duplicate header field 'header' found"));
     }
 
     @Test
