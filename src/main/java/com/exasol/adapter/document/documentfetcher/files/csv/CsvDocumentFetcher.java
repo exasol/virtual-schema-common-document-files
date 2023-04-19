@@ -43,12 +43,12 @@ public class CsvDocumentFetcher implements FileTypeSpecificDocumentFetcher {
                     .message("The CsvDocumentFetcher does not support loading split files.").ticketMitigation()
                     .toString());
         }
-        return new CsvIterator(segment.getFile(), this.csvColumns, getCsvConfiguration(this.additionalConfiguration));
+        return CsvIterator.create(segment.getFile(), this.csvColumns,
+                getCsvConfiguration(this.additionalConfiguration));
     }
 
     @Override
     public boolean supportsFileSplitting() {
         return false;
     }
-
 }

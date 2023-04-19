@@ -63,8 +63,8 @@ class CsvIteratorTest {
     void testClose() {
         final AssertStreamIsClosedRemoteFileContent assertStreamIsClosedRemoteFileContent = new AssertStreamIsClosedRemoteFileContent(
                 "");
-        final CsvIterator csvIterator = new CsvIterator(new RemoteFile("", 10, assertStreamIsClosedRemoteFileContent),
-                null, new CsvConfiguration(false));
+        final CsvIterator csvIterator = CsvIterator.create(
+                new RemoteFile("", 10, assertStreamIsClosedRemoteFileContent), null, new CsvConfiguration(false));
         csvIterator.close();
         assertThat(assertStreamIsClosedRemoteFileContent.isStreamClosed(), equalTo(true));
     }
@@ -73,8 +73,8 @@ class CsvIteratorTest {
     void testWithHeadersClose() {
         final AssertStreamIsClosedRemoteFileContent assertStreamIsClosedRemoteFileContent = new AssertStreamIsClosedRemoteFileContent(
                 "");
-        final CsvIterator csvIterator = new CsvIterator(new RemoteFile("", 10, assertStreamIsClosedRemoteFileContent),
-                null, new CsvConfiguration(true));
+        final CsvIterator csvIterator = CsvIterator.create(
+                new RemoteFile("", 10, assertStreamIsClosedRemoteFileContent), null, new CsvConfiguration(true));
         csvIterator.close();
         assertThat(assertStreamIsClosedRemoteFileContent.isStreamClosed(), equalTo(true));
     }
@@ -110,12 +110,12 @@ class CsvIteratorTest {
     }
 
     private CsvIterator getCsvIterator(final String content) {
-        return new CsvIterator(new RemoteFile("", 0, new StringRemoteFileContent(content)), null,
+        return CsvIterator.create(new RemoteFile("", 0, new StringRemoteFileContent(content)), null,
                 new CsvConfiguration(false));
     }
 
     private CsvIterator getCsvWithHeadersIterator(final String content) {
-        return new CsvIterator(new RemoteFile("", 0, new StringRemoteFileContent(content)), null,
+        return CsvIterator.create(new RemoteFile("", 0, new StringRemoteFileContent(content)), null,
                 new CsvConfiguration(true));
     }
 }
