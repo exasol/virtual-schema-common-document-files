@@ -7,8 +7,7 @@ import java.util.*;
 import com.exasol.adapter.document.documentfetcher.files.InputDataException;
 import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
 import com.exasol.adapter.document.documentnode.DocumentNode;
-import com.exasol.adapter.document.documentnode.csv.CsvObjectNode;
-import com.exasol.adapter.document.documentnode.csv.NamedCsvObjectNode;
+import com.exasol.adapter.document.documentnode.csv.CsvObjectNodeFactory;
 import com.exasol.adapter.document.iterators.CloseableIterator;
 import com.exasol.adapter.document.mapping.ColumnMapping;
 import com.exasol.errorreporting.ExaError;
@@ -22,17 +21,15 @@ import de.siegmar.fastcsv.reader.NamedCsvReader;
 class CsvIterator implements CloseableIterator<DocumentNode> {
     // efficient reading of characters, arrays and lines
     private final InputStreamReader inputStreamReader;
-    private final List<ColumnMapping> csvColumns;
     private final String resourceName;
     private long lineCounter = 0;
     private final Iterator<DocumentNode> delegate;
 
     private CsvIterator(final InputStreamReader inputStreamReader, final String resourceName,
-            final Iterator<DocumentNode> delegate, final List<ColumnMapping> csvColumns) {
+            final Iterator<DocumentNode> delegate) {
         this.inputStreamReader = inputStreamReader;
         this.resourceName = resourceName;
         this.delegate = delegate;
-        this.csvColumns = csvColumns;
     }
 
     /**
@@ -46,17 +43,17 @@ class CsvIterator implements CloseableIterator<DocumentNode> {
             final CsvConfiguration csvConfiguration) {
         final InputStreamReader inputStreamReader = new InputStreamReader(csvFile.getContent().getInputStream());
         final String resourceName = csvFile.getResourceName();
-        final Iterator<DocumentNode> delegate = createDelegate(csvConfiguration, inputStreamReader);
-        return new CsvIterator(inputStreamReader, resourceName, delegate, csvColumns);
+        final CsvObjectNodeFactory nodeFactory = CsvObjectNodeFactory.create(csvColumns);
+        final Iterator<DocumentNode> delegate = createDelegate(csvConfiguration, nodeFactory, inputStreamReader);
+        return new CsvIterator(inputStreamReader, resourceName, delegate);
     }
 
     private static Iterator<DocumentNode> createDelegate(final CsvConfiguration csvConfiguration,
-            final InputStreamReader inputStreamReader) {
+            final CsvObjectNodeFactory nodeFactory, final InputStreamReader inputStreamReader) {
         if (hasHeaders(csvConfiguration)) {
-            return new ConvertingCsvIterator<>(NamedCsvReader.builder().build(inputStreamReader),
-                    NamedCsvObjectNode::new);
+            return new ConvertingCsvIterator<>(NamedCsvReader.builder().build(inputStreamReader), nodeFactory::create);
         } else {
-            return new ConvertingCsvIterator<>(CsvReader.builder().build(inputStreamReader), CsvObjectNode::new);
+            return new ConvertingCsvIterator<>(CsvReader.builder().build(inputStreamReader), nodeFactory::create);
         }
     }
 
