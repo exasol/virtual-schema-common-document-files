@@ -2,11 +2,11 @@ package com.exasol.adapter.document.documentnode.csv;
 
 import static java.util.stream.Collectors.toList;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
-import com.exasol.adapter.document.documentnode.holder.BooleanHolderNode;
-import com.exasol.adapter.document.documentnode.holder.StringHolderNode;
+import com.exasol.adapter.document.documentnode.holder.*;
 import com.exasol.adapter.document.documentpath.ObjectLookupPathSegment;
 import com.exasol.adapter.document.documentpath.PathSegment;
 import com.exasol.adapter.document.mapping.*;
@@ -116,6 +116,14 @@ class CsvValueTypeConverter {
                 return StringHolderNode::new;
             } else if (columnMapping instanceof PropertyToBoolColumnMapping) {
                 return Builder::booleanConverter;
+            } else if (columnMapping instanceof PropertyToDecimalColumnMapping) {
+                return Builder::decimalConverter;
+            } else if (columnMapping instanceof PropertyToDoubleColumnMapping) {
+                return Builder::doubleConverter;
+            } else if (columnMapping instanceof PropertyToDateColumnMapping) {
+                return Builder::dateConverter;
+            } else if (columnMapping instanceof PropertyToTimestampColumnMapping) {
+                return Builder::timestampConverter;
             }
             throw unsupportedMappingException(columnMapping);
         }
@@ -131,6 +139,22 @@ class CsvValueTypeConverter {
             throw new IllegalArgumentException(ExaError.messageBuilder("E-VSDF-65")
                     .message("CSV file contains invalid boolean value {{value}}.", orgValue)
                     .mitigation("Please use only values 'true' and 'false' (case insensitive).").toString());
+        }
+
+        private static DocumentNode decimalConverter(final String value) {
+            return new BigDecimalHolderNode(new BigDecimal(value));
+        }
+
+        private static DocumentNode doubleConverter(final String value) {
+            return new DoubleHolderNode(Double.parseDouble(value));
+        }
+
+        private static DocumentNode dateConverter(final String value) {
+            return new DateHolderNode(java.sql.Date.valueOf(value));
+        }
+
+        private static DocumentNode timestampConverter(final String value) {
+            return new TimestampHolderNode(java.sql.Timestamp.valueOf(value));
         }
     }
 

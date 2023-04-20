@@ -10,6 +10,7 @@ import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -196,26 +197,40 @@ public abstract class AbstractDocumentFilesAdapterIT {
         final Fields mapping = Fields.builder()//
                 .mapField("str", ToVarcharMapping.builder().build()) //
                 .mapField("bool", ToBoolMapping.builder().destinationName("IS_ACTIVE").build())//
-                .mapField("float_col", ToDecimalMapping.builder().decimalPrecision(10).decimalScale(5).build()) //
+                .mapField("decimal_col", ToDecimalMapping.builder().decimalPrecision(10).decimalScale(5).build()) //
                 .mapField("int_col", ToDecimalMapping.builder().decimalPrecision(5).decimalScale(0).build()) //
+                .mapField("double_col", ToDoubleMapping.builder().build()) //
                 .mapField("date_col", ToDateMapping.builder().build()) //
                 .mapField("timestamp_col", ToTimestampMapping.builder().build()) //
                 .build();
-        final EdmlDefinitionBuilder edmlDefinition = csvEdmlWithHeader(mapping, "testData-*.csv");
-        createVirtualSchemaWithMapping(TEST_SCHEMA, edmlDefinition);
+        createVirtualSchemaWithMapping(TEST_SCHEMA, csvEdmlWithHeader(mapping, "testData-*.csv"));
 
-        uploadFileContent("testData-1.csv", List.of("str, bool, float_col, int_col, date_col, timestamp_col", //
-                "\"test\", true, 1.23, 42, 2007-12-03, 2007-12-03T10:15:30.00Z",
-                "test2, FALSE, 1.23e-4, -17, 2007-12-03, 2007-12-03T10:15:30.00Z",
-                "null, null, null, null, null, null"));
-        final String query = "SELECT str, IS_ACTIVE, float_col, int_col, date_col, timestamp_col FROM " + TEST_SCHEMA
-                + ".BOOKS";
-        assertQuery(query, table("VARCHAR", "BOOLEAN", "DECIMAL", "INTEGER", "DATE", "TIMESTAMP") //
-                .row("test", true, 1.23, 42, Date.valueOf("2007-12-03"), Timestamp.valueOf("2007-12-03 10:15:30.00"))
-                .row("test2", true, 1.23e-4, -17, Date.valueOf("2007-12-03"),
+        uploadFileContent("testData-1.csv",
+                List.of("str, bool, decimal_col, int_col, double_col, date_col, timestamp_col", //
+                        "\"test\", true, 1.23, 42, 2.5, 2007-12-03, 2007-12-03T10:15:30.00Z",
+                        "test2, FALSE, 1.23e-4, -17, -3.5, 2007-12-03, 2007-12-03T10:15:30.00Z",
+                        "null, null, null, null, null, null, null"));
+        final String query = "SELECT str, IS_ACTIVE, decimal_col, int_col, double_col, date_col, timestamp_col FROM "
+                + TEST_SCHEMA + ".BOOKS";
+        assertQuery(query, table("VARCHAR", "BOOLEAN", "DECIMAL", "INTEGER", "DOUBLE PRECISION", "DATE", "TIMESTAMP") //
+                .row("test", true, 1.23, 42, 2.5, Date.valueOf("2007-12-03"),
                         Timestamp.valueOf("2007-12-03 10:15:30.00"))
-                .row(null, null, null, null, null, null) //
+                .row("test2", true, 1.23e-4, -17, -3.5, Date.valueOf("2007-12-03"),
+                        Timestamp.valueOf("2007-12-03 10:15:30.00"))
+                .row(null, null, null, null, null, null, null) //
                 .withUtcCalendar().matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
+    }
+
+    @Test
+    void testReadCsvWithUnsupportedType() throws IOException, SQLException {
+        final Fields mapping = Fields.builder()//
+                .mapField("json", ToJsonMapping.builder().build()) //
+                .build();
+        createVirtualSchemaWithMapping(TEST_SCHEMA, csvEdmlWithHeader(mapping, "testData-*.csv"));
+        uploadFileContent("testData-1.csv", List.of("json", "dummy-content"));
+        final String query = "SELECT json FROM " + TEST_SCHEMA + ".BOOKS";
+        assertQueryFails(query, matchesPattern(
+                "(?s).*E-VSDF-62: Column mapping of type 'com.exasol.adapter.document.mapping.PropertyToJsonColumnMapping' .* is not supported.*"));
     }
 
     @Test
@@ -744,7 +759,14 @@ public abstract class AbstractDocumentFilesAdapterIT {
         try (final ResultSet result = getStatement().executeQuery(query)) {
             assertThat(result, matcher);
         }
-        LOGGER.fine(() -> "Executed query in " + Duration.between(start, Instant.now()));
+        LOGGER.fine(
+                () -> "Executed query in " + Duration.between(start, Instant.now()).toSeconds() + "s: '" + query + "'");
+    }
+
+    private void assertQueryFails(final String query, final Matcher<String> exceptionMessageMatcher) {
+        final SQLDataException exception = assertThrows(SQLDataException.class,
+                () -> getStatement().executeQuery(query));
+        assertThat(exception.getMessage(), exceptionMessageMatcher);
     }
 
     protected void createJsonVirtualSchema() throws IOException {

@@ -125,12 +125,22 @@ class CsvIteratorTest {
     }
 
     @ParameterizedTest
-    @CsvSource({ "asci", "öäüÖÄÜß", "👍" })
+    @CsvSource({ "ascii", "öäüÖÄÜß", "👍" })
     void testConvertStringSuccess(final String csvValue) {
         final ColumnMapping column = PropertyToVarcharColumnMapping.builder()
                 .pathToSourceProperty(pathExpression("col")).build();
         final StringHolderNode value = convertCsvValue(csvValue, column, StringHolderNode.class);
         assertThat(value.getValue(), is(csvValue));
+    }
+
+    @ParameterizedTest
+    @CsvSource({ "1.234,1.234", "42,42", "1.234e-5,2345" })
+    void testConvertDecimalWithDecimalDigitsSuccess(final String csvValue, final double expected) {
+        final ColumnMapping column = PropertyToDecimalColumnMapping.builder() //
+                .decimalScale(1) //
+                .pathToSourceProperty(pathExpression("col")).build();
+        final StringHolderNode value = convertCsvValue(csvValue, column, StringHolderNode.class);
+        assertThat(value.getValue(), equalTo(expected));
     }
 
     private <T extends DocumentNode> T convertCsvValue(final String csvValue, final ColumnMapping column,
