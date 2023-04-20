@@ -51,7 +51,7 @@ class NamedCsvObjectNode implements DocumentObject {
             return converter.convert(value);
         } catch (final RuntimeException exception) {
             throw new IllegalArgumentException(ExaError.messageBuilder("E-VSDF-67").message(
-                    "Error converting value {{value}} using converter {{converter|u}} (file: {{resource name}}, row {{line number}}, column {{column name}}.")
+                    "Error converting value {{value}} using converter {{converter|u}} (file {{resource name}}, row {{line number}}, column {{column name}}).")
                     .parameter("value", value, "value to convert") //
                     .parameter("converter", converter, "converter that was used for converting the value")
                     .parameter("resource name", this.resourceName, "resource name or path to the CSV file")
