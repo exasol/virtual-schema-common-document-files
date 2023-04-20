@@ -3,8 +3,8 @@ package com.exasol.adapter.document.documentfetcher.files.csv;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
@@ -138,12 +138,48 @@ class CsvIteratorTest {
     }
 
     @ParameterizedTest
-    @CsvSource({ "ascii", "öäüÖÄÜß", "👍" })
+    @CsvSource({ "ascii", "öäüÖÄÜß", "👍", "#+±~$%" })
     void testConvertStringSuccess(final String csvValue) {
-        final ColumnMapping column = PropertyToVarcharColumnMapping.builder()
-                .pathToSourceProperty(pathExpression("col")).build();
-        final StringHolderNode value = convertCsvValue(csvValue, column, StringHolderNode.class);
+        final StringHolderNode value = convertCsvValue(csvValue, varcharMapping("col"), StringHolderNode.class);
         assertThat(value.getValue(), is(csvValue));
+    }
+
+    @ParameterizedTest
+    @CsvSource({ "''", "' '", " val", "val ", " val " })
+    void testConvertStringEmptyValue(final String value) {
+        final List<DocumentNode> rows = readCsvLines("val1," + value + ",val3",
+                List.of(varcharMapping("0"), varcharMapping("1"), varcharMapping("2")));
+        assertThat(rows, hasSize(1));
+        final DocumentObject firstRow = (DocumentObject) rows.get(0);
+        assertAll( //
+                () -> assertThat(((StringHolderNode) firstRow.get("0")).getValue(), equalTo("val1")),
+                () -> assertThat(((StringHolderNode) firstRow.get("1")).getValue(), equalTo(value)),
+                () -> assertThat(((StringHolderNode) firstRow.get("2")).getValue(), equalTo("val3")));
+    }
+
+    @ParameterizedTest
+    @CsvSource({ "''", "' '", " val", "val ", " val " })
+    void testConvertStringEmptyValueWithHeader(final String value) {
+        final List<DocumentNode> rows = readCsvWithHeadersLines("col1,col2,col3\nval1," + value + ",val3",
+                List.of(varcharMapping("col1"), varcharMapping("col2"), varcharMapping("col3")));
+        assertThat(rows, hasSize(1));
+        final DocumentObject firstRow = (DocumentObject) rows.get(0);
+        assertAll( //
+                () -> assertThat(((StringHolderNode) firstRow.get("col1")).getValue(), equalTo("val1")),
+                () -> assertThat(((StringHolderNode) firstRow.get("col2")).getValue(), equalTo(value)),
+                () -> assertThat(((StringHolderNode) firstRow.get("col3")).getValue(), equalTo("val3")));
+    }
+
+    @ParameterizedTest
+    @CsvSource({ "col1", " col1", "col1 ", " col1 " })
+    void testConvertHeaderWithSpace(final String columnName) {
+        final List<DocumentNode> rows = readCsvWithHeadersLines(columnName + ",col2\nval1,val2",
+                List.of(varcharMapping(columnName), varcharMapping("col2")));
+        assertThat(rows, hasSize(1));
+        final DocumentObject firstRow = (DocumentObject) rows.get(0);
+        assertAll( //
+                () -> assertThat(((StringHolderNode) firstRow.get(columnName)).getValue(), equalTo("val1")),
+                () -> assertThat(((StringHolderNode) firstRow.get("col2")).getValue(), equalTo("val2")));
     }
 
     @ParameterizedTest
@@ -179,15 +215,15 @@ class CsvIteratorTest {
         return DocumentPathExpression.builder().addPathSegment(new ObjectLookupPathSegment(segment)).build();
     }
 
-    private List<DocumentNode> readCsvLines(final String s, final List<ColumnMapping> csvColumns) {
-        final CsvIterator csvIterator = createCsvIterator(s, csvColumns);
+    private List<DocumentNode> readCsvLines(final String csvContent, final List<ColumnMapping> csvColumns) {
+        final CsvIterator csvIterator = createCsvIterator(csvContent, csvColumns);
         final List<DocumentNode> result = new ArrayList<>();
         csvIterator.forEachRemaining(result::add);
         return result;
     }
 
-    private List<DocumentNode> readCsvWithHeadersLines(final String s, final List<ColumnMapping> csvColumns) {
-        final CsvIterator csvIterator = createCsvWithHeadersIterator(s, csvColumns);
+    private List<DocumentNode> readCsvWithHeadersLines(final String csvContent, final List<ColumnMapping> csvColumns) {
+        final CsvIterator csvIterator = createCsvWithHeadersIterator(csvContent, csvColumns);
         final List<DocumentNode> result = new ArrayList<>();
         csvIterator.forEachRemaining(result::add);
         return result;

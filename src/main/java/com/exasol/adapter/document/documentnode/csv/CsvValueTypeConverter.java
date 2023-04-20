@@ -27,11 +27,7 @@ class CsvValueTypeConverter {
         return new Builder(csvColumns).build();
     }
 
-    DocumentNode convert(final String value, final int columnIndex) {
-        return findConverter(columnIndex).convert(value);
-    }
-
-    private ValueConverter findConverter(final int columnIndex) {
+    ValueConverter findConverter(final int columnIndex) {
         final ValueConverter converter = this.convertersByColumnIndex.get(columnIndex);
         if (converter == null) {
             throw new IllegalStateException(ExaError.messageBuilder("E-VSDF-60").message(
@@ -41,11 +37,7 @@ class CsvValueTypeConverter {
         return converter;
     }
 
-    DocumentNode convert(final String value, final String columnName) {
-        return findConverter(columnName).convert(value);
-    }
-
-    private ValueConverter findConverter(final String columnName) {
+    ValueConverter findConverter(final String columnName) {
         final ValueConverter converter = this.convertersByColumnName.get(columnName);
         if (converter == null) {
             throw new IllegalStateException(ExaError.messageBuilder("E-VSDF-61").message(
@@ -63,7 +55,7 @@ class CsvValueTypeConverter {
         }
 
         private CsvValueTypeConverter build() {
-            final List<ColumnMapping> filteredColumns = csvColumns.stream()
+            final List<ColumnMapping> filteredColumns = this.csvColumns.stream()
                     .filter(col -> !(col instanceof SourceReferenceColumnMapping)).collect(toList());
             final Map<String, ValueConverter> convertersByColumnName = new HashMap<>();
             final Map<Integer, ValueConverter> convertersByColumnIndex = new HashMap<>();

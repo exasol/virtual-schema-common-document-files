@@ -43,7 +43,7 @@ class CsvIterator implements CloseableIterator<DocumentNode> {
             final CsvConfiguration csvConfiguration) {
         final InputStreamReader inputStreamReader = new InputStreamReader(csvFile.getContent().getInputStream());
         final String resourceName = csvFile.getResourceName();
-        final CsvObjectNodeFactory nodeFactory = CsvObjectNodeFactory.create(csvColumns);
+        final CsvObjectNodeFactory nodeFactory = CsvObjectNodeFactory.create(resourceName, csvColumns);
         final Iterator<DocumentNode> delegate = createDelegate(csvConfiguration, nodeFactory, inputStreamReader);
         return new CsvIterator(inputStreamReader, resourceName, delegate);
     }

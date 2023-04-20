@@ -90,7 +90,8 @@ class CsvObjectNodeTest {
 
     private CsvObjectNode create(final String csvContent, final List<ColumnMapping> csvColumns) {
         final CsvReader csvReaderParentheses = CsvReader.builder().build(csvContent);
-        return new CsvObjectNode(CsvValueTypeConverter.create(csvColumns), csvReaderParentheses.iterator().next());
+        return new CsvObjectNode("resourceName", CsvValueTypeConverter.create(csvColumns),
+                csvReaderParentheses.iterator().next());
     }
 
     private ColumnMapping varcharCol(final String columnName) {

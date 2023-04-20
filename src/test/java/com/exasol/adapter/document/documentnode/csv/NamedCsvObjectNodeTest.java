@@ -77,7 +77,8 @@ class NamedCsvObjectNodeTest {
 
     private NamedCsvObjectNode create(final String csvContent, final List<ColumnMapping> csvColumns) {
         final NamedCsvReader csvWithHeadersReader = NamedCsvReader.builder().build(csvContent);
-        return new NamedCsvObjectNode(CsvValueTypeConverter.create(csvColumns), csvWithHeadersReader.iterator().next());
+        return new NamedCsvObjectNode("resourceName", CsvValueTypeConverter.create(csvColumns),
+                csvWithHeadersReader.iterator().next());
     }
 
     private ColumnMapping varcharCol(final String columnName) {
