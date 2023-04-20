@@ -5,9 +5,9 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
@@ -51,6 +51,21 @@ class CsvObjectNodeTest {
     void testGet() {
         final StringHolderNode result = (StringHolderNode) testee().get("0");
         assertThat(result.getValue(), equalTo("foo1"));
+    }
+
+    @Test
+    void testGetMissingElement() {
+        final CsvObjectNode testee = testee();
+        final NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> testee.get("2"));
+        assertThat(exception.getMessage(), equalTo("No element with name '2' found."));
+    }
+
+    @Test
+    void testGetMissingElementWithStringKey() {
+        final CsvObjectNode testee = testee();
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> testee.get("unknown"));
+        assertThat(exception.getMessage(), equalTo("No element with name 'unknown' found."));
     }
 
     @Test

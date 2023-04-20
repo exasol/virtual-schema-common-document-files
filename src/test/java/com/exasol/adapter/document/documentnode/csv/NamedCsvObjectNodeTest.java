@@ -4,9 +4,9 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
@@ -27,34 +27,43 @@ class NamedCsvObjectNodeTest {
     }
 
     @Test
-    void testWHHasKey() {
+    void testHasKey() {
         assertThat(testee().hasKey("header1"), equalTo(true));
     }
 
     @Test
-    void testWHHasKey2() {
+    void testHasKey2() {
         assertThat(testee().hasKey("header2"), equalTo(true));
     }
 
     @Test
-    void testWHNotHasKey() {
+    void testNotHasKey() {
         assertThat(testee().hasKey("unknownKey"), equalTo(false));
     }
 
     @Test
-    void testWHNotHasKeyString() {
+    void testNotHasKeyString() {
         assertThat(testee().hasKey("header3"), equalTo(false));
     }
 
     @Test
-    void testWHGet() {
+    void testGet() {
         final StringHolderNode result = (StringHolderNode) testee().get("header1");
         assertThat(result.getValue(), equalTo("foo1"));
     }
 
     @Test
-    void testWHGetKeyValueMap() {
-        final NamedCsvObjectNode objectNode = (NamedCsvObjectNode) testee();
+    void testGetUnknownKey() {
+        final NamedCsvObjectNode testee = testee();
+        final NoSuchElementException exception = assertThrows(NoSuchElementException.class,
+                () -> testee.get("unknown"));
+        assertThat(exception.getMessage(),
+                equalTo("No element with name 'unknown' found. Valid names are: [header1, header2]"));
+    }
+
+    @Test
+    void testGetKeyValueMap() {
+        final NamedCsvObjectNode objectNode = testee();
         final Map<String, DocumentNode> map = objectNode.getKeyValueMap();
         assertThat(map, aMapWithSize(2));
         assertThat(((StringHolderNode) map.get("header1")).getValue(), equalTo("foo1"));

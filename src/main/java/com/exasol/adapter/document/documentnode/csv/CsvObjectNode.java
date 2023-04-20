@@ -1,7 +1,6 @@
 package com.exasol.adapter.document.documentnode.csv;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.DocumentObject;
@@ -31,7 +30,7 @@ class CsvObjectNode implements DocumentObject {
         final Map<String, DocumentNode> map = new HashMap<>();
         int listIndex = 0;
         for (final String value : this.row.getFields()) {
-            map.put(String.valueOf(listIndex), typeConverter.convert(value, listIndex));
+            map.put(String.valueOf(listIndex), this.typeConverter.convert(value, listIndex));
             listIndex++;
         }
         return map;
@@ -39,15 +38,26 @@ class CsvObjectNode implements DocumentObject {
 
     @Override
     public DocumentNode get(final String key) {
-        // if it's not using headers you can use indices since the internals are a list<String> to store the fields,
-        final int index = Integer.parseInt(key);
-        return typeConverter.convert(row.getFields().get(index), index);
+        final int index = convertIndex(key);
+        if (index >= this.row.getFieldCount()) {
+            throw new NoSuchElementException("No element with name '" + index + "' found.");
+        }
+        final String value = this.row.getField(index);
+        return this.typeConverter.convert(value, index);
+    }
+
+    private int convertIndex(final String key) {
+        try {
+            return Integer.parseInt(key);
+        } catch (final NumberFormatException exception) {
+            throw new IllegalArgumentException("No element with name '" + key + "' found.", exception);
+        }
     }
 
     @Override
     public boolean hasKey(final String key) {
         try {
-            return Integer.parseInt(key) < (row.getFieldCount());
+            return Integer.parseInt(key) < this.row.getFieldCount();
         } catch (final NumberFormatException e) {
             return false;
         }
