@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.*;
 
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,10 @@ class CsvIteratorTest {
     public static final String CSV_EXAMPLE = "test-1\ntest-2";
     public static final String CSV_WITH_HEADERS_EXAMPLE = "header-1\ntest-1\ntest-2";
     public static final String CSV_WITH_DUPLICATE_HEADERS_EXAMPLE = "header,header\ntest-1a,test-1b\ntest-2a,test-2b";
+
+    enum CsvMode {
+        WITH_HEADER, WITHOUT_HEADER
+    }
 
     @Test
     void testReadLines() {
@@ -129,7 +134,7 @@ class CsvIteratorTest {
     }
 
     @ParameterizedTest
-    @CsvSource({ "true,true", "TRUE,true", "True,true", "false,false", "FALSE,false", "False,false" })
+    @CsvSource({ "true,true", "true,true", "TRUE,true", "True,true", "false,false", "FALSE,false", "False,false" })
     void testConvertBooleanSuccess(final String csvValue, final boolean expected) {
         final ColumnMapping column = PropertyToBoolColumnMapping.builder().pathToSourceProperty(pathExpression("col"))
                 .build();
@@ -137,8 +142,20 @@ class CsvIteratorTest {
         assertThat(value.getValue(), is(expected));
     }
 
+    @Test
+    void testConvertBooleanFailure() {
+        final ColumnMapping column = PropertyToBoolColumnMapping.builder() //
+                .pathToSourceProperty(pathExpression("col")).build();
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> convertCsvValue("invalid-bool", column));
+        assertAll(() -> assertThat(exception.getMessage(), matchesPattern(
+                "E-VSDF-66: Error converting value 'invalid-bool' using converter .* \\(file '', row 1, column 0\\).*")),
+                () -> assertThat(exception.getCause().getMessage(), equalTo(
+                        "E-VSDF-65: Value 'invalid-bool' is not a boolean value. Please use only values 'true' and 'false' (case insensitive).")));
+    }
+
     @ParameterizedTest
-    @CsvSource({ "ascii", "öäüÖÄÜß", "👍", "#+±~$%" })
+    @CsvSource({ "ascii", "öäüÖÄÜß", "👍", "#+±~$%", "true", "false", "123", "123.456" })
     void testConvertStringSuccess(final String csvValue) {
         final StringHolderNode value = convertCsvValue(csvValue, varcharMapping("col"), StringHolderNode.class);
         assertThat(value.getValue(), is(csvValue));
@@ -191,6 +208,18 @@ class CsvIteratorTest {
         assertThat(value.getValue(), equalTo(expected));
     }
 
+    @Test
+    void testConvertDecimalFailure() {
+        final ColumnMapping column = PropertyToDecimalColumnMapping.builder() //
+                .pathToSourceProperty(pathExpression("col")).build();
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> convertCsvValue("invalid-decimal", column));
+        assertAll(() -> assertThat(exception.getMessage(), matchesPattern(
+                "E-VSDF-66: Error converting value 'invalid-decimal' using converter .* \\(file '', row 1, column 0\\).*")),
+                () -> assertThat(exception.getCause().getMessage(), equalTo(
+                        "Character i is neither a decimal digit number, decimal point, nor \"e\" notation exponential mark.")));
+    }
+
     @ParameterizedTest
     @CsvSource({ "1.234,1.234", "42,42", "1.234e-5,0.00001234" })
     void testConvertDoubleSuccess(final String csvValue, final double expected) {
@@ -200,15 +229,50 @@ class CsvIteratorTest {
         assertThat(value.getValue(), equalTo(expected));
     }
 
+    @Test
+    void testConvertDoubleFailure() {
+        final ColumnMapping column = PropertyToDoubleColumnMapping.builder() //
+                .pathToSourceProperty(pathExpression("col")).build();
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> convertCsvValue("invalid-double", column));
+        assertAll(() -> assertThat(exception.getMessage(), matchesPattern(
+                "E-VSDF-66: Error converting value 'invalid-double' using converter .* \\(file '', row 1, column 0\\).*")),
+                () -> assertThat(exception.getCause().getMessage(), equalTo("For input string: \"invalid-double\"")));
+    }
+
+    @Test
+    void testConvertTimestampSuccess() {
+        final ColumnMapping column = PropertyToTimestampColumnMapping.builder() //
+                .pathToSourceProperty(pathExpression("col")).build();
+        final TimestampHolderNode value = convertCsvValue("2023-04-21 08:41:42.123456", column,
+                TimestampHolderNode.class);
+        assertThat(value.getValue(), equalTo(Timestamp.valueOf("2023-04-21 08:41:42.123456")));
+    }
+
+    @Test
+    void testConvertTimestampFailure() {
+        final ColumnMapping column = PropertyToTimestampColumnMapping.builder() //
+                .pathToSourceProperty(pathExpression("col")).build();
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> convertCsvValue("invalid-timestamp", column));
+        assertAll(() -> assertThat(exception.getMessage(), matchesPattern(
+                "E-VSDF-66: Error converting value 'invalid-timestamp' using converter .* \\(file '', row 1, column 0\\).*")),
+                () -> assertThat(exception.getCause().getMessage(),
+                        equalTo("Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff]")));
+    }
+
     private <T extends DocumentNode> T convertCsvValue(final String csvValue, final ColumnMapping column,
             final Class<T> expectedType) {
-        final CsvIterator iterator = createCsvIterator(csvValue, List.of(column));
-        final DocumentNode firstRow = iterator.next();
-        assertThat(firstRow, instanceOf(DocumentObject.class));
-        final DocumentObject object = (DocumentObject) firstRow;
-        final DocumentNode value = object.get("0");
+        final DocumentNode value = convertCsvValue(csvValue, column);
         assertThat(value, instanceOf(expectedType));
         return expectedType.cast(value);
+    }
+
+    private DocumentNode convertCsvValue(final String csvValue, final ColumnMapping column) {
+        final CsvIterator iterator = createCsvIterator(CsvMode.WITHOUT_HEADER, csvValue, List.of(column));
+        final DocumentNode firstRow = iterator.next();
+        assertThat(firstRow, instanceOf(DocumentObject.class));
+        return ((DocumentObject) firstRow).get("0");
     }
 
     private DocumentPathExpression pathExpression(final String segment) {
@@ -235,16 +299,16 @@ class CsvIteratorTest {
     }
 
     private CsvIterator createCsvIterator(final String content, final List<ColumnMapping> columns) {
-        return createCsvIterator(content, false, columns);
+        return createCsvIterator(CsvMode.WITHOUT_HEADER, content, columns);
     }
 
     private CsvIterator createCsvWithHeadersIterator(final String content, final List<ColumnMapping> csvColumns) {
-        return createCsvIterator(content, true, csvColumns);
+        return createCsvIterator(CsvMode.WITH_HEADER, content, csvColumns);
     }
 
-    private CsvIterator createCsvIterator(final String content, final boolean withHeaders,
+    private CsvIterator createCsvIterator(final CsvMode mode, final String content,
             final List<ColumnMapping> csvColumns) {
         return CsvIterator.create(new RemoteFile("", 0, new StringRemoteFileContent(content)), csvColumns,
-                new CsvConfiguration(withHeaders));
+                new CsvConfiguration(mode == CsvMode.WITH_HEADER));
     }
 }
