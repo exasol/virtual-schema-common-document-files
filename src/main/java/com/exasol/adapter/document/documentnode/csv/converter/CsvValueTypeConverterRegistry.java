@@ -79,8 +79,9 @@ public class CsvValueTypeConverterRegistry {
         }
 
         private CsvValueTypeConverterRegistry build() {
-            final List<ColumnMapping> filteredColumns = this.csvColumns.stream()
-                    .filter(col -> !(col instanceof SourceReferenceColumnMapping)).collect(toList());
+            final List<ColumnMapping> filteredColumns = this.csvColumns.stream() //
+                    .filter(col -> !(col instanceof SourceReferenceColumnMapping)) //
+                    .collect(toList());
             final Map<String, ValueConverter> convertersByColumnName = new HashMap<>();
             final Map<Integer, ValueConverter> convertersByColumnIndex = new HashMap<>();
             int index = 0;

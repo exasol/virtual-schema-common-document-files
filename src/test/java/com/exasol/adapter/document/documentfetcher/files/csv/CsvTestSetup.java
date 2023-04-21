@@ -14,7 +14,6 @@ public class CsvTestSetup {
 
     public CsvTestSetup(final Path tempDir, final List<String> columns) throws IOException {
         this.csvFile = Files.createTempFile(tempDir, "testData", ".csv");
-        // Files.delete(this.csvFile); //disabled for now
         this.csvWriter = CsvWriter.builder().build(new FileWriter(this.csvFile.toFile()));
         this.csvWriter.writeRow(columns);
     }
@@ -24,7 +23,6 @@ public class CsvTestSetup {
     }
 
     public CsvTestSetup writeRow(final List<String> values) throws IOException {
-
         this.csvWriter.writeRow(values);
         return this;
     }

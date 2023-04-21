@@ -23,6 +23,10 @@ public class DocumentNodeMatchers {
         return castingMatch(DocumentBooleanValue.class, DocumentBooleanValue::getValue, equalTo(expected));
     }
 
+    public static Matcher<DocumentNode> decimalNode(final double expected) {
+        return decimalNode(BigDecimal.valueOf(expected));
+    }
+
     public static Matcher<DocumentNode> decimalNode(final int expected) {
         return decimalNode(BigDecimal.valueOf(expected));
     }
@@ -35,8 +39,16 @@ public class DocumentNodeMatchers {
         return castingMatch(DocumentFloatingPointValue.class, DocumentFloatingPointValue::getValue, equalTo(expected));
     }
 
+    public static Matcher<DocumentNode> timestampNode(final String expected) {
+        return timestampNode(java.sql.Timestamp.valueOf(expected));
+    }
+
     public static Matcher<DocumentNode> timestampNode(final java.sql.Timestamp expected) {
         return castingMatch(DocumentTimestampValue.class, DocumentTimestampValue::getValue, equalTo(expected));
+    }
+
+    public static Matcher<DocumentNode> dateNode(final String expected) {
+        return dateNode(java.sql.Date.valueOf(expected));
     }
 
     public static Matcher<DocumentNode> dateNode(final java.sql.Date expected) {
