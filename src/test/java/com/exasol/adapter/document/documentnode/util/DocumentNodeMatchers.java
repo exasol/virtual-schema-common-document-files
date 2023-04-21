@@ -45,10 +45,10 @@ public class DocumentNodeMatchers {
 
     private static <N extends DocumentNode, T> Matcher<DocumentNode> castingMatch(final Class<N> expectedNodeType,
             final Function<N, T> getter, final Matcher<T> subMatcher) {
-        final Function<DocumentNode, T> castingGetter = value -> {
-            return getter.apply(expectedNodeType.cast(value));
-        };
-        return allOf(instanceOf(expectedNodeType), new DocumentNodeMatcher<>(castingGetter, subMatcher));
+        final Function<DocumentNode, N> cast = expectedNodeType::cast;
+        return allOf( //
+                instanceOf(expectedNodeType), //
+                new DocumentNodeMatcher<>(cast.andThen(getter), subMatcher));
     }
 
     private static class DocumentNodeMatcher<T, U> extends FeatureMatcher<T, U> {
