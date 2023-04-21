@@ -29,7 +29,7 @@ public class CsvValueTypeConverterRegistry {
 
     /**
      * Create a new registry with {@link ValueConverter}s for the given CSV columns.
-     * 
+     *
      * @param csvColumns the column types of the CSV file
      * @return a new registry configured for the given columns
      */
@@ -40,7 +40,7 @@ public class CsvValueTypeConverterRegistry {
     /**
      * Get the {@link ValueConverter} for the CSV column with the given index. Use this method for CSV files without
      * headers.
-     * 
+     *
      * @param columnIndex the zero-based index of the CSV column
      * @return the {@link ValueConverter} for the given column
      */
@@ -57,7 +57,7 @@ public class CsvValueTypeConverterRegistry {
     /**
      * Get the {@link ValueConverter} for the CSV column with the given column name. Use this method for CSV files with
      * headers.
-     * 
+     *
      * @param columnIndex the name of the CSV column
      * @return the {@link ValueConverter} for the given column
      */
@@ -110,7 +110,7 @@ public class CsvValueTypeConverterRegistry {
         private String getColumnNameFromPath(final PropertyToColumnMapping propertyMapping) {
             if (propertyMapping.getPathToSourceProperty().getSegments().size() != 1) {
                 throw new IllegalArgumentException(ExaError.messageBuilder("E-VSDF-63")
-                        .message("Path to source {{path}} has {{segment count}} segments.",
+                        .message("Path to source {{path|q}} has {{segment count}} segments.",
                                 propertyMapping.getPathToSourceProperty(),
                                 propertyMapping.getPathToSourceProperty().size())
                         .mitigation("Please specify a path with exactly one segment.").toString());
@@ -118,7 +118,7 @@ public class CsvValueTypeConverterRegistry {
             final PathSegment segment = propertyMapping.getPathToSourceProperty().getSegments().get(0);
             if (!(segment instanceof ObjectLookupPathSegment)) {
                 throw new IllegalArgumentException(ExaError.messageBuilder("E-VSDF-64")
-                        .message("Segment {{segment}} of path {{path}} has an unsupported type {{segment type}}.",
+                        .message("Segment {{segment|q}} of path {{path|q}} has an unsupported type {{segment type}}.",
                                 segment, propertyMapping.getPathToSourceProperty(), segment.getClass().getName())
                         .mitigation("Please use only supported path segment of type {{supported segment type}}.",
                                 ObjectLookupPathSegment.class.getName())

@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.csv.converter.CsvValueTypeConverterRegistry;
-import com.exasol.adapter.document.documentnode.holder.StringHolderNode;
+import com.exasol.adapter.document.documentnode.util.DocumentNodeMatchers;
 import com.exasol.adapter.document.documentpath.DocumentPathExpression;
 import com.exasol.adapter.document.documentpath.ObjectLookupPathSegment;
 import com.exasol.adapter.document.mapping.ColumnMapping;
@@ -49,8 +49,7 @@ class NamedCsvObjectNodeTest {
 
     @Test
     void testGet() {
-        final StringHolderNode result = (StringHolderNode) testee().get("header1");
-        assertThat(result.getValue(), equalTo("foo1"));
+        assertThat(testee().get("header1"), DocumentNodeMatchers.stringHolder("foo1"));
     }
 
     @Test
@@ -67,8 +66,8 @@ class NamedCsvObjectNodeTest {
         final NamedCsvObjectNode objectNode = testee();
         final Map<String, DocumentNode> map = objectNode.getKeyValueMap();
         assertThat(map, aMapWithSize(2));
-        assertThat(((StringHolderNode) map.get("header1")).getValue(), equalTo("foo1"));
-        assertThat(((StringHolderNode) map.get("header2")).getValue(), equalTo("bar1"));
+        assertThat(map.get("header1"), DocumentNodeMatchers.stringHolder("foo1"));
+        assertThat(map.get("header2"), DocumentNodeMatchers.stringHolder("bar1"));
     }
 
     private NamedCsvObjectNode testee() {
