@@ -3,6 +3,7 @@ package com.exasol.adapter.document.documentnode.csv;
 import java.util.List;
 
 import com.exasol.adapter.document.documentnode.DocumentObject;
+import com.exasol.adapter.document.documentnode.csv.converter.CsvValueTypeConverterRegistry;
 import com.exasol.adapter.document.mapping.ColumnMapping;
 
 import de.siegmar.fastcsv.reader.CsvRow;
@@ -14,7 +15,7 @@ import de.siegmar.fastcsv.reader.NamedCsvRow;
  */
 public class CsvObjectNodeFactory {
 
-    private final CsvValueTypeConverter typeConverter;
+    private final CsvValueTypeConverterRegistry typeConverter;
     private final String resourceName;
 
     /**
@@ -25,10 +26,10 @@ public class CsvObjectNodeFactory {
      * @return a new {@link CsvObjectNodeFactory}
      */
     public static CsvObjectNodeFactory create(final String resourceName, final List<ColumnMapping> csvColumns) {
-        return new CsvObjectNodeFactory(resourceName, CsvValueTypeConverter.create(csvColumns));
+        return new CsvObjectNodeFactory(resourceName, CsvValueTypeConverterRegistry.create(csvColumns));
     }
 
-    CsvObjectNodeFactory(final String resourceName, final CsvValueTypeConverter typeConverter) {
+    CsvObjectNodeFactory(final String resourceName, final CsvValueTypeConverterRegistry typeConverter) {
         this.resourceName = resourceName;
         this.typeConverter = typeConverter;
     }

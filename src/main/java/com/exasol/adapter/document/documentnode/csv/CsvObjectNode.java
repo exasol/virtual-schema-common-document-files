@@ -4,7 +4,8 @@ import java.util.*;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.DocumentObject;
-import com.exasol.adapter.document.documentnode.csv.CsvValueTypeConverter.ValueConverter;
+import com.exasol.adapter.document.documentnode.csv.converter.CsvValueTypeConverterRegistry;
+import com.exasol.adapter.document.documentnode.csv.converter.ValueConverter;
 import com.exasol.errorreporting.ExaError;
 
 import de.siegmar.fastcsv.reader.CsvRow;
@@ -15,7 +16,7 @@ import de.siegmar.fastcsv.reader.CsvRow;
 class CsvObjectNode implements DocumentObject {
 
     private final CsvRow row;
-    private final CsvValueTypeConverter typeConverter;
+    private final CsvValueTypeConverterRegistry typeConverter;
     private final String resourceName;
 
     /**
@@ -25,7 +26,7 @@ class CsvObjectNode implements DocumentObject {
      * @param typeConverter the converter for converting CSV values to {@link DocumentNode}
      * @param row           CSV row to wrap
      */
-    CsvObjectNode(final String resourceName, final CsvValueTypeConverter typeConverter, final CsvRow row) {
+    CsvObjectNode(final String resourceName, final CsvValueTypeConverterRegistry typeConverter, final CsvRow row) {
         this.resourceName = resourceName;
         this.typeConverter = typeConverter;
         this.row = row;

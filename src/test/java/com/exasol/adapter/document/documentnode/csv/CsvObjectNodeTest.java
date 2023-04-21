@@ -12,6 +12,7 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
+import com.exasol.adapter.document.documentnode.csv.converter.CsvValueTypeConverterRegistry;
 import com.exasol.adapter.document.documentnode.holder.StringHolderNode;
 import com.exasol.adapter.document.documentpath.DocumentPathExpression;
 import com.exasol.adapter.document.documentpath.ObjectLookupPathSegment;
@@ -90,7 +91,7 @@ class CsvObjectNodeTest {
 
     private CsvObjectNode create(final String csvContent, final List<ColumnMapping> csvColumns) {
         final CsvReader csvReaderParentheses = CsvReader.builder().build(csvContent);
-        return new CsvObjectNode("resourceName", CsvValueTypeConverter.create(csvColumns),
+        return new CsvObjectNode("resourceName", CsvValueTypeConverterRegistry.create(csvColumns),
                 csvReaderParentheses.iterator().next());
     }
 

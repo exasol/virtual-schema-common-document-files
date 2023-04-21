@@ -1,4 +1,4 @@
-package com.exasol.adapter.document.documentnode.csv;
+package com.exasol.adapter.document.documentnode.csv.converter;
 
 import static java.util.stream.Collectors.toList;
 
@@ -12,22 +12,39 @@ import com.exasol.adapter.document.documentpath.PathSegment;
 import com.exasol.adapter.document.mapping.*;
 import com.exasol.errorreporting.ExaError;
 
-class CsvValueTypeConverter {
+/**
+ * This registry allows finding the correct {@link ValueConverter} for a given column in a CSV file -- either by index
+ * (for CSV files without header) or by column name (for CSV files with header).
+ */
+public class CsvValueTypeConverterRegistry {
 
     private final Map<String, ValueConverter> convertersByColumnName;
     private final Map<Integer, ValueConverter> convertersByColumnIndex;
 
-    private CsvValueTypeConverter(final Map<String, ValueConverter> convertersByColumnName,
+    private CsvValueTypeConverterRegistry(final Map<String, ValueConverter> convertersByColumnName,
             final Map<Integer, ValueConverter> convertersByColumnIndex) {
         this.convertersByColumnName = convertersByColumnName;
         this.convertersByColumnIndex = convertersByColumnIndex;
     }
 
-    static CsvValueTypeConverter create(final List<ColumnMapping> csvColumns) {
+    /**
+     * Create a new registry with {@link ValueConverter}s for the given CSV columns.
+     * 
+     * @param csvColumns the column types of the CSV file
+     * @return a new registry configured for the given columns
+     */
+    public static CsvValueTypeConverterRegistry create(final List<ColumnMapping> csvColumns) {
         return new Builder(csvColumns).build();
     }
 
-    ValueConverter findConverter(final int columnIndex) {
+    /**
+     * Get the {@link ValueConverter} for the CSV column with the given index. Use this method for CSV files without
+     * headers.
+     * 
+     * @param columnIndex the zero-based index of the CSV column
+     * @return the {@link ValueConverter} for the given column
+     */
+    public ValueConverter findConverter(final int columnIndex) {
         final ValueConverter converter = this.convertersByColumnIndex.get(columnIndex);
         if (converter == null) {
             throw new IllegalStateException(ExaError.messageBuilder("E-VSDF-60").message(
@@ -37,7 +54,14 @@ class CsvValueTypeConverter {
         return converter;
     }
 
-    ValueConverter findConverter(final String columnName) {
+    /**
+     * Get the {@link ValueConverter} for the CSV column with the given column name. Use this method for CSV files with
+     * headers.
+     * 
+     * @param columnIndex the name of the CSV column
+     * @return the {@link ValueConverter} for the given column
+     */
+    public ValueConverter findConverter(final String columnName) {
         final ValueConverter converter = this.convertersByColumnName.get(columnName);
         if (converter == null) {
             throw new IllegalStateException(ExaError.messageBuilder("E-VSDF-61").message(
@@ -54,7 +78,7 @@ class CsvValueTypeConverter {
             this.csvColumns = Objects.requireNonNull(csvColumns, "csvColumns");
         }
 
-        private CsvValueTypeConverter build() {
+        private CsvValueTypeConverterRegistry build() {
             final List<ColumnMapping> filteredColumns = this.csvColumns.stream()
                     .filter(col -> !(col instanceof SourceReferenceColumnMapping)).collect(toList());
             final Map<String, ValueConverter> convertersByColumnName = new HashMap<>();
@@ -66,7 +90,7 @@ class CsvValueTypeConverter {
                 convertersByColumnName.put(getColumnName(columnMapping), converter);
                 index++;
             }
-            return new CsvValueTypeConverter(convertersByColumnName, convertersByColumnIndex);
+            return new CsvValueTypeConverterRegistry(convertersByColumnName, convertersByColumnIndex);
         }
 
         private String getColumnName(final ColumnMapping columnMapping) {
@@ -128,9 +152,9 @@ class CsvValueTypeConverter {
             if (value.equals("false")) {
                 return new BooleanHolderNode(false);
             }
-            throw new IllegalArgumentException(ExaError.messageBuilder("E-VSDF-65")
-                    .message("CSV file contains invalid boolean value {{value}}.", orgValue)
-                    .mitigation("Please use only values 'true' and 'false' (case insensitive).").toString());
+            throw new IllegalArgumentException(
+                    ExaError.messageBuilder("E-VSDF-65").message("Value {{value}} is not a boolean value.", orgValue)
+                            .mitigation("Please use only values 'true' and 'false' (case insensitive).").toString());
         }
 
         private static DocumentNode decimalConverter(final String value) {
@@ -148,10 +172,5 @@ class CsvValueTypeConverter {
         private static DocumentNode timestampConverter(final String value) {
             return new TimestampHolderNode(java.sql.Timestamp.valueOf(value));
         }
-    }
-
-    @FunctionalInterface
-    interface ValueConverter {
-        DocumentNode convert(String value);
     }
 }
