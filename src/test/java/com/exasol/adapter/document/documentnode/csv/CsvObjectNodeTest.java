@@ -1,5 +1,6 @@
 package com.exasol.adapter.document.documentnode.csv;
 
+import static com.exasol.adapter.document.documentnode.util.DocumentNodeMatchers.stringNode;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.Test;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.csv.converter.CsvValueTypeConverterRegistry;
-import com.exasol.adapter.document.documentnode.util.DocumentNodeMatchers;
 import com.exasol.adapter.document.documentpath.DocumentPathExpression;
 import com.exasol.adapter.document.documentpath.ObjectLookupPathSegment;
 import com.exasol.adapter.document.mapping.ColumnMapping;
@@ -50,7 +50,7 @@ class CsvObjectNodeTest {
 
     @Test
     void testGet() {
-        assertThat(testee().get("0"), DocumentNodeMatchers.stringHolder("foo1"));
+        assertThat(testee().get("0"), stringNode("foo1"));
     }
 
     @Test
@@ -72,15 +72,14 @@ class CsvObjectNodeTest {
     void testGetWithParentheses() {
         final CsvObjectNode node = create("\"foo1\",\"bar1\"\r\n\"foo2\",\"bar2\"",
                 List.of(varcharCol("0"), varcharCol("1")));
-        assertThat(node.get("0"), DocumentNodeMatchers.stringHolder("foo1"));
+        assertThat(node.get("0"), stringNode("foo1"));
     }
 
     @Test
     void testGetKeyValueMap() {
         final Map<String, DocumentNode> map = testee().getKeyValueMap();
-        assertAll(() -> assertThat(map, aMapWithSize(2)),
-                () -> assertThat(map.get("0"), DocumentNodeMatchers.stringHolder("foo1")),
-                () -> assertThat(map.get("1"), DocumentNodeMatchers.stringHolder("bar1")));
+        assertAll(() -> assertThat(map, aMapWithSize(2)), () -> assertThat(map.get("0"), stringNode("foo1")),
+                () -> assertThat(map.get("1"), stringNode("bar1")));
     }
 
     private CsvObjectNode testee() {

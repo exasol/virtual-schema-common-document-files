@@ -1,5 +1,6 @@
 package com.exasol.adapter.document.documentnode.csv.converter;
 
+import static com.exasol.adapter.document.documentnode.util.DocumentNodeMatchers.stringNode;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -11,7 +12,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
-import com.exasol.adapter.document.documentnode.util.DocumentNodeMatchers;
 import com.exasol.adapter.document.documentpath.DocumentPathExpression;
 import com.exasol.adapter.document.mapping.*;
 
@@ -82,7 +82,7 @@ class CsvValueTypeConverterRegistryTest {
     void varcharMapping() {
         final CsvValueTypeConverterRegistry testee = testee(varcharMapping("col"));
         final DocumentNode result = testee.findConverter("col").convert("val");
-        assertThat(result, DocumentNodeMatchers.stringHolder("val"));
+        assertThat(result, stringNode("val"));
     }
 
     private PropertyToVarcharColumnMapping varcharMapping(final String columnName) {

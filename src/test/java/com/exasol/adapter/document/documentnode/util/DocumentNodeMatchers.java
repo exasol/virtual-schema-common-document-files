@@ -2,26 +2,45 @@ package com.exasol.adapter.document.documentnode.util;
 
 import static org.hamcrest.Matchers.*;
 
+import java.math.BigDecimal;
 import java.util.function.Function;
 
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 
-import com.exasol.adapter.document.documentnode.DocumentNode;
-import com.exasol.adapter.document.documentnode.holder.BooleanHolderNode;
-import com.exasol.adapter.document.documentnode.holder.StringHolderNode;
+import com.exasol.adapter.document.documentnode.*;
 
 public class DocumentNodeMatchers {
     private DocumentNodeMatchers() {
         // Not instantiable
     }
 
-    public static Matcher<DocumentNode> stringHolder(final String expected) {
-        return castingMatch(StringHolderNode.class, StringHolderNode::getValue, equalTo(expected));
+    public static Matcher<DocumentNode> stringNode(final String expected) {
+        return castingMatch(DocumentStringValue.class, DocumentStringValue::getValue, equalTo(expected));
     }
 
-    public static Matcher<DocumentNode> booleanHolder(final boolean expected) {
-        return castingMatch(BooleanHolderNode.class, BooleanHolderNode::getValue, equalTo(expected));
+    public static Matcher<DocumentNode> booleanNode(final boolean expected) {
+        return castingMatch(DocumentBooleanValue.class, DocumentBooleanValue::getValue, equalTo(expected));
+    }
+
+    public static Matcher<DocumentNode> decimalNode(final int expected) {
+        return decimalNode(BigDecimal.valueOf(expected));
+    }
+
+    public static Matcher<DocumentNode> decimalNode(final BigDecimal expected) {
+        return castingMatch(DocumentDecimalValue.class, DocumentDecimalValue::getValue, equalTo(expected));
+    }
+
+    public static Matcher<DocumentNode> doubleNode(final double expected) {
+        return castingMatch(DocumentFloatingPointValue.class, DocumentFloatingPointValue::getValue, equalTo(expected));
+    }
+
+    public static Matcher<DocumentNode> timestampNode(final java.sql.Timestamp expected) {
+        return castingMatch(DocumentTimestampValue.class, DocumentTimestampValue::getValue, equalTo(expected));
+    }
+
+    public static Matcher<DocumentNode> dateNode(final java.sql.Date expected) {
+        return castingMatch(DocumentDateValue.class, DocumentDateValue::getValue, equalTo(expected));
     }
 
     private static <N extends DocumentNode, T> Matcher<DocumentNode> castingMatch(final Class<N> expectedNodeType,

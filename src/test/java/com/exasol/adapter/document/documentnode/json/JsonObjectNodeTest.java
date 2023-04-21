@@ -1,5 +1,6 @@
 package com.exasol.adapter.document.documentnode.json;
 
+import static com.exasol.adapter.document.documentnode.util.DocumentNodeMatchers.stringNode;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -7,7 +8,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import org.junit.jupiter.api.Test;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
-import com.exasol.adapter.document.documentnode.util.DocumentNodeMatchers;
 
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
@@ -37,12 +37,12 @@ class JsonObjectNodeTest {
     @Test
     void testGet() {
         final JsonObjectNode objectNode = (JsonObjectNode) JsonNodeFactory.getInstance().getJsonNode(JSON_OBJECT);
-        assertThat(objectNode.get("key"), DocumentNodeMatchers.stringHolder("value"));
+        assertThat(objectNode.get("key"), stringNode("value"));
     }
 
     @Test
     void testGetKeyValueMap() {
         final JsonObjectNode objectNode = (JsonObjectNode) JsonNodeFactory.getInstance().getJsonNode(JSON_OBJECT);
-        assertThat(objectNode.getKeyValueMap().get("key"), DocumentNodeMatchers.stringHolder("value"));
+        assertThat(objectNode.getKeyValueMap().get("key"), stringNode("value"));
     }
 }

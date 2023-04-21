@@ -1,5 +1,6 @@
 package com.exasol.adapter.document.documentfetcher.files.csv;
 
+import static com.exasol.adapter.document.documentnode.util.DocumentNodeMatchers.*;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -18,8 +19,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 import com.exasol.adapter.document.documentfetcher.files.*;
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.DocumentObject;
-import com.exasol.adapter.document.documentnode.holder.*;
-import com.exasol.adapter.document.documentnode.util.DocumentNodeMatchers;
 import com.exasol.adapter.document.documentpath.DocumentPathExpression;
 import com.exasol.adapter.document.documentpath.ObjectLookupPathSegment;
 import com.exasol.adapter.document.mapping.*;
@@ -43,8 +42,8 @@ class CsvIteratorTest {
     void testReadLineContent() {
         final List<DocumentNode> result = readCsvLines(CSV_EXAMPLE, List.of(varcharMapping("0")));
         assertThat(result.size(), equalTo(2));
-        assertThat(((DocumentObject) result.get(0)).get("0"), DocumentNodeMatchers.stringHolder("test-1"));
-        assertThat(((DocumentObject) result.get(1)).get("0"), DocumentNodeMatchers.stringHolder("test-2"));
+        assertThat(((DocumentObject) result.get(0)).get("0"), stringNode("test-1"));
+        assertThat(((DocumentObject) result.get(1)).get("0"), stringNode("test-2"));
     }
 
     @Test
@@ -139,8 +138,7 @@ class CsvIteratorTest {
     void testConvertBooleanSuccess(final String csvValue, final boolean expected) {
         final ColumnMapping column = PropertyToBoolColumnMapping.builder().pathToSourceProperty(pathExpression("col"))
                 .build();
-        final BooleanHolderNode value = convertCsvValue(csvValue, column, BooleanHolderNode.class);
-        assertThat(value.getValue(), is(expected));
+        assertThat(convertCsvValue(csvValue, column), booleanNode(expected));
     }
 
     @Test
@@ -158,8 +156,7 @@ class CsvIteratorTest {
     @ParameterizedTest
     @CsvSource({ "ascii", "öäüÖÄÜß", "👍", "#+±~$%", "true", "false", "123", "123.456" })
     void testConvertStringSuccess(final String csvValue) {
-        final StringHolderNode value = convertCsvValue(csvValue, varcharMapping("col"), StringHolderNode.class);
-        assertThat(value.getValue(), is(csvValue));
+        assertThat(convertCsvValue(csvValue, varcharMapping("col")), stringNode(csvValue));
     }
 
     @ParameterizedTest
@@ -170,9 +167,9 @@ class CsvIteratorTest {
         assertThat(rows, hasSize(1));
         final DocumentObject firstRow = (DocumentObject) rows.get(0);
         assertAll( //
-                () -> assertThat(firstRow.get("0"), DocumentNodeMatchers.stringHolder("val1")),
-                () -> assertThat(firstRow.get("1"), DocumentNodeMatchers.stringHolder(value)),
-                () -> assertThat(firstRow.get("2"), DocumentNodeMatchers.stringHolder("val3")));
+                () -> assertThat(firstRow.get("0"), stringNode("val1")),
+                () -> assertThat(firstRow.get("1"), stringNode(value)),
+                () -> assertThat(firstRow.get("2"), stringNode("val3")));
     }
 
     @ParameterizedTest
@@ -183,9 +180,9 @@ class CsvIteratorTest {
         assertThat(rows, hasSize(1));
         final DocumentObject firstRow = (DocumentObject) rows.get(0);
         assertAll( //
-                () -> assertThat(firstRow.get("col1"), DocumentNodeMatchers.stringHolder("val1")),
-                () -> assertThat(firstRow.get("col2"), DocumentNodeMatchers.stringHolder(value)),
-                () -> assertThat(firstRow.get("col3"), DocumentNodeMatchers.stringHolder("val3")));
+                () -> assertThat(firstRow.get("col1"), stringNode("val1")),
+                () -> assertThat(firstRow.get("col2"), stringNode(value)),
+                () -> assertThat(firstRow.get("col3"), stringNode("val3")));
     }
 
     @ParameterizedTest
@@ -196,8 +193,8 @@ class CsvIteratorTest {
         assertThat(rows, hasSize(1));
         final DocumentObject firstRow = (DocumentObject) rows.get(0);
         assertAll( //
-                () -> assertThat(firstRow.get(columnName), DocumentNodeMatchers.stringHolder("val1")),
-                () -> assertThat(firstRow.get("col2"), DocumentNodeMatchers.stringHolder("val2")));
+                () -> assertThat(firstRow.get(columnName), stringNode("val1")),
+                () -> assertThat(firstRow.get("col2"), stringNode("val2")));
     }
 
     @ParameterizedTest
@@ -205,8 +202,7 @@ class CsvIteratorTest {
     void testConvertDecimalSuccess(final String csvValue, final BigDecimal expected) {
         final ColumnMapping column = PropertyToDecimalColumnMapping.builder() //
                 .pathToSourceProperty(pathExpression("col")).build();
-        final BigDecimalHolderNode value = convertCsvValue(csvValue, column, BigDecimalHolderNode.class);
-        assertThat(value.getValue(), equalTo(expected));
+        assertThat(convertCsvValue(csvValue, column), decimalNode(expected));
     }
 
     @Test
@@ -226,8 +222,7 @@ class CsvIteratorTest {
     void testConvertDoubleSuccess(final String csvValue, final double expected) {
         final ColumnMapping column = PropertyToDoubleColumnMapping.builder() //
                 .pathToSourceProperty(pathExpression("col")).build();
-        final DoubleHolderNode value = convertCsvValue(csvValue, column, DoubleHolderNode.class);
-        assertThat(value.getValue(), equalTo(expected));
+        assertThat(convertCsvValue(csvValue, column), doubleNode(expected));
     }
 
     @Test
@@ -245,8 +240,7 @@ class CsvIteratorTest {
     void testConvertDateSuccess() {
         final ColumnMapping column = PropertyToDateColumnMapping.builder() //
                 .pathToSourceProperty(pathExpression("col")).build();
-        final DateHolderNode value = convertCsvValue("2023-04-21", column, DateHolderNode.class);
-        assertThat(value.getValue(), equalTo(java.sql.Date.valueOf("2023-04-21")));
+        assertThat(convertCsvValue("2023-04-21", column), dateNode(java.sql.Date.valueOf("2023-04-21")));
     }
 
     @Test
@@ -264,9 +258,8 @@ class CsvIteratorTest {
     void testConvertTimestampSuccess() {
         final ColumnMapping column = PropertyToTimestampColumnMapping.builder() //
                 .pathToSourceProperty(pathExpression("col")).build();
-        final TimestampHolderNode value = convertCsvValue("2023-04-21 08:41:42.123456", column,
-                TimestampHolderNode.class);
-        assertThat(value.getValue(), equalTo(Timestamp.valueOf("2023-04-21 08:41:42.123456")));
+        assertThat(convertCsvValue("2023-04-21 08:41:42.123456", column),
+                timestampNode(Timestamp.valueOf("2023-04-21 08:41:42.123456")));
     }
 
     @Test
@@ -289,13 +282,6 @@ class CsvIteratorTest {
                 () -> convertCsvValue("json", column));
         assertThat(exception.getMessage(), matchesPattern(
                 "E-VSDF-62: Column mapping of type 'com.exasol.adapter.document.mapping.PropertyToJsonColumnMapping' .* is not supported. Please use only supported column mappings.*"));
-    }
-
-    private <T extends DocumentNode> T convertCsvValue(final String csvValue, final ColumnMapping column,
-            final Class<T> expectedType) {
-        final DocumentNode value = convertCsvValue(csvValue, column);
-        assertThat(value, instanceOf(expectedType));
-        return expectedType.cast(value);
     }
 
     private DocumentNode convertCsvValue(final String csvValue, final ColumnMapping column) {
