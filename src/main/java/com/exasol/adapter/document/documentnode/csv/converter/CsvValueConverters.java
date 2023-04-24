@@ -13,39 +13,39 @@ import com.exasol.adapter.document.mapping.*;
 import com.exasol.errorreporting.ExaError;
 
 /**
- * This registry allows finding the correct {@link ValueConverter} for a given column in a CSV file -- either by index
- * (for CSV files without header) or by column name (for CSV files with header).
+ * This registry allows finding the correct {@link CsvValueConverter} for a given column in a CSV file -- either by
+ * index (for CSV files without header) or by column name (for CSV files with header).
  */
-public class CsvValueTypeConverterRegistry {
+public class CsvValueConverters {
 
-    private final Map<String, ValueConverter> convertersByColumnName;
-    private final Map<Integer, ValueConverter> convertersByColumnIndex;
+    private final Map<String, CsvValueConverter> convertersByColumnName;
+    private final Map<Integer, CsvValueConverter> convertersByColumnIndex;
 
-    private CsvValueTypeConverterRegistry(final Map<String, ValueConverter> convertersByColumnName,
-            final Map<Integer, ValueConverter> convertersByColumnIndex) {
+    private CsvValueConverters(final Map<String, CsvValueConverter> convertersByColumnName,
+            final Map<Integer, CsvValueConverter> convertersByColumnIndex) {
         this.convertersByColumnName = convertersByColumnName;
         this.convertersByColumnIndex = convertersByColumnIndex;
     }
 
     /**
-     * Create a new registry with {@link ValueConverter}s for the given CSV columns.
+     * Create a new registry with {@link CsvValueConverter}s for the given CSV columns.
      *
      * @param csvColumns the column types of the CSV file
      * @return a new registry configured for the given columns
      */
-    public static CsvValueTypeConverterRegistry create(final List<ColumnMapping> csvColumns) {
+    public static CsvValueConverters create(final List<ColumnMapping> csvColumns) {
         return new Builder(csvColumns).build();
     }
 
     /**
-     * Get the {@link ValueConverter} for the CSV column with the given index. Use this method for CSV files without
+     * Get the {@link CsvValueConverter} for the CSV column with the given index. Use this method for CSV files without
      * headers.
      *
      * @param columnIndex the zero-based index of the CSV column
-     * @return the {@link ValueConverter} for the given column
+     * @return the {@link CsvValueConverter} for the given column
      */
-    public ValueConverter findConverter(final int columnIndex) {
-        final ValueConverter converter = this.convertersByColumnIndex.get(columnIndex);
+    public CsvValueConverter findConverter(final int columnIndex) {
+        final CsvValueConverter converter = this.convertersByColumnIndex.get(columnIndex);
         if (converter == null) {
             throw new IllegalStateException(ExaError.messageBuilder("E-VSDF-60").message(
                     "No CSV value converter found for column {{column index}}. Available converters: {{available converters}}.",
@@ -55,14 +55,14 @@ public class CsvValueTypeConverterRegistry {
     }
 
     /**
-     * Get the {@link ValueConverter} for the CSV column with the given column name. Use this method for CSV files with
-     * headers.
+     * Get the {@link CsvValueConverter} for the CSV column with the given column name. Use this method for CSV files
+     * with headers.
      *
      * @param columnName the name of the CSV column
-     * @return the {@link ValueConverter} for the given column
+     * @return the {@link CsvValueConverter} for the given column
      */
-    public ValueConverter findConverter(final String columnName) {
-        final ValueConverter converter = this.convertersByColumnName.get(columnName);
+    public CsvValueConverter findConverter(final String columnName) {
+        final CsvValueConverter converter = this.convertersByColumnName.get(columnName);
         if (converter == null) {
             throw new IllegalStateException(ExaError.messageBuilder("E-VSDF-61").message(
                     "No CSV value converter found for column {{column name}}. Available converters: {{available converters}}.",
@@ -78,20 +78,20 @@ public class CsvValueTypeConverterRegistry {
             this.csvColumns = Objects.requireNonNull(csvColumns, "csvColumns");
         }
 
-        private CsvValueTypeConverterRegistry build() {
+        private CsvValueConverters build() {
             final List<ColumnMapping> filteredColumns = this.csvColumns.stream() //
                     .filter(col -> !(col instanceof SourceReferenceColumnMapping)) //
                     .collect(toList());
-            final Map<String, ValueConverter> convertersByColumnName = new HashMap<>();
-            final Map<Integer, ValueConverter> convertersByColumnIndex = new HashMap<>();
+            final Map<String, CsvValueConverter> convertersByColumnName = new HashMap<>();
+            final Map<Integer, CsvValueConverter> convertersByColumnIndex = new HashMap<>();
             int index = 0;
             for (final ColumnMapping columnMapping : filteredColumns) {
-                final ValueConverter converter = createConverter(columnMapping);
+                final CsvValueConverter converter = createConverter(columnMapping);
                 convertersByColumnIndex.put(index, converter);
                 convertersByColumnName.put(getColumnName(columnMapping), converter);
                 index++;
             }
-            return new CsvValueTypeConverterRegistry(convertersByColumnName, convertersByColumnIndex);
+            return new CsvValueConverters(convertersByColumnName, convertersByColumnIndex);
         }
 
         private String getColumnName(final ColumnMapping columnMapping) {
@@ -128,7 +128,7 @@ public class CsvValueTypeConverterRegistry {
             return ((ObjectLookupPathSegment) segment).getLookupKey();
         }
 
-        private ValueConverter createConverter(final ColumnMapping columnMapping) {
+        private CsvValueConverter createConverter(final ColumnMapping columnMapping) {
             if (columnMapping instanceof PropertyToVarcharColumnMapping) {
                 return StringHolderNode::new;
             } else if (columnMapping instanceof PropertyToBoolColumnMapping) {

@@ -7,8 +7,8 @@ import java.util.logging.Logger;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.DocumentObject;
-import com.exasol.adapter.document.documentnode.csv.converter.CsvValueTypeConverterRegistry;
-import com.exasol.adapter.document.documentnode.csv.converter.ValueConverter;
+import com.exasol.adapter.document.documentnode.csv.converter.CsvValueConverter;
+import com.exasol.adapter.document.documentnode.csv.converter.CsvValueConverters;
 import com.exasol.errorreporting.ExaError;
 
 import de.siegmar.fastcsv.reader.NamedCsvRow;
@@ -18,7 +18,7 @@ import de.siegmar.fastcsv.reader.NamedCsvRow;
  */
 class NamedCsvObjectNode implements DocumentObject {
     private static final Logger LOG = Logger.getLogger(NamedCsvObjectNode.class.getName());
-    private final CsvValueTypeConverterRegistry typeConverter;
+    private final CsvValueConverters converters;
     private final String resourceName;
     private final Map<String, String> fields;
     private final long originalLineNumber;
@@ -26,14 +26,13 @@ class NamedCsvObjectNode implements DocumentObject {
     /**
      * Create a new instance of {@link NamedCsvObjectNode}.
      *
-     * @param resourceName  the resource name or file path of the CSV file
-     * @param typeConverter the converter for converting CSV values to {@link DocumentNode}
-     * @param row           the named CSV row to wrap
+     * @param resourceName the resource name or file path of the CSV file
+     * @param converters   the converters for converting CSV values to {@link DocumentNode}
+     * @param row          the named CSV row to wrap
      */
-    NamedCsvObjectNode(final String resourceName, final CsvValueTypeConverterRegistry typeConverter,
-            final NamedCsvRow row) {
+    NamedCsvObjectNode(final String resourceName, final CsvValueConverters converters, final NamedCsvRow row) {
         this.resourceName = resourceName;
-        this.typeConverter = typeConverter;
+        this.converters = converters;
         this.fields = trimmedFieldNames(row);
         this.originalLineNumber = row.getOriginalLineNumber();
     }
@@ -79,7 +78,7 @@ class NamedCsvObjectNode implements DocumentObject {
     }
 
     private DocumentNode convert(final String key, final String value) {
-        final ValueConverter converter = this.typeConverter.findConverter(key);
+        final CsvValueConverter converter = this.converters.findConverter(key);
         try {
             return converter.convert(value);
         } catch (final RuntimeException exception) {

@@ -3,7 +3,7 @@ package com.exasol.adapter.document.documentnode.csv;
 import java.util.List;
 
 import com.exasol.adapter.document.documentnode.DocumentObject;
-import com.exasol.adapter.document.documentnode.csv.converter.CsvValueTypeConverterRegistry;
+import com.exasol.adapter.document.documentnode.csv.converter.CsvValueConverters;
 import com.exasol.adapter.document.mapping.ColumnMapping;
 
 import de.siegmar.fastcsv.reader.CsvRow;
@@ -15,7 +15,7 @@ import de.siegmar.fastcsv.reader.NamedCsvRow;
  */
 public class CsvObjectNodeFactory {
 
-    private final CsvValueTypeConverterRegistry typeConverter;
+    private final CsvValueConverters converters;
     private final String resourceName;
 
     /**
@@ -26,12 +26,12 @@ public class CsvObjectNodeFactory {
      * @return a new {@link CsvObjectNodeFactory}
      */
     public static CsvObjectNodeFactory create(final String resourceName, final List<ColumnMapping> csvColumns) {
-        return new CsvObjectNodeFactory(resourceName, CsvValueTypeConverterRegistry.create(csvColumns));
+        return new CsvObjectNodeFactory(resourceName, CsvValueConverters.create(csvColumns));
     }
 
-    CsvObjectNodeFactory(final String resourceName, final CsvValueTypeConverterRegistry typeConverter) {
+    private CsvObjectNodeFactory(final String resourceName, final CsvValueConverters converters) {
         this.resourceName = resourceName;
-        this.typeConverter = typeConverter;
+        this.converters = converters;
     }
 
     /**
@@ -41,7 +41,7 @@ public class CsvObjectNodeFactory {
      * @return a new {@link DocumentObject}
      */
     public DocumentObject create(final NamedCsvRow namedCsvRow) {
-        return new NamedCsvObjectNode(this.resourceName, this.typeConverter, namedCsvRow);
+        return new NamedCsvObjectNode(this.resourceName, this.converters, namedCsvRow);
     }
 
     /**
@@ -51,6 +51,6 @@ public class CsvObjectNodeFactory {
      * @return a new {@link DocumentObject}
      */
     public DocumentObject create(final CsvRow csvRow) {
-        return new CsvObjectNode(this.resourceName, this.typeConverter, csvRow);
+        return new CsvObjectNode(this.resourceName, this.converters, csvRow);
     }
 }

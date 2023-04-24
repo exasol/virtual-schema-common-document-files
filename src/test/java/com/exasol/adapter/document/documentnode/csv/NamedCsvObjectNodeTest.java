@@ -16,7 +16,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.DocumentObject;
-import com.exasol.adapter.document.documentnode.csv.converter.CsvValueTypeConverterRegistry;
+import com.exasol.adapter.document.documentnode.csv.converter.CsvValueConverters;
 import com.exasol.adapter.document.documentpath.DocumentPathExpression;
 import com.exasol.adapter.document.mapping.*;
 
@@ -137,7 +137,7 @@ class NamedCsvObjectNodeTest {
 
     private NamedCsvObjectNode create(final String csvContent, final List<ColumnMapping> csvColumns) {
         final NamedCsvReader csvWithHeadersReader = NamedCsvReader.builder().build(csvContent);
-        return new NamedCsvObjectNode("resourceName", CsvValueTypeConverterRegistry.create(csvColumns),
+        return new NamedCsvObjectNode("resourceName", CsvValueConverters.create(csvColumns),
                 csvWithHeadersReader.iterator().next());
     }
 
