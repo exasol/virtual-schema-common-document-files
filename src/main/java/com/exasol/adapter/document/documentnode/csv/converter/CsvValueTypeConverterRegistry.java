@@ -58,7 +58,7 @@ public class CsvValueTypeConverterRegistry {
      * Get the {@link ValueConverter} for the CSV column with the given column name. Use this method for CSV files with
      * headers.
      *
-     * @param columnIndex the name of the CSV column
+     * @param columnName the name of the CSV column
      * @return the {@link ValueConverter} for the given column
      */
     public ValueConverter findConverter(final String columnName) {
