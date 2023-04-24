@@ -12,6 +12,11 @@ This release adds support for other data types than VARCHAR in CSV files, see th
 
 ## Dependency Updates
 
+### Compile Dependency Updates
+
+* Updated `com.exasol:parquet-io-java:2.0.2` to `2.0.3`
+
 ### Test Dependency Updates
 
 * Updated `com.exasol:hamcrest-resultset-matcher:1.5.3` to `1.6.0`
+* Updated `org.mockito:mockito-junit-jupiter:5.3.0` to `5.3.1`
