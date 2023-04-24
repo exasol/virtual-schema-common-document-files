@@ -2,4 +2,4 @@ error-tags:
   VSDF:
     packages:
       - com.exasol.adapter.document
-    highest-index: 67
+    highest-index: 69
