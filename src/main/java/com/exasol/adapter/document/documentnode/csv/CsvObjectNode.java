@@ -4,8 +4,8 @@ import java.util.*;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.DocumentObject;
-import com.exasol.adapter.document.documentnode.csv.converter.CsvValueTypeConverterRegistry;
-import com.exasol.adapter.document.documentnode.csv.converter.ValueConverter;
+import com.exasol.adapter.document.documentnode.csv.converter.CsvValueConverter;
+import com.exasol.adapter.document.documentnode.csv.converter.CsvValueConverters;
 import com.exasol.errorreporting.ExaError;
 
 import de.siegmar.fastcsv.reader.CsvRow;
@@ -16,19 +16,19 @@ import de.siegmar.fastcsv.reader.CsvRow;
 class CsvObjectNode implements DocumentObject {
 
     private final CsvRow row;
-    private final CsvValueTypeConverterRegistry typeConverter;
+    private final CsvValueConverters converters;
     private final String resourceName;
 
     /**
      * Create a new instance of {@link CsvObjectNode}.
      *
-     * @param resourceName  the resource name or file path of the CSV file
-     * @param typeConverter the converter for converting CSV values to {@link DocumentNode}
-     * @param row           CSV row to wrap
+     * @param resourceName the resource name or file path of the CSV file
+     * @param converters   the converters for converting CSV values to {@link DocumentNode}
+     * @param row          CSV row to wrap
      */
-    CsvObjectNode(final String resourceName, final CsvValueTypeConverterRegistry typeConverter, final CsvRow row) {
+    CsvObjectNode(final String resourceName, final CsvValueConverters converters, final CsvRow row) {
         this.resourceName = resourceName;
-        this.typeConverter = typeConverter;
+        this.converters = converters;
         this.row = row;
     }
 
@@ -54,7 +54,7 @@ class CsvObjectNode implements DocumentObject {
     }
 
     private DocumentNode convert(final int index, final String value) {
-        final ValueConverter converter = this.typeConverter.findConverter(index);
+        final CsvValueConverter converter = this.converters.findConverter(index);
         try {
             return converter.convert(value);
         } catch (final RuntimeException exception) {

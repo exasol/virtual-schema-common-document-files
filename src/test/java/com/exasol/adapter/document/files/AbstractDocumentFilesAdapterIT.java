@@ -9,8 +9,7 @@ import static org.apache.parquet.schema.Type.Repetition.REQUIRED;
 import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.matchesPattern;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -180,11 +179,12 @@ public abstract class AbstractDocumentFilesAdapterIT {
         final EdmlDefinitionBuilder edmlDefinition = csvEdml(mapping, "testData-*.csv", true)
                 .addSourceReferenceColumn(false);
         createVirtualSchemaWithMapping(TEST_SCHEMA, edmlDefinition);
-        uploadFileContent("testData-1.csv", List.of("col, col", "val1, val2"));
-        assertQuery("SELECT * FROM " + TEST_SCHEMA + ".BOOKS", //
-                table("VARCHAR") //
-                        .row("val1") //
-                        .withUtcCalendar().matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
+        uploadFileContent("testData-1.csv", List.of("col, col", "val1,val2"));
+        assertQueryFails("SELECT * FROM " + TEST_SCHEMA + ".BOOKS", allOf( //
+                matchesPattern(
+                        "(?s).*E-VSDF-25: Failed to parse CSV-Lines from '/bfsdefault/default/.*/testData-1.csv'\\. Invalid CSV row in line 1\\..*"),
+                matchesPattern(
+                        "(?s).*E-VSDF-69: CSV file '/bfsdefault/default/.*/testData-1.csv' contains headers with duplicate names: \\['col', ' col'\\].*")));
     }
 
     @Test
@@ -211,6 +211,23 @@ public abstract class AbstractDocumentFilesAdapterIT {
                                 java.sql.Timestamp.valueOf("2007-12-03 10:15:30.00"))
                         .row("test2", false, 0.00012, -17, -3.5, java.sql.Date.valueOf("2023-04-20"),
                                 java.sql.Timestamp.valueOf("2007-12-03 10:15:30.00"))
+                        .matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
+    }
+
+    @Test
+    void testReadCsvWithSpacesInHeader() throws IOException, SQLException {
+        final Fields mapping = Fields.builder()//
+                .mapField("col1", ToVarcharMapping.builder().build()) //
+                .mapField("col2", ToVarcharMapping.builder().build()) //
+                .mapField("col3", ToVarcharMapping.builder().build()) //
+                .build();
+        createVirtualSchemaWithMapping(TEST_SCHEMA, csvEdml(mapping, "testData-*.csv", true));
+        uploadFileContent("testData-1.csv", List.of( //
+                "col1, col2 ,col3 ", //
+                "val1, val2 ,val3"));
+        assertQuery("SELECT col1, col2, col3 FROM " + TEST_SCHEMA + ".BOOKS", //
+                table("VARCHAR", "VARCHAR", "VARCHAR") //
+                        .row("val1", " val2 ", "val3") //
                         .matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
     }
 

@@ -13,11 +13,11 @@ import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentpath.*;
 import com.exasol.adapter.document.mapping.*;
 
-class CsvValueTypeConverterRegistryTest {
+class CsvValueConvertersTest {
 
     @Test
     void creatingWithNullColumnListFails() {
-        assertThrows(NullPointerException.class, () -> CsvValueTypeConverterRegistry.create(null));
+        assertThrows(NullPointerException.class, () -> CsvValueConverters.create(null));
     }
 
     @Test
@@ -83,69 +83,68 @@ class CsvValueTypeConverterRegistryTest {
 
     @Test
     void varcharMapping() {
-        final CsvValueTypeConverterRegistry testee = testee(varcharMapping("col"));
+        final CsvValueConverters testee = testee(varcharMapping("col"));
         final DocumentNode result = testee.findConverter("col").convert("val");
         assertThat(result, stringNode("val"));
     }
 
     @Test
     void boolMapping() {
-        final CsvValueTypeConverterRegistry testee = testee(boolMapping("col"));
+        final CsvValueConverters testee = testee(boolMapping("col"));
         final DocumentNode result = testee.findConverter("col").convert("True");
         assertThat(result, booleanNode(true));
     }
 
     @Test
     void decimalMapping() {
-        final CsvValueTypeConverterRegistry testee = testee(decimalMapping("col"));
+        final CsvValueConverters testee = testee(decimalMapping("col"));
         final DocumentNode result = testee.findConverter("col").convert("1.234");
         assertThat(result, decimalNode(1.234));
     }
 
     @Test
     void doubleMapping() {
-        final CsvValueTypeConverterRegistry testee = testee(doubleMapping("col"));
+        final CsvValueConverters testee = testee(doubleMapping("col"));
         final DocumentNode result = testee.findConverter("col").convert("1.234");
         assertThat(result, doubleNode(1.234));
     }
 
     @Test
     void dateMapping() {
-        final CsvValueTypeConverterRegistry testee = testee(dateMapping("col"));
+        final CsvValueConverters testee = testee(dateMapping("col"));
         final DocumentNode result = testee.findConverter("col").convert("2023-04-21");
         assertThat(result, dateNode("2023-04-21"));
     }
 
     @Test
     void timestampMapping() {
-        final CsvValueTypeConverterRegistry testee = testee(timestampMapping("col"));
+        final CsvValueConverters testee = testee(timestampMapping("col"));
         final DocumentNode result = testee.findConverter("col").convert("2023-04-21 15:13:42");
         assertThat(result, timestampNode("2023-04-21 15:13:42"));
     }
 
     @Test
     void sourceReferenceIgnored() {
-        final CsvValueTypeConverterRegistry testee = testee(SourceReferenceColumnMapping.builder().build(),
-                varcharMapping("col"));
+        final CsvValueConverters testee = testee(SourceReferenceColumnMapping.builder().build(), varcharMapping("col"));
         final DocumentNode result = testee.findConverter(0).convert("val");
         assertThat(result, stringNode("val"));
     }
 
     @Test
     void findConverterByColumnNameSucceeds() {
-        final CsvValueTypeConverterRegistry testee = testee(varcharMapping("col"));
+        final CsvValueConverters testee = testee(varcharMapping("col"));
         assertThat(testee.findConverter("col"), notNullValue());
     }
 
     @Test
     void findConverterByColumnIndexSucceeds() {
-        final CsvValueTypeConverterRegistry testee = testee(varcharMapping("col"));
+        final CsvValueConverters testee = testee(varcharMapping("col"));
         assertThat(testee.findConverter(0), notNullValue());
     }
 
     @Test
     void findConverterByColumnNameFails() {
-        final CsvValueTypeConverterRegistry testee = testee(varcharMapping("col"));
+        final CsvValueConverters testee = testee(varcharMapping("col"));
         final IllegalStateException exception = assertThrows(IllegalStateException.class,
                 () -> testee.findConverter("no-such-col"));
         assertThat(exception.getMessage(),
@@ -154,7 +153,7 @@ class CsvValueTypeConverterRegistryTest {
 
     @Test
     void findConverterByColumnIndexFails() {
-        final CsvValueTypeConverterRegistry testee = testee(varcharMapping("col"));
+        final CsvValueConverters testee = testee(varcharMapping("col"));
         final IllegalStateException exception = assertThrows(IllegalStateException.class,
                 () -> testee.findConverter(1));
         assertThat(exception.getMessage(),
@@ -189,7 +188,7 @@ class CsvValueTypeConverterRegistryTest {
         return DocumentPathExpression.builder().addObjectLookup(segment).build();
     }
 
-    private CsvValueTypeConverterRegistry testee(final ColumnMapping... columnMappings) {
-        return CsvValueTypeConverterRegistry.create(asList(columnMappings));
+    private CsvValueConverters testee(final ColumnMapping... columnMappings) {
+        return CsvValueConverters.create(asList(columnMappings));
     }
 }

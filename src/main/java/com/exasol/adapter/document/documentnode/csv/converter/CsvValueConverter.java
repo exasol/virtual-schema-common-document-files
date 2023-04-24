@@ -7,7 +7,7 @@ import com.exasol.adapter.document.documentnode.DocumentNode;
  * {@link DocumentNode}.
  */
 @FunctionalInterface
-public interface ValueConverter {
+public interface CsvValueConverter {
     /**
      * Convert the given value from a CSV file to a sub-type of {@link DocumentNode}.
      * 

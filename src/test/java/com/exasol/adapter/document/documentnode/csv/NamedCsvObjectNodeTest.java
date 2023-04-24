@@ -11,16 +11,35 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.*;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.DocumentObject;
-import com.exasol.adapter.document.documentnode.csv.converter.CsvValueTypeConverterRegistry;
+import com.exasol.adapter.document.documentnode.csv.converter.CsvValueConverters;
 import com.exasol.adapter.document.documentpath.DocumentPathExpression;
 import com.exasol.adapter.document.mapping.*;
 
 import de.siegmar.fastcsv.reader.NamedCsvReader;
 
 class NamedCsvObjectNodeTest {
+
+    @Test
+    void testCreateFailsForDuplicateHeadersWithoutSpaces() {
+        final List<ColumnMapping> columns = List.of(varcharCol("col"));
+        final IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> create("col,col\nval1,val2", columns));
+        assertThat(exception.getMessage(), equalTo("Duplicate header field 'col' found"));
+    }
+
+    @Test
+    void testCreateFailsForDuplicateHeaders() {
+        final List<ColumnMapping> columns = List.of(varcharCol("col"));
+        final IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> create("col, col\nval1,val2", columns));
+        assertThat(exception.getMessage(), equalTo(
+                "E-VSDF-69: CSV file 'resourceName' contains headers with duplicate names: ['col', ' col']. Ensure that the headers are unique."));
+    }
 
     @Test
     void testWithHeadersCreation() {
@@ -47,6 +66,14 @@ class NamedCsvObjectNodeTest {
         assertThat(testee().hasKey("header3"), equalTo(false));
     }
 
+    @ParameterizedTest
+    @CsvSource({ "header2", "' header2'", "'header2 '", "'\theader2'", "'header2\t'", "' header2 '" })
+    void testNotHasKeyTrimsSpaces(final String header) {
+        final DocumentObject testee = create("header1," + header + ",header3\nfoo1,bar1,foobar",
+                List.of(varcharCol("header1"), varcharCol("header2"), varcharCol("header3")));
+        assertThat("Header '" + header + "' not found", testee.hasKey("header2"), equalTo(true));
+    }
+
     @Test
     void testGet() {
         assertThat(testee().get("header1"), stringNode("foo1"));
@@ -59,6 +86,14 @@ class NamedCsvObjectNodeTest {
                 () -> testee.get("unknown"));
         assertThat(exception.getMessage(),
                 equalTo("No element with name 'unknown' found. Valid names are: [header1, header2]"));
+    }
+
+    @ParameterizedTest
+    @CsvSource({ "header2", "' header2'", "'header2 '", "'\theader2'", "'header2\t'", "' header2 '" })
+    void testGetWithSpaces(final String header) {
+        final DocumentObject testee = create("header1," + header + ",header3\nfoo1,bar1,foobar",
+                List.of(varcharCol("header1"), varcharCol("header2"), varcharCol("header3")));
+        assertThat(testee.get("header2"), stringNode("bar1"));
     }
 
     @Test
@@ -87,6 +122,14 @@ class NamedCsvObjectNodeTest {
                 "E-VSDF-67: Error converting value 'not-a-number' using converter .* \\(file 'resourceName', row 2, column 'col'\\).*"));
     }
 
+    @ParameterizedTest
+    @CsvSource({ "header2", "' header2'", "'header2 '", "'\theader2'", "'header2\t'", "' header2 '" })
+    void testGetKeyValueMapWithSpaces(final String header) {
+        final DocumentObject testee = create("header1," + header + ",header3\nfoo1,bar1,foobar",
+                List.of(varcharCol("header1"), varcharCol("header2"), varcharCol("header3")));
+        assertThat(testee.getKeyValueMap().get("header2"), stringNode("bar1"));
+    }
+
     private DocumentObject testee() {
         return create("header1,header2\r\nfoo1,bar1\r\nfoo2,bar2",
                 List.of(varcharCol("header1"), varcharCol("header2")));
@@ -94,7 +137,7 @@ class NamedCsvObjectNodeTest {
 
     private NamedCsvObjectNode create(final String csvContent, final List<ColumnMapping> csvColumns) {
         final NamedCsvReader csvWithHeadersReader = NamedCsvReader.builder().build(csvContent);
-        return new NamedCsvObjectNode("resourceName", CsvValueTypeConverterRegistry.create(csvColumns),
+        return new NamedCsvObjectNode("resourceName", CsvValueConverters.create(csvColumns),
                 csvWithHeadersReader.iterator().next());
     }
 

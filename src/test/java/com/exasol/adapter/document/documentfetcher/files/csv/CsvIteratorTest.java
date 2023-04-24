@@ -198,14 +198,14 @@ class CsvIteratorTest {
     }
 
     @ParameterizedTest
-    @CsvSource({ "col1", " col1", "col1 ", " col1 " })
-    void testConvertHeaderWithSpace(final String columnName) {
+    @CsvSource({ "col1", " col1", "col1 ", " col1 ", "\tcol1\t" })
+    void testConvertHeaderWithWhitespace(final String columnName) {
         final List<DocumentNode> rows = readCsvWithHeadersLines(columnName + ",col2\nval1,val2",
-                List.of(varcharMapping(columnName), varcharMapping("col2")));
+                List.of(varcharMapping("col1"), varcharMapping("col2")));
         assertThat(rows, hasSize(1));
         final DocumentObject firstRow = (DocumentObject) rows.get(0);
         assertAll( //
-                () -> assertThat(firstRow.get(columnName), stringNode("val1")),
+                () -> assertThat(firstRow.get("col1"), stringNode("val1")),
                 () -> assertThat(firstRow.get("col2"), stringNode("val2")));
     }
 
