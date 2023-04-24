@@ -32,7 +32,7 @@ class SourceString {
     /**
      * Get the file type.
      * 
-     * @return file type
+     * @return file type without the leading dot
      */
     public String getFileType() {
         if (this.fileTypeOverride != null) {
