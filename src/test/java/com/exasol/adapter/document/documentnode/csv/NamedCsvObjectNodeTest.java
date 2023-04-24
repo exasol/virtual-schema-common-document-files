@@ -1,67 +1,112 @@
 package com.exasol.adapter.document.documentnode.csv;
 
-import static java.util.Collections.emptyList;
+import static com.exasol.adapter.document.documentnode.util.DocumentNodeMatchers.stringNode;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.matchesPattern;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.Map;
+import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
-import com.exasol.adapter.document.documentnode.holder.StringHolderNode;
+import com.exasol.adapter.document.documentnode.DocumentObject;
+import com.exasol.adapter.document.documentnode.csv.converter.CsvValueTypeConverterRegistry;
+import com.exasol.adapter.document.documentpath.DocumentPathExpression;
+import com.exasol.adapter.document.mapping.*;
 
 import de.siegmar.fastcsv.reader.NamedCsvReader;
 
 class NamedCsvObjectNodeTest {
 
-    private static final String CSV_CONTENT = "header1,header2\r\nfoo1,bar1\r\nfoo2,bar2";
-
     @Test
     void testWithHeadersCreation() {
-        assertThat(create(CSV_CONTENT), instanceOf(NamedCsvObjectNode.class));
+        assertThat(testee(), instanceOf(NamedCsvObjectNode.class));
     }
 
     @Test
-    void testWHHasKey() {
-        assertThat(create(CSV_CONTENT).hasKey("header1"), equalTo(true));
+    void testHasKey() {
+        assertThat(testee().hasKey("header1"), equalTo(true));
     }
 
     @Test
-    void testWHHasKey2() {
-        assertThat(create(CSV_CONTENT).hasKey("header2"), equalTo(true));
+    void testHasKey2() {
+        assertThat(testee().hasKey("header2"), equalTo(true));
     }
 
     @Test
-    void testWHNotHasKey() {
-        assertThat(create(CSV_CONTENT).hasKey("unknownKey"), equalTo(false));
+    void testNotHasKey() {
+        assertThat(testee().hasKey("unknownKey"), equalTo(false));
     }
 
     @Test
-    void testWHNotHasKeyString() {
-        assertThat(create(CSV_CONTENT).hasKey("header3"), equalTo(false));
+    void testNotHasKeyString() {
+        assertThat(testee().hasKey("header3"), equalTo(false));
     }
 
     @Test
-    void testWHGet() {
-        final StringHolderNode result = (StringHolderNode) create(CSV_CONTENT).get("header1");
-        assertThat(result.getValue(), equalTo("foo1"));
+    void testGet() {
+        assertThat(testee().get("header1"), stringNode("foo1"));
     }
 
     @Test
-    void testWHGetKeyValueMap() {
-        final NamedCsvObjectNode objectNode = (NamedCsvObjectNode) create(CSV_CONTENT);
+    void testGetUnknownKey() {
+        final DocumentObject testee = testee();
+        final NoSuchElementException exception = assertThrows(NoSuchElementException.class,
+                () -> testee.get("unknown"));
+        assertThat(exception.getMessage(),
+                equalTo("No element with name 'unknown' found. Valid names are: [header1, header2]"));
+    }
+
+    @Test
+    void testGetConversionFails() {
+        final DocumentObject testee = create("col\nnot-a-number", List.of(decimalCol("col")));
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> testee.get("col"));
+        assertThat(exception.getMessage(), matchesPattern(
+                "E-VSDF-67: Error converting value 'not-a-number' using converter .* \\(file 'resourceName', row 2, column 'col'\\).*"));
+    }
+
+    @Test
+    void testGetKeyValueMap() {
+        final DocumentObject objectNode = testee();
         final Map<String, DocumentNode> map = objectNode.getKeyValueMap();
         assertThat(map, aMapWithSize(2));
-        assertThat(((StringHolderNode) map.get("header1")).getValue(), equalTo("foo1"));
-        assertThat(((StringHolderNode) map.get("header2")).getValue(), equalTo("bar1"));
+        assertThat(map.get("header1"), stringNode("foo1"));
+        assertThat(map.get("header2"), stringNode("bar1"));
     }
 
-    private NamedCsvObjectNode create(final String csvContent) {
+    @Test
+    void testGetKeyValueMapConversionFails() {
+        final DocumentObject testee = create("col\nnot-a-number", List.of(decimalCol("col")));
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, testee::getKeyValueMap);
+        assertThat(exception.getMessage(), matchesPattern(
+                "E-VSDF-67: Error converting value 'not-a-number' using converter .* \\(file 'resourceName', row 2, column 'col'\\).*"));
+    }
+
+    private DocumentObject testee() {
+        return create("header1,header2\r\nfoo1,bar1\r\nfoo2,bar2",
+                List.of(varcharCol("header1"), varcharCol("header2")));
+    }
+
+    private NamedCsvObjectNode create(final String csvContent, final List<ColumnMapping> csvColumns) {
         final NamedCsvReader csvWithHeadersReader = NamedCsvReader.builder().build(csvContent);
-        return new NamedCsvObjectNode(CsvValueTypeConverter.create(emptyList()),
+        return new NamedCsvObjectNode("resourceName", CsvValueTypeConverterRegistry.create(csvColumns),
                 csvWithHeadersReader.iterator().next());
+    }
+
+    private ColumnMapping varcharCol(final String columnName) {
+        return PropertyToVarcharColumnMapping.builder().pathToSourceProperty(pathExpression(columnName)).build();
+    }
+
+    private ColumnMapping decimalCol(final String columnName) {
+        return PropertyToDecimalColumnMapping.builder().pathToSourceProperty(pathExpression(columnName)).build();
+    }
+
+    private DocumentPathExpression pathExpression(final String segment) {
+        return DocumentPathExpression.builder().addObjectLookup(segment).build();
     }
 }

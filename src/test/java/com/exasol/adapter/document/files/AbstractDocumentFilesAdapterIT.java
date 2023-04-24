@@ -10,6 +10,7 @@ import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -67,12 +68,9 @@ public abstract class AbstractDocumentFilesAdapterIT {
         createVirtualSchemaWithMapping(schemaName, edmlDefinition);
     }
 
-    private EdmlDefinitionBuilder csvEdmlWithHeader(final Fields mapping, final String dataFilePattern) {
-        return defaultEdml(mapping, dataFilePattern).additionalConfiguration("{\"csv-headers\": true}");
-    }
-
-    private EdmlDefinitionBuilder csvEdmlWithoutHeader(final Fields mapping, final String dataFilePattern) {
-        return defaultEdml(mapping, dataFilePattern).additionalConfiguration("{\"csv-headers\": false}");
+    private EdmlDefinitionBuilder csvEdml(final Fields mapping, final String dataFilePattern,
+            final boolean withHeader) {
+        return defaultEdml(mapping, dataFilePattern).additionalConfiguration("{\"csv-headers\": " + withHeader + "}");
     }
 
     private EdmlDefinitionBuilder defaultEdml(final Fields mapping, final String dataFilePattern) {
@@ -175,30 +173,111 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testCsvWithTypes() throws IOException, SQLException {
+    void testReadCsvWithDuplicateHeader() throws IOException, SQLException {
+        final Fields mapping = Fields.builder()//
+                .mapField("col", ToVarcharMapping.builder().destinationName("my_col").build()) //
+                .build();
+        final EdmlDefinitionBuilder edmlDefinition = csvEdml(mapping, "testData-*.csv", true)
+                .addSourceReferenceColumn(false);
+        createVirtualSchemaWithMapping(TEST_SCHEMA, edmlDefinition);
+        uploadFileContent("testData-1.csv", List.of("col, col", "val1, val2"));
+        assertQuery("SELECT * FROM " + TEST_SCHEMA + ".BOOKS", //
+                table("VARCHAR") //
+                        .row("val1") //
+                        .withUtcCalendar().matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
+    }
+
+    @Test
+    void testReadCsvWithTypesWithHeader() throws IOException, SQLException {
         final Fields mapping = Fields.builder()//
                 .mapField("str", ToVarcharMapping.builder().build()) //
                 .mapField("bool", ToBoolMapping.builder().destinationName("IS_ACTIVE").build())//
-                .mapField("float_col", ToDecimalMapping.builder().decimalPrecision(10).decimalScale(5).build()) //
+                .mapField("decimal_col", ToDecimalMapping.builder().decimalPrecision(10).decimalScale(5).build()) //
                 .mapField("int_col", ToDecimalMapping.builder().decimalPrecision(5).decimalScale(0).build()) //
+                .mapField("double_col", ToDoubleMapping.builder().build()) //
                 .mapField("date_col", ToDateMapping.builder().build()) //
                 .mapField("timestamp_col", ToTimestampMapping.builder().build()) //
                 .build();
-        final EdmlDefinitionBuilder edmlDefinition = csvEdmlWithHeader(mapping, "testData-*.csv");
-        createVirtualSchemaWithMapping(TEST_SCHEMA, edmlDefinition);
+        createVirtualSchemaWithMapping(TEST_SCHEMA, csvEdml(mapping, "testData-*.csv", true));
+        uploadFileContent("testData-1.csv", List.of( //
+                "str,bool,decimal_col,int_col,double_col,date_col,timestamp_col", //
+                "\"test1\",true,1.23,42,2.5,2007-12-03,2007-12-03 10:15:30.00",
+                "test2,FALSE,1.22e-4,-17,-3.5,2023-04-20,2007-12-03 10:15:30.00"));
+        assertQuery(
+                "SELECT str, IS_ACTIVE, decimal_col, int_col, double_col, date_col, timestamp_col FROM " + TEST_SCHEMA
+                        + ".BOOKS", //
+                table("VARCHAR", "BOOLEAN", "DECIMAL", "INTEGER", "DOUBLE PRECISION", "DATE", "TIMESTAMP") //
+                        .row("test1", true, 1.23, 42, 2.5, java.sql.Date.valueOf("2007-12-03"),
+                                java.sql.Timestamp.valueOf("2007-12-03 10:15:30.00"))
+                        .row("test2", false, 0.00012, -17, -3.5, java.sql.Date.valueOf("2023-04-20"),
+                                java.sql.Timestamp.valueOf("2007-12-03 10:15:30.00"))
+                        .matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
+    }
 
-        uploadFileContent("testData-1.csv", List.of("str, bool, float_col, int_col, date_col, timestamp_col", //
-                "\"test\", true, 1.23, 42, 2007-12-03, 2007-12-03T10:15:30.00Z",
-                "test2, FALSE, 1.23e-4, -17, 2007-12-03, 2007-12-03T10:15:30.00Z",
-                "null, null, null, null, null, null"));
-        final String query = "SELECT str, IS_ACTIVE, float_col, int_col, date_col, timestamp_col FROM " + TEST_SCHEMA
-                + ".BOOKS";
-        assertQuery(query, table("VARCHAR", "BOOLEAN", "DECIMAL", "INTEGER", "DATE", "TIMESTAMP") //
-                .row("test", true, 1.23, 42, Date.valueOf("2007-12-03"), Timestamp.valueOf("2007-12-03 10:15:30.00"))
-                .row("test2", true, 1.23e-4, -17, Date.valueOf("2007-12-03"),
-                        Timestamp.valueOf("2007-12-03 10:15:30.00"))
-                .row(null, null, null, null, null, null) //
-                .withUtcCalendar().matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
+    @Test
+    void testReadCsvWithTypesWithHeaderInvalidValue() throws IOException, SQLException {
+        final Fields mapping = Fields.builder() //
+                .mapField("bool", ToBoolMapping.builder().build()) //
+                .build();
+        createVirtualSchemaWithMapping(TEST_SCHEMA, csvEdml(mapping, "testData-*.csv", true));
+        uploadFileContent("testData-1.csv", List.of("bool", "not-a-boolean"));
+        assertQueryFails("SELECT * FROM " + TEST_SCHEMA + ".BOOKS", matchesPattern(
+                "(?s).*E-VSDF-67: Error converting value 'not-a-boolean' using converter .* \\(file '/bfsdefault/default/.*/testData-1.csv', row 2, column 'bool'\\).*"));
+    }
+
+    @Test
+    void testReadCsvWithTypesWithoutHeader() throws IOException, SQLException {
+        final Fields mapping = Fields.builder()//
+                .mapField("0", ToVarcharMapping.builder().destinationName("STR").build()) //
+                .mapField("1", ToBoolMapping.builder().destinationName("IS_ACTIVE").build())//
+                .mapField("2",
+                        ToDecimalMapping.builder().destinationName("DECIMAL_COL").decimalPrecision(10).decimalScale(5)
+                                .build()) //
+                .mapField("3",
+                        ToDecimalMapping.builder().destinationName("INT_COL").decimalPrecision(5).decimalScale(0)
+                                .build()) //
+                .mapField("4", ToDoubleMapping.builder().destinationName("DOUBLE_COL").build()) //
+                .mapField("5", ToDateMapping.builder().destinationName("DATE_COL").build()) //
+                .mapField("6", ToTimestampMapping.builder().destinationName("TIMESTAMP_COL").build()) //
+                .build();
+        createVirtualSchemaWithMapping(TEST_SCHEMA, csvEdml(mapping, "testData-*.csv", false));
+
+        uploadFileContent("testData-1.csv", List.of( //
+                "\"test1\",true,1.23,42,2.5,2007-12-03,2007-12-03 10:15:30.00",
+                "test2,FALSE,1.22e-4,-17,-3.5,2023-04-20,2007-12-03 10:15:30.00"));
+        final String query = "SELECT str, IS_ACTIVE, decimal_col, int_col, double_col, date_col, timestamp_col FROM "
+                + TEST_SCHEMA + ".BOOKS";
+        assertQuery(query, table("VARCHAR", "BOOLEAN", "DECIMAL", "INTEGER", "DOUBLE PRECISION", "DATE", "TIMESTAMP") //
+                .row("test1", true, 1.23, 42, 2.5, java.sql.Date.valueOf("2007-12-03"),
+                        java.sql.Timestamp.valueOf("2007-12-03 10:15:30.00"))
+                .row("test2", false, 0.00012, -17, -3.5, java.sql.Date.valueOf("2023-04-20"),
+                        java.sql.Timestamp.valueOf("2007-12-03 10:15:30.00"))
+                .matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
+    }
+
+    @Test
+    void testReadCsvWithTypesWithoutHeaderInvalidValue() throws IOException, SQLException {
+        final Fields mapping = Fields.builder()//
+                .mapField("0", ToBoolMapping.builder().destinationName("BOOL").build())//
+                .build();
+        createVirtualSchemaWithMapping(TEST_SCHEMA, csvEdml(mapping, "testData-*.csv", false));
+
+        uploadFileContent("testData-1.csv", List.of("not-a-boolean"));
+        final String query = "SELECT * FROM " + TEST_SCHEMA + ".BOOKS";
+        assertQueryFails(query, matchesPattern(
+                "(?s).*E-VSDF-66: Error converting value 'not-a-boolean' using converter .* \\(file '/bfsdefault/default/.*/testData-1.csv', row 1, column 0\\).*"));
+    }
+
+    @Test
+    void testReadCsvWithUnsupportedType() throws IOException, SQLException {
+        final Fields mapping = Fields.builder()//
+                .mapField("json", ToJsonMapping.builder().build()) //
+                .build();
+        createVirtualSchemaWithMapping(TEST_SCHEMA, csvEdml(mapping, "testData-*.csv", true));
+        uploadFileContent("testData-1.csv", List.of("json", "dummy-content"));
+        final String query = "SELECT json FROM " + TEST_SCHEMA + ".BOOKS";
+        assertQueryFails(query, matchesPattern(
+                "(?s).*E-VSDF-62: Column mapping of type 'com.exasol.adapter.document.mapping.PropertyToJsonColumnMapping' .* is not supported.*"));
     }
 
     @Test
@@ -722,12 +801,19 @@ public abstract class AbstractDocumentFilesAdapterIT {
     protected abstract void uploadDataFile(final Path file, String resourceName);
 
     private void assertQuery(final String query, final Matcher<ResultSet> matcher) throws SQLException {
-        LOGGER.finest(() -> "Executing query '" + query + "'");
+        LOGGER.finest(() -> "Executing query '" + query + "'...");
         final Instant start = Instant.now();
         try (final ResultSet result = getStatement().executeQuery(query)) {
             assertThat(result, matcher);
         }
-        LOGGER.fine(() -> "Executed query in " + Duration.between(start, Instant.now()));
+        LOGGER.fine(
+                () -> "Executed query in " + Duration.between(start, Instant.now()).toSeconds() + "s: '" + query + "'");
+    }
+
+    private void assertQueryFails(final String query, final Matcher<String> exceptionMessageMatcher) {
+        final SQLDataException exception = assertThrows(SQLDataException.class,
+                () -> getStatement().executeQuery(query));
+        assertThat(exception.getMessage(), exceptionMessageMatcher);
     }
 
     protected void createJsonVirtualSchema() throws IOException {

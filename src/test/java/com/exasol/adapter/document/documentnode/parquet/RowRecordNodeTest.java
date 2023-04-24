@@ -1,5 +1,6 @@
 package com.exasol.adapter.document.documentnode.parquet;
 
+import static com.exasol.adapter.document.documentnode.util.DocumentNodeMatchers.decimalNode;
 import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.INT32;
 import static org.apache.parquet.schema.Type.Repetition.REQUIRED;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -11,7 +12,7 @@ import org.apache.parquet.schema.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.exasol.adapter.document.documentnode.DocumentDecimalValue;
+import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.parquetio.data.GenericRow;
 
 class RowRecordNodeTest {
@@ -28,15 +29,14 @@ class RowRecordNodeTest {
 
     @Test
     void testGetValue() {
-        final DocumentDecimalValue result = (DocumentDecimalValue) new RowRecordNode(this.row).get(COLUMN_NAME);
-        assertThat(result.getValue().intValue(), equalTo(COLUMN_VALUE));
+        final DocumentNode result = new RowRecordNode(this.row).get(COLUMN_NAME);
+        assertThat(result, decimalNode(COLUMN_VALUE));
     }
 
     @Test
     void testGetKeyValueMap() {
-        final DocumentDecimalValue result = (DocumentDecimalValue) new RowRecordNode(this.row).getKeyValueMap()
-                .get(COLUMN_NAME);
-        assertThat(result.getValue().intValue(), equalTo(COLUMN_VALUE));
+        final DocumentNode result = new RowRecordNode(this.row).getKeyValueMap().get(COLUMN_NAME);
+        assertThat(result, decimalNode(COLUMN_VALUE));
     }
 
     @Test

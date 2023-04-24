@@ -1,18 +1,15 @@
 package com.exasol.adapter.document.documentnode.json;
 
+import static com.exasol.adapter.document.documentnode.util.DocumentNodeMatchers.decimalNode;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-
-import java.math.BigDecimal;
-import java.util.List;
+import static org.hamcrest.Matchers.contains;
 
 import org.junit.jupiter.api.Test;
 
 import com.exasol.adapter.document.documentnode.DocumentArray;
 import com.exasol.adapter.document.documentnode.DocumentNode;
-import com.exasol.adapter.document.documentnode.holder.BigDecimalHolderNode;
 
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
@@ -36,18 +33,12 @@ class JsonArrayNodeTest {
     @Test
     void testGetValue() {
         final DocumentArray result = (DocumentArray) JsonNodeFactory.getInstance().getJsonNode(TEST_ARRAY);
-        final BigDecimalHolderNode value = (BigDecimalHolderNode) result.getValue(0);
-        assertThat(value.getValue(), equalTo(BigDecimal.valueOf(1)));
+        assertThat(result.getValue(0), decimalNode(1));
     }
 
     @Test
     void testGetValueList() {
         final DocumentArray result = (DocumentArray) JsonNodeFactory.getInstance().getJsonNode(TEST_ARRAY);
-        final List<? extends DocumentNode> valuesList = result.getValuesList();
-        final BigDecimalHolderNode firstValue = (BigDecimalHolderNode) valuesList.get(0);
-        assertAll(//
-                () -> assertThat(firstValue.getValue(), equalTo(BigDecimal.valueOf(1))),
-                () -> assertThat(valuesList.size(), equalTo(2))//
-        );
+        assertThat(result.getValuesList(), contains(decimalNode(1), decimalNode(2)));
     }
 }
