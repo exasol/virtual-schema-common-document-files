@@ -185,6 +185,19 @@ class CsvIteratorTest {
     }
 
     @ParameterizedTest
+    @CsvSource({ "''", "' '", " val", "val ", " val " })
+    void testConvertStringQuotesRemoved(final String value) {
+        final List<DocumentNode> rows = readCsvWithHeadersLines("col1,col2,col3\nval1,\"" + value + "\",val3",
+                List.of(varcharMapping("col1"), varcharMapping("col2"), varcharMapping("col3")));
+        assertThat(rows, hasSize(1));
+        final DocumentObject firstRow = (DocumentObject) rows.get(0);
+        assertAll( //
+                () -> assertThat(firstRow.get("col1"), stringNode("val1")),
+                () -> assertThat(firstRow.get("col2"), stringNode(value)),
+                () -> assertThat(firstRow.get("col3"), stringNode("val3")));
+    }
+
+    @ParameterizedTest
     @CsvSource({ "col1", " col1", "col1 ", " col1 " })
     void testConvertHeaderWithSpace(final String columnName) {
         final List<DocumentNode> rows = readCsvWithHeadersLines(columnName + ",col2\nval1,val2",
