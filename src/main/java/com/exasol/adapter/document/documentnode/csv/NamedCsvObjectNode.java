@@ -61,7 +61,7 @@ class NamedCsvObjectNode implements DocumentObject {
                             "line number of the value (starting with 1)")
                     .parameter("column name", key, "column name of the value") //
                     .mitigation(
-                            "Please fix the value in the CSV file or chose a different mapping for converting the value.")
+                            "Please fix the value in the CSV file or choose a different mapping for converting the value.")
                     .toString(), exception);
         }
     }

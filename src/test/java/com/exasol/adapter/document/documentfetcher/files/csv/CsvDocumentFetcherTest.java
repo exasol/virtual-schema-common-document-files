@@ -23,7 +23,6 @@ import com.exasol.adapter.document.documentfetcher.files.segmentation.FileSegmen
 import com.exasol.adapter.document.documentnode.DocumentObject;
 import com.exasol.adapter.document.documentnode.holder.StringHolderNode;
 import com.exasol.adapter.document.documentpath.DocumentPathExpression;
-import com.exasol.adapter.document.documentpath.ObjectLookupPathSegment;
 import com.exasol.adapter.document.mapping.ColumnMapping;
 import com.exasol.adapter.document.mapping.PropertyToVarcharColumnMapping;
 
@@ -45,7 +44,7 @@ class CsvDocumentFetcherTest {
     }
 
     private DocumentPathExpression pathExpression(final String segment) {
-        return DocumentPathExpression.builder().addPathSegment(new ObjectLookupPathSegment(segment)).build();
+        return DocumentPathExpression.builder().addObjectLookup(segment).build();
     }
 
     @Test

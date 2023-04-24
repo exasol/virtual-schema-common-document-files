@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.*;
@@ -12,11 +13,10 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
+import com.exasol.adapter.document.documentnode.DocumentObject;
 import com.exasol.adapter.document.documentnode.csv.converter.CsvValueTypeConverterRegistry;
 import com.exasol.adapter.document.documentpath.DocumentPathExpression;
-import com.exasol.adapter.document.documentpath.ObjectLookupPathSegment;
-import com.exasol.adapter.document.mapping.ColumnMapping;
-import com.exasol.adapter.document.mapping.PropertyToVarcharColumnMapping;
+import com.exasol.adapter.document.mapping.*;
 
 import de.siegmar.fastcsv.reader.NamedCsvReader;
 
@@ -54,7 +54,7 @@ class NamedCsvObjectNodeTest {
 
     @Test
     void testGetUnknownKey() {
-        final NamedCsvObjectNode testee = testee();
+        final DocumentObject testee = testee();
         final NoSuchElementException exception = assertThrows(NoSuchElementException.class,
                 () -> testee.get("unknown"));
         assertThat(exception.getMessage(),
@@ -62,15 +62,32 @@ class NamedCsvObjectNodeTest {
     }
 
     @Test
+    void testGetConversionFails() {
+        final DocumentObject testee = create("col\nnot-a-number", List.of(decimalCol("col")));
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> testee.get("col"));
+        assertThat(exception.getMessage(), matchesPattern(
+                "E-VSDF-67: Error converting value 'not-a-number' using converter .* \\(file 'resourceName', row 2, column 'col'\\).*"));
+    }
+
+    @Test
     void testGetKeyValueMap() {
-        final NamedCsvObjectNode objectNode = testee();
+        final DocumentObject objectNode = testee();
         final Map<String, DocumentNode> map = objectNode.getKeyValueMap();
         assertThat(map, aMapWithSize(2));
         assertThat(map.get("header1"), stringNode("foo1"));
         assertThat(map.get("header2"), stringNode("bar1"));
     }
 
-    private NamedCsvObjectNode testee() {
+    @Test
+    void testGetKeyValueMapConversionFails() {
+        final DocumentObject testee = create("col\nnot-a-number", List.of(decimalCol("col")));
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, testee::getKeyValueMap);
+        assertThat(exception.getMessage(), matchesPattern(
+                "E-VSDF-67: Error converting value 'not-a-number' using converter .* \\(file 'resourceName', row 2, column 'col'\\).*"));
+    }
+
+    private DocumentObject testee() {
         return create("header1,header2\r\nfoo1,bar1\r\nfoo2,bar2",
                 List.of(varcharCol("header1"), varcharCol("header2")));
     }
@@ -85,7 +102,11 @@ class NamedCsvObjectNodeTest {
         return PropertyToVarcharColumnMapping.builder().pathToSourceProperty(pathExpression(columnName)).build();
     }
 
+    private ColumnMapping decimalCol(final String columnName) {
+        return PropertyToDecimalColumnMapping.builder().pathToSourceProperty(pathExpression(columnName)).build();
+    }
+
     private DocumentPathExpression pathExpression(final String segment) {
-        return DocumentPathExpression.builder().addPathSegment(new ObjectLookupPathSegment(segment)).build();
+        return DocumentPathExpression.builder().addObjectLookup(segment).build();
     }
 }

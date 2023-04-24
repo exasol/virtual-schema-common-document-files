@@ -8,7 +8,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.nio.file.Path;
 
 import org.apache.parquet.example.data.Group;
@@ -39,7 +38,7 @@ class ParquetDocumentFetcherTest {
         final Path parquetFile = getSingleValueParquetFile("my_value",
                 Types.primitive(INT32, REQUIRED).as(LogicalTypeAnnotation.decimalType(2, 8)), 123);
         final DocumentNode valueNode = runDocumentFetcherAndGetFirstResult(parquetFile).get("my_value");
-        assertThat(valueNode, decimalNode(BigDecimal.valueOf(1.23)));
+        assertThat(valueNode, decimalNode(1.23));
     }
 
     @Test

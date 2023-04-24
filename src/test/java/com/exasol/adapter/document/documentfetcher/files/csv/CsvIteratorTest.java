@@ -20,7 +20,6 @@ import com.exasol.adapter.document.documentfetcher.files.*;
 import com.exasol.adapter.document.documentnode.DocumentNode;
 import com.exasol.adapter.document.documentnode.DocumentObject;
 import com.exasol.adapter.document.documentpath.DocumentPathExpression;
-import com.exasol.adapter.document.documentpath.ObjectLookupPathSegment;
 import com.exasol.adapter.document.mapping.*;
 
 class CsvIteratorTest {
@@ -297,7 +296,7 @@ class CsvIteratorTest {
     }
 
     private DocumentPathExpression pathExpression(final String segment) {
-        return DocumentPathExpression.builder().addPathSegment(new ObjectLookupPathSegment(segment)).build();
+        return DocumentPathExpression.builder().addObjectLookup(segment).build();
     }
 
     private List<DocumentNode> readCsvLines(final String csvContent, final List<ColumnMapping> csvColumns) {

@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -13,11 +14,10 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 import com.exasol.adapter.document.documentnode.DocumentNode;
+import com.exasol.adapter.document.documentnode.DocumentObject;
 import com.exasol.adapter.document.documentnode.csv.converter.CsvValueTypeConverterRegistry;
 import com.exasol.adapter.document.documentpath.DocumentPathExpression;
-import com.exasol.adapter.document.documentpath.ObjectLookupPathSegment;
-import com.exasol.adapter.document.mapping.ColumnMapping;
-import com.exasol.adapter.document.mapping.PropertyToVarcharColumnMapping;
+import com.exasol.adapter.document.mapping.*;
 
 import de.siegmar.fastcsv.reader.CsvReader;
 
@@ -55,14 +55,14 @@ class CsvObjectNodeTest {
 
     @Test
     void testGetMissingElement() {
-        final CsvObjectNode testee = testee();
+        final DocumentObject testee = testee();
         final NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> testee.get("2"));
         assertThat(exception.getMessage(), equalTo("No element with name '2' found."));
     }
 
     @Test
     void testGetMissingElementWithStringKey() {
-        final CsvObjectNode testee = testee();
+        final DocumentObject testee = testee();
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> testee.get("unknown"));
         assertThat(exception.getMessage(), equalTo("No element with name 'unknown' found."));
@@ -70,9 +70,17 @@ class CsvObjectNodeTest {
 
     @Test
     void testGetWithParentheses() {
-        final CsvObjectNode node = create("\"foo1\",\"bar1\"\r\n\"foo2\",\"bar2\"",
+        final DocumentObject node = create("\"foo1\",\"bar1\"\r\n\"foo2\",\"bar2\"",
                 List.of(varcharCol("0"), varcharCol("1")));
         assertThat(node.get("0"), stringNode("foo1"));
+    }
+
+    @Test
+    void testGetConversionFails() {
+        final DocumentObject testee = create("not-a-number", List.of(decimalCol("0")));
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> testee.get("0"));
+        assertThat(exception.getMessage(), matchesPattern(
+                "E-VSDF-66: Error converting value 'not-a-number' using converter .* \\(file 'resourceName', row 1, column 0\\).*"));
     }
 
     @Test
@@ -82,11 +90,19 @@ class CsvObjectNodeTest {
                 () -> assertThat(map.get("1"), stringNode("bar1")));
     }
 
-    private CsvObjectNode testee() {
+    @Test
+    void testGetKeyValueMapConversionFails() {
+        final DocumentObject testee = create("not-a-number", List.of(decimalCol("0")));
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, testee::getKeyValueMap);
+        assertThat(exception.getMessage(), matchesPattern(
+                "E-VSDF-66: Error converting value 'not-a-number' using converter .* \\(file 'resourceName', row 1, column 0\\).*"));
+    }
+
+    private DocumentObject testee() {
         return create("foo1,bar1\r\nfoo2,bar2", List.of(varcharCol("0"), varcharCol("1")));
     }
 
-    private CsvObjectNode create(final String csvContent, final List<ColumnMapping> csvColumns) {
+    private DocumentObject create(final String csvContent, final List<ColumnMapping> csvColumns) {
         final CsvReader csvReaderParentheses = CsvReader.builder().build(csvContent);
         return new CsvObjectNode("resourceName", CsvValueTypeConverterRegistry.create(csvColumns),
                 csvReaderParentheses.iterator().next());
@@ -96,7 +112,11 @@ class CsvObjectNodeTest {
         return PropertyToVarcharColumnMapping.builder().pathToSourceProperty(pathExpression(columnName)).build();
     }
 
+    private ColumnMapping decimalCol(final String columnName) {
+        return PropertyToDecimalColumnMapping.builder().pathToSourceProperty(pathExpression(columnName)).build();
+    }
+
     private DocumentPathExpression pathExpression(final String segment) {
-        return DocumentPathExpression.builder().addPathSegment(new ObjectLookupPathSegment(segment)).build();
+        return DocumentPathExpression.builder().addObjectLookup(segment).build();
     }
 }

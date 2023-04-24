@@ -10,17 +10,20 @@ import org.hamcrest.Matcher;
 
 import com.exasol.adapter.document.documentnode.*;
 
+/**
+ * This class contains Hamcrest {@link Matcher}s for some sub-classes of {@link DocumentNode}.
+ */
 public class DocumentNodeMatchers {
     private DocumentNodeMatchers() {
         // Not instantiable
     }
 
     public static Matcher<DocumentNode> stringNode(final String expected) {
-        return castingMatch(DocumentStringValue.class, DocumentStringValue::getValue, equalTo(expected));
+        return castingFeatureMatcher(DocumentStringValue.class, DocumentStringValue::getValue, equalTo(expected));
     }
 
     public static Matcher<DocumentNode> booleanNode(final boolean expected) {
-        return castingMatch(DocumentBooleanValue.class, DocumentBooleanValue::getValue, equalTo(expected));
+        return castingFeatureMatcher(DocumentBooleanValue.class, DocumentBooleanValue::getValue, equalTo(expected));
     }
 
     public static Matcher<DocumentNode> decimalNode(final double expected) {
@@ -32,11 +35,12 @@ public class DocumentNodeMatchers {
     }
 
     public static Matcher<DocumentNode> decimalNode(final BigDecimal expected) {
-        return castingMatch(DocumentDecimalValue.class, DocumentDecimalValue::getValue, equalTo(expected));
+        return castingFeatureMatcher(DocumentDecimalValue.class, DocumentDecimalValue::getValue, equalTo(expected));
     }
 
     public static Matcher<DocumentNode> doubleNode(final double expected) {
-        return castingMatch(DocumentFloatingPointValue.class, DocumentFloatingPointValue::getValue, equalTo(expected));
+        return castingFeatureMatcher(DocumentFloatingPointValue.class, DocumentFloatingPointValue::getValue,
+                equalTo(expected));
     }
 
     public static Matcher<DocumentNode> timestampNode(final String expected) {
@@ -44,7 +48,7 @@ public class DocumentNodeMatchers {
     }
 
     public static Matcher<DocumentNode> timestampNode(final java.sql.Timestamp expected) {
-        return castingMatch(DocumentTimestampValue.class, DocumentTimestampValue::getValue, equalTo(expected));
+        return castingFeatureMatcher(DocumentTimestampValue.class, DocumentTimestampValue::getValue, equalTo(expected));
     }
 
     public static Matcher<DocumentNode> dateNode(final String expected) {
@@ -52,21 +56,21 @@ public class DocumentNodeMatchers {
     }
 
     public static Matcher<DocumentNode> dateNode(final java.sql.Date expected) {
-        return castingMatch(DocumentDateValue.class, DocumentDateValue::getValue, equalTo(expected));
+        return castingFeatureMatcher(DocumentDateValue.class, DocumentDateValue::getValue, equalTo(expected));
     }
 
-    private static <N extends DocumentNode, T> Matcher<DocumentNode> castingMatch(final Class<N> expectedNodeType,
-            final Function<N, T> getter, final Matcher<T> subMatcher) {
+    private static <N extends DocumentNode, T> Matcher<DocumentNode> castingFeatureMatcher(
+            final Class<N> expectedNodeType, final Function<N, T> getter, final Matcher<T> subMatcher) {
         final Function<DocumentNode, N> cast = expectedNodeType::cast;
         return allOf( //
                 instanceOf(expectedNodeType), //
-                new DocumentNodeMatcher<>(cast.andThen(getter), subMatcher));
+                new SimpleFeatureMatcher<>(cast.andThen(getter), subMatcher));
     }
 
-    private static class DocumentNodeMatcher<T, U> extends FeatureMatcher<T, U> {
+    private static class SimpleFeatureMatcher<T, U> extends FeatureMatcher<T, U> {
         private final Function<T, U> getter;
 
-        private DocumentNodeMatcher(final Function<T, U> getter, final Matcher<? super U> subMatcher) {
+        private SimpleFeatureMatcher(final Function<T, U> getter, final Matcher<? super U> subMatcher) {
             super(subMatcher, "value", "value");
             this.getter = getter;
         }

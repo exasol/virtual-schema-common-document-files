@@ -4,9 +4,7 @@ import static com.exasol.adapter.document.documentnode.util.DocumentNodeMatchers
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-
-import java.util.List;
+import static org.hamcrest.Matchers.contains;
 
 import org.junit.jupiter.api.Test;
 
@@ -41,10 +39,6 @@ class JsonArrayNodeTest {
     @Test
     void testGetValueList() {
         final DocumentArray result = (DocumentArray) JsonNodeFactory.getInstance().getJsonNode(TEST_ARRAY);
-        final List<? extends DocumentNode> valuesList = result.getValuesList();
-        assertAll(//
-                () -> assertThat(valuesList.get(0), decimalNode(1)),
-                () -> assertThat(valuesList.get(1), decimalNode(2)), () -> assertThat(valuesList.size(), equalTo(2))//
-        );
+        assertThat(result.getValuesList(), contains(decimalNode(1), decimalNode(2)));
     }
 }
