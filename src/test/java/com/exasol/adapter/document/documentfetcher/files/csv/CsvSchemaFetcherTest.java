@@ -10,7 +10,8 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import java.util.List;
 
 import org.hamcrest.Matcher;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -20,10 +21,6 @@ import com.exasol.adapter.document.edml.Fields;
 import com.exasol.adapter.document.edml.MappingDefinition;
 
 class CsvSchemaFetcherTest {
-
-    @BeforeEach
-    void setUp() throws Exception {
-    }
 
     @Test
     void testVarcharColumn() {
@@ -35,25 +32,35 @@ class CsvSchemaFetcherTest {
         assertColumnTypeDetected(List.of("a", "b", "c"), varcharMapping(varcharColumnsSize(1)));
     }
 
-    @Test
-    void testBooleanColumn() {
-        assertColumnTypeDetected(List.of("true", "false"), boolMapping());
+    @ParameterizedTest
+    @CsvSource({ "true", "false", "TRUE", "FALSE", "True", "False" })
+    void testBooleanColumn(final String value) {
+        assertColumnTypeDetected(List.of(value), boolMapping());
     }
 
-    @Test
-    void testIntColumn() {
-        assertColumnTypeDetected(List.of("1", String.valueOf(Integer.MAX_VALUE)),
-                decimalMapping(precision(10), scale(0)));
+    @ParameterizedTest
+    @CsvSource({ "1", "-1", "0", //
+            "2147483647", // max int
+            "-2147483648" // min int
+    })
+    void testIntColumn(final String value) {
+        assertColumnTypeDetected(List.of(value), decimalMapping(precision(10), scale(0)));
     }
 
-    @Test
-    void testLongColumn() {
-        assertColumnTypeDetected(List.of("1", String.valueOf(Long.MAX_VALUE)), decimalMapping(precision(19), scale(0)));
+    @ParameterizedTest
+    @CsvSource({ "2147483648", // max int + 1
+            "-2147483649", // min int - 1
+            "9223372036854775807", // max long
+            "-9223372036854775808" // min long
+    })
+    void testLongColumn(final String value) {
+        assertColumnTypeDetected(List.of(value), decimalMapping(precision(19), scale(0)));
     }
 
-    @Test
-    void testDoubleColumn() {
-        assertColumnTypeDetected(List.of("1.2"), decimalMapping(precision(36), scale(10)));
+    @ParameterizedTest
+    @CsvSource({ "1.2", "0.1", "0.0", "1.2e7", "1.2e-7", ".3", ".4e7", ".6e-9" })
+    void testDoubleColumn(final String value) {
+        assertColumnTypeDetected(List.of(value), decimalMapping(precision(36), scale(10)));
     }
 
     @Disabled("Date is currently not supported")
@@ -64,13 +71,23 @@ class CsvSchemaFetcherTest {
     }
 
     @ParameterizedTest
+    @CsvSource({ "2023-04-25", "23-04-25", "25.4.2023", })
+    void testUnsupportedDateColumnConvertedToVarchar(final String value) {
+        assertColumnTypeDetected(List.of(value), varcharMapping());
+    }
+
+    @ParameterizedTest
     @CsvSource({ "2023-04-25 10:25:42", "2023-04-25 10:25:42.1234", "2023-04-25T10:25:42Z", "2023-04-25T10:25:42.1234Z",
-            "2023-04-25 10:25:42Z", "2023-04-25 10:25:42.1234Z",
-    // unsupported:
-    // "25.04.2023 10:25:42",
-    })
+            "2023-04-25 10:25:42Z", "2023-04-25 10:25:42.1234Z", })
     void testTimestampColumn(final String value) {
         assertColumnTypeDetected(List.of(value), timestampMapping());
+    }
+
+    @ParameterizedTest
+    @CsvSource({ "25.04.2023 10:25:42", "2023-04-25T10:25:42+001", "2023-04-25T10:25:42 Europe/Berlin",
+            "2007-12-03T10:15:30+01:00[Europe/Paris]", })
+    void testUnsupportedTimestampColumnConvertedToVarchar(final String value) {
+        assertColumnTypeDetected(List.of(value), varcharMapping());
     }
 
     @Test
