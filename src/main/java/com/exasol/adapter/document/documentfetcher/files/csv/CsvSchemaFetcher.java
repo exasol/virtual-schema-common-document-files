@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
 import com.exasol.adapter.document.documentfetcher.files.ToUpperSnakeCaseConverter;
 import com.exasol.adapter.document.edml.*;
+import com.exasol.adapter.document.edml.AbstractToColumnMapping.AbstractToColumnMappingBuilder;
 import com.exasol.adapter.document.files.FileTypeSpecificSchemaFetcher.SingleFileSchemaFetcher;
 import com.exasol.errorreporting.ExaError;
 
@@ -24,12 +25,13 @@ public class CsvSchemaFetcher implements SingleFileSchemaFetcher {
 
     @Override
     public MappingDefinition fetchSchema(final RemoteFile remoteFile) {
-        final Result result = parseCsv(remoteFile);
-        return new DefinitionBuilder(result).build();
+        final boolean hasHeaderRow = false;
+        final Result result = parseCsv(remoteFile, hasHeaderRow);
+        return new DefinitionBuilder(result, hasHeaderRow).build();
     }
 
-    private Result parseCsv(final RemoteFile remoteFile) {
-        final CsvSpecs specs = CsvSpecs.builder().numRows(MAX_ROW_COUNT).build();
+    private Result parseCsv(final RemoteFile remoteFile, final boolean hasHeaderRow) {
+        final CsvSpecs specs = CsvSpecs.builder().hasHeaderRow(hasHeaderRow).numRows(MAX_ROW_COUNT).build();
         try (InputStream inputStream = remoteFile.getContent().getInputStream()) {
             return CsvReader.read(specs, inputStream, SinkFactory.arrays());
         } catch (final IOException | CsvReaderException exception) {
@@ -40,13 +42,17 @@ public class CsvSchemaFetcher implements SingleFileSchemaFetcher {
     private static class DefinitionBuilder {
         private final Fields.FieldsBuilder fields = Fields.builder();
         private final Result csvResult;
+        private final boolean hasHeaderRow;
 
-        DefinitionBuilder(final Result csvResult) {
+        DefinitionBuilder(final Result csvResult, final boolean hasHeaderRow) {
             this.csvResult = csvResult;
+            this.hasHeaderRow = hasHeaderRow;
         }
 
         MappingDefinition build() {
             int columnIndex = 0;
+            LOG.finest(() -> "Building definition for CSV " + (hasHeaderRow ? "with" : "without") + " header, "
+                    + csvResult.numCols() + " columns and " + csvResult.numRows() + " rows");
             for (final ResultColumn column : this.csvResult) {
                 addField(column, columnIndex);
                 columnIndex++;
@@ -62,18 +68,40 @@ public class CsvSchemaFetcher implements SingleFileSchemaFetcher {
         }
 
         private String getColumnName(final String fieldName, final int columnIndex) {
-            if (fieldName != null) {
+            if (hasHeaderRow) {
                 return ToUpperSnakeCaseConverter.toUpperSnakeCase(fieldName);
             }
             return "COLUMN_" + columnIndex;
         }
 
         private MappingDefinition getMapping(final DataType dataType, final String columnName) {
-            return ToVarcharMapping.builder().destinationName(columnName).build();
+            return createBuilder(dataType).destinationName(columnName).build();
+        }
+
+        private AbstractToColumnMappingBuilder<?, ?> createBuilder(final DataType dataType) {
+            switch (dataType) {
+            case STRING:
+                return ToVarcharMapping.builder();
+            case CHAR:
+                return ToVarcharMapping.builder().varcharColumnSize(1);
+            case BOOLEAN_AS_BYTE:
+                return ToBoolMapping.builder();
+            case BYTE:
+            case INT:
+                return ToDecimalMapping.builder().decimalPrecision(10).decimalScale(0);
+            case LONG:
+                return ToDecimalMapping.builder().decimalPrecision(19).decimalScale(0);
+            case FLOAT:
+            case DOUBLE:
+                return ToDecimalMapping.builder().decimalPrecision(36).decimalScale(10);
+            default:
+                throw new IllegalStateException(ExaError.messageBuilder("E-VSDF-71")
+                        .message("Unknown data type {{data type}}.", dataType).ticketMitigation().toString());
+            }
         }
 
         private String getFieldName(final String fieldName, final int columnIndex) {
-            if (fieldName != null) {
+            if (hasHeaderRow) {
                 return fieldName;
             }
             return String.valueOf(columnIndex);

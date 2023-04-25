@@ -28,6 +28,34 @@ public class MappingMatchers {
     }
 
     @SafeVarargs
+    public static Matcher<MappingDefinition> boolMapping(final Matcher<ToBoolMapping>... subMatchers) {
+        return castingMatcher(ToBoolMapping.class, allOf(subMatchers));
+    }
+
+    @SafeVarargs
+    public static Matcher<MappingDefinition> decimalMapping(final Matcher<ToDecimalMapping>... subMatchers) {
+        return castingMatcher(ToDecimalMapping.class, allOf(subMatchers));
+    }
+
+    public static Matcher<ToDecimalMapping> precision(final int expected) {
+        return feature(ToDecimalMapping::getDecimalPrecision, "decimal precision", equalTo(expected));
+    }
+
+    public static Matcher<ToDecimalMapping> scale(final int expected) {
+        return feature(ToDecimalMapping::getDecimalScale, "decimal scale", equalTo(expected));
+    }
+
+    @SafeVarargs
+    public static Matcher<MappingDefinition> dateMapping(final Matcher<ToDateMapping>... subMatchers) {
+        return castingMatcher(ToDateMapping.class, allOf(subMatchers));
+    }
+
+    @SafeVarargs
+    public static Matcher<MappingDefinition> timestampMapping(final Matcher<ToTimestampMapping>... subMatchers) {
+        return castingMatcher(ToTimestampMapping.class, allOf(subMatchers));
+    }
+
+    @SafeVarargs
     public static Matcher<MappingDefinition> columnMapping(final Matcher<AbstractToColumnMapping>... subMatchers) {
         return castingMatcher(AbstractToColumnMapping.class, allOf(subMatchers));
     }
