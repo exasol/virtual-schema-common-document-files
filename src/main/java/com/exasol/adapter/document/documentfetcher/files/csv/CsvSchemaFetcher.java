@@ -91,6 +91,7 @@ public class CsvSchemaFetcher implements SingleFileSchemaFetcher {
             case BOOLEAN_AS_BYTE:
                 return ToBoolMapping.builder();
             case BYTE:
+            case SHORT:
             case INT:
                 return ToDecimalMapping.builder().decimalPrecision(10).decimalScale(0);
             case LONG:

@@ -1,5 +1,7 @@
 package com.exasol.adapter.document.documentfetcher.files;
 
+import java.util.logging.Level;
+
 import com.exasol.adapter.document.connection.ConnectionPropertiesReader;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.FetchedDocument;
@@ -8,6 +10,7 @@ import com.exasol.adapter.document.documentfetcher.files.segmentation.*;
 import com.exasol.adapter.document.files.FileTypeSpecificDocumentFetcher;
 import com.exasol.adapter.document.files.stringfilter.StringFilter;
 import com.exasol.adapter.document.iterators.*;
+import com.exasol.logging.RemoteLogManager;
 
 /**
  * This is a basis for {@link DocumentFetcher}s that fetches data/documents from files.
@@ -27,7 +30,7 @@ public class FilesDocumentFetcher implements DocumentFetcher {
 
     /**
      * Create a new instance of {@link FilesDocumentFetcher}.
-     * 
+     *
      * @param filePattern                     files to load
      * @param segmentDescription              segmentation for parallel execution
      * @param fileFinderFactory               dependency in injection of {@link FileFinderFactory}
@@ -47,24 +50,25 @@ public class FilesDocumentFetcher implements DocumentFetcher {
 
     /**
      * Get the file pattern.
-     * 
+     *
      * @return file pattern
      */
     public StringFilter getFilePattern() {
-        return filePattern;
+        return this.filePattern;
     }
 
     /**
      * Get the segment description.
-     * 
+     *
      * @return segment description
      */
     public SegmentDescription getSegmentDescription() {
-        return segmentDescription;
+        return this.segmentDescription;
     }
 
     @Override
     public final CloseableIterator<FetchedDocument> run(final ConnectionPropertiesReader connectionInformation) {
+        new RemoteLogManager().setupConsoleLogger(Level.ALL);
         final RemoteFileFinder remoteFileFinder = this.fileFinderFactory.getFinder(this.filePattern,
                 connectionInformation);
         final CloseableIterator<RemoteFile> files = remoteFileFinder.loadFiles();

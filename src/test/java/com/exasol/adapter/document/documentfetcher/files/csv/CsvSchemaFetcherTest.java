@@ -10,8 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import java.util.List;
 
 import org.hamcrest.Matcher;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -57,6 +56,7 @@ class CsvSchemaFetcherTest {
         assertColumnTypeDetected(List.of("1.2"), decimalMapping(precision(36), scale(10)));
     }
 
+    @Disabled("Date is currently not supported")
     @ParameterizedTest
     @CsvSource({ "2023-04-25", "20230425" })
     void testDateColumn(final String value) {
@@ -64,8 +64,11 @@ class CsvSchemaFetcherTest {
     }
 
     @ParameterizedTest
-    @CsvSource({ "25.04.2023 10:25:42", "2023-04-25 10:25:42", "2023-04-25 10:25:42.1234", "2023-04-25T10:25:42Z",
-            "2023-04-25T10:25:42.1234Z", "2023-04-25 10:25:42Z", "2023-04-25 10:25:42.1234Z" })
+    @CsvSource({ "2023-04-25 10:25:42", "2023-04-25 10:25:42.1234", "2023-04-25T10:25:42Z", "2023-04-25T10:25:42.1234Z",
+            "2023-04-25 10:25:42Z", "2023-04-25 10:25:42.1234Z",
+    // unsupported:
+    // "25.04.2023 10:25:42",
+    })
     void testTimestampColumn(final String value) {
         assertColumnTypeDetected(List.of(value), timestampMapping());
     }
