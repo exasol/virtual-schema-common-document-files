@@ -294,16 +294,16 @@ public abstract class AbstractDocumentFilesAdapterIT {
     @Test
     void testReadCsvWithTypesWithoutHeaderWithAutomaticInference() throws IOException, SQLException {
         uploadFileContent("testData-1.csv", List.of( //
-                "\"test1\",true,1.23,42,2.5,2007-12-03,2007-12-03 10:15:30.00",
-                "test2,FALSE,1.22e-4,-17,-3.5,2023-04-20,2007-12-03 10:15:30.00"));
+                "\"test1\",true,1.23,42,9223372036854775807,2007-12-03,2007-12-03 10:15:30.00",
+                "test2,FALSE,1.22e-4,-17,-2147483649,2023-04-20,2007-12-03 10:15:30.00"));
         createVirtualSchemaWithMapping(TEST_SCHEMA,
                 EdmlDefinition.builder().source(this.dataFilesDirectory + "/testData-*.csv").destinationTable("BOOKS"));
         final String query = "SELECT column_0, column_1, column_2, column_3, column_4, column_5, column_6 FROM "
                 + TEST_SCHEMA + ".BOOKS";
-        assertQuery(query, table("VARCHAR", "BOOLEAN", "DECIMAL", "INTEGER", "DOUBLE PRECISION", "DATE", "TIMESTAMP") //
-                .row("test1", true, 1.23, 42, 2.5, java.sql.Date.valueOf("2007-12-03"),
+        assertQuery(query, table("VARCHAR", "BOOLEAN", "DECIMAL", "BIGINT", "DECIMAL", "VARCHAR", "TIMESTAMP") //
+                .row("test1", true, 1.23, 42, Long.MAX_VALUE, "2007-12-03",
                         java.sql.Timestamp.valueOf("2007-12-03 10:15:30.00"))
-                .row("test2", false, 0.00012, -17, -3.5, java.sql.Date.valueOf("2023-04-20"),
+                .row("test2", false, 0.0001220000, -17, ((long) (Integer.MIN_VALUE)) - 1, "2023-04-20",
                         java.sql.Timestamp.valueOf("2007-12-03 10:15:30.00"))
                 .matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
     }
