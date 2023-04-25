@@ -1,7 +1,5 @@
 package com.exasol.adapter.document.documentfetcher.files;
 
-import java.util.logging.Level;
-
 import com.exasol.adapter.document.connection.ConnectionPropertiesReader;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.FetchedDocument;
@@ -10,7 +8,6 @@ import com.exasol.adapter.document.documentfetcher.files.segmentation.*;
 import com.exasol.adapter.document.files.FileTypeSpecificDocumentFetcher;
 import com.exasol.adapter.document.files.stringfilter.StringFilter;
 import com.exasol.adapter.document.iterators.*;
-import com.exasol.logging.RemoteLogManager;
 
 /**
  * This is a basis for {@link DocumentFetcher}s that fetches data/documents from files.
@@ -68,7 +65,6 @@ public class FilesDocumentFetcher implements DocumentFetcher {
 
     @Override
     public final CloseableIterator<FetchedDocument> run(final ConnectionPropertiesReader connectionInformation) {
-        new RemoteLogManager().setupConsoleLogger(Level.ALL);
         final RemoteFileFinder remoteFileFinder = this.fileFinderFactory.getFinder(this.filePattern,
                 connectionInformation);
         final CloseableIterator<RemoteFile> files = remoteFileFinder.loadFiles();
