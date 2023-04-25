@@ -28,19 +28,31 @@ public class CsvSchemaFetcher implements SingleFileSchemaFetcher {
 
     @Override
     public MappingDefinition fetchSchema(final RemoteFile remoteFile) {
+        // Hard coded to false for now, will be detected automatically in
+        // https://github.com/exasol/virtual-schema-common-document-files/issues/131
         final boolean hasHeaderRow = false;
         final Result result = parseCsv(remoteFile, hasHeaderRow);
         return new DefinitionBuilder(result, hasHeaderRow).build();
     }
 
     private Result parseCsv(final RemoteFile remoteFile, final boolean hasHeaderRow) {
-        final CsvSpecs specs = CsvSpecs.builder().hasHeaderRow(hasHeaderRow).parsers(Parsers.DEFAULT)
-                .customTimeZoneParser(new EmptyTimeZoneParser()).numRows(MAX_ROW_COUNT).build();
         try (InputStream inputStream = remoteFile.getContent().getInputStream()) {
-            return CsvReader.read(specs, inputStream, new NullSinkFactory());
+            return CsvReader.read(csvParserConfiguration(hasHeaderRow), inputStream, new NullSinkFactory());
         } catch (final IOException | CsvReaderException exception) {
-            throw new IllegalStateException(ExaError.messageBuilder("E-VSDF-70").message("").toString(), exception);
+            throw new IllegalStateException(
+                    ExaError.messageBuilder("E-VSDF-70")
+                            .message("Failed to read CSV file {{file path}}", remoteFile.getResourceName()).toString(),
+                    exception);
         }
+    }
+
+    private CsvSpecs csvParserConfiguration(final boolean hasHeaderRow) {
+        return CsvSpecs.builder() //
+                .hasHeaderRow(hasHeaderRow) //
+                .parsers(Parsers.DEFAULT) //
+                .customTimeZoneParser(new EmptyTimeZoneParser()) //
+                .numRows(MAX_ROW_COUNT) //
+                .build();
     }
 
     private static class DefinitionBuilder {

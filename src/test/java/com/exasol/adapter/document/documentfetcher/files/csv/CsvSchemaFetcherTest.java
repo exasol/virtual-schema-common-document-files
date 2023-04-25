@@ -4,8 +4,9 @@ import static com.exasol.adapter.document.testutil.MappingMatchers.*;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 
@@ -21,6 +22,15 @@ import com.exasol.adapter.document.edml.Fields;
 import com.exasol.adapter.document.edml.MappingDefinition;
 
 class CsvSchemaFetcherTest {
+
+    @Test
+    void testEmptyInput() {
+        final List<String> emptyCsv = List.of();
+        final IllegalStateException exception = assertThrows(IllegalStateException.class, () -> fetchSchema(emptyCsv));
+        assertThat(exception.getMessage(), equalTo("E-VSDF-70: Failed to read CSV file 'resourceName'"));
+        assertThat(exception.getCause().getMessage(),
+                equalTo("Can't proceed because input file is empty and client has not specified headers"));
+    }
 
     @Test
     void testVarcharColumn() {
@@ -91,8 +101,15 @@ class CsvSchemaFetcherTest {
     }
 
     @Test
-    void testMixedTimestampColumn() {
-        assertColumnTypeDetected(List.of("2023-04-25 10:25:42", "2023-04-25T10:25:42Z"), timestampMapping());
+    void testMultipleColumns() {
+        final Fields fields = fetchSchema(List.of("val0,0,1.1", "val1,1,2.2", "val2,2,3.3"));
+        assertAll(() -> assertThat(fields.getFieldsMap(), aMapWithSize(3)),
+                () -> assertThat(fields.getFieldsMap().get("0"),
+                        allOf(columnMapping(destinationName("COLUMN_0")), varcharMapping(varcharColumnsSize(254)))),
+                () -> assertThat(fields.getFieldsMap().get("1"),
+                        allOf(columnMapping(destinationName("COLUMN_1")), decimalMapping(precision(10), scale(0)))),
+                () -> assertThat(fields.getFieldsMap().get("2"),
+                        allOf(columnMapping(destinationName("COLUMN_2")), decimalMapping(precision(36), scale(10)))));
     }
 
     private void assertColumnTypeDetected(final List<String> csvLines, final Matcher<MappingDefinition> matcher) {
@@ -111,6 +128,7 @@ class CsvSchemaFetcherTest {
     }
 
     MappingDefinition fetchSchema(final String csvContent) {
-        return new CsvSchemaFetcher().fetchSchema(new RemoteFile("", 0, new StringRemoteFileContent(csvContent)));
+        return new CsvSchemaFetcher()
+                .fetchSchema(new RemoteFile("resourceName", 0, new StringRemoteFileContent(csvContent)));
     }
 }
