@@ -1,6 +1,6 @@
 package com.exasol.adapter.document.documentnode.parquet;
 
-import static com.exasol.adapter.document.documentnode.util.DocumentNodeMatchers.decimalNode;
+import static com.exasol.adapter.document.testutil.DocumentNodeMatchers.decimalNode;
 import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.INT32;
 import static org.apache.parquet.schema.Type.Repetition.REQUIRED;
 import static org.hamcrest.MatcherAssert.assertThat;

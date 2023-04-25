@@ -4,6 +4,7 @@ import static com.exasol.adapter.document.documentfetcher.files.parquet.ColumnSi
 
 import org.apache.parquet.schema.*;
 
+import com.exasol.adapter.document.documentfetcher.files.ToUpperSnakeCaseConverter;
 import com.exasol.adapter.document.edml.*;
 
 /**

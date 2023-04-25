@@ -1,4 +1,4 @@
-package com.exasol.adapter.document.documentfetcher.files.parquet;
+package com.exasol.adapter.document.documentfetcher.files;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -11,6 +11,7 @@ class ToUpperSnakeCaseConverterTest {
     @CsvSource({ //
             "test, TEST", //
             "myTable, MY_TABLE", //
+            "MyTable, MY_TABLE", //
             "myCSV, MY_CSV", //
             "my_table, MY_TABLE", //
             "MY_TABLE, MY_TABLE" })

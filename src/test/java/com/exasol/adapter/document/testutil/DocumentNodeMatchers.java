@@ -1,4 +1,4 @@
-package com.exasol.adapter.document.documentnode.util;
+package com.exasol.adapter.document.testutil;
 
 import static org.hamcrest.Matchers.*;
 

@@ -215,6 +215,25 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
+    void testReadCsvWithTypesWithHeaderWithAutomaticInference() throws IOException, SQLException {
+        createVirtualSchemaWithMapping(TEST_SCHEMA,
+                EdmlDefinition.builder().source("testData-*.csv").destinationTable("BOOKS"));
+        uploadFileContent("testData-1.csv", List.of( //
+                "str,bool,decimal_col,int_col,double_col,date_col,timestamp_col", //
+                "\"test1\",true,1.23,42,2.5,2007-12-03,2007-12-03 10:15:30.00",
+                "test2,FALSE,1.22e-4,-17,-3.5,2023-04-20,2007-12-03 10:15:30.00"));
+        assertQuery(
+                "SELECT str, bool, decimal_col, int_col, double_col, date_col, timestamp_col FROM " + TEST_SCHEMA
+                        + ".BOOKS", //
+                table("VARCHAR", "BOOLEAN", "DECIMAL", "INTEGER", "DOUBLE PRECISION", "DATE", "TIMESTAMP") //
+                        .row("test1", true, 1.23, 42, 2.5, java.sql.Date.valueOf("2007-12-03"),
+                                java.sql.Timestamp.valueOf("2007-12-03 10:15:30.00"))
+                        .row("test2", false, 0.00012, -17, -3.5, java.sql.Date.valueOf("2023-04-20"),
+                                java.sql.Timestamp.valueOf("2007-12-03 10:15:30.00"))
+                        .matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
+    }
+
+    @Test
     void testReadCsvWithSpacesInHeader() throws IOException, SQLException {
         final Fields mapping = Fields.builder()//
                 .mapField("col1", ToVarcharMapping.builder().build()) //
@@ -263,6 +282,23 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 "\"test1\",true,1.23,42,2.5,2007-12-03,2007-12-03 10:15:30.00",
                 "test2,FALSE,1.22e-4,-17,-3.5,2023-04-20,2007-12-03 10:15:30.00"));
         final String query = "SELECT str, IS_ACTIVE, decimal_col, int_col, double_col, date_col, timestamp_col FROM "
+                + TEST_SCHEMA + ".BOOKS";
+        assertQuery(query, table("VARCHAR", "BOOLEAN", "DECIMAL", "INTEGER", "DOUBLE PRECISION", "DATE", "TIMESTAMP") //
+                .row("test1", true, 1.23, 42, 2.5, java.sql.Date.valueOf("2007-12-03"),
+                        java.sql.Timestamp.valueOf("2007-12-03 10:15:30.00"))
+                .row("test2", false, 0.00012, -17, -3.5, java.sql.Date.valueOf("2023-04-20"),
+                        java.sql.Timestamp.valueOf("2007-12-03 10:15:30.00"))
+                .matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
+    }
+
+    @Test
+    void testReadCsvWithTypesWithoutHeaderWithAutomaticInference() throws IOException, SQLException {
+        createVirtualSchemaWithMapping(TEST_SCHEMA,
+                EdmlDefinition.builder().source("testData-*.csv").destinationTable("BOOKS"));
+        uploadFileContent("testData-1.csv", List.of( //
+                "\"test1\",true,1.23,42,2.5,2007-12-03,2007-12-03 10:15:30.00",
+                "test2,FALSE,1.22e-4,-17,-3.5,2023-04-20,2007-12-03 10:15:30.00"));
+        final String query = "SELECT column_0, column_1, column_2, column_3, column_4, column_5, column_6 FROM "
                 + TEST_SCHEMA + ".BOOKS";
         assertQuery(query, table("VARCHAR", "BOOLEAN", "DECIMAL", "INTEGER", "DOUBLE PRECISION", "DATE", "TIMESTAMP") //
                 .row("test1", true, 1.23, 42, 2.5, java.sql.Date.valueOf("2007-12-03"),

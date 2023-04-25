@@ -4,11 +4,13 @@ Code name: CSV Data Types
 
 ## Summary
 
-This release adds support for other data types than VARCHAR in CSV files, see the [EDML user guide](https://github.com/exasol/virtual-schema-common-document/blob/main/doc/user_guide/edml_user_guide.md#automatic-mapping-inference) for details.
+This release adds auto inference and support for other data types than VARCHAR in CSV files (BOOLEAN, DECIMAL, DOUBLE PRECISION, DATE and TIMESTAMP), see the [EDML user guide](https://github.com/exasol/virtual-schema-common-document/blob/main/doc/user_guide/edml_user_guide.md#automatic-mapping-inference) for details.
 
 ## Features
 
 * #125: Added support for data types in CSV files
+* #128: Trimmed CSV header names
+* #130: Added schema inference for CSV files
 
 ## Dependency Updates
 

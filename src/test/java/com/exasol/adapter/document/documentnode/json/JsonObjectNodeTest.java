@@ -1,6 +1,6 @@
 package com.exasol.adapter.document.documentnode.json;
 
-import static com.exasol.adapter.document.documentnode.util.DocumentNodeMatchers.stringNode;
+import static com.exasol.adapter.document.testutil.DocumentNodeMatchers.stringNode;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
