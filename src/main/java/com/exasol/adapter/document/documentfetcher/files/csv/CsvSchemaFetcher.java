@@ -2,6 +2,7 @@ package com.exasol.adapter.document.documentfetcher.files.csv;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.ZoneId;
 import java.util.logging.Logger;
 
 import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
@@ -12,12 +13,14 @@ import com.exasol.adapter.document.files.FileTypeSpecificSchemaFetcher.SingleFil
 import com.exasol.errorreporting.ExaError;
 
 import io.deephaven.csv.CsvSpecs;
+import io.deephaven.csv.containers.ByteSlice;
 import io.deephaven.csv.parsers.DataType;
+import io.deephaven.csv.parsers.Parsers;
 import io.deephaven.csv.reading.CsvReader;
 import io.deephaven.csv.reading.CsvReader.Result;
 import io.deephaven.csv.reading.CsvReader.ResultColumn;
-import io.deephaven.csv.sinks.SinkFactory;
-import io.deephaven.csv.util.CsvReaderException;
+import io.deephaven.csv.tokenization.Tokenizer.CustomTimeZoneParser;
+import io.deephaven.csv.util.*;
 
 public class CsvSchemaFetcher implements SingleFileSchemaFetcher {
     private static final Logger LOG = Logger.getLogger(CsvSchemaFetcher.class.getName());
@@ -31,9 +34,10 @@ public class CsvSchemaFetcher implements SingleFileSchemaFetcher {
     }
 
     private Result parseCsv(final RemoteFile remoteFile, final boolean hasHeaderRow) {
-        final CsvSpecs specs = CsvSpecs.builder().hasHeaderRow(hasHeaderRow).numRows(MAX_ROW_COUNT).build();
+        final CsvSpecs specs = CsvSpecs.builder().hasHeaderRow(hasHeaderRow).parsers(Parsers.DEFAULT)
+                .customTimeZoneParser(new EmptyTimeZoneParser()).numRows(MAX_ROW_COUNT).build();
         try (InputStream inputStream = remoteFile.getContent().getInputStream()) {
-            return CsvReader.read(specs, inputStream, SinkFactory.arrays());
+            return CsvReader.read(specs, inputStream, new NullSinkFactory());
         } catch (final IOException | CsvReaderException exception) {
             throw new IllegalStateException(ExaError.messageBuilder("E-VSDF-70").message("").toString(), exception);
         }
@@ -94,6 +98,8 @@ public class CsvSchemaFetcher implements SingleFileSchemaFetcher {
             case FLOAT:
             case DOUBLE:
                 return ToDecimalMapping.builder().decimalPrecision(36).decimalScale(10);
+            case DATETIME_AS_LONG:
+                return ToTimestampMapping.builder();
             default:
                 throw new IllegalStateException(ExaError.messageBuilder("E-VSDF-71")
                         .message("Unknown data type {{data type}}.", dataType).ticketMitigation().toString());
@@ -105,6 +111,19 @@ public class CsvSchemaFetcher implements SingleFileSchemaFetcher {
                 return fieldName;
             }
             return String.valueOf(columnIndex);
+        }
+    }
+
+    private static class EmptyTimeZoneParser implements CustomTimeZoneParser {
+        @Override
+        public boolean tryParse(final ByteSlice bs, final MutableObject<ZoneId> zoneId,
+                final MutableLong offsetSeconds) {
+            if (bs.size() == 0) {
+                zoneId.setValue(ZoneId.of("UTC"));
+                offsetSeconds.setValue(0);
+                return true;
+            }
+            return false;
         }
     }
 }

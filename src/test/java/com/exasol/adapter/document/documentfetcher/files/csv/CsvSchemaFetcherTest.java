@@ -12,6 +12,8 @@ import java.util.List;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
 import com.exasol.adapter.document.documentfetcher.files.StringRemoteFileContent;
@@ -55,14 +57,22 @@ class CsvSchemaFetcherTest {
         assertColumnTypeDetected(List.of("1.2"), decimalMapping(precision(36), scale(10)));
     }
 
-    @Test
-    void testDateColumn() {
-        assertColumnTypeDetected(List.of("2023-04-25"), dateMapping());
+    @ParameterizedTest
+    @CsvSource({ "2023-04-25", "20230425" })
+    void testDateColumn(final String value) {
+        assertColumnTypeDetected(List.of(value), dateMapping());
+    }
+
+    @ParameterizedTest
+    @CsvSource({ "25.04.2023 10:25:42", "2023-04-25 10:25:42", "2023-04-25 10:25:42.1234", "2023-04-25T10:25:42Z",
+            "2023-04-25T10:25:42.1234Z", "2023-04-25 10:25:42Z", "2023-04-25 10:25:42.1234Z" })
+    void testTimestampColumn(final String value) {
+        assertColumnTypeDetected(List.of(value), timestampMapping());
     }
 
     @Test
-    void testTimestampColumn() {
-        assertColumnTypeDetected(List.of("2023-04-25 10:25:42"), timestampMapping());
+    void testMixedTimestampColumn() {
+        assertColumnTypeDetected(List.of("2023-04-25 10:25:42", "2023-04-25T10:25:42Z"), timestampMapping());
     }
 
     private void assertColumnTypeDetected(final List<String> csvLines, final Matcher<MappingDefinition> matcher) {
