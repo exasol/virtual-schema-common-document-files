@@ -22,6 +22,9 @@ import io.deephaven.csv.reading.CsvReader.ResultColumn;
 import io.deephaven.csv.tokenization.Tokenizer.CustomTimeZoneParser;
 import io.deephaven.csv.util.*;
 
+/**
+ * {@link SingleFileSchemaFetcher} for CSV files.
+ */
 public class CsvSchemaFetcher implements SingleFileSchemaFetcher {
     private static final Logger LOG = Logger.getLogger(CsvSchemaFetcher.class.getName());
     private static final long MAX_ROW_COUNT = 10_000;
