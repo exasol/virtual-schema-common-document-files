@@ -1,7 +1,5 @@
 package com.exasol.adapter.document.documentfetcher.files.csv;
 
-import static com.exasol.adapter.document.documentfetcher.files.ColumnSizeCalculator.*;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.ZoneId;
@@ -9,18 +7,15 @@ import java.util.logging.Logger;
 
 import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
 import com.exasol.adapter.document.documentfetcher.files.ToUpperSnakeCaseConverter;
-import com.exasol.adapter.document.edml.*;
-import com.exasol.adapter.document.edml.AbstractToColumnMapping.AbstractToColumnMappingBuilder;
+import com.exasol.adapter.document.edml.Fields;
+import com.exasol.adapter.document.edml.MappingDefinition;
 import com.exasol.adapter.document.files.FileTypeSpecificSchemaFetcher.SingleFileSchemaFetcher;
 import com.exasol.errorreporting.ExaError;
 
 import io.deephaven.csv.CsvSpecs;
 import io.deephaven.csv.containers.ByteSlice;
-import io.deephaven.csv.parsers.DataType;
 import io.deephaven.csv.parsers.Parsers;
 import io.deephaven.csv.reading.CsvReader;
-import io.deephaven.csv.reading.CsvReader.Result;
-import io.deephaven.csv.reading.CsvReader.ResultColumn;
 import io.deephaven.csv.tokenization.Tokenizer.CustomTimeZoneParser;
 import io.deephaven.csv.util.*;
 
@@ -36,13 +31,14 @@ public class CsvSchemaFetcher implements SingleFileSchemaFetcher {
         // Hard coded to false for now, will be detected automatically in
         // https://github.com/exasol/virtual-schema-common-document-files/issues/131
         final boolean hasHeaderRow = false;
-        final Result result = parseCsv(remoteFile, hasHeaderRow);
-        return new DefinitionBuilder(result, hasHeaderRow).build();
+        final CsvReader.Result result = analyzeCsv(remoteFile, hasHeaderRow, MAX_ROW_COUNT);
+        return new MappingDefinitionBuilder(result, hasHeaderRow).build();
     }
 
-    private Result parseCsv(final RemoteFile remoteFile, final boolean hasHeaderRow) {
+    private CsvReader.Result analyzeCsv(final RemoteFile remoteFile, final boolean hasHeaderRow, final long lookAhead) {
+        final CsvSpecs parserConfiguration = csvParserConfiguration(hasHeaderRow, lookAhead);
         try (InputStream inputStream = remoteFile.getContent().getInputStream()) {
-            return CsvReader.read(csvParserConfiguration(hasHeaderRow), inputStream, new NullSinkFactory());
+            return CsvReader.read(parserConfiguration, inputStream, new NullSinkFactory());
         } catch (final IOException | CsvReaderException exception) {
             throw new IllegalStateException(
                     ExaError.messageBuilder("E-VSDF-70")
@@ -51,86 +47,49 @@ public class CsvSchemaFetcher implements SingleFileSchemaFetcher {
         }
     }
 
-    private CsvSpecs csvParserConfiguration(final boolean hasHeaderRow) {
+    private CsvSpecs csvParserConfiguration(final boolean hasHeaderRow, final long lookAhead) {
         return CsvSpecs.builder() //
                 .hasHeaderRow(hasHeaderRow) //
                 .parsers(Parsers.DEFAULT) //
                 .customTimeZoneParser(new EmptyTimeZoneParser()) //
-                .numRows(MAX_ROW_COUNT) //
+                .numRows(lookAhead) //
                 .build();
     }
 
-    private static class DefinitionBuilder {
+    private static class MappingDefinitionBuilder {
         private final Fields.FieldsBuilder fields = Fields.builder();
-        private final Result csvResult;
+        private final CsvReader.Result csvResult;
         private final boolean hasHeaderRow;
 
-        DefinitionBuilder(final Result csvResult, final boolean hasHeaderRow) {
+        MappingDefinitionBuilder(final CsvReader.Result csvResult, final boolean hasHeaderRow) {
             this.csvResult = csvResult;
             this.hasHeaderRow = hasHeaderRow;
         }
 
         MappingDefinition build() {
             int columnIndex = 0;
-            LOG.finest(() -> "Building definition for CSV " + (hasHeaderRow ? "with" : "without") + " header, "
-                    + csvResult.numCols() + " columns and " + csvResult.numRows() + " rows");
-            for (final ResultColumn column : this.csvResult) {
-                addField(column, columnIndex);
-                columnIndex++;
+            for (final CsvReader.ResultColumn column : this.csvResult) {
+                addColumn(column, columnIndex++);
             }
             return this.fields.build();
         }
 
-        private void addField(final ResultColumn column, final int columnIndex) {
-            final MappingDefinition mapping = getMapping(column.dataType(), getColumnName(column.name(), columnIndex));
+        private void addColumn(final CsvReader.ResultColumn column, final int columnIndex) {
+            final ColumnMapper colMapper = createColumnMapper(column, columnIndex);
+            final MappingDefinition mapping = colMapper.getMapping();
             LOG.finest(() -> "Mapping CSV column #" + columnIndex + " '" + column.name() + "' of type "
                     + column.dataType() + " to " + mapping);
-            this.fields.mapField(getFieldName(column.name(), columnIndex), mapping);
+            this.fields.mapField(colMapper.getSource(), mapping);
         }
 
-        private String getColumnName(final String fieldName, final int columnIndex) {
-            if (hasHeaderRow) {
-                return ToUpperSnakeCaseConverter.toUpperSnakeCase(fieldName);
+        ColumnMapper createColumnMapper(final CsvReader.ResultColumn column, final int columnIndex) {
+            if (this.hasHeaderRow) {
+                final String csvName = column.name();
+                return new ColumnMapper(csvName, ToUpperSnakeCaseConverter.toUpperSnakeCase(csvName),
+                        column.dataType());
+            } else {
+                return new ColumnMapper(String.valueOf(columnIndex), "COLUMN_" + columnIndex, column.dataType());
             }
-            return "COLUMN_" + columnIndex;
-        }
-
-        private MappingDefinition getMapping(final DataType dataType, final String columnName) {
-            return createBuilder(dataType).destinationName(columnName).build();
-        }
-
-        private AbstractToColumnMappingBuilder<?, ?> createBuilder(final DataType dataType) {
-            switch (dataType) {
-            case STRING:
-                return ToVarcharMapping.builder().varcharColumnSize(MAX_VARCHAR_COLUMN_SIZE);
-            case CHAR:
-                return ToVarcharMapping.builder().varcharColumnSize(1);
-            case BOOLEAN_AS_BYTE:
-                return ToBoolMapping.builder();
-            case BYTE:
-            case SHORT:
-            case INT:
-                return ToDecimalMapping.builder().decimalPrecision(INT_32_DIGITS).decimalScale(0);
-            case LONG:
-                return ToDecimalMapping.builder().decimalPrecision(INT_64_DIGITS).decimalScale(0);
-            case FLOAT:
-            case DOUBLE:
-                return ToDoubleMapping.builder();
-            case DATETIME_AS_LONG:
-            case TIMESTAMP_AS_LONG:
-                // Not supported
-                return ToVarcharMapping.builder();
-            default:
-                throw new IllegalStateException(ExaError.messageBuilder("E-VSDF-71")
-                        .message("Unknown data type {{data type}}.", dataType).ticketMitigation().toString());
-            }
-        }
-
-        private String getFieldName(final String fieldName, final int columnIndex) {
-            if (hasHeaderRow) {
-                return fieldName;
-            }
-            return String.valueOf(columnIndex);
         }
     }
 
