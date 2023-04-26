@@ -5,7 +5,6 @@ import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
@@ -68,7 +67,7 @@ class CsvSchemaFetcherTest {
     }
 
     @ParameterizedTest
-    @CsvSource({ "1.2", "0.1", "0.0", "1.2e7", "1.2e-7", ".3", ".4e7", ".6e-9" })
+    @CsvSource({ "1.2", "0.1", "0.0", "1.2e7", "1.2e-7", ".3", ".4e7", ".6e-9", ".6e+9", })
     void testDoubleColumn(final String value) {
         assertColumnTypeDetected(List.of(value), decimalMapping(precision(36), scale(10)));
     }
@@ -103,20 +102,21 @@ class CsvSchemaFetcherTest {
     @Test
     void testMultipleColumns() {
         final Fields fields = fetchSchema(List.of("val0,0,1.1", "val1,1,2.2", "val2,2,3.3"));
-        assertAll(() -> assertThat(fields.getFieldsMap(), aMapWithSize(3)),
-                () -> assertThat(fields.getFieldsMap().get("0"),
+        assertThat(fields.getFieldsMap(), allOf( //
+                aMapWithSize(3), //
+                hasEntry(equalTo("0"),
                         allOf(columnMapping(destinationName("COLUMN_0")), varcharMapping(varcharColumnsSize(254)))),
-                () -> assertThat(fields.getFieldsMap().get("1"),
+                hasEntry(equalTo("1"),
                         allOf(columnMapping(destinationName("COLUMN_1")), decimalMapping(precision(10), scale(0)))),
-                () -> assertThat(fields.getFieldsMap().get("2"),
-                        allOf(columnMapping(destinationName("COLUMN_2")), decimalMapping(precision(36), scale(10)))));
+                hasEntry(equalTo("2"),
+                        allOf(columnMapping(destinationName("COLUMN_2")), decimalMapping(precision(36), scale(10))))));
     }
 
     private void assertColumnTypeDetected(final List<String> csvLines, final Matcher<MappingDefinition> matcher) {
         final Fields fields = fetchSchema(csvLines);
-        assertAll(() -> assertThat(fields.getFieldsMap(), aMapWithSize(1)),
-                () -> assertThat(fields.getFieldsMap().get("0"), columnMapping(destinationName("COLUMN_0"))),
-                () -> assertThat(fields.getFieldsMap().get("0"), matcher));
+        assertThat(fields.getFieldsMap(), allOf( //
+                aMapWithSize(1), //
+                hasEntry(equalTo("0"), allOf(columnMapping(destinationName("COLUMN_0")), matcher))));
     }
 
     Fields fetchSchema(final String... csvLines) {
