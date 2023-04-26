@@ -10,6 +10,7 @@ public class ColumnSizeCalculator {
     public static final int INT_64_DIGITS = getNumberOfDigitsForInt(64);
     /** Maximum length of an Exasol {@code VARCHAR} column */
     public static final int MAX_VARCHAR_COLUMN_SIZE = 2_000_000;
+    private static final double LOG2 = Math.log10(2.0);
 
     private ColumnSizeCalculator() {
         // empty on purpose
@@ -22,6 +23,6 @@ public class ColumnSizeCalculator {
      * @return number of digits
      */
     public static int getNumberOfDigitsForInt(final int numberOfBits) {
-        return (int) Math.ceil(Math.log10(Math.pow(2, numberOfBits)));
+        return (int) Math.ceil(numberOfBits * LOG2);
     }
 }
