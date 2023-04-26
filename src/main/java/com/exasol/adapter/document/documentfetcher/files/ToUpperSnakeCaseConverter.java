@@ -19,7 +19,10 @@ public class ToUpperSnakeCaseConverter {
         boolean isFirst = true;
         final StringBuilder result = new StringBuilder();
         for (int index = 0; index < inputString.length(); index++) {
-            final char currentChar = inputString.charAt(index);
+            char currentChar = inputString.charAt(index);
+            if (Character.isWhitespace(currentChar)) {
+                currentChar = '_';
+            }
             if (Character.isUpperCase(currentChar)) {
                 if (!isPreviousUpperOrUnderscore && !isFirst) {
                     result.append("_");
