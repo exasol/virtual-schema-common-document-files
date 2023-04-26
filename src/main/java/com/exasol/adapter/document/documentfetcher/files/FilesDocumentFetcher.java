@@ -27,7 +27,7 @@ public class FilesDocumentFetcher implements DocumentFetcher {
 
     /**
      * Create a new instance of {@link FilesDocumentFetcher}.
-     * 
+     *
      * @param filePattern                     files to load
      * @param segmentDescription              segmentation for parallel execution
      * @param fileFinderFactory               dependency in injection of {@link FileFinderFactory}
@@ -47,20 +47,20 @@ public class FilesDocumentFetcher implements DocumentFetcher {
 
     /**
      * Get the file pattern.
-     * 
+     *
      * @return file pattern
      */
     public StringFilter getFilePattern() {
-        return filePattern;
+        return this.filePattern;
     }
 
     /**
      * Get the segment description.
-     * 
+     *
      * @return segment description
      */
     public SegmentDescription getSegmentDescription() {
-        return segmentDescription;
+        return this.segmentDescription;
     }
 
     @Override

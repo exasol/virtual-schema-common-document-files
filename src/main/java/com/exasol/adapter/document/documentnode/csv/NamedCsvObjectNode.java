@@ -49,7 +49,7 @@ class NamedCsvObjectNode implements DocumentObject {
             final String quotedKeys = keys.stream().map(key -> "'" + key + "'").collect(joining(", "));
             throw new IllegalStateException(ExaError.messageBuilder("E-VSDF-69")
                     .message("CSV file {{file path}} contains headers with duplicate names: [{{header names|u}}].",
-                            resourceName, quotedKeys)
+                            this.resourceName, quotedKeys)
                     .mitigation("Ensure that the headers are unique.").toString());
         }
     }
@@ -72,7 +72,7 @@ class NamedCsvObjectNode implements DocumentObject {
         final String value = this.fields.get(key);
         if (value == null) {
             throw new NoSuchElementException(
-                    "No element with name '" + key + "' found. Valid names are: " + fields.keySet());
+                    "No element with name '" + key + "' found. Valid names are: " + this.fields.keySet());
         }
         return convert(key, value);
     }

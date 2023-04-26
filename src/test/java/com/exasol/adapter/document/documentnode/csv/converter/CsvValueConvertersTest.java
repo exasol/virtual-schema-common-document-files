@@ -1,6 +1,6 @@
 package com.exasol.adapter.document.documentnode.csv.converter;
 
-import static com.exasol.adapter.document.documentnode.util.DocumentNodeMatchers.*;
+import static com.exasol.adapter.document.testutil.DocumentNodeMatchers.*;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;

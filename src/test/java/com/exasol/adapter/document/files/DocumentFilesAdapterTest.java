@@ -61,7 +61,7 @@ class DocumentFilesAdapterTest {
     void testGetSchemaFetcherUnsupported() {
         when(this.fileFinderFactoryMock.getFinder(any(), any())).thenReturn(this.fileFinderMock);
         final DocumentFilesAdapter adapter = testee();
-        final Optional<MappingDefinition> result = adapter.getSchemaFetcher(null).fetchSchema("source.csv");
+        final Optional<MappingDefinition> result = adapter.getSchemaFetcher(null).fetchSchema("source.json");
         assertThat(result.isEmpty(), is(true));
     }
 

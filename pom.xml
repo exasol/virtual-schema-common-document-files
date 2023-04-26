@@ -112,6 +112,11 @@
             <artifactId>fastcsv</artifactId>
             <version>2.2.1</version>
         </dependency>
+        <dependency>
+            <groupId>io.deephaven</groupId>
+            <artifactId>deephaven-csv</artifactId>
+            <version>0.10.0</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
