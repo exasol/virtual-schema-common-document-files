@@ -68,6 +68,8 @@ public class CsvSchemaFetcher implements SingleFileSchemaFetcher {
 
         MappingDefinition build() {
             int columnIndex = 0;
+            LOG.finest(() -> "Building definition for CSV " + (hasHeaderRow ? "with" : "without") + " header, "
+                    + csvResult.numCols() + " columns and " + csvResult.numRows() + " rows");
             for (final CsvReader.ResultColumn column : this.csvResult) {
                 addColumn(column, columnIndex++);
             }
