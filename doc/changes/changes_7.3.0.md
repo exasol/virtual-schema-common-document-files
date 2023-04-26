@@ -4,7 +4,7 @@ Code name: CSV Data Types
 
 ## Summary
 
-This release adds auto inference and support for other data types than VARCHAR in CSV files (BOOLEAN, DECIMAL, DOUBLE PRECISION and TIMESTAMP), see the [EDML user guide](https://github.com/exasol/virtual-schema-common-document/blob/main/doc/user_guide/edml_user_guide.md#automatic-mapping-inference) for details.
+This release adds auto inference of column data types and support for data types other than `VARCHAR` in CSV files, e.g. `BOOLEAN`, `DECIMAL`, `DOUBLE PRECISION`, and `TIMESTAMP`), see the [EDML user guide](https://github.com/exasol/virtual-schema-common-document/blob/main/doc/user_guide/edml_user_guide.md#automatic-mapping-inference) for details.
 
 ## Features
 
