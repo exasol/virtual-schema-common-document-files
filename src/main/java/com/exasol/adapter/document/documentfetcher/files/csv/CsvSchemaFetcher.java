@@ -19,8 +19,6 @@ import io.deephaven.csv.containers.ByteSlice;
 import io.deephaven.csv.parsers.DataType;
 import io.deephaven.csv.parsers.Parsers;
 import io.deephaven.csv.reading.CsvReader;
-import io.deephaven.csv.reading.CsvReader.Result;
-import io.deephaven.csv.reading.CsvReader.ResultColumn;
 import io.deephaven.csv.tokenization.Tokenizer.CustomTimeZoneParser;
 import io.deephaven.csv.util.*;
 
@@ -36,11 +34,11 @@ public class CsvSchemaFetcher implements SingleFileSchemaFetcher {
         // Hard coded to false for now, will be detected automatically in
         // https://github.com/exasol/virtual-schema-common-document-files/issues/131
         final boolean hasHeaderRow = false;
-        final Result result = parseCsv(remoteFile, hasHeaderRow);
+        final CsvReader.Result result = parseCsv(remoteFile, hasHeaderRow);
         return new DefinitionBuilder(result, hasHeaderRow).build();
     }
 
-    private Result parseCsv(final RemoteFile remoteFile, final boolean hasHeaderRow) {
+    private CsvReader.Result parseCsv(final RemoteFile remoteFile, final boolean hasHeaderRow) {
         try (InputStream inputStream = remoteFile.getContent().getInputStream()) {
             return CsvReader.read(csvParserConfiguration(hasHeaderRow), inputStream, new NullSinkFactory());
         } catch (final IOException | CsvReaderException exception) {
@@ -62,10 +60,10 @@ public class CsvSchemaFetcher implements SingleFileSchemaFetcher {
 
     private static class DefinitionBuilder {
         private final Fields.FieldsBuilder fields = Fields.builder();
-        private final Result csvResult;
+        private final CsvReader.Result csvResult;
         private final boolean hasHeaderRow;
 
-        DefinitionBuilder(final Result csvResult, final boolean hasHeaderRow) {
+        DefinitionBuilder(final CsvReader.Result csvResult, final boolean hasHeaderRow) {
             this.csvResult = csvResult;
             this.hasHeaderRow = hasHeaderRow;
         }
@@ -74,14 +72,14 @@ public class CsvSchemaFetcher implements SingleFileSchemaFetcher {
             int columnIndex = 0;
             LOG.finest(() -> "Building definition for CSV " + (hasHeaderRow ? "with" : "without") + " header, "
                     + csvResult.numCols() + " columns and " + csvResult.numRows() + " rows");
-            for (final ResultColumn column : this.csvResult) {
+            for (final CsvReader.ResultColumn column : this.csvResult) {
                 addField(column, columnIndex);
                 columnIndex++;
             }
             return this.fields.build();
         }
 
-        private void addField(final ResultColumn column, final int columnIndex) {
+        private void addField(final CsvReader.ResultColumn column, final int columnIndex) {
             final MappingDefinition mapping = getMapping(column.dataType(), getColumnName(column.name(), columnIndex));
             LOG.finest(() -> "Mapping CSV column #" + columnIndex + " '" + column.name() + "' of type "
                     + column.dataType() + " to " + mapping);
