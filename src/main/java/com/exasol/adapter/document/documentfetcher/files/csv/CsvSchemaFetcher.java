@@ -1,5 +1,7 @@
 package com.exasol.adapter.document.documentfetcher.files.csv;
 
+import static com.exasol.adapter.document.documentfetcher.files.ColumnSizeCalculator.*;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.ZoneId;
@@ -100,7 +102,7 @@ public class CsvSchemaFetcher implements SingleFileSchemaFetcher {
         private AbstractToColumnMappingBuilder<?, ?> createBuilder(final DataType dataType) {
             switch (dataType) {
             case STRING:
-                return ToVarcharMapping.builder();
+                return ToVarcharMapping.builder().varcharColumnSize(MAX_VARCHAR_COLUMN_SIZE);
             case CHAR:
                 return ToVarcharMapping.builder().varcharColumnSize(1);
             case BOOLEAN_AS_BYTE:
@@ -108,14 +110,16 @@ public class CsvSchemaFetcher implements SingleFileSchemaFetcher {
             case BYTE:
             case SHORT:
             case INT:
-                return ToDecimalMapping.builder().decimalPrecision(10).decimalScale(0);
+                return ToDecimalMapping.builder().decimalPrecision(INT_32_DIGITS).decimalScale(0);
             case LONG:
-                return ToDecimalMapping.builder().decimalPrecision(19).decimalScale(0);
+                return ToDecimalMapping.builder().decimalPrecision(INT_64_DIGITS).decimalScale(0);
             case FLOAT:
             case DOUBLE:
-                return ToDecimalMapping.builder().decimalPrecision(36).decimalScale(10);
+                return ToDoubleMapping.builder();
             case DATETIME_AS_LONG:
-                return ToTimestampMapping.builder();
+            case TIMESTAMP_AS_LONG:
+                // Not supported
+                return ToVarcharMapping.builder();
             default:
                 throw new IllegalStateException(ExaError.messageBuilder("E-VSDF-71")
                         .message("Unknown data type {{data type}}.", dataType).ticketMitigation().toString());

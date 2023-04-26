@@ -33,6 +33,11 @@ public class MappingMatchers {
     }
 
     @SafeVarargs
+    public static Matcher<MappingDefinition> doubleMapping(final Matcher<ToDoubleMapping>... subMatchers) {
+        return castingMatcher(ToDoubleMapping.class, allOf(subMatchers));
+    }
+
+    @SafeVarargs
     public static Matcher<MappingDefinition> decimalMapping(final Matcher<ToDecimalMapping>... subMatchers) {
         return castingMatcher(ToDecimalMapping.class, allOf(subMatchers));
     }

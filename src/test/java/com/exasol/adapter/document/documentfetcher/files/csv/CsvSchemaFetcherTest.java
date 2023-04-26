@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.List;
 
 import org.hamcrest.Matcher;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -33,7 +32,7 @@ class CsvSchemaFetcherTest {
 
     @Test
     void testVarcharColumn() {
-        assertColumnTypeDetected(List.of("val0", "val1", "val2"), varcharMapping(varcharColumnsSize(254)));
+        assertColumnTypeDetected(List.of("val0", "val1", "val2"), varcharMapping(varcharColumnsSize(2_000_000)));
     }
 
     @Test
@@ -63,39 +62,26 @@ class CsvSchemaFetcherTest {
             "-9223372036854775808" // min long
     })
     void testLongColumn(final String value) {
-        assertColumnTypeDetected(List.of(value), decimalMapping(precision(19), scale(0)));
+        assertColumnTypeDetected(List.of(value), decimalMapping(precision(20), scale(0)));
     }
 
     @ParameterizedTest
     @CsvSource({ "1.2", "0.1", "0.0", "1.2e7", "1.2e-7", ".3", ".4e7", ".6e-9", ".6e+9", })
     void testDoubleColumn(final String value) {
-        assertColumnTypeDetected(List.of(value), decimalMapping(precision(36), scale(10)));
-    }
-
-    @Disabled("Date is currently not supported")
-    @ParameterizedTest
-    @CsvSource({ "2023-04-25", "20230425" })
-    void testDateColumn(final String value) {
-        assertColumnTypeDetected(List.of(value), dateMapping());
+        assertColumnTypeDetected(List.of(value), doubleMapping());
     }
 
     @ParameterizedTest
     @CsvSource({ "2023-04-25", "23-04-25", "25.4.2023", })
-    void testUnsupportedDateColumnConvertedToVarchar(final String value) {
+    void testDateColumnConvertedToVarchar(final String value) {
         assertColumnTypeDetected(List.of(value), varcharMapping());
     }
 
     @ParameterizedTest
     @CsvSource({ "2023-04-25 10:25:42", "2023-04-25 10:25:42.1234", "2023-04-25T10:25:42Z", "2023-04-25T10:25:42.1234Z",
-            "2023-04-25 10:25:42Z", "2023-04-25 10:25:42.1234Z", })
-    void testTimestampColumn(final String value) {
-        assertColumnTypeDetected(List.of(value), timestampMapping());
-    }
-
-    @ParameterizedTest
-    @CsvSource({ "25.04.2023 10:25:42", "2023-04-25T10:25:42+001", "2023-04-25T10:25:42 Europe/Berlin",
-            "2007-12-03T10:15:30+01:00[Europe/Paris]", })
-    void testUnsupportedTimestampColumnConvertedToVarchar(final String value) {
+            "2023-04-25 10:25:42Z", "2023-04-25 10:25:42.1234Z", "25.04.2023 10:25:42", "2023-04-25T10:25:42+001",
+            "2023-04-25T10:25:42 Europe/Berlin", "2007-12-03T10:15:30+01:00[Europe/Paris]", })
+    void testTimestampColumnConvertedToVarchar(final String value) {
         assertColumnTypeDetected(List.of(value), varcharMapping());
     }
 
@@ -105,11 +91,10 @@ class CsvSchemaFetcherTest {
         assertThat(fields.getFieldsMap(), allOf( //
                 aMapWithSize(3), //
                 hasEntry(equalTo("0"),
-                        allOf(columnMapping(destinationName("COLUMN_0")), varcharMapping(varcharColumnsSize(254)))),
+                        allOf(columnMapping(destinationName("COLUMN_0")), varcharMapping(varcharColumnsSize(2000000)))),
                 hasEntry(equalTo("1"),
                         allOf(columnMapping(destinationName("COLUMN_1")), decimalMapping(precision(10), scale(0)))),
-                hasEntry(equalTo("2"),
-                        allOf(columnMapping(destinationName("COLUMN_2")), decimalMapping(precision(36), scale(10))))));
+                hasEntry(equalTo("2"), allOf(columnMapping(destinationName("COLUMN_2")), doubleMapping()))));
     }
 
     private void assertColumnTypeDetected(final List<String> csvLines, final Matcher<MappingDefinition> matcher) {

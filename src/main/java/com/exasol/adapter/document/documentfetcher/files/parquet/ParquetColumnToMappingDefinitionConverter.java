@@ -1,6 +1,6 @@
 package com.exasol.adapter.document.documentfetcher.files.parquet;
 
-import static com.exasol.adapter.document.documentfetcher.files.parquet.ColumnSizeCalculator.*;
+import static com.exasol.adapter.document.documentfetcher.files.ColumnSizeCalculator.*;
 
 import org.apache.parquet.schema.*;
 

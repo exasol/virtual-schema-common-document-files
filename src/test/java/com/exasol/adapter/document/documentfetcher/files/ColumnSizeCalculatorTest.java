@@ -1,4 +1,4 @@
-package com.exasol.adapter.document.documentfetcher.files.parquet;
+package com.exasol.adapter.document.documentfetcher.files;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
