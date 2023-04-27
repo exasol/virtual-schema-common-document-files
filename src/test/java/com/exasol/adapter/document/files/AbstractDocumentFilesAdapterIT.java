@@ -23,7 +23,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.Supplier;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.parquet.schema.LogicalTypeAnnotation;
@@ -93,10 +92,10 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     private void createVirtualSchemaWithMapping(final String schemaName, final EdmlDefinitionBuilder edmlDefinition) {
         final String edmlString = new EdmlSerializer().serialize(edmlDefinition.build());
-        LOGGER.fine(() -> "Creating virtual schema '" + schemaName + "' using EDML '" + edmlString + "'");
         final Instant start = Instant.now();
         createVirtualSchema(schemaName, edmlString);
-        LOGGER.fine(() -> "Virtual schema '" + schemaName + "' created in " + Duration.between(start, Instant.now()));
+        LOGGER.fine(() -> "Virtual schema '" + schemaName + "' created in "
+                + Duration.between(start, Instant.now()).toSeconds() + "s using EDML '" + edmlString + "'");
     }
 
     private String getMappingTemplate(final String resourceName) throws IOException {
@@ -116,7 +115,8 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     @BeforeEach
     void beforeEach(final TestInfo testInfo) {
-        LOGGER.log(Level.INFO, "Start... {0}", testInfo.getDisplayName());
+        LOGGER.info(() -> "Starting test " + testInfo.getTestClass().map(Class::getSimpleName).orElse("(no class)")
+                + "." + testInfo.getDisplayName() + "...");
         this.dataFilesDirectory = String.valueOf(System.currentTimeMillis());
     }
 
@@ -182,9 +182,9 @@ public abstract class AbstractDocumentFilesAdapterIT {
         uploadFileContent("testData-1.csv", List.of("col, col", "val1,val2"));
         assertQueryFails("SELECT * FROM " + TEST_SCHEMA + ".BOOKS", allOf( //
                 matchesPattern(
-                        "(?s).*E-VSDF-25: Failed to parse CSV-Lines from '/bfsdefault/default/.*/testData-1.csv'\\. Invalid CSV row in line 1\\..*"),
+                        "(?s).*E-VSDF-25: Failed to parse CSV-Lines from '.*testData-1.csv'\\. Invalid CSV row in line 1\\..*"),
                 matchesPattern(
-                        "(?s).*E-VSDF-69: CSV file '/bfsdefault/default/.*/testData-1.csv' contains headers with duplicate names: \\['col', ' col'\\].*")));
+                        "(?s).*E-VSDF-69: CSV file '.*testData-1.csv' contains headers with duplicate names: \\['col', ' col'\\].*")));
     }
 
     @Test
@@ -256,7 +256,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
         createVirtualSchemaWithMapping(TEST_SCHEMA, csvEdml(mapping, "testData-*.csv", true));
         uploadFileContent("testData-1.csv", List.of("bool", "not-a-boolean"));
         assertQueryFails("SELECT * FROM " + TEST_SCHEMA + ".BOOKS", matchesPattern(
-                "(?s).*E-VSDF-67: Error converting value 'not-a-boolean' using converter .* \\(file '/bfsdefault/default/.*/testData-1.csv', row 2, column 'bool'\\).*"));
+                "(?s).*E-VSDF-67: Error converting value 'not-a-boolean' using converter .* \\(file '.*testData-1.csv', row 2, column 'bool'\\).*"));
     }
 
     @Test
@@ -315,7 +315,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
         uploadFileContent("testData-1.csv", List.of("not-a-boolean"));
         final String query = "SELECT * FROM " + TEST_SCHEMA + ".BOOKS";
         assertQueryFails(query, matchesPattern(
-                "(?s).*E-VSDF-66: Error converting value 'not-a-boolean' using converter .* \\(file '/bfsdefault/default/.*/testData-1.csv', row 1, column 0\\).*"));
+                "(?s).*E-VSDF-66: Error converting value 'not-a-boolean' using converter .* \\(file '.*testData-1.csv', row 1, column 0\\).*"));
     }
 
     @Test
@@ -666,11 +666,9 @@ public abstract class AbstractDocumentFilesAdapterIT {
         final Fields mapping = fieldsBuilder.build();
         createVirtualSchemaWithMapping(TEST_SCHEMA, mapping, "testData-*.parquet");
         for (int fileCounter = 0; fileCounter < fileCount; fileCounter++) {
-            LOGGER.info("started creating parquet file");
+            LOGGER.info("Uploading parquet file #" + (fileCounter + 1) + " of " + fileCount);
             final Path parquetFile = createParquetFile(itemSize, rowCount, columnCount, random);
-            LOGGER.info("done creating; uploading...");
             uploadAsParquetFile(parquetFile, fileCounter);
-            LOGGER.info("done uploading");
         }
     }
 
@@ -851,7 +849,6 @@ public abstract class AbstractDocumentFilesAdapterIT {
     protected abstract void uploadDataFile(final Path file, String resourceName);
 
     private void assertQuery(final String query, final Matcher<ResultSet> matcher) throws SQLException {
-        LOGGER.finest(() -> "Executing query '" + query + "'...");
         final Instant start = Instant.now();
         try (final ResultSet result = getStatement().executeQuery(query)) {
             assertThat(result, matcher);
