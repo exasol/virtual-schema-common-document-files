@@ -5,8 +5,8 @@ import java.util.Optional;
 import com.exasol.adapter.document.connection.ConnectionPropertiesReader;
 import com.exasol.adapter.document.documentfetcher.files.FileFinderFactory;
 import com.exasol.adapter.document.documentfetcher.files.RemoteFileFinder;
-import com.exasol.adapter.document.edml.MappingDefinition;
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
+import com.exasol.adapter.document.mapping.auto.InferredMappingDefinition;
 import com.exasol.adapter.document.mapping.auto.SchemaFetcher;
 
 class FilesSchemaFetcher implements SchemaFetcher {
@@ -24,7 +24,7 @@ class FilesSchemaFetcher implements SchemaFetcher {
     }
 
     @Override
-    public Optional<MappingDefinition> fetchSchema(final String source) {
+    public Optional<InferredMappingDefinition> fetchSchema(final String source) {
         final SourceString sourceString = new SourceString(source);
         final FileTypeSpecificSchemaFetcher mappingFetcher = this.documentFetcherFactory
                 .buildFileTypeSpecificSchemaFetcher("." + sourceString.getFileType());

@@ -17,9 +17,11 @@ This release adds auto inference of column data types and support for data types
 ### Compile Dependency Updates
 
 * Updated `com.exasol:parquet-io-java:2.0.2` to `2.0.3`
+* Updated `com.exasol:virtual-schema-common-document:9.3.0` to `9.4.0`
 * Added `io.deephaven:deephaven-csv:0.10.0`
 
 ### Test Dependency Updates
 
 * Updated `com.exasol:hamcrest-resultset-matcher:1.5.3` to `1.6.0`
+* Updated `com.exasol:virtual-schema-common-document:9.3.0` to `9.4.0`
 * Updated `org.mockito:mockito-junit-jupiter:5.3.0` to `5.3.1`

@@ -10,6 +10,7 @@ import org.apache.parquet.schema.MessageType;
 import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
 import com.exasol.adapter.document.edml.MappingDefinition;
 import com.exasol.adapter.document.files.FileTypeSpecificSchemaFetcher.SingleFileSchemaFetcher;
+import com.exasol.adapter.document.mapping.auto.InferredMappingDefinition;
 import com.exasol.errorreporting.ExaError;
 
 /**
@@ -18,9 +19,10 @@ import com.exasol.errorreporting.ExaError;
 public class ParquetSchemaFetcher implements SingleFileSchemaFetcher {
 
     @Override
-    public MappingDefinition fetchSchema(final RemoteFile remoteFile) {
+    public InferredMappingDefinition fetchSchema(final RemoteFile remoteFile) {
         final MessageType schema = getType(remoteFile);
-        return new ParquetColumnToMappingDefinitionConverter().convert(schema);
+        final MappingDefinition mapping = new ParquetColumnToMappingDefinitionConverter().convert(schema);
+        return InferredMappingDefinition.builder(mapping).build();
     }
 
     private MessageType getType(final RemoteFile remoteFile) {

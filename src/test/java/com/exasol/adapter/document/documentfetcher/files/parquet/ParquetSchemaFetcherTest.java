@@ -57,6 +57,6 @@ class ParquetSchemaFetcherTest {
 
     MappingDefinition fetch(final Path file) {
         return new ParquetSchemaFetcher()
-                .fetchSchema(new RemoteFile(file.toString(), 0, new LocalRemoteFileContent(file)));
+                .fetchSchema(new RemoteFile(file.toString(), 0, new LocalRemoteFileContent(file))).getMapping();
     }
 }

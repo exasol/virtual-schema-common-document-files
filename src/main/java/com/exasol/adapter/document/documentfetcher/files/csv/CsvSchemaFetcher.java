@@ -10,6 +10,7 @@ import com.exasol.adapter.document.documentfetcher.files.ToUpperSnakeCaseConvert
 import com.exasol.adapter.document.edml.Fields;
 import com.exasol.adapter.document.edml.MappingDefinition;
 import com.exasol.adapter.document.files.FileTypeSpecificSchemaFetcher.SingleFileSchemaFetcher;
+import com.exasol.adapter.document.mapping.auto.InferredMappingDefinition;
 import com.exasol.errorreporting.ExaError;
 
 import io.deephaven.csv.CsvSpecs;
@@ -27,7 +28,7 @@ public class CsvSchemaFetcher implements SingleFileSchemaFetcher {
     private static final long MAX_ROW_COUNT = 10_000;
 
     @Override
-    public MappingDefinition fetchSchema(final RemoteFile remoteFile) {
+    public InferredMappingDefinition fetchSchema(final RemoteFile remoteFile) {
         // Hard coded to false for now, will be detected automatically in
         // https://github.com/exasol/virtual-schema-common-document-files/issues/131
         final boolean hasHeaderRow = false;
@@ -66,14 +67,14 @@ public class CsvSchemaFetcher implements SingleFileSchemaFetcher {
             this.hasHeaderRow = hasHeaderRow;
         }
 
-        MappingDefinition build() {
+        InferredMappingDefinition build() {
             int columnIndex = 0;
             LOG.finest(() -> "Building definition for CSV " + (hasHeaderRow ? "with" : "without") + " header, "
                     + csvResult.numCols() + " columns and " + csvResult.numRows() + " rows");
             for (final CsvReader.ResultColumn column : this.csvResult) {
                 addColumn(column, columnIndex++);
             }
-            return this.fields.build();
+            return InferredMappingDefinition.builder(this.fields.build()).build();
         }
 
         private void addColumn(final CsvReader.ResultColumn column, final int columnIndex) {

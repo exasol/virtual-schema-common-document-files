@@ -18,6 +18,7 @@ import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
 import com.exasol.adapter.document.documentfetcher.files.StringRemoteFileContent;
 import com.exasol.adapter.document.edml.Fields;
 import com.exasol.adapter.document.edml.MappingDefinition;
+import com.exasol.adapter.document.mapping.auto.InferredMappingDefinition;
 
 class CsvSchemaFetcherTest {
 
@@ -109,10 +110,10 @@ class CsvSchemaFetcherTest {
     }
 
     Fields fetchSchema(final List<String> csvLines) {
-        return (Fields) fetchSchema(csvLines.stream().collect(joining("\n")));
+        return (Fields) fetchSchema(csvLines.stream().collect(joining("\n"))).getMapping();
     }
 
-    MappingDefinition fetchSchema(final String csvContent) {
+    InferredMappingDefinition fetchSchema(final String csvContent) {
         return new CsvSchemaFetcher()
                 .fetchSchema(new RemoteFile("resourceName", 0, new StringRemoteFileContent(csvContent)));
     }

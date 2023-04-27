@@ -21,8 +21,8 @@ import com.exasol.adapter.capabilities.*;
 import com.exasol.adapter.document.QueryPlanner;
 import com.exasol.adapter.document.documentfetcher.files.FileFinderFactory;
 import com.exasol.adapter.document.documentfetcher.files.RemoteFileFinder;
-import com.exasol.adapter.document.edml.MappingDefinition;
 import com.exasol.adapter.document.mapping.TableKeyFetcher;
+import com.exasol.adapter.document.mapping.auto.InferredMappingDefinition;
 
 @ExtendWith(MockitoExtension.class)
 class DocumentFilesAdapterTest {
@@ -61,7 +61,7 @@ class DocumentFilesAdapterTest {
     void testGetSchemaFetcherUnsupported() {
         when(this.fileFinderFactoryMock.getFinder(any(), any())).thenReturn(this.fileFinderMock);
         final DocumentFilesAdapter adapter = testee();
-        final Optional<MappingDefinition> result = adapter.getSchemaFetcher(null).fetchSchema("source.json");
+        final Optional<InferredMappingDefinition> result = adapter.getSchemaFetcher(null).fetchSchema("source.json");
         assertThat(result.isEmpty(), is(true));
     }
 
