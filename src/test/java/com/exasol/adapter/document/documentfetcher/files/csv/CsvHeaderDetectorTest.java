@@ -81,7 +81,7 @@ class CsvHeaderDetectorTest {
     private void assertHeader(final boolean expectHeader, final List<String> csvLines) {
         final String csvContent = csvLines.stream().collect(joining("\n"));
         final CsvHeaderDetector detector = new CsvHeaderDetector(
-                new RemoteFile("resourceName", csvContent.length(), new StringRemoteFileContent(csvContent)), 100);
+                new RemoteFile("resourceName", csvContent.length(), new StringRemoteFileContent(csvContent)));
         assertThat("has header", detector.hasHeaderRow(), equalTo(expectHeader));
     }
 }
