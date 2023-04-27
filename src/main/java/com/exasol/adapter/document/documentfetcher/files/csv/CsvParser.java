@@ -13,6 +13,10 @@ import io.deephaven.csv.util.CsvReaderException;
 
 class CsvParser {
 
+    private CsvParser() {
+        // Not instantiable
+    }
+
     static CsvReader.Result parse(final RemoteFile remoteFile, final boolean hasHeaderRow, final long lookAhead) {
         final CsvSpecs parserConfiguration = configuration(hasHeaderRow, lookAhead);
         return parse(remoteFile, parserConfiguration);
