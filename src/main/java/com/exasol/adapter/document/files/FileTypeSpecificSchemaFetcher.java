@@ -6,6 +6,7 @@ import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
 import com.exasol.adapter.document.documentfetcher.files.RemoteFileFinder;
 import com.exasol.adapter.document.edml.MappingDefinition;
 import com.exasol.adapter.document.iterators.CloseableIterator;
+import com.exasol.adapter.document.mapping.auto.InferredMappingDefinition;
 import com.exasol.errorreporting.ExaError;
 
 /**
@@ -21,7 +22,7 @@ public interface FileTypeSpecificSchemaFetcher {
      * @return an empty {@link Optional} if this file type does not support schema detection or the
      *         {@link MappingDefinition}.
      */
-    Optional<MappingDefinition> fetchSchema(RemoteFileFinder fileFinder);
+    Optional<InferredMappingDefinition> fetchSchema(RemoteFileFinder fileFinder);
 
     /**
      * Create a new {@link FileTypeSpecificSchemaFetcher} that always returns an empty {@link Optional}.
@@ -46,7 +47,7 @@ public interface FileTypeSpecificSchemaFetcher {
          * @param remoteFile the file for which to fetch the mapping
          * @return the fetched mapping
          */
-        MappingDefinition fetchSchema(RemoteFile remoteFile);
+        InferredMappingDefinition fetchSchema(RemoteFile remoteFile);
     }
 
     /**

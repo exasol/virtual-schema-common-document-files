@@ -19,9 +19,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
 import com.exasol.adapter.document.documentfetcher.files.RemoteFileFinder;
 import com.exasol.adapter.document.edml.Fields;
-import com.exasol.adapter.document.edml.MappingDefinition;
 import com.exasol.adapter.document.files.FileTypeSpecificSchemaFetcher.SingleFileSchemaFetcher;
 import com.exasol.adapter.document.iterators.CloseableIteratorWrapper;
+import com.exasol.adapter.document.mapping.auto.InferredMappingDefinition;
 
 @ExtendWith(MockitoExtension.class)
 class FileTypeSpecificSchemaFetcherTest {
@@ -51,7 +51,7 @@ class FileTypeSpecificSchemaFetcherTest {
     @Test
     void singleFileFetcherForSingleFile() {
         simulateFiles(this.file1Mock);
-        final MappingDefinition mapping = Fields.builder().build();
+        final InferredMappingDefinition mapping = InferredMappingDefinition.builder(Fields.builder().build()).build();
         when(this.delegateMock.fetchSchema(same(this.file1Mock))).thenReturn(mapping);
         assertThat(fetchSingleFileSchema().get(), sameInstance(mapping));
     }
@@ -59,7 +59,7 @@ class FileTypeSpecificSchemaFetcherTest {
     @Test
     void singleFileFetcherForMultipleFiles() {
         simulateFiles(this.file1Mock, this.file2Mock);
-        final MappingDefinition mapping = Fields.builder().build();
+        final InferredMappingDefinition mapping = InferredMappingDefinition.builder(Fields.builder().build()).build();
         when(this.delegateMock.fetchSchema(same(this.file1Mock))).thenReturn(mapping);
         assertThat(fetchSingleFileSchema().get(), sameInstance(mapping));
     }
@@ -68,7 +68,7 @@ class FileTypeSpecificSchemaFetcherTest {
         when(this.fileFinderMock.loadFiles()).thenReturn(new CloseableIteratorWrapper<>(asList(files).iterator()));
     }
 
-    private Optional<MappingDefinition> fetchSingleFileSchema() {
+    private Optional<InferredMappingDefinition> fetchSingleFileSchema() {
         return FileTypeSpecificSchemaFetcher.singleFile(this.delegateMock).fetchSchema(this.fileFinderMock);
     }
 }
