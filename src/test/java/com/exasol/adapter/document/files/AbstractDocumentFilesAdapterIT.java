@@ -764,11 +764,9 @@ public abstract class AbstractDocumentFilesAdapterIT {
         final String additionalConfiguration = "{\n" + "    \"csv-headers\": true\n" + "  }";
         createVirtualSchemaWithMapping(TEST_SCHEMA, mapping, "testData-*.csv", additionalConfiguration);
         for (int fileCounter = 0; fileCounter < fileCount; fileCounter++) {
-            LOGGER.info("started creating CSV file");
+            LOGGER.info("Creating CSV file #" + (fileCounter + 1) + " of " + fileCount + "...");
             final Path csvFile = createCsvFile(itemSize, rowCount, columnCount, random);
-            LOGGER.info("done creating; uploading...");
             uploadAsCsvFile(csvFile, fileCounter);
-            LOGGER.info("done uploading");
         }
     }
 
