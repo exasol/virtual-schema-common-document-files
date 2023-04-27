@@ -1,4 +1,4 @@
-# Virtual Schema for Document Data in Files 7.3.0, released 2023-??-??
+# Virtual Schema for Document Data in Files 7.3.0, released 2023-04-27
 
 Code name: CSV Data Types
 
