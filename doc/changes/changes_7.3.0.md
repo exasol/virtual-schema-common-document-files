@@ -11,6 +11,7 @@ This release adds auto inference of column data types and support for data types
 * #125: Added support for data types in CSV files
 * #128: Trimmed CSV header names
 * #130: Added schema inference for CSV files without headers
+* #131: Added schema inference for CSV files with headers
 
 ## Dependency Updates
 
