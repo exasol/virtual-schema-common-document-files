@@ -4,7 +4,7 @@ Code name: CSV Performance Regression Tests
 
 ## Summary
 
-This release adds performance regression rests for CSV files with data types.
+This release updates performance regression rests for CSV files to use all data types (string, boolean, integer, double, date and timestamp) instead of only string. Please note that this might influence comparability of test results.
 
 ## Features
 
