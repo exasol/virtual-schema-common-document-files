@@ -8,7 +8,7 @@ import java.util.List;
 
 import de.siegmar.fastcsv.writer.CsvWriter;
 
-public class CsvTestSetup {
+public class CsvTestSetup implements AutoCloseable {
     private final Path csvFile;
     private final CsvWriter csvWriter;
 
@@ -27,7 +27,8 @@ public class CsvTestSetup {
         return this;
     }
 
-    public void closeWriter() throws IOException {
+    @Override
+    public void close() throws IOException {
         this.csvWriter.close();
     }
 }
