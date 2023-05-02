@@ -57,7 +57,9 @@ This project publishes a `test-jar` with common integration tests. Extend class 
 
 The following changes to the performance regression tests might influence comparability of test results:
 
-* Starting with version 7.3.1 we updated the CSV tests to use all six available data types (string, boolean, integer, double, date and timestamp) instead of only string. The column count is unchanged.
+* Version 7.3.1
+  * CSV tests now use all six data types (string, boolean, integer, double, date and timestamp) instead of only string. The column count is unchanged.
+  * Test names in the test report changed. They now use suffix `()` instead of `(TestInfo)`.
 
 ## Additional Information
 
