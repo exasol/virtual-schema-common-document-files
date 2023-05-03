@@ -1,4 +1,4 @@
-package com.exasol.adapter.document.files;
+package com.exasol.adapter.document.testutil.csvgenerator;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;

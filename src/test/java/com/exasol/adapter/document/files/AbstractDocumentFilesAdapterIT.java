@@ -36,6 +36,7 @@ import com.exasol.adapter.document.documentfetcher.files.parquet.ParquetTestSetu
 import com.exasol.adapter.document.edml.*;
 import com.exasol.adapter.document.edml.EdmlDefinition.EdmlDefinitionBuilder;
 import com.exasol.adapter.document.edml.serializer.EdmlSerializer;
+import com.exasol.adapter.document.testutil.csvgenerator.CsvTestDataGenerator;
 import com.exasol.matcher.ResultSetStructureMatcher.Builder;
 import com.exasol.matcher.TypeMatchMode;
 import com.exasol.performancetestrecorder.PerformanceTestRecorder;
