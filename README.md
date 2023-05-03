@@ -38,12 +38,28 @@ If this list does not contain your file source you can [implement your own file 
 ## Document Types
 
 Each storage variant can contain documents using any of the following supported document types:
-* JSON
-* [JSON-Lines (one json document per line)](https://jsonlines.org/)
-* Parquet
-* CSV
+* [JSON](https://www.json.org/json-en.html)
+* [JSON-Lines](https://jsonlines.org/) (one json document per line)
+* [Parquet](https://parquet.apache.org/)
+* [CSV](https://en.wikipedia.org/wiki/Comma-separated_values)
 
 You can also [add support for other document types](doc/user_guide/document_type_plugin_development_guide.md).
+
+## Integration Tests
+
+VSDF builds and publishes a `test-jar` with common integration tests for document-oriented virtual schemas that can be used by any derived virtual schema. The derived virtual schema only needs to extend class `com.exasol.adapter.document.files.AbstractDocumentFilesAdapterIT` to inherit all common integration tests.
+
+### Performance Regression Tests
+
+`AbstractDocumentFilesAdapterIT` also contains performance regression tests tagged with `regression`.
+
+#### Changes in Performance Regression Tests
+
+The following changes to the performance regression tests might influence comparability of test results:
+
+* Version 7.3.1
+  * CSV tests now use all six data types (string, boolean, integer, double, date and timestamp) instead of only string. The column count is unchanged.
+  * Test names in the test report changed. They now use suffix `()` instead of `(TestInfo)`.
 
 ## Additional Information
 

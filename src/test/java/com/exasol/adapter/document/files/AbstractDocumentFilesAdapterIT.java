@@ -32,11 +32,12 @@ import org.hamcrest.Matcher;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 
-import com.exasol.adapter.document.documentfetcher.files.csv.CsvTestSetup;
 import com.exasol.adapter.document.documentfetcher.files.parquet.ParquetTestSetup;
 import com.exasol.adapter.document.edml.*;
 import com.exasol.adapter.document.edml.EdmlDefinition.EdmlDefinitionBuilder;
 import com.exasol.adapter.document.edml.serializer.EdmlSerializer;
+import com.exasol.adapter.document.testutil.csvgenerator.CsvTestDataGenerator;
+import com.exasol.matcher.ResultSetStructureMatcher.Builder;
 import com.exasol.matcher.TypeMatchMode;
 import com.exasol.performancetestrecorder.PerformanceTestRecorder;
 
@@ -48,6 +49,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     @TempDir
     Path tempDir;
     private String dataFilesDirectory;
+    private TestInfo testInfo;
 
     protected abstract Statement getStatement();
 
@@ -95,7 +97,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
         final Instant start = Instant.now();
         createVirtualSchema(schemaName, edmlString);
         LOGGER.fine(() -> "Virtual schema '" + schemaName + "' created in "
-                + Duration.between(start, Instant.now()).toSeconds() + "s using EDML '" + edmlString + "'");
+                + Duration.between(start, Instant.now()).toSeconds() + "s");
     }
 
     private String getMappingTemplate(final String resourceName) throws IOException {
@@ -115,9 +117,10 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     @BeforeEach
     void beforeEach(final TestInfo testInfo) {
+        this.testInfo = testInfo;
+        this.dataFilesDirectory = String.valueOf(System.currentTimeMillis());
         LOGGER.info(() -> "Starting test " + testInfo.getTestClass().map(Class::getSimpleName).orElse("(no class)")
                 + "." + testInfo.getDisplayName() + "...");
-        this.dataFilesDirectory = String.valueOf(System.currentTimeMillis());
     }
 
     @Test
@@ -131,10 +134,10 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     @Test
     @Tag("regression")
-    void testReadFewJsonFiles(final TestInfo testInfo) throws Exception {
+    void testReadFewJsonFiles() throws Exception {
         createJsonVirtualSchema();
         for (int runCounter = 0; runCounter < 5; runCounter++) {
-            PerformanceTestRecorder.getInstance().recordExecution(testInfo, () -> {
+            PerformanceTestRecorder.getInstance().recordExecution(this.testInfo, () -> {
                 final ResultSet result = getStatement()
                         .executeQuery("SELECT ID, SOURCE_REFERENCE FROM " + TEST_SCHEMA + ".BOOKS ORDER BY ID ASC;");
                 assertThat(result, table().row("book-1", this.dataFilesDirectory + "/testData-1.json")
@@ -332,10 +335,10 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     @Test
     @Tag("regression")
-    void testReadSmallJsonLines(final TestInfo testInfo) throws Exception {
+    void testReadSmallJsonLines() throws Exception {
         createJsonLinesVirtualSchema();
         for (int runCounter = 0; runCounter < 5; runCounter++) {
-            PerformanceTestRecorder.getInstance().recordExecution(testInfo, () -> {
+            PerformanceTestRecorder.getInstance().recordExecution(this.testInfo, () -> {
                 final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
                 assertThat(result, table().row("book-1").row("book-2").matches());
             });
@@ -621,33 +624,33 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     @Test
     @Tag("regression")
-    void testLoadManyParquetRowsFromOneFile(final TestInfo testInfo) throws Exception {
-        prepareAndRunParquetLoadingTest(1_000, 1_000_000, 1, 1, testInfo);
+    void testLoadManyParquetRowsFromOneFile() throws Exception {
+        prepareAndRunParquetLoadingTest(1_000, 1_000_000, 1, 1);
     }
 
     @Test
     @Tag("regression")
-    void testLoadManyParquetRows(final TestInfo testInfo) throws Exception {
-        prepareAndRunParquetLoadingTest(100, 1_000_000, 10, 1, testInfo);
+    void testLoadManyParquetRows() throws Exception {
+        prepareAndRunParquetLoadingTest(100, 1_000_000, 10, 1);
     }
 
     @Test
     @Tag("regression")
-    void testLoadLargeParquetRows(final TestInfo testInfo) throws Exception {
-        prepareAndRunParquetLoadingTest(1_000_000, 100, 10, 1, testInfo);
+    void testLoadLargeParquetRows() throws Exception {
+        prepareAndRunParquetLoadingTest(1_000_000, 100, 10, 1);
     }
 
     @Test
     @Tag("regression")
-    void testLoadManyParquetColumns(final TestInfo testInfo) throws Exception {
-        prepareAndRunParquetLoadingTest(1_000, 1_000, 10, 100, testInfo);
+    void testLoadManyParquetColumns() throws Exception {
+        prepareAndRunParquetLoadingTest(1_000, 1_000, 10, 100);
     }
 
     void prepareAndRunParquetLoadingTest(final int itemSize, final long rowCount, final int fileCount,
-            final int columnCount, final TestInfo testInfo) throws Exception {
+            final int columnCount) throws Exception {
         prepareParquetLoadingTest(itemSize, rowCount, fileCount, columnCount);
         for (int runCounter = 0; runCounter < 5; runCounter++) {
-            runSingleParquetLoadingTest(rowCount, fileCount, testInfo);
+            runSingleParquetLoadingTest(rowCount, fileCount);
         }
     }
 
@@ -672,10 +675,9 @@ public abstract class AbstractDocumentFilesAdapterIT {
         }
     }
 
-    private void runSingleParquetLoadingTest(final long rowCount, final int fileCount, final TestInfo testInfo)
-            throws Exception {
+    private void runSingleParquetLoadingTest(final long rowCount, final int fileCount) throws Exception {
         final String query = "SELECT COUNT(*) FROM " + TEST_SCHEMA + ".BOOKS";
-        PerformanceTestRecorder.getInstance().recordExecution(testInfo,
+        PerformanceTestRecorder.getInstance().recordExecution(this.testInfo,
                 () -> assertQuery(query, table().row(rowCount * fileCount).matches()));
     }
 
@@ -706,105 +708,90 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testLoadCsvRows(final TestInfo testInfo) throws Exception {
-        prepareAndRunCsvLoadingTestNoMeasure(100, 100, 10, 10, testInfo);
+    void testLoadRandomCsvFile() throws Exception {
+        final long rowCount = 100;
+        prepareCsvLoadingTest(CsvTestDataGenerator.builder().stringLength(100).rowCount(rowCount).fileCount(10)
+                .columnCount(6).tempDir(this.tempDir).build());
+        final String query = "SELECT COL_0_STR, COL_1_BOOL, COL_2_INT, COL_3_DOUBLE, COL_4_DATE, COL_5_TIMESTAMP FROM "
+                + TEST_SCHEMA + ".BOOKS";
+        final Builder tableMatcher = table("VARCHAR", "BOOLEAN", "BIGINT", "DOUBLE PRECISION", "DATE", "TIMESTAMP");
+        for (int i = 0; i < (rowCount * 10); i++) {
+            tableMatcher.row(notNullValue(), notNullValue(), notNullValue(), notNullValue(), notNullValue(),
+                    notNullValue());
+        }
+        assertQuery(query, tableMatcher.matches());
+    }
+
+    @Test
+    void testLoadCsvRows() throws Exception {
+        prepareAndRunCsvLoadingTestNoMeasure(
+                CsvTestDataGenerator.builder().stringLength(100).rowCount(100).fileCount(10).columnCount(10));
     }
 
     @Test
     @Tag("regression")
-    void testLoadManyCsvRowsFromOneFile(final TestInfo testInfo) throws Exception {
-        prepareAndRunCsvLoadingTest(1_000, 1_000_000, 1, 1, testInfo);
+    void testLoadManyCsvRowsFromOneFile() throws Exception {
+        prepareAndRunCsvLoadingTest(
+                CsvTestDataGenerator.builder().stringLength(1_000).rowCount(1_000_000).fileCount(1).columnCount(1));
     }
 
     @Test
     @Tag("regression")
-    void testLoadManyCsvRows(final TestInfo testInfo) throws Exception {
-        prepareAndRunCsvLoadingTest(100, 1_000_000, 10, 1, testInfo);
+    void testLoadManyCsvRows() throws Exception {
+        prepareAndRunCsvLoadingTest(
+                CsvTestDataGenerator.builder().stringLength(100).rowCount(1_000_000).fileCount(10).columnCount(1));
     }
 
     @Test
     @Tag("regression")
-    void testLoadLargeCsvRows(final TestInfo testInfo) throws Exception {
-        prepareAndRunCsvLoadingTest(1_000_000, 100, 10, 1, testInfo);
+    void testLoadLargeCsvRows() throws Exception {
+        prepareAndRunCsvLoadingTest(
+                CsvTestDataGenerator.builder().stringLength(1_000_000).rowCount(100).fileCount(10).columnCount(1));
     }
 
     @Test
     @Tag("regression")
-    void testLoadManyCsvColumns(final TestInfo testInfo) throws Exception {
-        prepareAndRunCsvLoadingTest(1_000, 1_000, 10, 100, testInfo);
+    void testLoadManyCsvColumns() throws Exception {
+        prepareAndRunCsvLoadingTest(
+                CsvTestDataGenerator.builder().stringLength(1_000).rowCount(1_000).fileCount(10).columnCount(100));
     }
 
-    void prepareAndRunCsvLoadingTest(final int itemSize, final long rowCount, final int fileCount,
-            final int columnCount, final TestInfo testInfo) throws Exception {
-        prepareAndRunCsvLoadingTest(itemSize, rowCount, fileCount, columnCount, testInfo, true);
+    void prepareAndRunCsvLoadingTest(final CsvTestDataGenerator.Builder generatorBuilder) throws Exception {
+        prepareAndRunCsvLoadingTest(generatorBuilder, true);
     }
 
-    void prepareAndRunCsvLoadingTestNoMeasure(final int itemSize, final long rowCount, final int fileCount,
-            final int columnCount, final TestInfo testInfo) throws Exception {
-        prepareAndRunCsvLoadingTest(itemSize, rowCount, fileCount, columnCount, testInfo, false);
+    void prepareAndRunCsvLoadingTestNoMeasure(final CsvTestDataGenerator.Builder generatorBuilder) throws Exception {
+        prepareAndRunCsvLoadingTest(generatorBuilder, false);
     }
 
-    void prepareAndRunCsvLoadingTest(final int itemSize, final long rowCount, final int fileCount,
-            final int columnCount, final TestInfo testInfo, final boolean measure) throws Exception {
-        prepareCsvLoadingTest(itemSize, rowCount, fileCount, columnCount);
+    void prepareAndRunCsvLoadingTest(final CsvTestDataGenerator.Builder generatorBuilder, final boolean measure)
+            throws Exception {
+        final CsvTestDataGenerator generator = generatorBuilder.tempDir(this.tempDir).build();
+        prepareCsvLoadingTest(generator);
         for (int runCounter = 0; runCounter < 5; runCounter++) {
-            runSingleCsvLoadingTest(rowCount, fileCount, testInfo, measure);
+            runSingleCsvLoadingTest(generator.getRowCount(), generator.getFileCount(), measure);
         }
     }
 
-    private void prepareCsvLoadingTest(final int itemSize, final long rowCount, final int fileCount,
-            final int columnCount) throws IOException {
-        final Random random = new Random(1);
-        final Fields.FieldsBuilder fieldsBuilder = Fields.builder();
-        for (int columnCounter = 0; columnCounter < columnCount; columnCounter++) {
-            fieldsBuilder.mapField("data" + columnCounter,
-                    ToVarcharMapping.builder().varcharColumnSize(2_000_000).build());
-        }
-        final Fields mapping = fieldsBuilder.build();
-        final String additionalConfiguration = "{\n" + "    \"csv-headers\": true\n" + "  }";
-        createVirtualSchemaWithMapping(TEST_SCHEMA, mapping, "testData-*.csv", additionalConfiguration);
-        for (int fileCounter = 0; fileCounter < fileCount; fileCounter++) {
-            LOGGER.info("Creating CSV file #" + (fileCounter + 1) + " of " + fileCount + "...");
-            final Path csvFile = createCsvFile(itemSize, rowCount, columnCount, random);
-            uploadAsCsvFile(csvFile, fileCounter);
+    private void prepareCsvLoadingTest(final CsvTestDataGenerator generator) throws IOException {
+        final String additionalConfiguration = "{\"csv-headers\": true}";
+        createVirtualSchemaWithMapping(TEST_SCHEMA, generator.getMapping(), "testData-*.csv", additionalConfiguration);
+
+        final List<Path> files = generator.writeFiles();
+        for (int i = 0; i < files.size(); i++) {
+            uploadAsCsvFile(files.get(i), i);
         }
     }
 
-    private void runSingleCsvLoadingTest(final long rowCount, final int fileCount, final TestInfo testInfo,
-            final boolean measure) throws Exception {
+    private void runSingleCsvLoadingTest(final long rowCount, final int fileCount, final boolean measure)
+            throws Exception {
         final String query = "SELECT COUNT(*) FROM " + TEST_SCHEMA + ".BOOKS";
         if (measure) {
-            PerformanceTestRecorder.getInstance().recordExecution(testInfo,
+            PerformanceTestRecorder.getInstance().recordExecution(this.testInfo,
                     () -> assertQuery(query, table().row(rowCount * fileCount).matches()));
         } else {
             assertQuery(query, table().row(rowCount * fileCount).matches());
         }
-    }
-
-    private Path createCsvFile(final int itemSize, final long rowCount, final int columnCount, final Random random)
-            throws IOException {
-        final List<String> columns = createCsvColumnDefinitions(columnCount);
-        final CsvTestSetup csvTestSetup = new CsvTestSetup(this.tempDir, columns);
-        for (long rowCounter = 0; rowCounter < rowCount; rowCounter++) {
-            final List<String> row = new ArrayList<>();
-            final byte[] data = new byte[itemSize];
-            for (int columnCounter = 0; columnCounter < columnCount; columnCounter++) {
-                random.nextBytes(data);
-                // final String columnName = "data" + columnCounter;
-                row.add(new String(data, StandardCharsets.US_ASCII));
-            }
-            csvTestSetup.writeRow(row);
-        }
-        csvTestSetup.closeWriter();
-        return csvTestSetup.getCsvFile();
-    }
-
-    private List<String> createCsvColumnDefinitions(final int columnCount) {
-        final List<String> columns = new ArrayList<>(columnCount);
-        for (int columnCounter = 0; columnCounter < columnCount; columnCounter++) {
-            columns.add("data" + columnCounter);
-        }
-        return columns;
     }
 
     @Test
@@ -818,16 +805,20 @@ public abstract class AbstractDocumentFilesAdapterIT {
         assertThat(result, table().row("book-1").row("book-2").matches());
     }
 
-    private void uploadAsParquetFile(final ParquetTestSetup parquetFile, final int fileCount) {
-        uploadAsParquetFile(parquetFile.getParquetFile(), fileCount);
+    private void uploadAsParquetFile(final ParquetTestSetup parquetFile, final int fileIndex) {
+        uploadAsParquetFile(parquetFile.getParquetFile(), fileIndex);
     }
 
-    private void uploadAsParquetFile(final Path parquetFile, final int fileCount) {
-        uploadDataFile(parquetFile, this.dataFilesDirectory + "/testData-" + fileCount + ".parquet");
+    private void uploadAsParquetFile(final Path parquetFile, final int fileIndex) {
+        final String resourceName = this.dataFilesDirectory + "/testData-" + fileIndex + ".parquet";
+        LOGGER.fine("Uploading parquet " + resourceName + "...");
+        uploadDataFile(parquetFile, resourceName);
     }
 
-    private void uploadAsCsvFile(final Path csvFile, final int fileCount) {
-        uploadDataFile(csvFile, this.dataFilesDirectory + "/testData-" + fileCount + ".csv");
+    private void uploadAsCsvFile(final Path csvFile, final int fileIndex) {
+        final String resourceName = this.dataFilesDirectory + "/testData-" + fileIndex + ".csv";
+        LOGGER.fine("Uploading CSV " + resourceName + "...");
+        uploadDataFile(csvFile, resourceName);
     }
 
     private void uploadFileContent(final String resourceName, final List<String> content) {
