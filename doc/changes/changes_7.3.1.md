@@ -1,4 +1,4 @@
-# Virtual Schema for Document Data in Files 7.3.1, released 2023-05-02
+# Virtual Schema for Document Data in Files 7.3.1, released 2023-05-03
 
 Code name: CSV Performance Regression Tests
 
