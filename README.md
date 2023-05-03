@@ -47,7 +47,7 @@ You can also [add support for other document types](doc/user_guide/document_type
 
 ## Integration Tests
 
-This project publishes a `test-jar` with common integration tests. Extend class `com.exasol.adapter.document.files.AbstractDocumentFilesAdapterIT` in your virtual schema to inherit all integration tests.
+VSDF builds and publishes a `test-jar` with common integration tests for document-oriented virtual schemas that can be used by any derived virtual schema. The derived virtual schema only needs to extend class `com.exasol.adapter.document.files.AbstractDocumentFilesAdapterIT` to inherit all common integration tests.
 
 ### Performance Regression Tests
 
