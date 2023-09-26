@@ -2,23 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>virtual-schema-common-document-files</artifactId>
-    <version>7.3.3</version>
+    <version>7.3.4</version>
     <name>Virtual Schema for document data in files</name>
     <description>Adapter for document data access from files.</description>
     <url>https://github.com/exasol/virtual-schema-common-document-files/</url>
     <properties>
-        <vs-common-document.version>9.4.0</vs-common-document.version>
+        <vs-common-document.version>9.4.1</vs-common-document.version>
     </properties>
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
     <dependencies>
         <dependency>
             <groupId>com.exasol</groupId>
@@ -45,19 +35,19 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
-            <version>5.9.3</version>
+            <version>5.10.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>nl.jqno.equalsverifier</groupId>
             <artifactId>equalsverifier</artifactId>
-            <version>3.14.3</version>
+            <version>3.15.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>5.4.0</version>
+            <version>5.5.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -90,7 +80,7 @@
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>udf-debugging-java</artifactId>
-            <version>0.6.8</version>
+            <version>0.6.11</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -115,7 +105,7 @@
         <dependency>
             <groupId>io.deephaven</groupId>
             <artifactId>deephaven-csv</artifactId>
-            <version>0.11.0</version>
+            <version>0.12.0</version>
         </dependency>
     </dependencies>
     <build>
@@ -133,7 +123,7 @@
             <plugin>
                 <groupId>com.exasol</groupId>
                 <artifactId>project-keeper-maven-plugin</artifactId>
-                <version>2.9.7</version>
+                <version>2.9.12</version>
                 <executions>
                     <execution>
                         <goals>
@@ -157,7 +147,8 @@
                                 <include>**/AbstractDocumentFilesAdapterIT*</include>
                                 <include>**/RandomAccessInputStreamTestBase.class</include>
                                 <include>**/AbstractInputStreamTest.class</include>
-                                <include>abstractIntegrationTests/**/*</include> <!-- Test resources -->
+                                <include>abstractIntegrationTests/**/*</include>
+                                <!-- Test resources -->
                                 <include>**/ParquetTestSetup*</include>
                                 <include>**/ParquetTestWriterBuilder*</include>
                                 <include>**/CsvTestSetup*</include>
@@ -172,7 +163,7 @@
     <parent>
         <artifactId>virtual-schema-common-document-files-generated-parent</artifactId>
         <groupId>com.exasol</groupId>
-        <version>7.3.3</version>
+        <version>7.3.4</version>
         <relativePath>pk_generated_parent.pom</relativePath>
     </parent>
 </project>
