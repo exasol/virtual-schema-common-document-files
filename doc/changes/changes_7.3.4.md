@@ -24,6 +24,7 @@ This release fixes the following vulnerabilities in dependencies:
 * Updated `com.exasol:udf-debugging-java:0.6.8` to `0.6.11`
 * Updated `com.exasol:virtual-schema-common-document:9.4.0` to `9.4.1`
 * Updated `nl.jqno.equalsverifier:equalsverifier:3.14.3` to `3.15.2`
+* Added `org.eclipse.jgit:org.eclipse.jgit:6.7.0.202309050840-r`
 * Updated `org.junit.jupiter:junit-jupiter-params:5.9.3` to `5.10.0`
 * Updated `org.mockito:mockito-junit-jupiter:5.4.0` to `5.5.0`
 
