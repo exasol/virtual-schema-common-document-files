@@ -10,7 +10,7 @@ This release fixes the following vulnerabilities in dependencies:
 
 ## Security
 
-* #140: Fixed CVE-2023-42503 in `org.apache.commons:commons-compress` 
+* #140: Fixed CVE-2023-42503 and CVE-2023-4759
 
 ## Dependency Updates
 
