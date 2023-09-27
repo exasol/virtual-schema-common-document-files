@@ -4,4 +4,3 @@ sources:
     modules:
       - maven_central
 excludes:
-  - regex: "E-PK-CORE-53: The dependencies.md file has outdated content.*"
