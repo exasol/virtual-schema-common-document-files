@@ -1,4 +1,4 @@
-# Virtual Schema for Document Data in Files 7.3.4, released 2023-09-27
+# Virtual Schema for Document Data in Files 7.3.4, released 2023-09-28
 
 Code name: Fix CVE-2023-42503, CVE-2023-4759 and CVE-2023-43642
 
