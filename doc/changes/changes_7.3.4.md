@@ -1,21 +1,24 @@
-# Virtual Schema for Document Data in Files 7.3.4, released 2023-09-27
+# Virtual Schema for Document Data in Files 7.3.4, released 2023-09-28
 
-Code name: Fix CVE-2023-42503 and CVE-2023-4759
+Code name: Fix CVE-2023-42503, CVE-2023-4759 and CVE-2023-43642
 
 ## Summary
 
 This release fixes the following vulnerabilities in dependencies:
 * CVE-2023-42503 in compile dependency `org.apache.commons:commons-compress`
+* CVE-2023-43642 in compile `org.xerial.snappy:snappy-java`
 * CVE-2023-4759 in test dependency `org.eclipse.jgit:org.eclipse.jgit`
 
 ## Security
 
 * #140: Fixed CVE-2023-42503 and CVE-2023-4759
+* #142: Fixed CVE-2023-43642 in `org.xerial.snappy:snappy-java`
 
 ## Dependency Updates
 
 ### Compile Dependency Updates
 
+* Updated `com.exasol:parquet-io-java:2.0.4` to `2.0.5`
 * Updated `com.exasol:virtual-schema-common-document:9.4.0` to `9.4.2`
 * Updated `io.deephaven:deephaven-csv:0.11.0` to `0.12.0`
 
