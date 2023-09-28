@@ -12,7 +12,7 @@ This release fixes the following vulnerabilities in dependencies:
 ## Security
 
 * #140: Fixed CVE-2023-42503 and CVE-2023-4759
-* #140: Fixed CVE-2023-43642 in `org.xerial.snappy:snappy-java`
+* #142: Fixed CVE-2023-43642 in `org.xerial.snappy:snappy-java`
 
 ## Dependency Updates
 
