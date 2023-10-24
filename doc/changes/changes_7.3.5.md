@@ -14,6 +14,7 @@ This release fixes CVE-2023-39410 in dependency `org.apache.avro:avro`.
 
 ### Compile Dependency Updates
 
+* Updated `com.exasol:parquet-io-java:2.0.5` to `2.0.6`
 * Updated `jakarta.json:jakarta.json-api:2.1.2` to `2.1.3`
 
 ### Test Dependency Updates
