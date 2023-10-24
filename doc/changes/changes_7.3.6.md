@@ -1,4 +1,4 @@
-# Virtual Schema for Document Data in Files 7.3.6, released 2023-??-??
+# Virtual Schema for Document Data in Files 7.3.6, released 2023-10-24
 
 Code name: Validate EDML for duplicate table names
 
