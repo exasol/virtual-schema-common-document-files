@@ -1,6 +1,6 @@
-# Virtual Schema for Document Data in Files 7.3.5, released 2023-??-??
+# Virtual Schema for Document Data in Files 7.3.5, released 2023-10-24
 
-Code name:
+Code name: Fix CVE-2023-39410 in `org.apache.avro:avro`
 
 ## Summary
 
