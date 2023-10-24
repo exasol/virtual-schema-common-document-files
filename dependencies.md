@@ -19,7 +19,7 @@
 | [Hamcrest][13]                               | [BSD License 3][14]               |
 | [JUnit Jupiter Params][15]                   | [Eclipse Public License v2.0][16] |
 | [EqualsVerifier \| release normal jar][17]   | [Apache License, Version 2.0][12] |
-| [mockito-junit-jupiter][18]                  | [The MIT License][19]             |
+| [mockito-junit-jupiter][18]                  | [MIT][19]                         |
 | [Common Virtual Schema for document data][0] | [MIT License][1]                  |
 | [Matcher for SQL Result Sets][20]            | [MIT License][21]                 |
 | [udf-debugging-java][22]                     | [MIT License][23]                 |
