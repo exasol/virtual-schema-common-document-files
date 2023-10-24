@@ -6,7 +6,7 @@ Code name: Fix CVE-2023-39410 in `org.apache.avro:avro`
 
 This release fixes CVE-2023-39410 in dependency `org.apache.avro:avro`.
 
-## Features
+## Security
 
 * #144: Fixed CVE-2023-39410 in `org.apache.avro:avro`
 
