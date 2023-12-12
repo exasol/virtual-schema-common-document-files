@@ -7,10 +7,7 @@ import java.util.List;
 
 import com.exasol.adapter.document.connection.ConnectionPropertiesReader;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
-import com.exasol.adapter.document.documentfetcher.files.FileFinderFactory;
-import com.exasol.adapter.document.documentfetcher.files.FilesDocumentFetcher;
-import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
-import com.exasol.adapter.document.documentfetcher.files.RemoteFileFinder;
+import com.exasol.adapter.document.documentfetcher.files.*;
 import com.exasol.adapter.document.documentfetcher.files.segmentation.*;
 import com.exasol.adapter.document.files.stringfilter.StringFilter;
 import com.exasol.adapter.document.iterators.CloseableIterator;
@@ -75,7 +72,7 @@ public class FilesDocumentFetcherFactory {
             final boolean fileSplittingIsSupported) {
         final int numberOfWorkers = limitWorkerCountByFileSize(numberOfSegments, files);
         final List<FileSegment> splitFiles = splitFilesIfRequired(numberOfWorkers, files, fileSplittingIsSupported);
-        final List<FileSegment>[] bins = new BinDistributor().distributeInBins(splitFiles, numberOfWorkers);
+        final List<List<FileSegment>> bins = new BinDistributor().distributeInBins(splitFiles, numberOfWorkers);
         final List<SegmentDescription> segmentDescriptions = new ArrayList<>(numberOfWorkers);
         for (final List<FileSegment> bin : bins) {
             if (!bin.isEmpty()) {

@@ -2,7 +2,9 @@ package com.exasol.adapter.document.files;
 
 import static com.exasol.adapter.document.documentfetcher.files.segmentation.FileSegmentDescription.ENTIRE_FILE;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -19,15 +21,23 @@ import com.exasol.adapter.document.documentfetcher.files.segmentation.FileSegmen
 
 class BinDistributorTest {
 
+    @Test
+    void testNegativeNumberOfBins() {
+        final BinDistributor binDistributor = new BinDistributor();
+        final IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> binDistributor.distributeInBins(null, -1));
+        assertThat(exception.getMessage(), equalTo("F-VSDF-23: Number of bins must be > 0 but is -1"));
+    }
+
     @ParameterizedTest
     @CsvSource({ "30, 10,10,10", "31, 11,10,10", "32, 11,11,10", "2, 1,1,0", "0, 0,0,0" })
     void testDistributeEquallySizedFiles(final int total, final int expectedInBin1, final int expectedInBin2,
             final int expectedInBin3) {
         final List<FileSegment> segments = createEquallySizedSegments(total);
-        final List<FileSegment>[] bins = new BinDistributor().distributeInBins(segments, 3);
-        final List<Integer> binSizes = Arrays.stream(bins).map(List::size).collect(Collectors.toList());
+        final List<List<FileSegment>> bins = new BinDistributor().distributeInBins(segments, 3);
+        final List<Integer> binSizes = bins.stream().map(List::size).collect(Collectors.toList());
         assertAll(//
-                () -> assertThat(bins.length, Matchers.equalTo(3)),
+                () -> assertThat(bins.size(), Matchers.equalTo(3)),
                 () -> assertThat(binSizes, Matchers.containsInAnyOrder(expectedInBin1, expectedInBin2, expectedInBin3)) //
         );
     }
@@ -50,9 +60,9 @@ class BinDistributorTest {
     void testDistributionWithNonEqualSizes() {
         final List<FileSegment> segments = createDifferentSizedSegments(99);
         Collections.shuffle(segments);
-        final List<FileSegment>[] bins = new BinDistributor().distributeInBins(segments, 2);
-        final long bin1Size = getTotalSize(bins[0]);
-        final long bin2Size = getTotalSize(bins[1]);
+        final List<List<FileSegment>> bins = new BinDistributor().distributeInBins(segments, 2);
+        final long bin1Size = getTotalSize(bins.get(0));
+        final long bin2Size = getTotalSize(bins.get(1));
         final long totalSize = bin1Size + bin2Size;
         final long maxSize = (long) (totalSize * 0.55);
         assertAll(//
