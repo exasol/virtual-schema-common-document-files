@@ -57,3 +57,4 @@ See the [documentation for `ALTER SCHEMA`](https://docs.exasol.com/db/latest/sql
 * Added `org.apache.maven.plugins:maven-enforcer-plugin:3.4.1`
 * Updated `org.apache.maven.plugins:maven-javadoc-plugin:3.6.0` to `3.6.2`
 * Updated `org.apache.maven.plugins:maven-surefire-plugin:3.1.2` to `3.2.2`
+* Updated `org.codehaus.mojo:versions-maven-plugin:2.16.1` to `2.16.2`
