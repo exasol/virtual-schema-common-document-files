@@ -41,6 +41,9 @@ import com.exasol.matcher.ResultSetStructureMatcher.Builder;
 import com.exasol.matcher.TypeMatchMode;
 import com.exasol.performancetestrecorder.PerformanceTestRecorder;
 
+/**
+ * This is a base class for document-file virtual schema integration tests.
+ */
 @SuppressWarnings("java:S5786") // this class is public so that class from different packages can inherit
 public abstract class AbstractDocumentFilesAdapterIT {
     private static final String TEST_SCHEMA = "TEST";
