@@ -1,12 +1,39 @@
-# Virtual Schema for Document Data in Files 8.0.0, released 2023-??-??
+# Virtual Schema for Document Data in Files 8.0.0, released 2023-12-13
 
-Code name:
+Code name: Support Exasol 8
 
 ## Summary
 
+This release upgrades to `virtual-schema-common-document:10.1.0` which adds support for Exasol 8. This brings the following changes for virtual schemas:
+
+### Remove support for `TIMESTAMP WITH LOCAL TIME ZONE`
+
+This release adds support for Exasol 8 by removing support for data type `TIMESTAMP WITH LOCAL TIME ZONE`. This type caused problems with the stricter type checks enabled by default in Exasol, causing pushdown queries for document based virtual schemas to fail with the following error:
+
+```
+Data type mismatch in column number 5 (1-indexed).Expected TIMESTAMP(3) WITH LOCAL TIME ZONE, but got TIMESTAMP(3).
+```
+
+We fixed this error by removing support `TIMESTAMP WITH LOCAL TIME ZONE` completely. This is a breaking change, so we updated the version to 8.0.0.
+
+###  Support `ALTER VIRTUAL SCHEMA SET`
+
+This release adds support for `ALTER VIRTUAL SCHEMA SET`. This will allow changing properties like `MAPPING` of document based virtual schemas without dropping and re-creating the virtual schema:
+
+```sql
+-- Update EDML mapping of the virtual schema
+ALTER VIRTUAL SCHEMA MY_VIRTUAL_SCHEMA SET MAPPING = '...';
+
+-- Enable remote logging or change the log level
+ALTER VIRTUAL SCHEMA MY_VIRTUAL_SCHEMA SET DEBUG_ADDRESS = 'host:3000' LOG_LEVEL = 'FINEST';
+ALTER VIRTUAL SCHEMA MY_VIRTUAL_SCHEMA SET LOG_LEVEL = 'INFO';
+```
+
+See the [documentation for `ALTER SCHEMA`](https://docs.exasol.com/db/latest/sql/alter_schema.htm) for details.
+
 ## Features
 
-* ISSUE_NUMBER: description
+* #148: Added support for Exasol version 8
 
 ## Dependency Updates
 
