@@ -52,7 +52,7 @@
 | [JaCoCo :: Maven Plugin][43]                            | [Eclipse Public License 2.0][44]  |
 | [error-code-crawler-maven-plugin][45]                   | [MIT License][46]                 |
 | [Reproducible Build Maven Plugin][47]                   | [Apache 2.0][32]                  |
-| [Project keeper maven plugin][48]                       | [The MIT License][49]             |
+| [Project Keeper Maven plugin][48]                       | [The MIT License][49]             |
 | [Apache Maven JAR Plugin][50]                           | [Apache License, Version 2.0][12] |
 
 [0]: https://github.com/exasol/virtual-schema-common-document/
