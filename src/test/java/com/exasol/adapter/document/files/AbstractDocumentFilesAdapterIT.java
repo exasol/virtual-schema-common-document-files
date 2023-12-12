@@ -837,10 +837,13 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     protected abstract void uploadDataFile(final Path file, String resourceName);
 
-    private void assertQuery(final String query, final Matcher<ResultSet> matcher) throws SQLException {
+    private void assertQuery(final String query, final Matcher<ResultSet> matcher) {
         final Instant start = Instant.now();
         try (final ResultSet result = getStatement().executeQuery(query)) {
             assertThat(result, matcher);
+        } catch (final SQLException exception) {
+            throw new IllegalStateException("Assertion query '" + query + "' failed: " + exception.getMessage(),
+                    exception);
         }
         LOGGER.fine(
                 () -> "Executed query in " + Duration.between(start, Instant.now()).toSeconds() + "s: '" + query + "'");
