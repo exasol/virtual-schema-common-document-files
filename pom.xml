@@ -147,8 +147,8 @@
                                 <include>**/AbstractDocumentFilesAdapterIT*</include>
                                 <include>**/RandomAccessInputStreamTestBase.class</include>
                                 <include>**/AbstractInputStreamTest.class</include>
-                                <include>abstractIntegrationTests/**/*</include>
                                 <!-- Test resources -->
+                                <include>abstractIntegrationTests/**/*</include>
                                 <include>**/ParquetTestSetup*</include>
                                 <include>**/ParquetTestWriterBuilder*</include>
                                 <include>**/CsvTestSetup*</include>
