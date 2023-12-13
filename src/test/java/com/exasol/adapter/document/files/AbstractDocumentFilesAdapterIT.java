@@ -54,9 +54,36 @@ public abstract class AbstractDocumentFilesAdapterIT {
     private String dataFilesDirectory;
     private TestInfo testInfo;
 
+    /**
+     * Get a DB statement for the Exasol database under test.
+     * 
+     * @return DB statement
+     */
     protected abstract Statement getStatement();
 
+    /**
+     * Upload the given file to the cloud storage service.
+     * 
+     * @param resource     resource content to upload
+     * @param resourceName file name on the storage service
+     */
     protected abstract void uploadDataFile(final Supplier<InputStream> resource, String resourceName);
+
+    /**
+     * Upload the given file to the cloud storage service.
+     * 
+     * @param file         local file
+     * @param resourceName file name on the storage service
+     */
+    protected abstract void uploadDataFile(final Path file, String resourceName);
+
+    /**
+     * Create a virtual schema in the test database.
+     *
+     * @param schemaName name of the virtual schema
+     * @param mapping    mapping file content
+     */
+    protected abstract void createVirtualSchema(String schemaName, String mapping);
 
     private void createVirtualSchemaWithMappingFromResource(final String schemaName, final String resourceName)
             throws IOException {
@@ -110,14 +137,6 @@ public abstract class AbstractDocumentFilesAdapterIT {
         }
     }
 
-    /**
-     * Create a virtual schema in the test database.
-     *
-     * @param schemaName name of the virtual schema
-     * @param mapping    mapping file content
-     */
-    protected abstract void createVirtualSchema(String schemaName, String mapping);
-
     @BeforeEach
     void beforeEach(final TestInfo testInfo) {
         this.testInfo = testInfo;
@@ -127,7 +146,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testReadJson() throws SQLException, IOException {
+    public void testReadJson() throws SQLException, IOException {
         createJsonVirtualSchema();
         final ResultSet result = getStatement()
                 .executeQuery("SELECT ID, SOURCE_REFERENCE FROM " + TEST_SCHEMA + ".BOOKS ORDER BY ID ASC;");
@@ -137,7 +156,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     @Test
     @Tag("regression")
-    void testReadFewJsonFiles() throws Exception {
+    public void testReadFewJsonFiles() throws Exception {
         createJsonVirtualSchema();
         for (int runCounter = 0; runCounter < 5; runCounter++) {
             PerformanceTestRecorder.getInstance().recordExecution(this.testInfo, () -> {
@@ -150,35 +169,42 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testReadJsonLines() throws SQLException, IOException {
+    public void testReadJsonLines() throws SQLException, IOException {
         createJsonLinesVirtualSchema();
         final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
         assertThat(result, table().row("book-1").row("book-2").matches());
     }
 
     @Test
-    void testReadCsv() throws SQLException, IOException {
+    public void testReadCsv() throws SQLException, IOException {
         createCsvVirtualSchema();
         final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
         assertThat(result, table().row("book-1").row("book-2").matches());
     }
 
     @Test
-    void testReadCsvHeaders() throws SQLException, IOException {
+    public void testReadCsvHeaders() throws SQLException, IOException {
         createCsvVirtualSchemaHeaders();
         final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
         assertThat(result, table().row("book-1").row("book-2").matches());
     }
 
     @Test
-    void testReadCsvNoHeaders() throws SQLException, IOException {
+    public void testReadCsvNoHeaders() throws SQLException, IOException {
         createCsvVirtualSchemaNoHeaders();
         final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
         assertThat(result, table().row("book-1").row("book-2").matches());
     }
 
     @Test
-    void testReadCsvWithDuplicateHeader() throws IOException, SQLException {
+    public void testReadCsvDifferentDelimiterNotSupported() throws SQLException, IOException {
+        createCsvVirtualSchemaDifferentDelimiter();
+        final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
+        assertThat(result, table().row((String) null).row((String) null).matches());
+    }
+
+    @Test
+    public void testReadCsvWithDuplicateHeader() throws IOException, SQLException {
         final Fields mapping = Fields.builder()//
                 .mapField("col", ToVarcharMapping.builder().destinationName("my_col").build()) //
                 .build();
@@ -194,7 +220,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testReadCsvWithTypesWithHeader() throws IOException, SQLException {
+    public void testReadCsvWithTypesWithHeader() throws IOException, SQLException {
         final Fields mapping = Fields.builder()//
                 .mapField("str", ToVarcharMapping.builder().build()) //
                 .mapField("bool", ToBoolMapping.builder().destinationName("IS_ACTIVE").build())//
@@ -221,7 +247,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testReadCsvWithTypesWithHeaderWithAutomaticInference() throws IOException, SQLException {
+    public void testReadCsvWithTypesWithHeaderWithAutomaticInference() throws IOException, SQLException {
         uploadFileContent("testData-1.csv", List.of( //
                 "str, boolCol, decimalCol, intCol,double_col,date_col,timestamp_col", //
                 "\"test1\",true,1.23,42,2.5,2007-12-03,2007-12-03 10:15:30.00",
@@ -238,7 +264,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testReadCsvWithSpacesInHeader() throws IOException, SQLException {
+    public void testReadCsvWithSpacesInHeader() throws IOException, SQLException {
         final Fields mapping = Fields.builder()//
                 .mapField("col1", ToVarcharMapping.builder().build()) //
                 .mapField("col2", ToVarcharMapping.builder().build()) //
@@ -255,7 +281,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testReadCsvWithTypesWithHeaderInvalidValue() throws IOException, SQLException {
+    public void testReadCsvWithTypesWithHeaderInvalidValue() throws IOException, SQLException {
         final Fields mapping = Fields.builder() //
                 .mapField("bool", ToBoolMapping.builder().build()) //
                 .build();
@@ -266,7 +292,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testReadCsvWithTypesWithoutHeader() throws IOException, SQLException {
+    public void testReadCsvWithTypesWithoutHeader() throws IOException, SQLException {
         final Fields mapping = Fields.builder()//
                 .mapField("0", ToVarcharMapping.builder().destinationName("STR").build()) //
                 .mapField("1", ToBoolMapping.builder().destinationName("IS_ACTIVE").build())//
@@ -296,7 +322,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testReadCsvWithTypesWithoutHeaderWithAutomaticInference() throws IOException, SQLException {
+    public void testReadCsvWithTypesWithoutHeaderWithAutomaticInference() throws IOException, SQLException {
         uploadFileContent("testData-1.csv", List.of( //
                 "\"test1\",true,1.23,42,9223372036854775807,2007-12-03,2007-12-03 10:15:30.00",
                 "test2,FALSE,1.22e-4,-17,-2147483649,2023-04-20,2007-12-03 10:15:30.00"));
@@ -312,7 +338,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testReadCsvWithTypesWithoutHeaderInvalidValue() throws IOException, SQLException {
+    public void testReadCsvWithTypesWithoutHeaderInvalidValue() throws IOException, SQLException {
         final Fields mapping = Fields.builder()//
                 .mapField("0", ToBoolMapping.builder().destinationName("BOOL").build())//
                 .build();
@@ -325,7 +351,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testReadCsvWithUnsupportedType() throws IOException, SQLException {
+    public void testReadCsvWithUnsupportedType() throws IOException, SQLException {
         final Fields mapping = Fields.builder()//
                 .mapField("json", ToJsonMapping.builder().build()) //
                 .build();
@@ -338,7 +364,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     @Test
     @Tag("regression")
-    void testReadSmallJsonLines() throws Exception {
+    public void testReadSmallJsonLines() throws Exception {
         createJsonLinesVirtualSchema();
         for (int runCounter = 0; runCounter < 5; runCounter++) {
             PerformanceTestRecorder.getInstance().recordExecution(this.testInfo, () -> {
@@ -349,7 +375,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testJsonDataTypesAsVarcharColumn() throws SQLException, IOException {
+    public void testJsonDataTypesAsVarcharColumn() throws SQLException, IOException {
         final ResultSet result = getJsonDataTypesTestResult("mapDataTypesToVarchar.json");
         assertThat(result, table("VARCHAR", "VARCHAR")//
                 .row("false", "false")//
@@ -361,7 +387,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testJsonDataTypesAsDecimal() throws SQLException, IOException {
+    public void testJsonDataTypesAsDecimal() throws SQLException, IOException {
         final ResultSet result = getJsonDataTypesTestResult("mapDataTypesToDecimal.json");
         assertThat(result, table("VARCHAR", "DECIMAL")//
                 .row("false", equalTo(null))//
@@ -373,7 +399,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testJsonDataTypesAsJson() throws SQLException, IOException {
+    public void testJsonDataTypesAsJson() throws SQLException, IOException {
         final ResultSet result = getJsonDataTypesTestResult("mapDataTypesToJson.json");
         assertThat(result, table("VARCHAR", "VARCHAR")//
                 .row("false", "false")//
@@ -389,7 +415,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     // (toBoolMapping,toDecimalMapping, ...)
     // the workaround currently is to use SQL conversion functions in the query itself
     @Test
-    void testCsvDataTypesConversion() throws SQLException, IOException {
+    public void testCsvDataTypesConversion() throws SQLException, IOException {
         final ResultSet result = getCsvDataTypesTestResult("mapCsvToVarchar.json", "dataTypeTests.csv",
                 "SELECT * FROM " + TEST_SCHEMA + ".DATA_TYPES");
         assertThat(result,
@@ -399,7 +425,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testCsvDataTypesConversionWorkaround() throws SQLException, IOException {
+    public void testCsvDataTypesConversionWorkaround() throws SQLException, IOException {
         final ResultSet result = getCsvDataTypesTestResult("mapCsvToVarcharWorkaround.json",
                 "dataTypeWorkaroundTests.csv",
                 "SELECT CONVERT( BOOLEAN, BOOLEANCOLUMN ) CONVERTEDBOOLEAN FROM " + TEST_SCHEMA + ".DATA_TYPES");
@@ -434,7 +460,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testFilterOnSourceReference() throws SQLException, IOException {
+    public void testFilterOnSourceReference() throws SQLException, IOException {
         createJsonVirtualSchema();
         final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS WHERE SOURCE_REFERENCE = '"
                 + this.dataFilesDirectory + "/testData-1.json'";
@@ -453,7 +479,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
      * SPOT-11018 (fixed) https://github.com/exasol/virtual-schema-common-document-files/issues/41
      */
     @Test
-    void testFilterWithOrOnSourceReference() throws IOException {
+    public void testFilterWithOrOnSourceReference() throws IOException {
         createJsonVirtualSchema();
         final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS WHERE SOURCE_REFERENCE = '"
                 + this.dataFilesDirectory + "/testData-1.json' OR SOURCE_REFERENCE = '" + this.dataFilesDirectory
@@ -474,7 +500,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
      */
     @Test
     // workaround for
-    void testFilterWithOrOnSourceReferenceWithBugfixForSPOT11018() throws IOException {
+    public void testFilterWithOrOnSourceReferenceWithBugfixForSPOT11018() throws IOException {
         createJsonVirtualSchema();
         final String query = "SELECT ID FROM (SELECT ID, SOURCE_REFERENCE FROM " + TEST_SCHEMA
                 + ".BOOKS WHERE SOURCE_REFERENCE = '" + this.dataFilesDirectory
@@ -491,7 +517,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testFilterOnSourceReferenceForNonExisting() throws SQLException, IOException {
+    public void testFilterOnSourceReferenceForNonExisting() throws SQLException, IOException {
         createJsonVirtualSchema();
         final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS WHERE SOURCE_REFERENCE = 'UNKNOWN.json'";
         try (final ResultSet result = getStatement().executeQuery(query)) {
@@ -505,7 +531,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testFilterOnSourceReferenceUsingLike() throws SQLException, IOException {
+    public void testFilterOnSourceReferenceUsingLike() throws SQLException, IOException {
         createJsonVirtualSchema();
         final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS WHERE SOURCE_REFERENCE LIKE '%1.json'";
         try (final ResultSet result = getStatement().executeQuery(query)) {
@@ -519,7 +545,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testReadParquetFile() throws IOException, SQLException {
+    public void testReadParquetFile() throws IOException, SQLException {
         final Fields mapping = Fields.builder()//
                 .mapField("data", ToVarcharMapping.builder().build())//
                 .mapField("isActive", ToBoolMapping.builder().destinationName("IS_ACTIVE").build())//
@@ -558,7 +584,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testReadParquetFileWithAutomaticInference() throws IOException, SQLException {
+    public void testReadParquetFileWithAutomaticInference() throws IOException, SQLException {
         final Type stringColumn = Types.primitive(BINARY, REQUIRED).named("data");
         final Type boolColumn = Types.primitive(BOOLEAN, REQUIRED).named("isActive");
         final Type dateColumn = Types.primitive(INT32, REQUIRED).as(LogicalTypeAnnotation.dateType()).named("my_date");
@@ -589,7 +615,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testReadMultipleParquetFilesWithAutomaticInference() throws IOException, SQLException {
+    public void testReadMultipleParquetFilesWithAutomaticInference() throws IOException, SQLException {
         final Type stringColumn = Types.primitive(BINARY, REQUIRED).named("data");
         uploadAsParquetFile(parquetFile(stringColumn).writeRow(row -> row.add("data", "row1")).closeWriter(), 1);
         uploadAsParquetFile(parquetFile(stringColumn).writeRow(row -> row.add("data", "row2")).closeWriter(), 2);
@@ -603,7 +629,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testReadParquetFileWithAutomaticInferenceMissingInputFile() throws IOException, SQLException {
+    public void testReadParquetFileWithAutomaticInferenceMissingInputFile() throws IOException, SQLException {
         final String source = this.dataFilesDirectory + "/file-does-not-exist-*.parquet";
         final EdmlDefinitionBuilder edmlDefinition = EdmlDefinition.builder().source(source).destinationTable("BOOKS");
         final RuntimeException exception = assertThrows(RuntimeException.class,
@@ -615,7 +641,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testReadJsonFileWithAutomaticInferenceNotSupported() throws IOException, SQLException {
+    public void testReadJsonFileWithAutomaticInferenceNotSupported() throws IOException, SQLException {
         final String source = this.dataFilesDirectory + "/auto-inference-unsupported-*.json";
         final EdmlDefinitionBuilder edmlDefinition = EdmlDefinition.builder().source(source).destinationTable("BOOKS");
         final RuntimeException exception = assertThrows(RuntimeException.class,
@@ -627,25 +653,25 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     @Test
     @Tag("regression")
-    void testLoadManyParquetRowsFromOneFile() throws Exception {
+    public void testLoadManyParquetRowsFromOneFile() throws Exception {
         prepareAndRunParquetLoadingTest(1_000, 1_000_000, 1, 1);
     }
 
     @Test
     @Tag("regression")
-    void testLoadManyParquetRows() throws Exception {
+    public void testLoadManyParquetRows() throws Exception {
         prepareAndRunParquetLoadingTest(100, 1_000_000, 10, 1);
     }
 
     @Test
     @Tag("regression")
-    void testLoadLargeParquetRows() throws Exception {
+    public void testLoadLargeParquetRows() throws Exception {
         prepareAndRunParquetLoadingTest(1_000_000, 100, 10, 1);
     }
 
     @Test
     @Tag("regression")
-    void testLoadManyParquetColumns() throws Exception {
+    public void testLoadManyParquetColumns() throws Exception {
         prepareAndRunParquetLoadingTest(1_000, 1_000, 10, 100);
     }
 
@@ -711,7 +737,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testLoadRandomCsvFile() throws Exception {
+    public void testLoadRandomCsvFile() throws Exception {
         final long rowCount = 100;
         prepareCsvLoadingTest(CsvTestDataGenerator.builder().stringLength(100).rowCount(rowCount).fileCount(10)
                 .columnCount(6).tempDir(this.tempDir).build());
@@ -726,35 +752,35 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testLoadCsvRows() throws Exception {
+    public void testLoadCsvRows() throws Exception {
         prepareAndRunCsvLoadingTestNoMeasure(
                 CsvTestDataGenerator.builder().stringLength(100).rowCount(100).fileCount(10).columnCount(10));
     }
 
     @Test
     @Tag("regression")
-    void testLoadManyCsvRowsFromOneFile() throws Exception {
+    public void testLoadManyCsvRowsFromOneFile() throws Exception {
         prepareAndRunCsvLoadingTest(
                 CsvTestDataGenerator.builder().stringLength(1_000).rowCount(1_000_000).fileCount(1).columnCount(1));
     }
 
     @Test
     @Tag("regression")
-    void testLoadManyCsvRows() throws Exception {
+    public void testLoadManyCsvRows() throws Exception {
         prepareAndRunCsvLoadingTest(
                 CsvTestDataGenerator.builder().stringLength(100).rowCount(1_000_000).fileCount(10).columnCount(1));
     }
 
     @Test
     @Tag("regression")
-    void testLoadLargeCsvRows() throws Exception {
+    public void testLoadLargeCsvRows() throws Exception {
         prepareAndRunCsvLoadingTest(
                 CsvTestDataGenerator.builder().stringLength(1_000_000).rowCount(100).fileCount(10).columnCount(1));
     }
 
     @Test
     @Tag("regression")
-    void testLoadManyCsvColumns() throws Exception {
+    public void testLoadManyCsvColumns() throws Exception {
         prepareAndRunCsvLoadingTest(
                 CsvTestDataGenerator.builder().stringLength(1_000).rowCount(1_000).fileCount(10).columnCount(100));
     }
@@ -798,7 +824,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    void testOverrideFileType() throws IOException, SQLException {
+    public void testOverrideFileType() throws IOException, SQLException {
         createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapJsonLinesFileWithStrangeExtension.json");
         uploadDataFile(
                 () -> AbstractDocumentFilesAdapterIT.class.getClassLoader()
@@ -838,8 +864,6 @@ public abstract class AbstractDocumentFilesAdapterIT {
         }
     }
 
-    protected abstract void uploadDataFile(final Path file, String resourceName);
-
     private void assertQuery(final String query, final Matcher<ResultSet> matcher) {
         final Instant start = Instant.now();
         try (final ResultSet result = getStatement().executeQuery(query)) {
@@ -858,7 +882,12 @@ public abstract class AbstractDocumentFilesAdapterIT {
         assertThat(exception.getMessage(), exceptionMessageMatcher);
     }
 
-    protected void createJsonVirtualSchema() throws IOException {
+    /**
+     * Create a virtual schema using JSON files.
+     * 
+     * @throws IOException if creating the virtual schema fails
+     */
+    protected final void createJsonVirtualSchema() throws IOException {
         createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapJsonFile.json");
         uploadDataFileFromResources("testData-1.json");
         uploadDataFileFromResources("testData-2.json");
