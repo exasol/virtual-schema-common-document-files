@@ -1,7 +1,6 @@
 package com.exasol.adapter.document.documentfetcher.files;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
@@ -54,7 +53,6 @@ class RemoteFilePrefetchingIteratorTest {
         final CloseableIterator<RemoteFile> spy = spy(new CloseableIteratorWrapper<>(
                 IntStream.range(0, 200).mapToObj(i -> new RemoteFile("", 10_000_000, content)).iterator()));
         try (final CloseableIterator<RemoteFile> iterator = new RemoteFilePrefetchingIterator(spy)) {
-            assertThat(iterator, notNull());
             verify(spy, new Times(1)).next();
         }
     }
