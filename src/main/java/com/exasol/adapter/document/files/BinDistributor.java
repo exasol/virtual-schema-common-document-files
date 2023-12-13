@@ -18,10 +18,10 @@ class BinDistributor {
      * @param numberOfBins number of bins
      * @return bins
      */
-    List<FileSegment>[] distributeInBins(final List<FileSegment> segments, final int numberOfBins) {
+    List<List<FileSegment>> distributeInBins(final List<FileSegment> segments, final int numberOfBins) {
         if (numberOfBins <= 0) {
-            throw new IllegalStateException(
-                    ExaError.messageBuilder("F-VSDF-23").message("Number of bins must be > 0").toString());
+            throw new IllegalStateException(ExaError.messageBuilder("F-VSDF-23")
+                    .message("Number of bins must be > 0 but is {{numberOfBins}}", numberOfBins).toString());
         }
         final ArrayList<FileSegment> segmentsSortedBySize = sortBySizeDesc(segments);
         final Bin[] bins = distribute(segmentsSortedBySize, numberOfBins);
@@ -44,10 +44,10 @@ class BinDistributor {
         return bins;
     }
 
-    private List<FileSegment>[] getSegments(final Bin[] bins) {
-        final List<FileSegment>[] result = new List[bins.length];
+    private List<List<FileSegment>> getSegments(final Bin[] bins) {
+        final List<List<FileSegment>> result = new ArrayList<>(bins.length);
         for (int index = 0; index < bins.length; index++) {
-            result[index] = bins[index].getSegments();
+            result.add(bins[index].getSegments());
         }
         return result;
     }

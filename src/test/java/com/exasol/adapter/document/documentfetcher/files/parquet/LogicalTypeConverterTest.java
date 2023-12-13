@@ -120,7 +120,7 @@ class LogicalTypeConverterTest {
     void testConvertLogicalTypeTimestamp() {
         final ToTimestampMapping toTimestampMapping = (ToTimestampMapping) new LogicalTypeConverter().convert(
                 LogicalTypeAnnotation.timestampType(true, LogicalTypeAnnotation.TimeUnit.MILLIS), "my_timestamp");
-        assertThat(toTimestampMapping.isUseTimestampWithLocalTimezoneType(), equalTo(true));
+        assertThat(toTimestampMapping.getNotTimestampBehavior(), equalTo(ConvertableMappingErrorBehaviour.ABORT));
     }
 
     private void assertConvertsToToDecimalMapping(final LogicalTypeAnnotation type, final int scale,

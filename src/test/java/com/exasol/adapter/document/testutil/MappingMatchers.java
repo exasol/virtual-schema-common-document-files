@@ -19,6 +19,7 @@ public class MappingMatchers {
     }
 
     @SafeVarargs
+    @SuppressWarnings("varargs")
     public static Matcher<MappingDefinition> varcharMapping(final Matcher<ToVarcharMapping>... subMatchers) {
         return castingMatcher(ToVarcharMapping.class, allOf(subMatchers));
     }
@@ -28,16 +29,19 @@ public class MappingMatchers {
     }
 
     @SafeVarargs
+    @SuppressWarnings("varargs")
     public static Matcher<MappingDefinition> boolMapping(final Matcher<ToBoolMapping>... subMatchers) {
         return castingMatcher(ToBoolMapping.class, allOf(subMatchers));
     }
 
     @SafeVarargs
+    @SuppressWarnings("varargs")
     public static Matcher<MappingDefinition> doubleMapping(final Matcher<ToDoubleMapping>... subMatchers) {
         return castingMatcher(ToDoubleMapping.class, allOf(subMatchers));
     }
 
     @SafeVarargs
+    @SuppressWarnings("varargs")
     public static Matcher<MappingDefinition> decimalMapping(final Matcher<ToDecimalMapping>... subMatchers) {
         return castingMatcher(ToDecimalMapping.class, allOf(subMatchers));
     }
@@ -51,16 +55,19 @@ public class MappingMatchers {
     }
 
     @SafeVarargs
+    @SuppressWarnings("varargs")
     public static Matcher<MappingDefinition> dateMapping(final Matcher<ToDateMapping>... subMatchers) {
         return castingMatcher(ToDateMapping.class, allOf(subMatchers));
     }
 
     @SafeVarargs
+    @SuppressWarnings("varargs")
     public static Matcher<MappingDefinition> timestampMapping(final Matcher<ToTimestampMapping>... subMatchers) {
         return castingMatcher(ToTimestampMapping.class, allOf(subMatchers));
     }
 
     @SafeVarargs
+    @SuppressWarnings("varargs")
     public static Matcher<MappingDefinition> columnMapping(final Matcher<AbstractToColumnMapping>... subMatchers) {
         return castingMatcher(AbstractToColumnMapping.class, allOf(subMatchers));
     }
@@ -96,5 +103,4 @@ public class MappingMatchers {
             return this.getter.apply(actual);
         }
     }
-
 }

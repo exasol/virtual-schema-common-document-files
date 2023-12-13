@@ -71,7 +71,8 @@ class ParquetColumnToMappingDefinitionConverterTest {
                 .convert(logicalTimestampType);
         assertAll(//
                 () -> assertThat(toTimestampMapping.getDestinationName(), equalTo("MY_TIMESTAMP")), //
-                () -> assertThat(toTimestampMapping.isUseTimestampWithLocalTimezoneType(), equalTo(true))//
+                () -> assertThat(toTimestampMapping.getNotTimestampBehavior(),
+                        equalTo(ConvertableMappingErrorBehaviour.ABORT))//
         );
     }
 

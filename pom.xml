@@ -2,12 +2,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>virtual-schema-common-document-files</artifactId>
-    <version>7.3.6</version>
+    <version>8.0.0</version>
     <name>Virtual Schema for document data in files</name>
     <description>Adapter for document data access from files.</description>
     <url>https://github.com/exasol/virtual-schema-common-document-files/</url>
     <properties>
-        <vs-common-document.version>9.4.3</vs-common-document.version>
+        <vs-common-document.version>10.1.0</vs-common-document.version>
     </properties>
     <dependencies>
         <dependency>
@@ -35,19 +35,19 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
-            <version>5.10.0</version>
+            <version>5.10.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>nl.jqno.equalsverifier</groupId>
             <artifactId>equalsverifier</artifactId>
-            <version>3.15.2</version>
+            <version>3.15.4</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>5.6.0</version>
+            <version>5.8.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -74,7 +74,7 @@
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>hamcrest-resultset-matcher</artifactId>
-            <version>1.6.1</version>
+            <version>1.6.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -93,7 +93,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
-            <version>1.10.0</version>
+            <version>1.11.0</version>
             <scope>test</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/de.siegmar/fastcsv -->
@@ -105,7 +105,7 @@
         <dependency>
             <groupId>io.deephaven</groupId>
             <artifactId>deephaven-csv</artifactId>
-            <version>0.12.0</version>
+            <version>0.14.0</version>
         </dependency>
     </dependencies>
     <build>
@@ -123,7 +123,7 @@
             <plugin>
                 <groupId>com.exasol</groupId>
                 <artifactId>project-keeper-maven-plugin</artifactId>
-                <version>2.9.13</version>
+                <version>2.9.17</version>
                 <executions>
                     <execution>
                         <goals>
@@ -147,7 +147,8 @@
                                 <include>**/AbstractDocumentFilesAdapterIT*</include>
                                 <include>**/RandomAccessInputStreamTestBase.class</include>
                                 <include>**/AbstractInputStreamTest.class</include>
-                                <include>abstractIntegrationTests/**/*</include> <!-- Test resources -->
+                                <!-- Test resources -->
+                                <include>abstractIntegrationTests/**/*</include>
                                 <include>**/ParquetTestSetup*</include>
                                 <include>**/ParquetTestWriterBuilder*</include>
                                 <include>**/CsvTestSetup*</include>
@@ -162,7 +163,7 @@
     <parent>
         <artifactId>virtual-schema-common-document-files-generated-parent</artifactId>
         <groupId>com.exasol</groupId>
-        <version>7.3.6</version>
+        <version>8.0.0</version>
         <relativePath>pk_generated_parent.pom</relativePath>
     </parent>
 </project>

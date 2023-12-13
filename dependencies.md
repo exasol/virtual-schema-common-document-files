@@ -19,12 +19,12 @@
 | [Hamcrest][13]                               | [BSD License 3][14]               |
 | [JUnit Jupiter Params][15]                   | [Eclipse Public License v2.0][16] |
 | [EqualsVerifier \| release normal jar][17]   | [Apache License, Version 2.0][12] |
-| [mockito-junit-jupiter][18]                  | [MIT][19]                         |
+| [mockito-junit-jupiter][18]                  | [MIT][10]                         |
 | [Common Virtual Schema for document data][0] | [MIT License][1]                  |
-| [Matcher for SQL Result Sets][20]            | [MIT License][21]                 |
-| [udf-debugging-java][22]                     | [MIT License][23]                 |
-| [Performance Test Recorder Java][24]         | [MIT License][25]                 |
-| [Apache Commons Text][26]                    | [Apache License, Version 2.0][12] |
+| [Matcher for SQL Result Sets][19]            | [MIT License][20]                 |
+| [udf-debugging-java][21]                     | [MIT License][22]                 |
+| [Performance Test Recorder Java][23]         | [MIT License][24]                 |
+| [Apache Commons Text][25]                    | [Apache-2.0][12]                  |
 
 ## Runtime Dependencies
 
@@ -36,8 +36,9 @@
 
 | Dependency                                              | License                           |
 | ------------------------------------------------------- | --------------------------------- |
-| [SonarQube Scanner for Maven][27]                       | [GNU LGPL 3][28]                  |
-| [Apache Maven Compiler Plugin][29]                      | [Apache-2.0][12]                  |
+| [SonarQube Scanner for Maven][26]                       | [GNU LGPL 3][27]                  |
+| [Apache Maven Compiler Plugin][28]                      | [Apache-2.0][12]                  |
+| [Apache Maven Enforcer Plugin][29]                      | [Apache-2.0][12]                  |
 | [Maven Flatten Plugin][30]                              | [Apache Software Licenese][12]    |
 | [org.sonatype.ossindex.maven:ossindex-maven-plugin][31] | [ASL2][32]                        |
 | [Maven Surefire Plugin][33]                             | [Apache-2.0][12]                  |
@@ -51,7 +52,7 @@
 | [JaCoCo :: Maven Plugin][43]                            | [Eclipse Public License 2.0][44]  |
 | [error-code-crawler-maven-plugin][45]                   | [MIT License][46]                 |
 | [Reproducible Build Maven Plugin][47]                   | [Apache 2.0][32]                  |
-| [Project keeper maven plugin][48]                       | [The MIT License][49]             |
+| [Project Keeper Maven plugin][48]                       | [The MIT License][49]             |
 | [Apache Maven JAR Plugin][50]                           | [Apache License, Version 2.0][12] |
 
 [0]: https://github.com/exasol/virtual-schema-common-document/
@@ -73,17 +74,17 @@
 [16]: https://www.eclipse.org/legal/epl-v20.html
 [17]: https://www.jqno.nl/equalsverifier
 [18]: https://github.com/mockito/mockito
-[19]: https://github.com/mockito/mockito/blob/main/LICENSE
-[20]: https://github.com/exasol/hamcrest-resultset-matcher/
-[21]: https://github.com/exasol/hamcrest-resultset-matcher/blob/main/LICENSE
-[22]: https://github.com/exasol/udf-debugging-java/
-[23]: https://github.com/exasol/udf-debugging-java/blob/main/LICENSE
-[24]: https://github.com/exasol/performance-test-recorder-java/
-[25]: https://github.com/exasol/performance-test-recorder-java/blob/main/LICENSE
-[26]: https://commons.apache.org/proper/commons-text
-[27]: http://sonarsource.github.io/sonar-scanner-maven/
-[28]: http://www.gnu.org/licenses/lgpl.txt
-[29]: https://maven.apache.org/plugins/maven-compiler-plugin/
+[19]: https://github.com/exasol/hamcrest-resultset-matcher/
+[20]: https://github.com/exasol/hamcrest-resultset-matcher/blob/main/LICENSE
+[21]: https://github.com/exasol/udf-debugging-java/
+[22]: https://github.com/exasol/udf-debugging-java/blob/main/LICENSE
+[23]: https://github.com/exasol/performance-test-recorder-java/
+[24]: https://github.com/exasol/performance-test-recorder-java/blob/main/LICENSE
+[25]: https://commons.apache.org/proper/commons-text
+[26]: http://sonarsource.github.io/sonar-scanner-maven/
+[27]: http://www.gnu.org/licenses/lgpl.txt
+[28]: https://maven.apache.org/plugins/maven-compiler-plugin/
+[29]: https://maven.apache.org/enforcer/maven-enforcer-plugin/
 [30]: https://www.mojohaus.org/flatten-maven-plugin/
 [31]: https://sonatype.github.io/ossindex-maven/maven-plugin/
 [32]: http://www.apache.org/licenses/LICENSE-2.0.txt
