@@ -20,6 +20,7 @@ import com.exasol.adapter.document.documentpath.DocumentPathExpression;
 import com.exasol.adapter.document.mapping.*;
 
 import de.siegmar.fastcsv.reader.CsvReader;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
 class CsvObjectNodeTest {
 
@@ -103,7 +104,7 @@ class CsvObjectNodeTest {
     }
 
     private DocumentObject create(final String csvContent, final List<ColumnMapping> csvColumns) {
-        final CsvReader csvReaderParentheses = CsvReader.builder().build(csvContent);
+        final CsvReader<CsvRecord> csvReaderParentheses = CsvReader.builder().ofCsvRecord(csvContent);
         return new CsvObjectNode("resourceName", CsvValueConverters.create(csvColumns),
                 csvReaderParentheses.iterator().next());
     }

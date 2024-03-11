@@ -6,12 +6,12 @@ import com.exasol.adapter.document.documentnode.DocumentObject;
 import com.exasol.adapter.document.documentnode.csv.converter.CsvValueConverters;
 import com.exasol.adapter.document.mapping.ColumnMapping;
 
-import de.siegmar.fastcsv.reader.CsvRow;
-import de.siegmar.fastcsv.reader.NamedCsvRow;
+import de.siegmar.fastcsv.reader.CsvRecord;
+import de.siegmar.fastcsv.reader.NamedCsvRecord;
 
 /**
- * This is a factory that creates {@link DocumentObject}s for {@link NamedCsvRow named} and {@link CsvRow regular} CSV
- * rows.
+ * This is a factory that creates {@link DocumentObject}s for {@link NamedCsvRecord named} and {@link CsvRecord regular}
+ * CSV rows.
  */
 public class CsvObjectNodeFactory {
 
@@ -35,22 +35,22 @@ public class CsvObjectNodeFactory {
     }
 
     /**
-     * Create a new {@link DocumentObject} for the given {@link NamedCsvRow}.
+     * Create a new {@link DocumentObject} for the given {@link NamedCsvRecord}.
      *
      * @param namedCsvRow the row to convert
      * @return a new {@link DocumentObject}
      */
-    public DocumentObject create(final NamedCsvRow namedCsvRow) {
+    public DocumentObject create(final NamedCsvRecord namedCsvRow) {
         return new NamedCsvObjectNode(this.resourceName, this.converters, namedCsvRow);
     }
 
     /**
-     * Create a new {@link DocumentObject} for the given {@link CsvRow}.
+     * Create a new {@link DocumentObject} for the given {@link CsvRecord}.
      *
      * @param csvRow the row to convert
      * @return a new {@link DocumentObject}
      */
-    public DocumentObject create(final CsvRow csvRow) {
+    public DocumentObject create(final CsvRecord csvRow) {
         return new CsvObjectNode(this.resourceName, this.converters, csvRow);
     }
 }

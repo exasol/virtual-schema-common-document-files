@@ -12,8 +12,7 @@ import com.exasol.adapter.document.iterators.CloseableIterator;
 import com.exasol.adapter.document.mapping.ColumnMapping;
 import com.exasol.errorreporting.ExaError;
 
-import de.siegmar.fastcsv.reader.CsvReader;
-import de.siegmar.fastcsv.reader.NamedCsvReader;
+import de.siegmar.fastcsv.reader.*;
 
 /**
  * This class iterates the lines of a CSV file and creates a {@link CsvObjectNode} for each line.
@@ -51,9 +50,10 @@ class CsvIterator implements CloseableIterator<DocumentNode> {
     private static Iterator<DocumentNode> createDelegate(final CsvConfiguration csvConfiguration,
             final CsvObjectNodeFactory nodeFactory, final InputStreamReader inputStreamReader) {
         if (hasHeaders(csvConfiguration)) {
-            return new ConvertingCsvIterator<>(NamedCsvReader.builder().build(inputStreamReader), nodeFactory::create);
+            return new ConvertingCsvIterator<>(CsvReader.builder().build(
+                    new NamedCsvRecordHandler(new PreventDuplicateHeader()), inputStreamReader), nodeFactory::create);
         } else {
-            return new ConvertingCsvIterator<>(CsvReader.builder().build(inputStreamReader), nodeFactory::create);
+            return new ConvertingCsvIterator<>(CsvReader.builder().ofCsvRecord(inputStreamReader), nodeFactory::create);
         }
     }
 
@@ -92,6 +92,22 @@ class CsvIterator implements CloseableIterator<DocumentNode> {
             this.inputStreamReader.close();
         } catch (final IOException exception) {
             // at least we tried...
+        }
+    }
+
+    private static class PreventDuplicateHeader implements FieldModifier {
+        private final Set<String> fieldNames = new HashSet<>();
+
+        @Override
+        public String modify(final long startingLineNumber, final int fieldIdx, final boolean quoted,
+                final String field) {
+            if (fieldNames.contains(field)) {
+                throw new IllegalStateException(ExaError.messageBuilder("E-VSDF-72").message(
+                        "Duplicate field {{field name}} at line number {{line number}} / field index {{field index}}, all fields: {{all field names}}",
+                        field, startingLineNumber, fieldIdx, fieldNames).toString());
+            }
+            fieldNames.add(field);
+            return field;
         }
     }
 }

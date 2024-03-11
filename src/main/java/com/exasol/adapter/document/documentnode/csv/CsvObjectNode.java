@@ -8,14 +8,14 @@ import com.exasol.adapter.document.documentnode.csv.converter.CsvValueConverter;
 import com.exasol.adapter.document.documentnode.csv.converter.CsvValueConverters;
 import com.exasol.errorreporting.ExaError;
 
-import de.siegmar.fastcsv.reader.CsvRow;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
 /**
  * This class represents a single CSV Row.
  */
 class CsvObjectNode implements DocumentObject {
 
-    private final CsvRow row;
+    private final CsvRecord row;
     private final CsvValueConverters converters;
     private final String resourceName;
 
@@ -26,7 +26,7 @@ class CsvObjectNode implements DocumentObject {
      * @param converters   the converters for converting CSV values to {@link DocumentNode}
      * @param row          CSV row to wrap
      */
-    CsvObjectNode(final String resourceName, final CsvValueConverters converters, final CsvRow row) {
+    CsvObjectNode(final String resourceName, final CsvValueConverters converters, final CsvRecord row) {
         this.resourceName = resourceName;
         this.converters = converters;
         this.row = row;
@@ -63,7 +63,7 @@ class CsvObjectNode implements DocumentObject {
                     .parameter("value", value, "value to convert") //
                     .parameter("converter", converter, "converter that was used for converting the value")
                     .parameter("resource name", this.resourceName, "resource name or path to the CSV file")
-                    .parameter("line number", this.row.getOriginalLineNumber(),
+                    .parameter("line number", this.row.getStartingLineNumber(),
                             "line number of the value (starting with 1)")
                     .parameter("column index", index, "column index of the value (starting with 0)") //
                     .mitigation(

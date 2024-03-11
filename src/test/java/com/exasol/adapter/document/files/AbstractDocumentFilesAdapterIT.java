@@ -148,10 +148,9 @@ public abstract class AbstractDocumentFilesAdapterIT {
     @Test
     public void testReadJson() throws SQLException, IOException {
         createJsonVirtualSchema();
-        final ResultSet result = getStatement()
-                .executeQuery("SELECT ID, SOURCE_REFERENCE FROM " + TEST_SCHEMA + ".BOOKS ORDER BY ID ASC;");
-        assertThat(result, table().row("book-1", this.dataFilesDirectory + "/testData-1.json")
-                .row("book-2", this.dataFilesDirectory + "/testData-2.json").matches());
+        assertQuery("SELECT ID, SOURCE_REFERENCE FROM " + TEST_SCHEMA + ".BOOKS ORDER BY ID ASC",
+                table().row("book-1", this.dataFilesDirectory + "/testData-1.json")
+                        .row("book-2", this.dataFilesDirectory + "/testData-2.json").matches());
     }
 
     @Test
@@ -160,10 +159,9 @@ public abstract class AbstractDocumentFilesAdapterIT {
         createJsonVirtualSchema();
         for (int runCounter = 0; runCounter < 5; runCounter++) {
             PerformanceTestRecorder.getInstance().recordExecution(this.testInfo, () -> {
-                final ResultSet result = getStatement()
-                        .executeQuery("SELECT ID, SOURCE_REFERENCE FROM " + TEST_SCHEMA + ".BOOKS ORDER BY ID ASC;");
-                assertThat(result, table().row("book-1", this.dataFilesDirectory + "/testData-1.json")
-                        .row("book-2", this.dataFilesDirectory + "/testData-2.json").matches());
+                assertQuery("SELECT ID, SOURCE_REFERENCE FROM " + TEST_SCHEMA + ".BOOKS ORDER BY ID ASC",
+                        table().row("book-1", this.dataFilesDirectory + "/testData-1.json")
+                                .row("book-2", this.dataFilesDirectory + "/testData-2.json").matches());
             });
         }
     }
@@ -171,36 +169,32 @@ public abstract class AbstractDocumentFilesAdapterIT {
     @Test
     public void testReadJsonLines() throws SQLException, IOException {
         createJsonLinesVirtualSchema();
-        final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
-        assertThat(result, table().row("book-1").row("book-2").matches());
+        assertQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS", table().row("book-1").row("book-2").matches());
     }
 
     @Test
     public void testReadCsv() throws SQLException, IOException {
         createCsvVirtualSchema();
-        final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
-        assertThat(result, table().row("book-1").row("book-2").matches());
+        assertQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS", table().row("book-1").row("book-2").matches());
     }
 
     @Test
     public void testReadCsvHeaders() throws SQLException, IOException {
         createCsvVirtualSchemaHeaders();
-        final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
-        assertThat(result, table().row("book-1").row("book-2").matches());
+        assertQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS", table().row("book-1").row("book-2").matches());
     }
 
     @Test
     public void testReadCsvNoHeaders() throws SQLException, IOException {
         createCsvVirtualSchemaNoHeaders();
-        final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
-        assertThat(result, table().row("book-1").row("book-2").matches());
+        assertQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS", table().row("book-1").row("book-2").matches());
     }
 
     @Test
     public void testReadCsvDifferentDelimiterNotSupported() throws SQLException, IOException {
         createCsvVirtualSchemaDifferentDelimiter();
-        final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
-        assertThat(result, table().row((String) null).row((String) null).matches());
+        assertQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS",
+                table().row((String) null).row((String) null).matches());
     }
 
     @Test
@@ -368,8 +362,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
         createJsonLinesVirtualSchema();
         for (int runCounter = 0; runCounter < 5; runCounter++) {
             PerformanceTestRecorder.getInstance().recordExecution(this.testInfo, () -> {
-                final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
-                assertThat(result, table().row("book-1").row("book-2").matches());
+                assertQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS", table().row("book-1").row("book-2").matches());
             });
         }
     }
@@ -485,7 +478,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 + this.dataFilesDirectory + "/testData-1.json' OR SOURCE_REFERENCE = '" + this.dataFilesDirectory
                 + "/testData-2.json' ORDER BY SOURCE_REFERENCE ASC";
         assertAll(//
-                () -> assertThat(getStatement().executeQuery(query), table().row("book-1").row("book-2").matches()), //
+                () -> assertQuery(query, table().row("book-1").row("book-2").matches()), //
                 () -> assertThat(getPushDownSql(getStatement(), query), endsWith("WHERE TRUE")), // no post selection
                 () -> assertThat(getSelectionThatIsSentToTheAdapter(getStatement(), query),
                         equalTo("(BOOKS.SOURCE_REFERENCE='" + this.dataFilesDirectory
@@ -507,7 +500,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 + "/testData-1.json' OR SOURCE_REFERENCE = '" + this.dataFilesDirectory
                 + "/testData-2.json' ORDER BY SOURCE_REFERENCE ASC)";
         assertAll(//
-                () -> assertThat(getStatement().executeQuery(query), table().row("book-1").row("book-2").matches()), //
+                () -> assertQuery(query, table().row("book-1").row("book-2").matches()), //
                 () -> assertThat(getPushDownSql(getStatement(), query), endsWith("WHERE TRUE")), // no post selection
                 () -> assertThat(getSelectionThatIsSentToTheAdapter(getStatement(), query),
                         equalTo("(BOOKS.SOURCE_REFERENCE='" + this.dataFilesDirectory
@@ -830,8 +823,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 () -> AbstractDocumentFilesAdapterIT.class.getClassLoader()
                         .getResourceAsStream(IT_RESOURCES + "test.jsonl"),
                 this.dataFilesDirectory + "/" + "test.strange-extension");
-        final ResultSet result = getStatement().executeQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS;");
-        assertThat(result, table().row("book-1").row("book-2").matches());
+        assertQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS", table().row("book-1").row("book-2").matches());
     }
 
     private void uploadAsParquetFile(final ParquetTestSetup parquetFile, final int fileIndex) {

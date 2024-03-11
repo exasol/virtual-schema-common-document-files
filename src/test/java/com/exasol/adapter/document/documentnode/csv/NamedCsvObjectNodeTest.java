@@ -20,17 +20,10 @@ import com.exasol.adapter.document.documentnode.csv.converter.CsvValueConverters
 import com.exasol.adapter.document.documentpath.DocumentPathExpression;
 import com.exasol.adapter.document.mapping.*;
 
-import de.siegmar.fastcsv.reader.NamedCsvReader;
+import de.siegmar.fastcsv.reader.CsvReader;
+import de.siegmar.fastcsv.reader.NamedCsvRecord;
 
 class NamedCsvObjectNodeTest {
-
-    @Test
-    void testCreateFailsForDuplicateHeadersWithoutSpaces() {
-        final List<ColumnMapping> columns = List.of(varcharCol("col"));
-        final IllegalStateException exception = assertThrows(IllegalStateException.class,
-                () -> create("col,col\nval1,val2", columns));
-        assertThat(exception.getMessage(), equalTo("Duplicate header field 'col' found"));
-    }
 
     @Test
     void testCreateFailsForDuplicateHeaders() {
@@ -136,7 +129,7 @@ class NamedCsvObjectNodeTest {
     }
 
     private NamedCsvObjectNode create(final String csvContent, final List<ColumnMapping> csvColumns) {
-        final NamedCsvReader csvWithHeadersReader = NamedCsvReader.builder().build(csvContent);
+        final CsvReader<NamedCsvRecord> csvWithHeadersReader = CsvReader.builder().ofNamedCsvRecord(csvContent);
         return new NamedCsvObjectNode("resourceName", CsvValueConverters.create(csvColumns),
                 csvWithHeadersReader.iterator().next());
     }

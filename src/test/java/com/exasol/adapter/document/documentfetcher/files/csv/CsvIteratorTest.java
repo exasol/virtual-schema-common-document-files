@@ -22,6 +22,8 @@ import com.exasol.adapter.document.documentnode.DocumentObject;
 import com.exasol.adapter.document.documentpath.DocumentPathExpression;
 import com.exasol.adapter.document.mapping.*;
 
+import de.siegmar.fastcsv.reader.CsvParseException;
+
 class CsvIteratorTest {
     public static final String CSV_EXAMPLE = "test-1\ntest-2";
     public static final String CSV_WITH_HEADERS_EXAMPLE = "header-1\ntest-1\ntest-2";
@@ -55,9 +57,11 @@ class CsvIteratorTest {
     @Test
     void testWithDuplicateHeadersReadLines() {
         final List<ColumnMapping> columns = List.of(varcharMapping("header-1"));
-        final IllegalStateException exception = assertThrows(IllegalStateException.class,
-                () -> createCsvWithHeadersIterator(CSV_WITH_DUPLICATE_HEADERS_EXAMPLE, columns));
-        assertThat(exception.getMessage(), equalTo("Duplicate header field 'header' found"));
+        final CsvIterator iterator = createCsvWithHeadersIterator(CSV_WITH_DUPLICATE_HEADERS_EXAMPLE, columns);
+        final CsvParseException exception = assertThrows(CsvParseException.class, iterator::next);
+        assertAll(() -> assertThat(exception.getMessage(), equalTo("Exception when reading first record")),
+                () -> assertThat(exception.getCause().getMessage(), equalTo(
+                        "E-VSDF-72: Duplicate field 'header' at line number 1 / field index 1, all fields: ['header']")));
     }
 
     @Test

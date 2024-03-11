@@ -15,7 +15,7 @@ public class CsvTestSetup implements AutoCloseable {
     public CsvTestSetup(final Path tempDir, final List<String> columns) throws IOException {
         this.csvFile = Files.createTempFile(tempDir, "testData", ".csv");
         this.csvWriter = CsvWriter.builder().build(new FileWriter(this.csvFile.toFile()));
-        this.csvWriter.writeRow(columns);
+        this.csvWriter.writeRecord(columns);
     }
 
     public Path getCsvFile() {
@@ -23,7 +23,7 @@ public class CsvTestSetup implements AutoCloseable {
     }
 
     public CsvTestSetup writeRow(final List<String> values) throws IOException {
-        this.csvWriter.writeRow(values);
+        this.csvWriter.writeRecord(values);
         return this;
     }
 

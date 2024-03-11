@@ -11,7 +11,7 @@ import com.exasol.adapter.document.documentnode.csv.converter.CsvValueConverter;
 import com.exasol.adapter.document.documentnode.csv.converter.CsvValueConverters;
 import com.exasol.errorreporting.ExaError;
 
-import de.siegmar.fastcsv.reader.NamedCsvRow;
+import de.siegmar.fastcsv.reader.NamedCsvRecord;
 
 /**
  * This class represents a single CSV Row with named columns.
@@ -30,16 +30,16 @@ class NamedCsvObjectNode implements DocumentObject {
      * @param converters   the converters for converting CSV values to {@link DocumentNode}
      * @param row          the named CSV row to wrap
      */
-    NamedCsvObjectNode(final String resourceName, final CsvValueConverters converters, final NamedCsvRow row) {
+    NamedCsvObjectNode(final String resourceName, final CsvValueConverters converters, final NamedCsvRecord row) {
         this.resourceName = resourceName;
         this.converters = converters;
         this.fields = trimmedFieldNames(row);
-        this.originalLineNumber = row.getOriginalLineNumber();
+        this.originalLineNumber = row.getStartingLineNumber();
     }
 
-    private Map<String, String> trimmedFieldNames(final NamedCsvRow row) {
-        ensureUniqueFieldNames(row.getFields().keySet());
-        return row.getFields().entrySet().stream() //
+    private Map<String, String> trimmedFieldNames(final NamedCsvRecord row) {
+        ensureUniqueFieldNames(row.getFieldsAsMap().keySet());
+        return row.getFieldsAsMap().entrySet().stream() //
                 .collect(toMap(entry -> entry.getKey().trim(), Map.Entry::getValue, (x, y) -> y, LinkedHashMap::new));
     }
 
