@@ -10,8 +10,8 @@ import de.siegmar.fastcsv.reader.CsvRecord;
 import de.siegmar.fastcsv.reader.NamedCsvRecord;
 
 /**
- * This is a factory that creates {@link DocumentObject}s for {@link NamedCsvRow named} and {@link CsvRow regular} CSV
- * rows.
+ * This is a factory that creates {@link DocumentObject}s for {@link NamedCsvRecord named} and {@link CsvRecord regular}
+ * CSV rows.
  */
 public class CsvObjectNodeFactory {
 
@@ -35,7 +35,7 @@ public class CsvObjectNodeFactory {
     }
 
     /**
-     * Create a new {@link DocumentObject} for the given {@link NamedCsvRow}.
+     * Create a new {@link DocumentObject} for the given {@link NamedCsvRecord}.
      *
      * @param namedCsvRow the row to convert
      * @return a new {@link DocumentObject}
@@ -45,7 +45,7 @@ public class CsvObjectNodeFactory {
     }
 
     /**
-     * Create a new {@link DocumentObject} for the given {@link CsvRow}.
+     * Create a new {@link DocumentObject} for the given {@link CsvRecord}.
      *
      * @param csvRow the row to convert
      * @return a new {@link DocumentObject}
