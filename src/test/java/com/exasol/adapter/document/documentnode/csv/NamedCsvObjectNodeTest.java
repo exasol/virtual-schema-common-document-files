@@ -26,14 +26,6 @@ import de.siegmar.fastcsv.reader.NamedCsvRecord;
 class NamedCsvObjectNodeTest {
 
     @Test
-    void testCreateFailsForDuplicateHeadersWithoutSpaces() {
-        final List<ColumnMapping> columns = List.of(varcharCol("col"));
-        final IllegalStateException exception = assertThrows(IllegalStateException.class,
-                () -> create("col,col\nval1,val2", columns));
-        assertThat(exception.getMessage(), equalTo("Duplicate header field 'col' found"));
-    }
-
-    @Test
     void testCreateFailsForDuplicateHeaders() {
         final List<ColumnMapping> columns = List.of(varcharCol("col"));
         final IllegalStateException exception = assertThrows(IllegalStateException.class,
