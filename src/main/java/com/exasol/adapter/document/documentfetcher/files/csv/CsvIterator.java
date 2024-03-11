@@ -13,7 +13,6 @@ import com.exasol.adapter.document.mapping.ColumnMapping;
 import com.exasol.errorreporting.ExaError;
 
 import de.siegmar.fastcsv.reader.CsvReader;
-import de.siegmar.fastcsv.reader.NamedCsvReader;
 
 /**
  * This class iterates the lines of a CSV file and creates a {@link CsvObjectNode} for each line.
@@ -51,9 +50,10 @@ class CsvIterator implements CloseableIterator<DocumentNode> {
     private static Iterator<DocumentNode> createDelegate(final CsvConfiguration csvConfiguration,
             final CsvObjectNodeFactory nodeFactory, final InputStreamReader inputStreamReader) {
         if (hasHeaders(csvConfiguration)) {
-            return new ConvertingCsvIterator<>(NamedCsvReader.builder().build(inputStreamReader), nodeFactory::create);
+            return new ConvertingCsvIterator<>(CsvReader.builder().ofNamedCsvRecord(inputStreamReader),
+                    nodeFactory::create);
         } else {
-            return new ConvertingCsvIterator<>(CsvReader.builder().build(inputStreamReader), nodeFactory::create);
+            return new ConvertingCsvIterator<>(CsvReader.builder().ofCsvRecord(inputStreamReader), nodeFactory::create);
         }
     }
 

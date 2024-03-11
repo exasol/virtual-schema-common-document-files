@@ -6,8 +6,8 @@ import com.exasol.adapter.document.documentnode.DocumentObject;
 import com.exasol.adapter.document.documentnode.csv.converter.CsvValueConverters;
 import com.exasol.adapter.document.mapping.ColumnMapping;
 
-import de.siegmar.fastcsv.reader.CsvRow;
-import de.siegmar.fastcsv.reader.NamedCsvRow;
+import de.siegmar.fastcsv.reader.CsvRecord;
+import de.siegmar.fastcsv.reader.NamedCsvRecord;
 
 /**
  * This is a factory that creates {@link DocumentObject}s for {@link NamedCsvRow named} and {@link CsvRow regular} CSV
@@ -40,7 +40,7 @@ public class CsvObjectNodeFactory {
      * @param namedCsvRow the row to convert
      * @return a new {@link DocumentObject}
      */
-    public DocumentObject create(final NamedCsvRow namedCsvRow) {
+    public DocumentObject create(final NamedCsvRecord namedCsvRow) {
         return new NamedCsvObjectNode(this.resourceName, this.converters, namedCsvRow);
     }
 
@@ -50,7 +50,7 @@ public class CsvObjectNodeFactory {
      * @param csvRow the row to convert
      * @return a new {@link DocumentObject}
      */
-    public DocumentObject create(final CsvRow csvRow) {
+    public DocumentObject create(final CsvRecord csvRow) {
         return new CsvObjectNode(this.resourceName, this.converters, csvRow);
     }
 }
