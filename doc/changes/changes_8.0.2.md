@@ -1,4 +1,4 @@
-# Virtual Schema for Document Data in Files 8.0.2, released 2024-04-12
+# Virtual Schema for Document Data in Files 8.0.2, released 2024-03-12
 
 Code name: Fix reading duplicate values
 
