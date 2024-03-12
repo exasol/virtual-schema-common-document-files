@@ -25,9 +25,8 @@ import com.exasol.adapter.document.mapping.*;
 import de.siegmar.fastcsv.reader.CsvParseException;
 
 class CsvIteratorTest {
-    public static final String CSV_EXAMPLE = "test-1\ntest-2";
-    public static final String CSV_WITH_HEADERS_EXAMPLE = "header-1\ntest-1\ntest-2";
-    public static final String CSV_WITH_DUPLICATE_HEADERS_EXAMPLE = "header,header\ntest-1a,test-1b\ntest-2a,test-2b";
+    private static final String CSV_EXAMPLE = "test-1\ntest-2";
+    private static final String CSV_WITH_HEADERS_EXAMPLE = "header-1\ntest-1\ntest-2";
 
     enum CsvMode {
         WITH_HEADER, WITHOUT_HEADER
@@ -55,13 +54,45 @@ class CsvIteratorTest {
     }
 
     @Test
-    void testWithDuplicateHeadersReadLines() {
+    void testReadingHeaderWithDuplicateFieldsFails() {
         final List<ColumnMapping> columns = List.of(varcharMapping("header-1"));
-        final CsvIterator iterator = createCsvWithHeadersIterator(CSV_WITH_DUPLICATE_HEADERS_EXAMPLE, columns);
+        final CsvIterator iterator = createCsvWithHeadersIterator("header,header\ntest-1a,test-1b\ntest-2a,test-2b",
+                columns);
         final CsvParseException exception = assertThrows(CsvParseException.class, iterator::next);
         assertAll(() -> assertThat(exception.getMessage(), equalTo("Exception when reading first record")),
                 () -> assertThat(exception.getCause().getMessage(), equalTo(
                         "E-VSDF-72: Duplicate field 'header' at line number 1 / field index 1, all fields: ['header']")));
+    }
+
+    @Test
+    void testReadingCsvWithDuplicateFieldsSucceeds() {
+        final List<ColumnMapping> columns = List.of(varcharMapping("0"), varcharMapping("1"));
+        final List<DocumentNode> result = readCsvLines(
+                "header,header\nduplicate-value,duplicate-value\ntest-2a,test-2b", columns);
+        assertThat(result, hasSize(3));
+
+        assertThat(((DocumentObject) result.get(0)).getKeyValueMap(), allOf(aMapWithSize(2), //
+                hasEntry(equalTo("0"), stringNode("header")), hasEntry(equalTo("1"), stringNode("header"))));
+        assertThat(((DocumentObject) result.get(1)).getKeyValueMap(), allOf(aMapWithSize(2), //
+                hasEntry(equalTo("0"), stringNode("duplicate-value")),
+                hasEntry(equalTo("1"), stringNode("duplicate-value"))));
+        assertThat(((DocumentObject) result.get(2)).getKeyValueMap(), allOf(aMapWithSize(2), //
+                hasEntry(equalTo("0"), stringNode("test-2a")), hasEntry(equalTo("1"), stringNode("test-2b"))));
+    }
+
+    @Test
+    void testReadingDuplicateFieldsInSecondLineSucceeds() {
+        final List<ColumnMapping> columns = List.of(varcharMapping("header1"), varcharMapping("header2"));
+        final List<DocumentNode> result = readCsvWithHeaders(
+                "header1,header2\nduplicate-value,duplicate-value\nvalue1,value2", columns);
+        assertThat(result, hasSize(2));
+
+        assertThat(((DocumentObject) result.get(0)).getKeyValueMap(), allOf(aMapWithSize(2), //
+                hasEntry(equalTo("header1"), stringNode("duplicate-value")),
+                hasEntry(equalTo("header2"), stringNode("duplicate-value"))));
+        assertThat(((DocumentObject) result.get(1)).getKeyValueMap(), allOf(aMapWithSize(2), //
+                hasEntry(equalTo("header1"), stringNode("value1")),
+                hasEntry(equalTo("header2"), stringNode("value2"))));
     }
 
     @Test
@@ -332,6 +363,13 @@ class CsvIteratorTest {
 
     private CsvIterator createCsvIterator(final String content, final List<ColumnMapping> columns) {
         return createCsvIterator(CsvMode.WITHOUT_HEADER, content, columns);
+    }
+
+    private List<DocumentNode> readCsvWithHeaders(final String content, final List<ColumnMapping> csvColumns) {
+        final CsvIterator csvIterator = createCsvWithHeadersIterator(content, csvColumns);
+        final List<DocumentNode> result = new ArrayList<>();
+        csvIterator.forEachRemaining(result::add);
+        return result;
     }
 
     private CsvIterator createCsvWithHeadersIterator(final String content, final List<ColumnMapping> csvColumns) {

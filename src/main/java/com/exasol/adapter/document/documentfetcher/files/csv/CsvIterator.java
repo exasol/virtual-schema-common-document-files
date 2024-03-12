@@ -101,12 +101,14 @@ class CsvIterator implements CloseableIterator<DocumentNode> {
         @Override
         public String modify(final long startingLineNumber, final int fieldIdx, final boolean quoted,
                 final String field) {
-            if (fieldNames.contains(field)) {
-                throw new IllegalStateException(ExaError.messageBuilder("E-VSDF-72").message(
-                        "Duplicate field {{field name}} at line number {{line number}} / field index {{field index}}, all fields: {{all field names}}",
-                        field, startingLineNumber, fieldIdx, fieldNames).toString());
+            if (startingLineNumber == 1) {
+                if (fieldNames.contains(field)) {
+                    throw new IllegalStateException(ExaError.messageBuilder("E-VSDF-72").message(
+                            "Duplicate field {{field name}} at line number {{line number}} / field index {{field index}}, all fields: {{all field names}}",
+                            field, startingLineNumber, fieldIdx, fieldNames).toString());
+                }
+                fieldNames.add(field);
             }
-            fieldNames.add(field);
             return field;
         }
     }
