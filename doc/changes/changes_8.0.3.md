@@ -13,6 +13,10 @@ This release fixes vulnerabilities CVE-2024-29131 & CVE-2024-29133 in `org.apach
 
 ## Dependency Updates
 
+### Compile Dependency Updates
+
+* Updated `com.exasol:parquet-io-java:2.0.7` to `2.0.8`
+
 ### Test Dependency Updates
 
 * Updated `nl.jqno.equalsverifier:equalsverifier:3.15.8` to `3.16.1`
