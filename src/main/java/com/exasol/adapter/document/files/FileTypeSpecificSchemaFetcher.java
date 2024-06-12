@@ -27,8 +27,9 @@ public interface FileTypeSpecificSchemaFetcher {
     /**
      * Create a new {@link FileTypeSpecificSchemaFetcher} that always returns an empty {@link Optional}.
      *
-     * Use this in {@link FileTypeSpecificDocumentFetcherFactoryInterface#buildFileTypeSpecificMappingFetcher()} for
-     * file types that do not support detecting the mapping.
+     * Use this in
+     * {@link FileTypeSpecificDocumentFetcherFactoryInterface#buildFileTypeSpecificMappingFetcher(com.exasol.adapter.document.documentfetcher.files.ColumnNameConverter)}
+     * for file types that do not support detecting the mapping.
      *
      * @return a {@link FileTypeSpecificSchemaFetcher} that always returns an empty {@link Optional}
      */
