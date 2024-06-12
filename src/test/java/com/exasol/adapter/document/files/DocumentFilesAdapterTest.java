@@ -19,8 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.capabilities.*;
 import com.exasol.adapter.document.QueryPlanner;
-import com.exasol.adapter.document.documentfetcher.files.FileFinderFactory;
-import com.exasol.adapter.document.documentfetcher.files.RemoteFileFinder;
+import com.exasol.adapter.document.documentfetcher.files.*;
 import com.exasol.adapter.document.mapping.TableKeyFetcher;
 import com.exasol.adapter.document.mapping.auto.InferredMappingDefinition;
 
@@ -66,6 +65,7 @@ class DocumentFilesAdapterTest {
     }
 
     private DocumentFilesAdapter testee() {
-        return new DocumentFilesAdapter("adapterName", this.fileFinderFactoryMock);
+        return new DocumentFilesAdapter("adapterName", this.fileFinderFactoryMock,
+                ColumnNameConverter.upperSnakeCaseConverter());
     }
 }

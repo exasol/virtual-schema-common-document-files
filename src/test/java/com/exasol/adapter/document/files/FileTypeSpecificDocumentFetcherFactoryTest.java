@@ -13,8 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
 
-import com.exasol.adapter.document.documentfetcher.files.JsonDocumentFetcher;
-import com.exasol.adapter.document.documentfetcher.files.JsonLinesDocumentFetcher;
+import com.exasol.adapter.document.documentfetcher.files.*;
 import com.exasol.adapter.document.documentfetcher.files.csv.CsvDocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.files.parquet.ParquetDocumentFetcher;
 import com.exasol.adapter.document.mapping.ColumnMapping;
@@ -24,7 +23,8 @@ import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
 
 class FileTypeSpecificDocumentFetcherFactoryTest {
 
-    private static final FileTypeSpecificDocumentFetcherFactory FACTORY = new FileTypeSpecificDocumentFetcherFactory();
+    private static final FileTypeSpecificDocumentFetcherFactory FACTORY = new FileTypeSpecificDocumentFetcherFactory(
+            ColumnNameConverter.upperSnakeCaseConverter());
 
     static Stream<Arguments> getBuiltinTypeCases() {
         return Stream.of(//

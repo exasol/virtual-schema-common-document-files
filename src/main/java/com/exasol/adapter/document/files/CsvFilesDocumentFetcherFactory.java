@@ -24,9 +24,8 @@ public class CsvFilesDocumentFetcherFactory implements FileTypeSpecificDocumentF
     }
 
     @Override
-    public FileTypeSpecificSchemaFetcher buildFileTypeSpecificMappingFetcher() {
-        // FIXME: get configured column name converter
-        return FileTypeSpecificSchemaFetcher
-                .singleFile(new CsvSchemaFetcher(ColumnNameConverter.upperSnakeCaseConverter()));
+    public FileTypeSpecificSchemaFetcher buildFileTypeSpecificMappingFetcher(
+            final ColumnNameConverter columnNameConverter) {
+        return FileTypeSpecificSchemaFetcher.singleFile(new CsvSchemaFetcher(columnNameConverter));
     }
 }

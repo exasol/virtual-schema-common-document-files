@@ -23,9 +23,8 @@ public class ParquetFilesDocumentFetcherFactory implements FileTypeSpecificDocum
     }
 
     @Override
-    public FileTypeSpecificSchemaFetcher buildFileTypeSpecificMappingFetcher() {
-        // FIXME: get configured column name converter
-        return FileTypeSpecificSchemaFetcher
-                .singleFile(new ParquetSchemaFetcher(ColumnNameConverter.upperSnakeCaseConverter()));
+    public FileTypeSpecificSchemaFetcher buildFileTypeSpecificMappingFetcher(
+            final ColumnNameConverter columnNameConverter) {
+        return FileTypeSpecificSchemaFetcher.singleFile(new ParquetSchemaFetcher(columnNameConverter));
     }
 }

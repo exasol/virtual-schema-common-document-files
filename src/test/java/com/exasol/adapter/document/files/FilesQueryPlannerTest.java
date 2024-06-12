@@ -29,7 +29,8 @@ class FilesQueryPlannerTest {
     private FilesQueryPlanner mockQueryPlanner(final RemoteFileFinder loader) {
         final FileFinderFactory fileFinderFactory = mock(FileFinderFactory.class);
         when(fileFinderFactory.getFinder(any(), any())).thenAnswer(I -> loader);
-        return new FilesQueryPlanner(fileFinderFactory, mock(ConnectionPropertiesReader.class));
+        return new FilesQueryPlanner(ColumnNameConverter.upperSnakeCaseConverter(), fileFinderFactory,
+                mock(ConnectionPropertiesReader.class));
     }
 
     private RemoteFileFinder mockLoaderThatReturnFiles() {
@@ -68,7 +69,8 @@ class FilesQueryPlannerTest {
         final RemoteTableQuery remoteTableQuery = getRemoteTableQuery("test-*.json",
                 new ColumnLiteralComparisonPredicate(AbstractComparisonPredicate.Operator.EQUAL,
                         new SourceReferenceColumnMapping(), new SqlLiteralString("other.json")));
-        final var queryPlanner = new FilesQueryPlanner(null, mock(ConnectionPropertiesReader.class));
+        final var queryPlanner = new FilesQueryPlanner(ColumnNameConverter.upperSnakeCaseConverter(), null,
+                mock(ConnectionPropertiesReader.class));
         final QueryPlan queryPlan = queryPlanner.planQuery(remoteTableQuery, 10);
         assertThat(queryPlan, instanceOf(EmptyQueryPlan.class));
     }
