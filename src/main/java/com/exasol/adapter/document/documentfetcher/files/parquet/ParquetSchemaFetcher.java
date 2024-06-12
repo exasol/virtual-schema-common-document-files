@@ -20,6 +20,11 @@ import com.exasol.errorreporting.ExaError;
 public class ParquetSchemaFetcher implements SingleFileSchemaFetcher {
     private final ColumnNameConverter columnNameConverter;
 
+    /**
+     * Create a new instance of {@link ParquetSchemaFetcher}.
+     * 
+     * @param columnNameConverter column name converter
+     */
     public ParquetSchemaFetcher(final ColumnNameConverter columnNameConverter) {
         this.columnNameConverter = columnNameConverter;
     }

@@ -19,6 +19,11 @@ public class CsvSchemaFetcher implements SingleFileSchemaFetcher {
     private static final long MAX_ROW_COUNT = 10_000;
     private final ColumnNameConverter columnNameConverter;
 
+    /**
+     * Create a new instance of {@link CsvSchemaFetcher}.
+     * 
+     * @param columnNameConverter column name converter
+     */
     public CsvSchemaFetcher(final ColumnNameConverter columnNameConverter) {
         this.columnNameConverter = columnNameConverter;
     }
