@@ -4,8 +4,8 @@ import static com.exasol.adapter.document.documentfetcher.files.ColumnSizeCalcul
 
 import org.apache.parquet.schema.*;
 
-import com.exasol.adapter.document.documentfetcher.files.ColumnNameConverter;
 import com.exasol.adapter.document.edml.*;
+import com.exasol.adapter.document.mapping.auto.ColumnNameConverter;
 
 /**
  * This class creates {@link MappingDefinition}s for parquet columns.

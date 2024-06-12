@@ -21,6 +21,7 @@ import com.exasol.adapter.document.documentfetcher.files.RemoteFileFinder;
 import com.exasol.adapter.document.edml.Fields;
 import com.exasol.adapter.document.files.FileTypeSpecificSchemaFetcher.SingleFileSchemaFetcher;
 import com.exasol.adapter.document.iterators.CloseableIteratorWrapper;
+import com.exasol.adapter.document.mapping.auto.ColumnNameConverter;
 import com.exasol.adapter.document.mapping.auto.InferredMappingDefinition;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,10 +35,12 @@ class FileTypeSpecificSchemaFetcherTest {
     RemoteFile file1Mock;
     @Mock
     RemoteFile file2Mock;
+    @Mock
+    ColumnNameConverter columnNameConverterMock;
 
     @Test
     void unsupported() {
-        assertTrue(FileTypeSpecificSchemaFetcher.empty().fetchSchema(null).isEmpty());
+        assertTrue(FileTypeSpecificSchemaFetcher.empty().fetchSchema(null, null).isEmpty());
     }
 
     @Test
@@ -52,7 +55,7 @@ class FileTypeSpecificSchemaFetcherTest {
     void singleFileFetcherForSingleFile() {
         simulateFiles(this.file1Mock);
         final InferredMappingDefinition mapping = InferredMappingDefinition.builder(Fields.builder().build()).build();
-        when(this.delegateMock.fetchSchema(same(this.file1Mock))).thenReturn(mapping);
+        when(this.delegateMock.fetchSchema(same(this.file1Mock), same(columnNameConverterMock))).thenReturn(mapping);
         assertThat(fetchSingleFileSchema().get(), sameInstance(mapping));
     }
 
@@ -60,7 +63,7 @@ class FileTypeSpecificSchemaFetcherTest {
     void singleFileFetcherForMultipleFiles() {
         simulateFiles(this.file1Mock, this.file2Mock);
         final InferredMappingDefinition mapping = InferredMappingDefinition.builder(Fields.builder().build()).build();
-        when(this.delegateMock.fetchSchema(same(this.file1Mock))).thenReturn(mapping);
+        when(this.delegateMock.fetchSchema(same(this.file1Mock), same(columnNameConverterMock))).thenReturn(mapping);
         assertThat(fetchSingleFileSchema().get(), sameInstance(mapping));
     }
 
@@ -69,6 +72,7 @@ class FileTypeSpecificSchemaFetcherTest {
     }
 
     private Optional<InferredMappingDefinition> fetchSingleFileSchema() {
-        return FileTypeSpecificSchemaFetcher.singleFile(this.delegateMock).fetchSchema(this.fileFinderMock);
+        return FileTypeSpecificSchemaFetcher.singleFile(this.delegateMock).fetchSchema(this.fileFinderMock,
+                this.columnNameConverterMock);
     }
 }

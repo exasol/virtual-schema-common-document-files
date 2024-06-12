@@ -3,7 +3,6 @@ package com.exasol.adapter.document.files;
 import java.util.List;
 
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
-import com.exasol.adapter.document.documentfetcher.files.ColumnNameConverter;
 import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
 
 /**
@@ -16,15 +15,14 @@ public interface FileTypeSpecificDocumentFetcherFactoryInterface {
      * @param remoteTableQuery the document query
      * @return built {@link FileTypeSpecificDocumentFetcher}
      */
-    public FileTypeSpecificDocumentFetcher buildFileTypeSpecificDocumentFetcher(RemoteTableQuery remoteTableQuery);
+    FileTypeSpecificDocumentFetcher buildFileTypeSpecificDocumentFetcher(RemoteTableQuery remoteTableQuery);
 
     /**
      * Build a {@link FileTypeSpecificSchemaFetcher}.
      *
-     * @param columnNameConverter the column name converter used for auto schema inference
      * @return built {@link FileTypeSpecificSchemaFetcher}
      */
-    public FileTypeSpecificSchemaFetcher buildFileTypeSpecificMappingFetcher(ColumnNameConverter columnNameConverter);
+    FileTypeSpecificSchemaFetcher buildFileTypeSpecificMappingFetcher();
 
     /**
      * Get the file extensions for that this factory can build {@link DocumentFetcher}s.
@@ -35,5 +33,5 @@ public interface FileTypeSpecificDocumentFetcherFactoryInterface {
      *
      * @return list of supported file extensions
      */
-    public List<String> getSupportedFileExtensions();
+    List<String> getSupportedFileExtensions();
 }

@@ -2,11 +2,11 @@ package com.exasol.adapter.document.documentfetcher.files.csv;
 
 import java.util.logging.Logger;
 
-import com.exasol.adapter.document.documentfetcher.files.ColumnNameConverter;
 import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
 import com.exasol.adapter.document.edml.Fields;
 import com.exasol.adapter.document.edml.MappingDefinition;
 import com.exasol.adapter.document.files.FileTypeSpecificSchemaFetcher.SingleFileSchemaFetcher;
+import com.exasol.adapter.document.mapping.auto.ColumnNameConverter;
 import com.exasol.adapter.document.mapping.auto.InferredMappingDefinition;
 
 import io.deephaven.csv.reading.CsvReader;
@@ -17,19 +17,10 @@ import io.deephaven.csv.reading.CsvReader;
 public class CsvSchemaFetcher implements SingleFileSchemaFetcher {
     private static final Logger LOG = Logger.getLogger(CsvSchemaFetcher.class.getName());
     private static final long MAX_ROW_COUNT = 10_000;
-    private final ColumnNameConverter columnNameConverter;
-
-    /**
-     * Create a new instance of {@link CsvSchemaFetcher}.
-     * 
-     * @param columnNameConverter column name converter
-     */
-    public CsvSchemaFetcher(final ColumnNameConverter columnNameConverter) {
-        this.columnNameConverter = columnNameConverter;
-    }
 
     @Override
-    public InferredMappingDefinition fetchSchema(final RemoteFile remoteFile) {
+    public InferredMappingDefinition fetchSchema(final RemoteFile remoteFile,
+            final ColumnNameConverter columnNameConverter) {
         final boolean hasHeaderRow = new CsvHeaderDetector(remoteFile).hasHeaderRow();
         final CsvReader.Result result = CsvParser.parse(remoteFile, hasHeaderRow, MAX_ROW_COUNT);
         return new MappingDefinitionBuilder(columnNameConverter, result, hasHeaderRow).build();

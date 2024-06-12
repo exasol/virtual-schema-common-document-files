@@ -3,8 +3,8 @@ package com.exasol.adapter.document.documentfetcher.files.parquet;
 import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.*;
 import static org.apache.parquet.schema.Type.Repetition.REQUIRED;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.aMapWithSize;
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
@@ -16,9 +16,10 @@ import org.apache.parquet.schema.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import com.exasol.adapter.document.documentfetcher.files.*;
-import com.exasol.adapter.document.edml.Fields;
-import com.exasol.adapter.document.edml.MappingDefinition;
+import com.exasol.adapter.document.documentfetcher.files.LocalRemoteFileContent;
+import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
+import com.exasol.adapter.document.edml.*;
+import com.exasol.adapter.document.mapping.auto.ColumnNameConverter;
 
 class ParquetSchemaFetcherTest {
 
@@ -44,6 +45,16 @@ class ParquetSchemaFetcherTest {
     }
 
     @Test
+    void fetchSchemaConvertsColumnNames() throws IOException {
+        final Type stringColumn = Types.primitive(BINARY, REQUIRED).named("data");
+        final Path file = parquetFile(stringColumn).closeWriter().getParquetFile();
+        final Map<String, MappingDefinition> fields = ((Fields) fetch(file)).getFieldsMap();
+        assertAll(() -> assertThat(fields, aMapWithSize(1)),
+                () -> assertThat(((ToVarcharMapping) fields.get("data-converted")).getDestinationName(),
+                        equalTo("data-converted")));
+    }
+
+    @Test
     void fetchEmptyFileFails() throws IOException {
         final Path emptyFile = Files.createFile(this.tempDir.resolve("emptyFile"));
         final RuntimeException exception = assertThrows(RuntimeException.class, () -> fetch(emptyFile));
@@ -55,7 +66,13 @@ class ParquetSchemaFetcherTest {
     }
 
     MappingDefinition fetch(final Path file) {
-        return new ParquetSchemaFetcher(ColumnNameConverter.upperSnakeCaseConverter())
-                .fetchSchema(new RemoteFile(file.toString(), 0, new LocalRemoteFileContent(file))).getMapping();
+        return new ParquetSchemaFetcher()
+                .fetchSchema(new RemoteFile(file.toString(), 0, new LocalRemoteFileContent(file)),
+                        columnNameConverter())
+                .getMapping();
+    }
+
+    private ColumnNameConverter columnNameConverter() {
+        return name -> name + "-converted";
     }
 }

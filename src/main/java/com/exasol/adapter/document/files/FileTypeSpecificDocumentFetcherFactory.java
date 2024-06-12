@@ -2,7 +2,6 @@ package com.exasol.adapter.document.files;
 
 import java.util.ServiceLoader;
 
-import com.exasol.adapter.document.documentfetcher.files.ColumnNameConverter;
 import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
 import com.exasol.errorreporting.ExaError;
 
@@ -10,17 +9,6 @@ import com.exasol.errorreporting.ExaError;
  * Factory for {@link FileTypeSpecificDocumentFetcher}.
  */
 public class FileTypeSpecificDocumentFetcherFactory {
-
-    private final ColumnNameConverter columnNameConverter;
-
-    /**
-     * Create an instance of {@link FileTypeSpecificDocumentFetcherFactory}.
-     * 
-     * @param columnNameConverter column name converter
-     */
-    public FileTypeSpecificDocumentFetcherFactory(final ColumnNameConverter columnNameConverter) {
-        this.columnNameConverter = columnNameConverter;
-    }
 
     /**
      * Build a {@link FileTypeSpecificDocumentFetcher} for a given file name extension.
@@ -41,7 +29,7 @@ public class FileTypeSpecificDocumentFetcherFactory {
      * @return built {@link FileTypeSpecificSchemaFetcher}
      */
     public FileTypeSpecificSchemaFetcher buildFileTypeSpecificSchemaFetcher(final String fileEnding) {
-        return findFactory(fileEnding).buildFileTypeSpecificMappingFetcher(columnNameConverter);
+        return findFactory(fileEnding).buildFileTypeSpecificMappingFetcher();
     }
 
     // you select the factory and then return the document fetcher
