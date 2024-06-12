@@ -81,3 +81,11 @@ The Virtual Schema can only push down selections on the `SOURCE_REFERENCE` colum
 ```sql
 SELECT * FROM LOGS WHERE SOURCE_REFERENCE LIKE 'log_files/2022-01-%.parquet' AND SEVERITY = 'warn'
 ```
+
+## Automatic Schema Inference
+
+Automatic schema inference can automatically detect the schema of Parquet and CSV files, see the [EDML user guide](https://github.com/exasol/virtual-schema-common-document/blob/main/doc/user_guide/edml_user_guide.md#automatic-mapping-inference) for details.
+
+You can configure the mapping of source column names to Exasol column names with configuration option `AUTO_INFERENCE_COLUMN_NAMES`:
+* `CONVERT_TO_UPPER_SNAKE_CASE`: convert column names to `UPPER_SNAKE_CASE` (default)
+* `KEEP_SOURCE`: use the original column name from the source Parquet/CSV file. Note that this may cause problems when the column name is not a valid Exasol identifier.

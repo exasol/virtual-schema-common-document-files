@@ -16,8 +16,7 @@ import org.apache.parquet.schema.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import com.exasol.adapter.document.documentfetcher.files.LocalRemoteFileContent;
-import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
+import com.exasol.adapter.document.documentfetcher.files.*;
 import com.exasol.adapter.document.edml.Fields;
 import com.exasol.adapter.document.edml.MappingDefinition;
 
@@ -56,7 +55,7 @@ class ParquetSchemaFetcherTest {
     }
 
     MappingDefinition fetch(final Path file) {
-        return new ParquetSchemaFetcher()
+        return new ParquetSchemaFetcher(ColumnNameConverter.upperSnakeCaseConverter())
                 .fetchSchema(new RemoteFile(file.toString(), 0, new LocalRemoteFileContent(file))).getMapping();
     }
 }

@@ -4,7 +4,7 @@ import static com.exasol.adapter.document.documentfetcher.files.ColumnSizeCalcul
 
 import org.apache.parquet.schema.*;
 
-import com.exasol.adapter.document.documentfetcher.files.ToUpperSnakeCaseConverter;
+import com.exasol.adapter.document.documentfetcher.files.ColumnNameConverter;
 import com.exasol.adapter.document.edml.*;
 
 /**
@@ -12,8 +12,10 @@ import com.exasol.adapter.document.edml.*;
  */
 class ParquetColumnToMappingDefinitionConverter {
 
-    private static String buildColumnName(final Type column) {
-        return ToUpperSnakeCaseConverter.toUpperSnakeCase(column.getName());
+    private final ColumnNameConverter columnNameConverter;
+
+    ParquetColumnToMappingDefinitionConverter(final ColumnNameConverter columnNameConverter) {
+        this.columnNameConverter = columnNameConverter;
     }
 
     /**
@@ -25,26 +27,37 @@ class ParquetColumnToMappingDefinitionConverter {
     MappingDefinition convert(final Type column) {
         final LogicalTypeAnnotation logicalTypeAnnotation = column.getLogicalTypeAnnotation();
         if (logicalTypeAnnotation != null) {
-            return new LogicalTypeConverter().convert(logicalTypeAnnotation, buildColumnName(column));
+            return new LogicalTypeConverter().convert(logicalTypeAnnotation,
+                    columnNameConverter.convertColumnName(column.getName()));
         } else {
-            final NonLogicalTypeConvertVisitor visitor = new NonLogicalTypeConvertVisitor();
+            final NonLogicalTypeConvertVisitor visitor = new NonLogicalTypeConvertVisitor(this.columnNameConverter);
             column.accept(visitor);
             return visitor.getResult();
         }
     }
 
     private static class NonLogicalTypeConvertVisitor implements TypeVisitor {
+        private final ColumnNameConverter columnNameConverter;
         private MappingDefinition result;
+
+        private NonLogicalTypeConvertVisitor(final ColumnNameConverter columnNameConverter) {
+            this.columnNameConverter = columnNameConverter;
+        }
 
         @Override
         public void visit(final GroupType groupType) {
             groupType.getLogicalTypeAnnotation();
             final Fields.FieldsBuilder fieldsBuilder = Fields.builder();
             for (final Type column : groupType.getFields()) {
-                final MappingDefinition columnMapping = new ParquetColumnToMappingDefinitionConverter().convert(column);
-                fieldsBuilder.mapField(column.getName(), columnMapping);
+                final MappingDefinition columnMapping = new ParquetColumnToMappingDefinitionConverter(
+                        columnNameConverter).convert(column);
+                fieldsBuilder.mapField(buildColumnName(column), columnMapping);
             }
             this.result = fieldsBuilder.build();
+        }
+
+        private String buildColumnName(final Type column) {
+            return columnNameConverter.convertColumnName(column.getName());
         }
 
         @Override

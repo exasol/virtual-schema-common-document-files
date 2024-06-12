@@ -143,7 +143,7 @@ class CsvSchemaFetcherTest {
     }
 
     InferredMappingDefinition fetchSchema(final String csvContent) {
-        return new CsvSchemaFetcher()
+        return new CsvSchemaFetcher(ColumnNameConverter.upperSnakeCaseConverter())
                 .fetchSchema(new RemoteFile("resourceName", 0, new StringRemoteFileContent(csvContent)));
     }
 }

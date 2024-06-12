@@ -2,6 +2,7 @@ package com.exasol.adapter.document.files;
 
 import java.util.List;
 
+import com.exasol.adapter.document.documentfetcher.files.ColumnNameConverter;
 import com.exasol.adapter.document.documentfetcher.files.parquet.ParquetDocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.files.parquet.ParquetSchemaFetcher;
 import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
@@ -23,6 +24,8 @@ public class ParquetFilesDocumentFetcherFactory implements FileTypeSpecificDocum
 
     @Override
     public FileTypeSpecificSchemaFetcher buildFileTypeSpecificMappingFetcher() {
-        return FileTypeSpecificSchemaFetcher.singleFile(new ParquetSchemaFetcher());
+        // FIXME: get configured column name converter
+        return FileTypeSpecificSchemaFetcher
+                .singleFile(new ParquetSchemaFetcher(ColumnNameConverter.upperSnakeCaseConverter()));
     }
 }
