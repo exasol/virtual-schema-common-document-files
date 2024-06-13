@@ -126,8 +126,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
         final String edmlString = new EdmlSerializer().serialize(edmlDefinition.build());
         final Instant start = Instant.now();
         createVirtualSchema(schemaName, edmlString);
-        LOGGER.fine(() -> "Virtual schema '" + schemaName + "' created in "
-                + Duration.between(start, Instant.now()).toSeconds() + "s");
+        LOGGER.fine(() -> "Virtual schema '" + schemaName + "' created in " + Duration.between(start, Instant.now()));
     }
 
     private String getMappingTemplate(final String resourceName) throws IOException {
@@ -255,6 +254,40 @@ public abstract class AbstractDocumentFilesAdapterIT {
                         .row("test1", true, 1.23, 42, 2.5, "2007-12-03", "2007-12-03 10:15:30.00")
                         .row("test2", false, 1.22E-4, -17, -3.5, "2023-04-20", "2007-12-03 10:15:30.00")
                         .matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
+    }
+
+    @Test
+    public void testReadCsvWithTypesWithHeaderWithAutomaticInferenceWithOriginalColumnName() {
+        uploadFileContent("testData-1.csv", List.of( //
+                "STR, boolCol, decimalCol, intCol,double col,date col,Timestamp Col", //
+                "\"test1\",true,1.23,42,2.5,2007-12-03,2007-12-03 10:15:30.00",
+                "test2,FALSE,1.22e-4,-17,-3.5,2023-04-20,2007-12-03 10:15:30.00"));
+        createVirtualSchemaWithMapping(TEST_SCHEMA,
+                EdmlDefinition.builder().source(this.dataFilesDirectory + "/testData-*.csv").destinationTable("BOOKS")
+                        .autoInferenceColumnNames(ColumnNameMapping.KEEP_SOURCE));
+        assertQuery(
+                "SELECT str, \"boolCol\", \"decimalCol\", \"intCol\", \"double col\", \"date col\", \"Timestamp Col\" FROM "
+                        + TEST_SCHEMA + ".BOOKS", //
+                table("VARCHAR", "BOOLEAN", "DOUBLE PRECISION", "BIGINT", "DOUBLE PRECISION", "VARCHAR", "VARCHAR") //
+                        .row("test1", true, 1.23, 42, 2.5, "2007-12-03", "2007-12-03 10:15:30.00")
+                        .row("test2", false, 1.22E-4, -17, -3.5, "2023-04-20", "2007-12-03 10:15:30.00")
+                        .matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
+    }
+
+    @Test
+    public void testReadCsvWithTypesWithHeaderWithAutomaticInferenceColumnNameStartsWithNumber() {
+        uploadFileContent("testData-1.csv", List.of( //
+                "col1,col2,3illegal", //
+                "val11,11,val13", //
+                "val21,22,val23"));
+        createVirtualSchemaWithMapping(TEST_SCHEMA,
+                EdmlDefinition.builder().source(this.dataFilesDirectory + "/testData-*.csv").destinationTable("BOOKS")
+                        .autoInferenceColumnNames(ColumnNameMapping.KEEP_SOURCE));
+        assertQuery("SELECT \"col1\", \"col2\", \"3illegal\" FROM " + TEST_SCHEMA + ".BOOKS", //
+                table("VARCHAR", "BIGINT", "VARCHAR") //
+                        .row("val11", 11L, "val13") //
+                        .row("val21", 22L, "val23") //
+                        .matches());
     }
 
     @Test
@@ -864,8 +897,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
             throw new IllegalStateException("Assertion query '" + query + "' failed: " + exception.getMessage(),
                     exception);
         }
-        LOGGER.fine(
-                () -> "Executed query in " + Duration.between(start, Instant.now()).toSeconds() + "s: '" + query + "'");
+        LOGGER.fine(() -> "Executed query in " + Duration.between(start, Instant.now()) + ": '" + query + "'");
     }
 
     private void assertQueryFails(final String query, final Matcher<String> exceptionMessageMatcher) {
