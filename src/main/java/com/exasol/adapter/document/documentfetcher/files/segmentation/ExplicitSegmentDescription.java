@@ -6,9 +6,9 @@ import java.util.*;
  * This {@link SegmentDescription} describes a segment by an explicit list of files.
  */
 public class ExplicitSegmentDescription implements SegmentDescription {
-    private static final long serialVersionUID = -9092990439459054784L;
+    private static final long serialVersionUID = -9092990439459054785L;
     /** @serial */
-    private final HashMap<String, ArrayList<FileSegmentDescription>> segmentKeys;
+    private final HashMap<String, List<FileSegmentDescription>> segmentKeys;
 
     /**
      * Create a new instance of {@link SegmentDescription}.
@@ -29,7 +29,7 @@ public class ExplicitSegmentDescription implements SegmentDescription {
      * 
      * @return segment keys
      */
-    public Map<String, ArrayList<FileSegmentDescription>> getSegmentKeys() {
+    public Map<String, List<FileSegmentDescription>> getSegmentKeys() {
         return segmentKeys;
     }
 

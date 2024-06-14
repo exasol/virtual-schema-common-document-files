@@ -1,5 +1,7 @@
 package com.exasol.adapter.document.documentfetcher.files;
 
+import java.util.logging.Logger;
+
 import com.exasol.adapter.document.connection.ConnectionPropertiesReader;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.FetchedDocument;
@@ -13,7 +15,8 @@ import com.exasol.adapter.document.iterators.*;
  * This is a basis for {@link DocumentFetcher}s that fetches data/documents from files.
  */
 public class FilesDocumentFetcher implements DocumentFetcher {
-    private static final long serialVersionUID = 3556762980241219699L;
+    private static final long serialVersionUID = 3556762980241219690L;
+    private static final Logger LOGGER = Logger.getLogger(FilesDocumentFetcher.class.getName());
     /** @serial */
     private final StringFilter filePattern;
     /** @serial */
@@ -78,6 +81,8 @@ public class FilesDocumentFetcher implements DocumentFetcher {
 
     private CloseableIterator<FetchedDocument> readLoadedFile(final FileSegment fileSegment) {
         final RemoteFile remoteFile = fileSegment.getFile();
+        LOGGER.finest(() -> "Reading segment " + fileSegment.getSegmentDescription() + " from file "
+                + remoteFile.getResourceName() + " with size " + remoteFile.getSize() + " bytes");
         // add the property if csv
         if (this.fileTypeSpecificDocumentFetcher instanceof CsvDocumentFetcher) {
             final CsvDocumentFetcher csvDocumentFetcher = (CsvDocumentFetcher) this.fileTypeSpecificDocumentFetcher;

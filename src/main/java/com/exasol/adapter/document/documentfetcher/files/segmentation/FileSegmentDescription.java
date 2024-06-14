@@ -9,7 +9,7 @@ import java.util.Objects;
 public final class FileSegmentDescription implements Serializable {
     /** Constant for {@link FileSegmentDescription} of the entire file. */
     public static final FileSegmentDescription ENTIRE_FILE = new FileSegmentDescription(1, 0);
-    private static final long serialVersionUID = 8989312140293872959L;
+    private static final long serialVersionUID = 8989312140293872950L;
 
     /** @serial */
     private final int numberOfSegments;
@@ -63,5 +63,10 @@ public final class FileSegmentDescription implements Serializable {
         }
         final FileSegmentDescription other = (FileSegmentDescription) obj;
         return (this.numberOfSegments == other.numberOfSegments) && (this.segmentId == other.segmentId);
+    }
+
+    @Override
+    public String toString() {
+        return "FileSegmentDescription [numberOfSegments=" + numberOfSegments + ", segmentId=" + segmentId + "]";
     }
 }

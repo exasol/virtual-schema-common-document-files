@@ -46,24 +46,24 @@ import com.exasol.performancetestrecorder.PerformanceTestRecorder;
  */
 @SuppressWarnings("java:S5786") // this class is public so that class from different packages can inherit
 public abstract class AbstractDocumentFilesAdapterIT {
-    private static final String TEST_SCHEMA = "TEST";
+    protected static final String TEST_SCHEMA = "TEST";
     private static final String IT_RESOURCES = "abstractIntegrationTests/";
     private static final Logger LOGGER = Logger.getLogger(AbstractDocumentFilesAdapterIT.class.getName());
     @TempDir
     Path tempDir;
-    private String dataFilesDirectory;
+    protected String dataFilesDirectory;
     private TestInfo testInfo;
 
     /**
      * Get a DB statement for the Exasol database under test.
-     * 
+     *
      * @return DB statement
      */
     protected abstract Statement getStatement();
 
     /**
      * Upload the given file to the cloud storage service.
-     * 
+     *
      * @param resource     resource content to upload
      * @param resourceName file name on the storage service
      */
@@ -71,7 +71,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     /**
      * Upload the given file to the cloud storage service.
-     * 
+     *
      * @param file         local file
      * @param resourceName file name on the storage service
      */
@@ -122,7 +122,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
         createVirtualSchemaWithMapping(schemaName, edmlDefinition);
     }
 
-    private void createVirtualSchemaWithMapping(final String schemaName, final EdmlDefinitionBuilder edmlDefinition) {
+    protected void createVirtualSchemaWithMapping(final String schemaName, final EdmlDefinitionBuilder edmlDefinition) {
         final String edmlString = new EdmlSerializer().serialize(edmlDefinition.build());
         final Instant start = Instant.now();
         createVirtualSchema(schemaName, edmlString);
@@ -620,14 +620,14 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 .as(LogicalTypeAnnotation.timestampType(true, LogicalTypeAnnotation.TimeUnit.MILLIS))
                 .named("my_timestamp");
         final Type jsonColumn = Types.primitive(BINARY, REQUIRED).as(LogicalTypeAnnotation.jsonType()).named("json");
-        final long a_timestamp = 1632384929000L;
+        final long timestamp = 1632384929000L;
         uploadAsParquetFile(parquetFile(stringColumn, boolColumn, dateColumn, timeColumn, timestampColumn, jsonColumn) //
                 .writeRow(row -> {
                     row.add("data", "my test string");
                     row.add("isActive", true);
-                    row.add("my_date", (int) (a_timestamp / 24 / 60 / 60 / 1000)); // days since unix-epoch
+                    row.add("my_date", (int) (timestamp / 24 / 60 / 60 / 1000)); // days since unix-epoch
                     row.add("my_time", 1000);// ms after midnight
-                    row.add("my_timestamp", a_timestamp);// ms after midnight
+                    row.add("my_timestamp", timestamp);// ms after midnight
                     row.add("json", "{\"my_value\": 2}");
                 }).closeWriter(), 1);
 
@@ -636,8 +636,9 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
         final String query = "SELECT \"DATA\", \"IS_ACTIVE\", \"MY_DATE\", \"MY_TIME\", \"MY_TIMESTAMP\", \"JSON\" FROM "
                 + TEST_SCHEMA + ".BOOKS";
-        assertQuery(query, table().row("my test string", true, new Date(a_timestamp), 1000, new Timestamp(a_timestamp),
-                "{\"my_value\": 2}").withUtcCalendar().matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
+        assertQuery(query, table()
+                .row("my test string", true, new Date(timestamp), 1000, new Timestamp(timestamp), "{\"my_value\": 2}")
+                .withUtcCalendar().matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
     }
 
     @Test
@@ -709,7 +710,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
         }
     }
 
-    private ParquetTestSetup parquetFile(final Type... columnTypes) throws IOException {
+    protected ParquetTestSetup parquetFile(final Type... columnTypes) throws IOException {
         return new ParquetTestSetup(this.tempDir, columnTypes);
     }
 
@@ -859,7 +860,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
         assertQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS", table().row("book-1").row("book-2").matches());
     }
 
-    private void uploadAsParquetFile(final ParquetTestSetup parquetFile, final int fileIndex) {
+    protected void uploadAsParquetFile(final ParquetTestSetup parquetFile, final int fileIndex) {
         uploadAsParquetFile(parquetFile.getParquetFile(), fileIndex);
     }
 
@@ -889,7 +890,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
         }
     }
 
-    private void assertQuery(final String query, final Matcher<ResultSet> matcher) {
+    protected void assertQuery(final String query, final Matcher<ResultSet> matcher) {
         final Instant start = Instant.now();
         try (final ResultSet result = getStatement().executeQuery(query)) {
             assertThat(result, matcher);
@@ -908,7 +909,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     /**
      * Create a virtual schema using JSON files.
-     * 
+     *
      * @throws IOException if creating the virtual schema fails
      */
     protected final void createJsonVirtualSchema() throws IOException {

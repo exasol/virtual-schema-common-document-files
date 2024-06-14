@@ -18,8 +18,14 @@ This release allows configuring the mapping of column names for the automatic ma
 
 ## Dependency Updates
 
+### Compile Dependency Updates
+
+* Updated `com.exasol:virtual-schema-common-document:10.1.2` to `11.0.0`
+
 ### Test Dependency Updates
 
+* Updated `com.exasol:virtual-schema-common-document:10.1.2` to `11.0.0`
+* Added `com.jparams:to-string-verifier:1.4.8`
 * Removed `org.apache.commons:commons-text:1.12.0`
 
 ### Plugin Dependency Updates
