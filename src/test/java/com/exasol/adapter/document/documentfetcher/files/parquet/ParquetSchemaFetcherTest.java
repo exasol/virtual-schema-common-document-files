@@ -50,7 +50,7 @@ class ParquetSchemaFetcherTest {
         final Path file = parquetFile(stringColumn).closeWriter().getParquetFile();
         final Map<String, MappingDefinition> fields = ((Fields) fetch(file)).getFieldsMap();
         assertAll(() -> assertThat(fields, aMapWithSize(1)),
-                () -> assertThat(((ToVarcharMapping) fields.get("data-converted")).getDestinationName(),
+                () -> assertThat(((ToVarcharMapping) fields.get("data")).getDestinationName(),
                         equalTo("data-converted")));
     }
 
