@@ -28,7 +28,7 @@ class ParquetColumnToMappingDefinitionConverter {
         final LogicalTypeAnnotation logicalTypeAnnotation = column.getLogicalTypeAnnotation();
         if (logicalTypeAnnotation != null) {
             return new LogicalTypeConverter().convert(logicalTypeAnnotation,
-                    columnNameConverter.convertColumnName(column.getName()));
+                    this.columnNameConverter.convertColumnName(column.getName()));
         } else {
             final NonLogicalTypeConvertVisitor visitor = new NonLogicalTypeConvertVisitor(this.columnNameConverter);
             column.accept(visitor);
@@ -50,7 +50,7 @@ class ParquetColumnToMappingDefinitionConverter {
             final Fields.FieldsBuilder fieldsBuilder = Fields.builder();
             for (final Type column : groupType.getFields()) {
                 final MappingDefinition columnMapping = new ParquetColumnToMappingDefinitionConverter(
-                        columnNameConverter).convert(column);
+                        this.columnNameConverter).convert(column);
                 fieldsBuilder.mapField(column.getName(), columnMapping);
             }
             this.result = fieldsBuilder.build();
