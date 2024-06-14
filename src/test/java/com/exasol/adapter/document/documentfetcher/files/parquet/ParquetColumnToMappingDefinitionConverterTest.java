@@ -94,7 +94,7 @@ class ParquetColumnToMappingDefinitionConverterTest {
         final GroupType listType = Types.list(REQUIRED).element(itemType).named("ids");
         final MessageType schema = new MessageType("test", listType);
         final Fields result = (Fields) convert(schema);
-        assertThat(result.getFieldsMap().get("IDS"), instanceOf(ToJsonMapping.class));
+        assertThat(result.getFieldsMap().get("ids"), instanceOf(ToJsonMapping.class));
     }
 
     private MappingDefinition convert(final Type column) {

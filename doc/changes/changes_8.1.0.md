@@ -10,8 +10,6 @@ This release allows configuring the mapping of column names for the automatic ma
 
  See the [EDML user guide](https://github.com/exasol/virtual-schema-common-document/blob/main/doc/user_guide/edml_user_guide.md#automatic-mapping-inference) for details.
 
-**Breaking change:** Nested fields in Parquet files were wrongly always used in their original form. These names are now treated as normal fields, i.e. they are converted to `UPPER_SNAKE_CASE` by default.
-
 ## Features
 
 * #163: Added option to keep original column name for auto inference

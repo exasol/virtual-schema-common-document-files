@@ -51,7 +51,7 @@ class ParquetColumnToMappingDefinitionConverter {
             for (final Type column : groupType.getFields()) {
                 final MappingDefinition columnMapping = new ParquetColumnToMappingDefinitionConverter(
                         columnNameConverter).convert(column);
-                fieldsBuilder.mapField(buildColumnName(column), columnMapping);
+                fieldsBuilder.mapField(column.getName(), columnMapping);
             }
             this.result = fieldsBuilder.build();
         }
