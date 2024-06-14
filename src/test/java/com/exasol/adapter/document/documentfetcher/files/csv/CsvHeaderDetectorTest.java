@@ -35,7 +35,7 @@ class CsvHeaderDetectorTest {
     }
 
     @ParameterizedTest
-    @CsvSource({ "1", "1.1", "true", "FALSE", //
+    @CsvSource({ "1", "12345", "1.1", "true", "FALSE" //
     })
     void singleColumnHasHeader(final String value) {
         assertHeader(true, List.of("header", value));
@@ -59,17 +59,36 @@ class CsvHeaderDetectorTest {
     }
 
     @Test
-    void mulitColumnsAllStringHasNoHeader() {
+    void multiColumnsAllStringHasNoHeader() {
         assertHeader(false, List.of("h1,h2,h3", "v01,v02,v03", "v11,v12,v13"));
     }
 
     @Test
-    void mulitColumnsNotAllStringHasHeader() {
+    void multiColumnsNotAllStringHasHeader() {
         assertHeader(true, List.of("h1,h2,h3", "v01,2,v03", "v11,12,v13"));
     }
 
     @Test
-    void mulitColumnsNotAllStringHasNoHeader() {
+    void multiColumnsHeaderStartsWithNumber() {
+        assertHeader(true, List.of("h1,h2,3h3", "v01,2,v03", "v11,12,v13"));
+    }
+
+    @Test
+    void multiColumnsHeaderStartsWithNumber2() {
+        assertHeader(false, List.of("col1, col2, 3illegal", //
+                "val11, val12, val13", //
+                "val21, val22, val23"));
+    }
+
+    @Test
+    void multiColumnsHeaderStartsWithNumber3() {
+        assertHeader(true, List.of("col1, col2, 3illegal", //
+                "val11, 12, val13", //
+                "val21, 22, val23"));
+    }
+
+    @Test
+    void multiColumnsNotAllStringHasNoHeader() {
         assertHeader(false, List.of("v01,2,v03", "v11,12,v13"));
     }
 

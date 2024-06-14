@@ -46,24 +46,24 @@ import com.exasol.performancetestrecorder.PerformanceTestRecorder;
  */
 @SuppressWarnings("java:S5786") // this class is public so that class from different packages can inherit
 public abstract class AbstractDocumentFilesAdapterIT {
-    private static final String TEST_SCHEMA = "TEST";
+    protected static final String TEST_SCHEMA = "TEST";
     private static final String IT_RESOURCES = "abstractIntegrationTests/";
     private static final Logger LOGGER = Logger.getLogger(AbstractDocumentFilesAdapterIT.class.getName());
     @TempDir
     Path tempDir;
-    private String dataFilesDirectory;
+    protected String dataFilesDirectory;
     private TestInfo testInfo;
 
     /**
      * Get a DB statement for the Exasol database under test.
-     * 
+     *
      * @return DB statement
      */
     protected abstract Statement getStatement();
 
     /**
      * Upload the given file to the cloud storage service.
-     * 
+     *
      * @param resource     resource content to upload
      * @param resourceName file name on the storage service
      */
@@ -71,7 +71,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     /**
      * Upload the given file to the cloud storage service.
-     * 
+     *
      * @param file         local file
      * @param resourceName file name on the storage service
      */
@@ -93,7 +93,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     private void createVirtualSchemaWithMapping(final String schemaName, final Fields mapping,
-            final String dataFilePattern) throws IOException {
+            final String dataFilePattern) {
         final EdmlDefinitionBuilder edmlDefinition = defaultEdml(mapping, dataFilePattern);
         createVirtualSchemaWithMapping(schemaName, edmlDefinition);
     }
@@ -113,7 +113,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     private void createVirtualSchemaWithMapping(final String schemaName, final Fields mapping,
-            final String dataFilePattern, final String additionalConfiguration) throws IOException {
+            final String dataFilePattern, final String additionalConfiguration) {
         final EdmlDefinitionBuilder edmlDefinition = EdmlDefinition.builder() //
                 .destinationTable("BOOKS").additionalConfiguration(additionalConfiguration) //
                 .addSourceReferenceColumn(true) //
@@ -122,12 +122,11 @@ public abstract class AbstractDocumentFilesAdapterIT {
         createVirtualSchemaWithMapping(schemaName, edmlDefinition);
     }
 
-    private void createVirtualSchemaWithMapping(final String schemaName, final EdmlDefinitionBuilder edmlDefinition) {
+    protected void createVirtualSchemaWithMapping(final String schemaName, final EdmlDefinitionBuilder edmlDefinition) {
         final String edmlString = new EdmlSerializer().serialize(edmlDefinition.build());
         final Instant start = Instant.now();
         createVirtualSchema(schemaName, edmlString);
-        LOGGER.fine(() -> "Virtual schema '" + schemaName + "' created in "
-                + Duration.between(start, Instant.now()).toSeconds() + "s");
+        LOGGER.fine(() -> "Virtual schema '" + schemaName + "' created in " + Duration.between(start, Instant.now()));
     }
 
     private String getMappingTemplate(final String resourceName) throws IOException {
@@ -146,7 +145,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    public void testReadJson() throws SQLException, IOException {
+    public void testReadJson() throws IOException {
         createJsonVirtualSchema();
         assertQuery("SELECT ID, SOURCE_REFERENCE FROM " + TEST_SCHEMA + ".BOOKS ORDER BY ID ASC",
                 table().row("book-1", this.dataFilesDirectory + "/testData-1.json")
@@ -167,38 +166,38 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    public void testReadJsonLines() throws SQLException, IOException {
+    public void testReadJsonLines() throws IOException {
         createJsonLinesVirtualSchema();
         assertQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS", table().row("book-1").row("book-2").matches());
     }
 
     @Test
-    public void testReadCsv() throws SQLException, IOException {
+    public void testReadCsv() throws IOException {
         createCsvVirtualSchema();
         assertQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS", table().row("book-1").row("book-2").matches());
     }
 
     @Test
-    public void testReadCsvHeaders() throws SQLException, IOException {
+    public void testReadCsvHeaders() throws IOException {
         createCsvVirtualSchemaHeaders();
         assertQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS", table().row("book-1").row("book-2").matches());
     }
 
     @Test
-    public void testReadCsvNoHeaders() throws SQLException, IOException {
+    public void testReadCsvNoHeaders() throws IOException {
         createCsvVirtualSchemaNoHeaders();
         assertQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS", table().row("book-1").row("book-2").matches());
     }
 
     @Test
-    public void testReadCsvDifferentDelimiterNotSupported() throws SQLException, IOException {
+    public void testReadCsvDifferentDelimiterNotSupported() throws IOException {
         createCsvVirtualSchemaDifferentDelimiter();
         assertQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS",
                 table().row((String) null).row((String) null).matches());
     }
 
     @Test
-    public void testReadCsvWithDuplicateHeader() throws IOException, SQLException {
+    public void testReadCsvWithDuplicateHeader() {
         final Fields mapping = Fields.builder()//
                 .mapField("col", ToVarcharMapping.builder().destinationName("my_col").build()) //
                 .build();
@@ -214,7 +213,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    public void testReadCsvWithTypesWithHeader() throws IOException, SQLException {
+    public void testReadCsvWithTypesWithHeader() {
         final Fields mapping = Fields.builder()//
                 .mapField("str", ToVarcharMapping.builder().build()) //
                 .mapField("bool", ToBoolMapping.builder().destinationName("IS_ACTIVE").build())//
@@ -241,7 +240,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    public void testReadCsvWithTypesWithHeaderWithAutomaticInference() throws IOException, SQLException {
+    public void testReadCsvWithTypesWithHeaderWithAutomaticInference() {
         uploadFileContent("testData-1.csv", List.of( //
                 "str, boolCol, decimalCol, intCol,double_col,date_col,timestamp_col", //
                 "\"test1\",true,1.23,42,2.5,2007-12-03,2007-12-03 10:15:30.00",
@@ -258,7 +257,41 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    public void testReadCsvWithSpacesInHeader() throws IOException, SQLException {
+    public void testReadCsvWithTypesWithHeaderWithAutomaticInferenceWithOriginalColumnName() {
+        uploadFileContent("testData-1.csv", List.of( //
+                "STR, boolCol, decimalCol, intCol,double col,date col,Timestamp Col", //
+                "\"test1\",true,1.23,42,2.5,2007-12-03,2007-12-03 10:15:30.00",
+                "test2,FALSE,1.22e-4,-17,-3.5,2023-04-20,2007-12-03 10:15:30.00"));
+        createVirtualSchemaWithMapping(TEST_SCHEMA,
+                EdmlDefinition.builder().source(this.dataFilesDirectory + "/testData-*.csv").destinationTable("BOOKS")
+                        .autoInferenceColumnNames(ColumnNameMapping.KEEP_ORIGINAL_NAME));
+        assertQuery(
+                "SELECT str, \"boolCol\", \"decimalCol\", \"intCol\", \"double col\", \"date col\", \"Timestamp Col\" FROM "
+                        + TEST_SCHEMA + ".BOOKS", //
+                table("VARCHAR", "BOOLEAN", "DOUBLE PRECISION", "BIGINT", "DOUBLE PRECISION", "VARCHAR", "VARCHAR") //
+                        .row("test1", true, 1.23, 42, 2.5, "2007-12-03", "2007-12-03 10:15:30.00")
+                        .row("test2", false, 1.22E-4, -17, -3.5, "2023-04-20", "2007-12-03 10:15:30.00")
+                        .matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
+    }
+
+    @Test
+    public void testReadCsvWithTypesWithHeaderWithAutomaticInferenceColumnNameStartsWithNumber() {
+        uploadFileContent("testData-1.csv", List.of( //
+                "col1,col2,3illegal", //
+                "val11,11,val13", //
+                "val21,22,val23"));
+        createVirtualSchemaWithMapping(TEST_SCHEMA,
+                EdmlDefinition.builder().source(this.dataFilesDirectory + "/testData-*.csv").destinationTable("BOOKS")
+                        .autoInferenceColumnNames(ColumnNameMapping.KEEP_ORIGINAL_NAME));
+        assertQuery("SELECT \"col1\", \"col2\", \"3illegal\" FROM " + TEST_SCHEMA + ".BOOKS", //
+                table("VARCHAR", "BIGINT", "VARCHAR") //
+                        .row("val11", 11L, "val13") //
+                        .row("val21", 22L, "val23") //
+                        .matches());
+    }
+
+    @Test
+    public void testReadCsvWithSpacesInHeader() {
         final Fields mapping = Fields.builder()//
                 .mapField("col1", ToVarcharMapping.builder().build()) //
                 .mapField("col2", ToVarcharMapping.builder().build()) //
@@ -275,7 +308,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    public void testReadCsvWithTypesWithHeaderInvalidValue() throws IOException, SQLException {
+    public void testReadCsvWithTypesWithHeaderInvalidValue() {
         final Fields mapping = Fields.builder() //
                 .mapField("bool", ToBoolMapping.builder().build()) //
                 .build();
@@ -286,7 +319,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    public void testReadCsvWithTypesWithoutHeader() throws IOException, SQLException {
+    public void testReadCsvWithTypesWithoutHeader() {
         final Fields mapping = Fields.builder()//
                 .mapField("0", ToVarcharMapping.builder().destinationName("STR").build()) //
                 .mapField("1", ToBoolMapping.builder().destinationName("IS_ACTIVE").build())//
@@ -316,7 +349,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    public void testReadCsvWithTypesWithoutHeaderWithAutomaticInference() throws IOException, SQLException {
+    public void testReadCsvWithTypesWithoutHeaderWithAutomaticInference() {
         uploadFileContent("testData-1.csv", List.of( //
                 "\"test1\",true,1.23,42,9223372036854775807,2007-12-03,2007-12-03 10:15:30.00",
                 "test2,FALSE,1.22e-4,-17,-2147483649,2023-04-20,2007-12-03 10:15:30.00"));
@@ -332,7 +365,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    public void testReadCsvWithTypesWithoutHeaderInvalidValue() throws IOException, SQLException {
+    public void testReadCsvWithTypesWithoutHeaderInvalidValue() {
         final Fields mapping = Fields.builder()//
                 .mapField("0", ToBoolMapping.builder().destinationName("BOOL").build())//
                 .build();
@@ -345,7 +378,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    public void testReadCsvWithUnsupportedType() throws IOException, SQLException {
+    public void testReadCsvWithUnsupportedType() {
         final Fields mapping = Fields.builder()//
                 .mapField("json", ToJsonMapping.builder().build()) //
                 .build();
@@ -538,7 +571,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    public void testReadParquetFile() throws IOException, SQLException {
+    public void testReadParquetFile() throws IOException {
         final Fields mapping = Fields.builder()//
                 .mapField("data", ToVarcharMapping.builder().build())//
                 .mapField("isActive", ToBoolMapping.builder().destinationName("IS_ACTIVE").build())//
@@ -577,7 +610,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    public void testReadParquetFileWithAutomaticInference() throws IOException, SQLException {
+    public void testReadParquetFileWithAutomaticInference() throws IOException {
         final Type stringColumn = Types.primitive(BINARY, REQUIRED).named("data");
         final Type boolColumn = Types.primitive(BOOLEAN, REQUIRED).named("isActive");
         final Type dateColumn = Types.primitive(INT32, REQUIRED).as(LogicalTypeAnnotation.dateType()).named("my_date");
@@ -587,14 +620,14 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 .as(LogicalTypeAnnotation.timestampType(true, LogicalTypeAnnotation.TimeUnit.MILLIS))
                 .named("my_timestamp");
         final Type jsonColumn = Types.primitive(BINARY, REQUIRED).as(LogicalTypeAnnotation.jsonType()).named("json");
-        final long a_timestamp = 1632384929000L;
+        final long timestamp = 1632384929000L;
         uploadAsParquetFile(parquetFile(stringColumn, boolColumn, dateColumn, timeColumn, timestampColumn, jsonColumn) //
                 .writeRow(row -> {
                     row.add("data", "my test string");
                     row.add("isActive", true);
-                    row.add("my_date", (int) (a_timestamp / 24 / 60 / 60 / 1000)); // days since unix-epoch
+                    row.add("my_date", (int) (timestamp / 24 / 60 / 60 / 1000)); // days since unix-epoch
                     row.add("my_time", 1000);// ms after midnight
-                    row.add("my_timestamp", a_timestamp);// ms after midnight
+                    row.add("my_timestamp", timestamp);// ms after midnight
                     row.add("json", "{\"my_value\": 2}");
                 }).closeWriter(), 1);
 
@@ -603,12 +636,13 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
         final String query = "SELECT \"DATA\", \"IS_ACTIVE\", \"MY_DATE\", \"MY_TIME\", \"MY_TIMESTAMP\", \"JSON\" FROM "
                 + TEST_SCHEMA + ".BOOKS";
-        assertQuery(query, table().row("my test string", true, new Date(a_timestamp), 1000, new Timestamp(a_timestamp),
-                "{\"my_value\": 2}").withUtcCalendar().matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
+        assertQuery(query, table()
+                .row("my test string", true, new Date(timestamp), 1000, new Timestamp(timestamp), "{\"my_value\": 2}")
+                .withUtcCalendar().matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
     }
 
     @Test
-    public void testReadMultipleParquetFilesWithAutomaticInference() throws IOException, SQLException {
+    public void testReadMultipleParquetFilesWithAutomaticInference() throws IOException {
         final Type stringColumn = Types.primitive(BINARY, REQUIRED).named("data");
         uploadAsParquetFile(parquetFile(stringColumn).writeRow(row -> row.add("data", "row1")).closeWriter(), 1);
         uploadAsParquetFile(parquetFile(stringColumn).writeRow(row -> row.add("data", "row2")).closeWriter(), 2);
@@ -622,7 +656,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    public void testReadParquetFileWithAutomaticInferenceMissingInputFile() throws IOException, SQLException {
+    public void testReadParquetFileWithAutomaticInferenceMissingInputFile() {
         final String source = this.dataFilesDirectory + "/file-does-not-exist-*.parquet";
         final EdmlDefinitionBuilder edmlDefinition = EdmlDefinition.builder().source(source).destinationTable("BOOKS");
         final RuntimeException exception = assertThrows(RuntimeException.class,
@@ -634,7 +668,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    public void testReadJsonFileWithAutomaticInferenceNotSupported() throws IOException, SQLException {
+    public void testReadJsonFileWithAutomaticInferenceNotSupported() {
         final String source = this.dataFilesDirectory + "/auto-inference-unsupported-*.json";
         final EdmlDefinitionBuilder edmlDefinition = EdmlDefinition.builder().source(source).destinationTable("BOOKS");
         final RuntimeException exception = assertThrows(RuntimeException.class,
@@ -676,7 +710,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
         }
     }
 
-    private ParquetTestSetup parquetFile(final Type... columnTypes) throws IOException {
+    protected ParquetTestSetup parquetFile(final Type... columnTypes) throws IOException {
         return new ParquetTestSetup(this.tempDir, columnTypes);
     }
 
@@ -730,7 +764,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    public void testLoadRandomCsvFile() throws Exception {
+    public void testLoadRandomCsvFile() {
         final long rowCount = 100;
         prepareCsvLoadingTest(CsvTestDataGenerator.builder().stringLength(100).rowCount(rowCount).fileCount(10)
                 .columnCount(6).tempDir(this.tempDir).build());
@@ -795,7 +829,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
         }
     }
 
-    private void prepareCsvLoadingTest(final CsvTestDataGenerator generator) throws IOException {
+    private void prepareCsvLoadingTest(final CsvTestDataGenerator generator) {
         final String additionalConfiguration = "{\"csv-headers\": true}";
         createVirtualSchemaWithMapping(TEST_SCHEMA, generator.getMapping(), "testData-*.csv", additionalConfiguration);
 
@@ -817,7 +851,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    public void testOverrideFileType() throws IOException, SQLException {
+    public void testOverrideFileType() throws IOException {
         createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapJsonLinesFileWithStrangeExtension.json");
         uploadDataFile(
                 () -> AbstractDocumentFilesAdapterIT.class.getClassLoader()
@@ -826,7 +860,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
         assertQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS", table().row("book-1").row("book-2").matches());
     }
 
-    private void uploadAsParquetFile(final ParquetTestSetup parquetFile, final int fileIndex) {
+    protected void uploadAsParquetFile(final ParquetTestSetup parquetFile, final int fileIndex) {
         uploadAsParquetFile(parquetFile.getParquetFile(), fileIndex);
     }
 
@@ -856,7 +890,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
         }
     }
 
-    private void assertQuery(final String query, final Matcher<ResultSet> matcher) {
+    protected void assertQuery(final String query, final Matcher<ResultSet> matcher) {
         final Instant start = Instant.now();
         try (final ResultSet result = getStatement().executeQuery(query)) {
             assertThat(result, matcher);
@@ -864,8 +898,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
             throw new IllegalStateException("Assertion query '" + query + "' failed: " + exception.getMessage(),
                     exception);
         }
-        LOGGER.fine(
-                () -> "Executed query in " + Duration.between(start, Instant.now()).toSeconds() + "s: '" + query + "'");
+        LOGGER.fine(() -> "Executed query in " + Duration.between(start, Instant.now()) + ": '" + query + "'");
     }
 
     private void assertQueryFails(final String query, final Matcher<String> exceptionMessageMatcher) {
@@ -876,7 +909,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     /**
      * Create a virtual schema using JSON files.
-     * 
+     *
      * @throws IOException if creating the virtual schema fails
      */
     protected final void createJsonVirtualSchema() throws IOException {

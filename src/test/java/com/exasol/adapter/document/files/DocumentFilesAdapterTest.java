@@ -22,6 +22,7 @@ import com.exasol.adapter.document.QueryPlanner;
 import com.exasol.adapter.document.documentfetcher.files.FileFinderFactory;
 import com.exasol.adapter.document.documentfetcher.files.RemoteFileFinder;
 import com.exasol.adapter.document.mapping.TableKeyFetcher;
+import com.exasol.adapter.document.mapping.auto.ColumnNameConverter;
 import com.exasol.adapter.document.mapping.auto.InferredMappingDefinition;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,6 +32,8 @@ class DocumentFilesAdapterTest {
     FileFinderFactory fileFinderFactoryMock;
     @Mock
     RemoteFileFinder fileFinderMock;
+    @Mock
+    ColumnNameConverter columnNameConverterMock;
 
     @Test
     void testGetCapabilities() {
@@ -61,7 +64,8 @@ class DocumentFilesAdapterTest {
     void testGetSchemaFetcherUnsupported() {
         when(this.fileFinderFactoryMock.getFinder(any(), any())).thenReturn(this.fileFinderMock);
         final DocumentFilesAdapter adapter = testee();
-        final Optional<InferredMappingDefinition> result = adapter.getSchemaFetcher(null).fetchSchema("source.json");
+        final Optional<InferredMappingDefinition> result = adapter.getSchemaFetcher(null).fetchSchema("source.json",
+                columnNameConverterMock);
         assertThat(result.isEmpty(), is(true));
     }
 

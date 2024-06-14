@@ -3,5 +3,3 @@ sources:
     path: pom.xml
     modules:
       - maven_central
-excludes:
-  - "E-PK-CORE-17: Missing required file: 'release_config.yml'"

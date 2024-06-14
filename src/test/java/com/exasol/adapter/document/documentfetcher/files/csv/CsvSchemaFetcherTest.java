@@ -15,9 +15,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-import com.exasol.adapter.document.documentfetcher.files.*;
+import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
+import com.exasol.adapter.document.documentfetcher.files.StringRemoteFileContent;
 import com.exasol.adapter.document.edml.Fields;
 import com.exasol.adapter.document.edml.MappingDefinition;
+import com.exasol.adapter.document.mapping.auto.ColumnNameConverter;
 import com.exasol.adapter.document.mapping.auto.InferredMappingDefinition;
 
 class CsvSchemaFetcherTest {
@@ -119,9 +121,7 @@ class CsvSchemaFetcherTest {
         final InferredMappingDefinition mappingDefinition = fetchSchema(csvLines);
         final Fields fields = (Fields) mappingDefinition.getMapping();
         final String expectedAdditionalConfig = "{\"csv-headers\": " + expectHeader + "}";
-        final String expectedDestinationColumnName = expectHeader
-                ? ToUpperSnakeCaseConverter.toUpperSnakeCase(csvLines.get(0))
-                : "COLUMN_0";
+        final String expectedDestinationColumnName = expectHeader ? csvLines.get(0) + "-converted" : "COLUMN_0";
         final String expectedFieldName = expectHeader ? csvLines.get(0) : "0";
         assertAll(
                 () -> assertThat("has additional config", mappingDefinition.getAdditionalConfiguration().isPresent(),
@@ -143,7 +143,11 @@ class CsvSchemaFetcherTest {
     }
 
     InferredMappingDefinition fetchSchema(final String csvContent) {
-        return new CsvSchemaFetcher()
-                .fetchSchema(new RemoteFile("resourceName", 0, new StringRemoteFileContent(csvContent)));
+        return new CsvSchemaFetcher().fetchSchema(
+                new RemoteFile("resourceName", 0, new StringRemoteFileContent(csvContent)), columnNameConverter());
+    }
+
+    private ColumnNameConverter columnNameConverter() {
+        return name -> name + "-converted";
     }
 }

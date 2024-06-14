@@ -15,14 +15,14 @@ public interface FileTypeSpecificDocumentFetcherFactoryInterface {
      * @param remoteTableQuery the document query
      * @return built {@link FileTypeSpecificDocumentFetcher}
      */
-    public FileTypeSpecificDocumentFetcher buildFileTypeSpecificDocumentFetcher(RemoteTableQuery remoteTableQuery);
+    FileTypeSpecificDocumentFetcher buildFileTypeSpecificDocumentFetcher(RemoteTableQuery remoteTableQuery);
 
     /**
      * Build a {@link FileTypeSpecificSchemaFetcher}.
      *
      * @return built {@link FileTypeSpecificSchemaFetcher}
      */
-    public FileTypeSpecificSchemaFetcher buildFileTypeSpecificMappingFetcher();
+    FileTypeSpecificSchemaFetcher buildFileTypeSpecificMappingFetcher();
 
     /**
      * Get the file extensions for that this factory can build {@link DocumentFetcher}s.
@@ -33,5 +33,5 @@ public interface FileTypeSpecificDocumentFetcherFactoryInterface {
      *
      * @return list of supported file extensions
      */
-    public List<String> getSupportedFileExtensions();
+    List<String> getSupportedFileExtensions();
 }

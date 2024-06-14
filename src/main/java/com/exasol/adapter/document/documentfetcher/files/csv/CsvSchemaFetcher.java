@@ -3,10 +3,10 @@ package com.exasol.adapter.document.documentfetcher.files.csv;
 import java.util.logging.Logger;
 
 import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
-import com.exasol.adapter.document.documentfetcher.files.ToUpperSnakeCaseConverter;
 import com.exasol.adapter.document.edml.Fields;
 import com.exasol.adapter.document.edml.MappingDefinition;
 import com.exasol.adapter.document.files.FileTypeSpecificSchemaFetcher.SingleFileSchemaFetcher;
+import com.exasol.adapter.document.mapping.auto.ColumnNameConverter;
 import com.exasol.adapter.document.mapping.auto.InferredMappingDefinition;
 
 import io.deephaven.csv.reading.CsvReader;
@@ -19,18 +19,22 @@ public class CsvSchemaFetcher implements SingleFileSchemaFetcher {
     private static final long MAX_ROW_COUNT = 10_000;
 
     @Override
-    public InferredMappingDefinition fetchSchema(final RemoteFile remoteFile) {
+    public InferredMappingDefinition fetchSchema(final RemoteFile remoteFile,
+            final ColumnNameConverter columnNameConverter) {
         final boolean hasHeaderRow = new CsvHeaderDetector(remoteFile).hasHeaderRow();
         final CsvReader.Result result = CsvParser.parse(remoteFile, hasHeaderRow, MAX_ROW_COUNT);
-        return new MappingDefinitionBuilder(result, hasHeaderRow).build();
+        return new MappingDefinitionBuilder(columnNameConverter, result, hasHeaderRow).build();
     }
 
     private static class MappingDefinitionBuilder {
+        private final ColumnNameConverter columnNameConverter;
         private final Fields.FieldsBuilder fields = Fields.builder();
         private final CsvReader.Result csvResult;
         private final boolean hasHeaderRow;
 
-        MappingDefinitionBuilder(final CsvReader.Result csvResult, final boolean hasHeaderRow) {
+        MappingDefinitionBuilder(final ColumnNameConverter columnNameConverter, final CsvReader.Result csvResult,
+                final boolean hasHeaderRow) {
+            this.columnNameConverter = columnNameConverter;
             this.csvResult = csvResult;
             this.hasHeaderRow = hasHeaderRow;
         }
@@ -59,13 +63,16 @@ public class CsvSchemaFetcher implements SingleFileSchemaFetcher {
         }
 
         ColumnMapper createColumnMapper(final CsvReader.ResultColumn column, final int columnIndex) {
+            final String sourceColumnName;
+            final String destinationColumnName;
             if (this.hasHeaderRow) {
-                final String csvName = column.name();
-                return new ColumnMapper(csvName, ToUpperSnakeCaseConverter.toUpperSnakeCase(csvName),
-                        column.dataType());
+                sourceColumnName = column.name();
+                destinationColumnName = columnNameConverter.convertColumnName(sourceColumnName);
             } else {
-                return new ColumnMapper(String.valueOf(columnIndex), "COLUMN_" + columnIndex, column.dataType());
+                sourceColumnName = String.valueOf(columnIndex);
+                destinationColumnName = "COLUMN_" + columnIndex;
             }
+            return new ColumnMapper(sourceColumnName, destinationColumnName, column.dataType());
         }
     }
 }

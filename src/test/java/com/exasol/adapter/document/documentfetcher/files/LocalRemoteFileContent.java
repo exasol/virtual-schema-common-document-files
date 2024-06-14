@@ -1,7 +1,9 @@
 package com.exasol.adapter.document.documentfetcher.files;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 public class LocalRemoteFileContent implements RemoteFileContent {
@@ -22,6 +24,11 @@ public class LocalRemoteFileContent implements RemoteFileContent {
 
     @Override
     public Future<byte[]> loadAsync() {
-        throw new UnsupportedOperationException();
+        try {
+            return CompletableFuture.completedFuture(Files.readAllBytes(localFile));
+        } catch (final IOException exception) {
+            throw new UncheckedIOException(
+                    "Error loading file content of '" + this.localFile + "': " + exception.getMessage(), exception);
+        }
     }
 }

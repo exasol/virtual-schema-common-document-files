@@ -8,7 +8,7 @@ import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
  * Matcher for {@link ExplicitSegmentDescription}s.
  */
 public class ExplicitSegmentMatcher implements SegmentMatcher {
-    private final Map<String, ArrayList<FileSegmentDescription>> segmentKeys;
+    private final Map<String, List<FileSegmentDescription>> segmentKeys;
 
     /**
      * Create a new instance of {@link ExplicitSegmentMatcher}.
@@ -24,13 +24,13 @@ public class ExplicitSegmentMatcher implements SegmentMatcher {
      * 
      * @param segmentKeys segment keys
      */
-    public ExplicitSegmentMatcher(final Map<String, ArrayList<FileSegmentDescription>> segmentKeys) {
+    public ExplicitSegmentMatcher(final Map<String, List<FileSegmentDescription>> segmentKeys) {
         this.segmentKeys = segmentKeys;
     }
 
     @Override
     public List<FileSegment> getMatchingSegmentsFor(final RemoteFile remoteFile) {
-        final ArrayList<FileSegmentDescription> segments = this.segmentKeys.get(remoteFile.getResourceName());
+        final List<FileSegmentDescription> segments = this.segmentKeys.get(remoteFile.getResourceName());
         if (segments == null) {
             return Collections.emptyList();
         } else {
@@ -44,7 +44,7 @@ public class ExplicitSegmentMatcher implements SegmentMatcher {
 
     @Override
     public boolean matchesFile(final RemoteFile remoteFile) {
-        final ArrayList<FileSegmentDescription> segments = this.segmentKeys.get(remoteFile.getResourceName());
+        final List<FileSegmentDescription> segments = this.segmentKeys.get(remoteFile.getResourceName());
         return segments != null && !segments.isEmpty();
     }
 }
