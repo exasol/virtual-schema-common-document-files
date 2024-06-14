@@ -264,7 +264,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 "test2,FALSE,1.22e-4,-17,-3.5,2023-04-20,2007-12-03 10:15:30.00"));
         createVirtualSchemaWithMapping(TEST_SCHEMA,
                 EdmlDefinition.builder().source(this.dataFilesDirectory + "/testData-*.csv").destinationTable("BOOKS")
-                        .autoInferenceColumnNames(ColumnNameMapping.KEEP_SOURCE));
+                        .autoInferenceColumnNames(ColumnNameMapping.KEEP_ORIGINAL_NAME));
         assertQuery(
                 "SELECT str, \"boolCol\", \"decimalCol\", \"intCol\", \"double col\", \"date col\", \"Timestamp Col\" FROM "
                         + TEST_SCHEMA + ".BOOKS", //
@@ -282,7 +282,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 "val21,22,val23"));
         createVirtualSchemaWithMapping(TEST_SCHEMA,
                 EdmlDefinition.builder().source(this.dataFilesDirectory + "/testData-*.csv").destinationTable("BOOKS")
-                        .autoInferenceColumnNames(ColumnNameMapping.KEEP_SOURCE));
+                        .autoInferenceColumnNames(ColumnNameMapping.KEEP_ORIGINAL_NAME));
         assertQuery("SELECT \"col1\", \"col2\", \"3illegal\" FROM " + TEST_SCHEMA + ".BOOKS", //
                 table("VARCHAR", "BIGINT", "VARCHAR") //
                         .row("val11", 11L, "val13") //
