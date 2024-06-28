@@ -60,7 +60,7 @@
 [1]: https://github.com/exasol/virtual-schema-common-document/blob/main/LICENSE
 [2]: https://github.com/exasol/parquet-io-java/
 [3]: https://github.com/exasol/parquet-io-java/blob/main/LICENSE
-[4]: https://github.com/osiegmar/FastCSV
+[4]: https://fastcsv.org
 [5]: https://opensource.org/licenses/MIT
 [6]: https://github.com/deephaven/deephaven-csv
 [7]: https://www.apache.org/licenses/LICENSE-2.0.txt

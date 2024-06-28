@@ -22,6 +22,7 @@ import java.sql.Date;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
@@ -35,8 +36,12 @@ import org.junit.jupiter.api.io.TempDir;
 import com.exasol.adapter.document.documentfetcher.files.parquet.ParquetTestSetup;
 import com.exasol.adapter.document.edml.*;
 import com.exasol.adapter.document.edml.EdmlDefinition.EdmlDefinitionBuilder;
+import com.exasol.adapter.document.edml.ToVarcharMapping.ToVarcharMappingBuilder;
 import com.exasol.adapter.document.edml.serializer.EdmlSerializer;
 import com.exasol.adapter.document.testutil.csvgenerator.CsvTestDataGenerator;
+import com.exasol.bucketfs.Bucket;
+import com.exasol.bucketfs.BucketAccessException;
+import com.exasol.matcher.ResultSetStructureMatcher;
 import com.exasol.matcher.ResultSetStructureMatcher.Builder;
 import com.exasol.matcher.TypeMatchMode;
 import com.exasol.performancetestrecorder.PerformanceTestRecorder;
@@ -84,6 +89,22 @@ public abstract class AbstractDocumentFilesAdapterIT {
      * @param mapping    mapping file content
      */
     protected abstract void createVirtualSchema(String schemaName, String mapping);
+
+    /**
+     * Get the default BucketFS bucket.
+     * 
+     * @return default bucket
+     */
+    protected abstract Bucket getBucketFSDefaultBucket();
+
+    private void uploadStringContentToBucketFs(final String content, final String bucketFsPath) {
+        try {
+            getBucketFSDefaultBucket().uploadStringContent(content, bucketFsPath);
+        } catch (InterruptedException | BucketAccessException | TimeoutException e) {
+            throw new IllegalStateException(
+                    "Failed to upload content '" + content + "'' to bucket fs path '" + bucketFsPath + "'", e);
+        }
+    }
 
     private void createVirtualSchemaWithMappingFromResource(final String schemaName, final String resourceName)
             throws IOException {
@@ -860,27 +881,107 @@ public abstract class AbstractDocumentFilesAdapterIT {
         assertQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS", table().row("book-1").row("book-2").matches());
     }
 
+    @Test
+    public void refreshVirtualSchemaReadsUpdatedEdmlMapping() {
+        this.uploadFileContent("testData-1.csv",
+                List.of("STR, boolCol, decimalCol, intCol,double col,date col,Timestamp Col",
+                        "\"test1\",true,1.23,42,2.5,2007-12-03,2007-12-03 10:15:30.00",
+                        "test2,FALSE,1.22e-4,-17,-3.5,2023-04-20,2007-12-03 10:15:30.00"));
+
+        final EdmlDefinitionBuilder edmlDefinition = EdmlDefinition.builder()
+                .source(this.dataFilesDirectory + "/testData-*.csv").destinationTable("BOOKS")
+                .autoInferenceColumnNames(ColumnNameMapping.KEEP_ORIGINAL_NAME);
+        final String mappingFile = "mapping.json";
+        final String mappingBucketFsPath = uploadEdml(edmlDefinition, mappingFile);
+        this.createVirtualSchema("TEST", mappingBucketFsPath);
+        this.assertQuery(
+                "SELECT str, \"boolCol\", \"decimalCol\", \"intCol\", \"double col\", \"date col\", \"Timestamp Col\" FROM TEST.BOOKS",
+                ResultSetStructureMatcher
+                        .table(new String[] { "VARCHAR", "BOOLEAN", "DOUBLE PRECISION", "BIGINT", "DOUBLE PRECISION",
+                                "VARCHAR", "VARCHAR" })
+                        .row(new Object[] { "test1", true, 1.23, 42, 2.5, "2007-12-03", "2007-12-03 10:15:30.00" })
+                        .row(new Object[] { "test2", false, 1.22E-4, -17, -3.5, "2023-04-20",
+                                "2007-12-03 10:15:30.00" })
+                        .matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
+
+        uploadEdml(edmlDefinition.autoInferenceColumnNames(ColumnNameMapping.CONVERT_TO_UPPER_SNAKE_CASE), mappingFile);
+        refreshVirtualSchema("TEST");
+        this.assertQuery(
+                "SELECT STR, BOOL_COL, DECIMAL_COL, INT_COL, DOUBLE_COL, DATE_COL, TIMESTAMP_COL FROM TEST.BOOKS",
+                ResultSetStructureMatcher
+                        .table(new String[] { "VARCHAR", "BOOLEAN", "DOUBLE PRECISION", "BIGINT", "DOUBLE PRECISION",
+                                "VARCHAR", "VARCHAR" })
+                        .row(new Object[] { "test1", true, 1.23, 42, 2.5, "2007-12-03", "2007-12-03 10:15:30.00" })
+                        .row(new Object[] { "test2", false, 1.22E-4, -17, -3.5, "2023-04-20",
+                                "2007-12-03 10:15:30.00" })
+                        .matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
+    }
+
+    @Test
+    public void refreshVirtualSchemaReadsIgnoresNonSchemaChanges() {
+        this.uploadFileContent("testData-1.csv", List.of("short", "very_long_string"));
+
+        final ToVarcharMappingBuilder<?> fieldMapping = ToVarcharMapping.builder().destinationName("EXA_COL")
+                .varcharColumnSize(6).overflowBehaviour(TruncateableMappingErrorBehaviour.ABORT);
+        final EdmlDefinitionBuilder edmlDefinition = EdmlDefinition.builder()
+                .source(this.dataFilesDirectory + "/testData-*.csv").destinationTable("BOOKS")
+                .mapping(Fields.builder().mapField("0", fieldMapping.build()).build());
+        final String mappingFile = "mapping.json";
+        final String mappingBucketFsPath = uploadEdml(edmlDefinition, mappingFile);
+        this.createVirtualSchema("TEST", mappingBucketFsPath);
+        this.assertQueryFails("SELECT * FROM TEST.BOOKS", containsString(
+                "OverflowException: E-VSD-38: A value for column 'EXA_COL' exceeded the configured varcharColumnSize of 6."));
+
+        uploadEdml(edmlDefinition.mapping(Fields.builder()
+                .mapField("0", fieldMapping.overflowBehaviour(TruncateableMappingErrorBehaviour.TRUNCATE).build())
+                .build()), mappingFile);
+        refreshVirtualSchema("TEST");
+        // This should succeed and return the truncate value but fails due to a bug in Exasol:
+        // https://exasol.my.site.com/s/article/Changelog-content-20991
+        final Exception exception = assertThrows(IllegalStateException.class,
+                () -> this.assertQuery("SELECT * FROM TEST.BOOKS",
+                        ResultSetStructureMatcher.table("VARCHAR").row("short").row("very_l").matches()));
+        assertThat(exception.getMessage(), containsString(
+                "OverflowException: E-VSD-38: A value for column 'EXA_COL' exceeded the configured varcharColumnSize of 6."));
+    }
+
+    protected void refreshVirtualSchema(final String schemaName) {
+        final Instant start = Instant.now();
+        try {
+            this.getStatement().execute("ALTER VIRTUAL SCHEMA \"" + schemaName + "\" REFRESH");
+        } catch (final SQLException exception) {
+            throw new IllegalStateException("Failed to refresh virtual schema.", exception);
+        }
+        LOGGER.info(() -> "Schema " + schemaName + " refreshed in " + Duration.between(start, Instant.now()));
+    }
+
+    protected String uploadEdml(final EdmlDefinitionBuilder edmlDefinition, final String mappingFile) {
+        final String edmlString = (new EdmlSerializer()).serialize(edmlDefinition.build());
+        uploadStringContentToBucketFs(edmlString, mappingFile);
+        return "/bfsdefault/default/" + mappingFile;
+    }
+
     protected void uploadAsParquetFile(final ParquetTestSetup parquetFile, final int fileIndex) {
         uploadAsParquetFile(parquetFile.getParquetFile(), fileIndex);
     }
 
-    private void uploadAsParquetFile(final Path parquetFile, final int fileIndex) {
+    protected void uploadAsParquetFile(final Path parquetFile, final int fileIndex) {
         final String resourceName = this.dataFilesDirectory + "/testData-" + fileIndex + ".parquet";
         LOGGER.fine("Uploading parquet " + resourceName + "...");
         uploadDataFile(parquetFile, resourceName);
     }
 
-    private void uploadAsCsvFile(final Path csvFile, final int fileIndex) {
+    protected void uploadAsCsvFile(final Path csvFile, final int fileIndex) {
         final String resourceName = this.dataFilesDirectory + "/testData-" + fileIndex + ".csv";
         LOGGER.fine("Uploading CSV " + resourceName + "...");
         uploadDataFile(csvFile, resourceName);
     }
 
-    private void uploadFileContent(final String resourceName, final List<String> content) {
+    public void uploadFileContent(final String resourceName, final List<String> content) {
         uploadFileContent(resourceName, content.stream().collect(joining("\n")));
     }
 
-    private void uploadFileContent(final String resourceName, final String content) {
+    public void uploadFileContent(final String resourceName, final String content) {
         try {
             final Path tempFile = Files.createTempFile(this.tempDir, "upload-content", ".data");
             Files.write(tempFile, content.getBytes(StandardCharsets.UTF_8));
@@ -901,7 +1002,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
         LOGGER.fine(() -> "Executed query in " + Duration.between(start, Instant.now()) + ": '" + query + "'");
     }
 
-    private void assertQueryFails(final String query, final Matcher<String> exceptionMessageMatcher) {
+    protected void assertQueryFails(final String query, final Matcher<String> exceptionMessageMatcher) {
         final SQLDataException exception = assertThrows(SQLDataException.class,
                 () -> getStatement().executeQuery(query));
         assertThat(exception.getMessage(), exceptionMessageMatcher);
