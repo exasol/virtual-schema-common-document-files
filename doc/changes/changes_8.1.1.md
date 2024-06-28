@@ -1,6 +1,6 @@
-# Virtual Schema for Document Data in Files 8.1.1, released 2024-??-??
+# Virtual Schema for Document Data in Files 8.1.1, released 2024-06-28
 
-Code name:
+Code name: Test `ALTER VIRTUAL SCHEMA <schema> REFRESH`
 
 ## Summary
 
@@ -13,10 +13,6 @@ This release adds integration tests that verify that `ALTER VIRTUAL SCHEMA <sche
 ```java
 protected abstract Bucket getBucketFSDefaultBucket();
 ```
-
-## Features
-
-* ISSUE_NUMBER: description
 
 ## Dependency Updates
 
