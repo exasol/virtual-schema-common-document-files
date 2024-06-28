@@ -8,6 +8,12 @@ This release adds integration tests that verify that `ALTER VIRTUAL SCHEMA <sche
 
 **Note:** There is a [known issue](https://exasol.my.site.com/s/article/Changelog-content-20991) in the Exasol database that causes changes to a virtual schema to be lost when only adapter notes are changed but not the schema itself.
 
+**Note:** This adds the following method to `AbstractDocumentFilesAdapterIT`. Update your test to add an implementation for this method.
+
+```java
+protected abstract Bucket getBucketFSDefaultBucket();
+```
+
 ## Features
 
 * ISSUE_NUMBER: description
