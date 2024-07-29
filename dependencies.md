@@ -54,7 +54,7 @@
 | [error-code-crawler-maven-plugin][47]                   | [MIT License][48]                |
 | [Reproducible Build Maven Plugin][49]                   | [Apache 2.0][34]                 |
 | [Project Keeper Maven plugin][50]                       | [The MIT License][51]            |
-| [Apache Maven JAR Plugin][52]                           | [Apache License, Version 2.0][7] |
+| [Apache Maven JAR Plugin][52]                           | [Apache-2.0][7]                  |
 
 [0]: https://github.com/exasol/virtual-schema-common-document/
 [1]: https://github.com/exasol/virtual-schema-common-document/blob/main/LICENSE
