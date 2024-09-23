@@ -1,4 +1,4 @@
-# Virtual Schema for Document Data in Files 8.1.3, released 2024-??-??
+# Virtual Schema for Document Data in Files 8.1.3, released 2024-09-23
 
 Code name: Adapt tests to fixed bug in Exasol
 
