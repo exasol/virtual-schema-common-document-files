@@ -936,13 +936,8 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 .mapField("0", fieldMapping.overflowBehaviour(TruncateableMappingErrorBehaviour.TRUNCATE).build())
                 .build()), mappingFile);
         refreshVirtualSchema("TEST");
-        // This should succeed and return the truncate value but fails due to a bug in Exasol:
-        // https://exasol.my.site.com/s/article/Changelog-content-20991
-        final Exception exception = assertThrows(IllegalStateException.class,
-                () -> this.assertQuery("SELECT * FROM TEST.BOOKS",
-                        ResultSetStructureMatcher.table("VARCHAR").row("short").row("very_l").matches()));
-        assertThat(exception.getMessage(), containsString(
-                "OverflowException: E-VSD-38: A value for column 'EXA_COL' exceeded the configured varcharColumnSize of 6."));
+
+        this.assertQuery("SELECT * FROM TEST.BOOKS", table("VARCHAR").row("short").row("very_l").matches());
     }
 
     protected void refreshVirtualSchema(final String schemaName) {

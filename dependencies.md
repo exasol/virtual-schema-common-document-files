@@ -16,7 +16,7 @@
 
 | Dependency                                   | License                           |
 | -------------------------------------------- | --------------------------------- |
-| [Hamcrest][13]                               | [BSD License 3][14]               |
+| [Hamcrest][13]                               | [BSD-3-Clause][14]                |
 | [JUnit Jupiter Params][15]                   | [Eclipse Public License v2.0][16] |
 | [EqualsVerifier \| release normal jar][17]   | [Apache License, Version 2.0][7]  |
 | [to-string-verifier][18]                     | [MIT License][19]                 |
@@ -70,7 +70,7 @@
 [11]: https://github.com/exasol/error-reporting-java/
 [12]: https://github.com/exasol/error-reporting-java/blob/main/LICENSE
 [13]: http://hamcrest.org/JavaHamcrest/
-[14]: http://opensource.org/licenses/BSD-3-Clause
+[14]: https://raw.githubusercontent.com/hamcrest/JavaHamcrest/master/LICENSE
 [15]: https://junit.org/junit5/
 [16]: https://www.eclipse.org/legal/epl-v20.html
 [17]: https://www.jqno.nl/equalsverifier
