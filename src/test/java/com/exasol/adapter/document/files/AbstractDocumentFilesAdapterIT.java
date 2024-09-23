@@ -918,7 +918,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    public void refreshVirtualSchemaReadsIgnoresNonSchemaChanges() {
+    public void refreshVirtualSchemaUpdatesEdmlDefinition() {
         this.uploadFileContent("testData-1.csv", List.of("short", "very_long_string"));
 
         final ToVarcharMappingBuilder<?> fieldMapping = ToVarcharMapping.builder().destinationName("EXA_COL")
