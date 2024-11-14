@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>virtual-schema-common-document-files</artifactId>
-    <version>8.1.4</version>
+    <version>8.1.5</version>
     <name>Virtual Schema for document data in files</name>
     <description>Adapter for document data access from files.</description>
     <url>https://github.com/exasol/virtual-schema-common-document-files/</url>
@@ -24,12 +24,12 @@
             <!-- https://mvnrepository.com/artifact/de.siegmar/fastcsv -->
             <groupId>de.siegmar</groupId>
             <artifactId>fastcsv</artifactId>
-            <version>3.3.1</version>
+            <version>3.4.0</version>
         </dependency>
         <dependency>
             <groupId>io.deephaven</groupId>
             <artifactId>deephaven-csv</artifactId>
-            <version>0.14.0</version>
+            <version>0.15.0</version>
         </dependency>
         <dependency>
             <groupId>jakarta.json</groupId>
@@ -59,13 +59,13 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
-            <version>5.11.2</version>
+            <version>5.11.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>nl.jqno.equalsverifier</groupId>
             <artifactId>equalsverifier</artifactId>
-            <version>3.17.1</version>
+            <version>3.17.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -123,7 +123,7 @@
             <plugin>
                 <groupId>com.exasol</groupId>
                 <artifactId>project-keeper-maven-plugin</artifactId>
-                <version>4.3.3</version>
+                <version>4.4.0</version>
                 <executions>
                     <execution>
                         <goals>
@@ -163,7 +163,7 @@
     <parent>
         <artifactId>virtual-schema-common-document-files-generated-parent</artifactId>
         <groupId>com.exasol</groupId>
-        <version>8.1.4</version>
+        <version>8.1.5</version>
         <relativePath>pk_generated_parent.pom</relativePath>
     </parent>
 </project>
