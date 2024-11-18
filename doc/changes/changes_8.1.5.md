@@ -43,4 +43,3 @@ Netty is an asynchronous event-driven network application framework for rapid de
 * Updated `org.apache.maven.plugins:maven-site-plugin:3.3` to `3.9.1`
 * Updated `org.apache.maven.plugins:maven-surefire-plugin:3.2.5` to `3.5.1`
 * Updated `org.codehaus.mojo:versions-maven-plugin:2.16.2` to `2.17.1`
-
