@@ -10,6 +10,10 @@ Code name:
 
 ## Dependency Updates
 
+### Compile Dependency Updates
+
+* Updated `com.exasol:parquet-io-java:2.0.12` to `2.0.13`
+
 ### Plugin Dependency Updates
 
 * Updated `com.exasol:project-keeper-maven-plugin:4.4.0` to `4.5.0`
