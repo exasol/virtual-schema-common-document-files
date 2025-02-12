@@ -13,6 +13,15 @@ Code name:
 ### Compile Dependency Updates
 
 * Updated `com.exasol:parquet-io-java:2.0.12` to `2.0.13`
+* Updated `com.exasol:virtual-schema-common-document:11.0.0` to `11.0.1`
+
+### Test Dependency Updates
+
+* Updated `com.exasol:udf-debugging-java:0.6.13` to `0.6.14`
+* Updated `com.exasol:virtual-schema-common-document:11.0.0` to `11.0.1`
+* Updated `nl.jqno.equalsverifier:equalsverifier:3.17.3` to `3.19`
+* Updated `org.junit.jupiter:junit-jupiter-params:5.11.3` to `5.11.4`
+* Updated `org.mockito:mockito-junit-jupiter:5.14.2` to `5.15.2`
 
 ### Plugin Dependency Updates
 
