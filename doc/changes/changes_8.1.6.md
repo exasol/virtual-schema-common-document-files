@@ -1,12 +1,13 @@
-# Virtual Schema for Document Data in Files 8.1.6, released 2025-??-??
+# Virtual Schema for Document Data in Files 8.1.6, released 2025-02-12
 
-Code name:
+Code name: Fix vulnerability CVE-2025-25193 in dependencies
 
 ## Summary
 
-## Features
+This release fixes vulnerability CVE-2025-25193 in transitive dependency `io.netty:netty-common:jar:4.1.115.Final:compile`
+## Security
 
-* ISSUE_NUMBER: description
+* #178: Fixed CVE-2025-25193 in io.netty:netty-common:jar:4.1.115.Final:compile
 
 ## Dependency Updates
 
