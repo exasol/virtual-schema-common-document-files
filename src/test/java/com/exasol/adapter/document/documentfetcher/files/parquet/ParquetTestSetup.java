@@ -27,9 +27,9 @@ public class ParquetTestSetup {
     }
 
     public ParquetTestSetup writeRow(final RowBuilder rowBuilder) throws IOException {
-        final SimpleGroup record = new SimpleGroup(this.schema);
-        rowBuilder.populateRecord(record);
-        this.parquetWriter.write(record);
+        final SimpleGroup recordGroup = new SimpleGroup(this.schema);
+        rowBuilder.populateRecord(recordGroup);
+        this.parquetWriter.write(recordGroup);
         return this;
     }
 

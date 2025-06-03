@@ -28,20 +28,20 @@ class FilesQueryPlannerTest {
 
     private FilesQueryPlanner mockQueryPlanner(final RemoteFileFinder loader) {
         final FileFinderFactory fileFinderFactory = mock(FileFinderFactory.class);
-        when(fileFinderFactory.getFinder(any(), any())).thenAnswer(I -> loader);
+        when(fileFinderFactory.getFinder(any(), any())).thenAnswer(i -> loader);
         return new FilesQueryPlanner(fileFinderFactory, mock(ConnectionPropertiesReader.class));
     }
 
     private RemoteFileFinder mockLoaderThatReturnFiles() {
         final RemoteFileFinder loader = mock(RemoteFileFinder.class);
         when(loader.loadFiles())
-                .thenAnswer(I -> new CloseableIteratorWrapper<>(List.of(mock(RemoteFile.class)).iterator()));
+                .thenAnswer(i -> new CloseableIteratorWrapper<>(List.of(mock(RemoteFile.class)).iterator()));
         return loader;
     }
 
     private RemoteFileFinder mockLoaderThatReturnNoFiles() {
         final RemoteFileFinder loader = mock(RemoteFileFinder.class);
-        when(loader.loadFiles()).thenAnswer(I -> new CloseableIteratorWrapper<>(Collections.emptyIterator()));
+        when(loader.loadFiles()).thenAnswer(i -> new CloseableIteratorWrapper<>(Collections.emptyIterator()));
         return loader;
     }
 

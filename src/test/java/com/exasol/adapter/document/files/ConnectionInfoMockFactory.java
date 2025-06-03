@@ -8,7 +8,7 @@ import com.exasol.ExaConnectionInformation;
 public class ConnectionInfoMockFactory {
     public static ExaConnectionInformation mockConnectionInfoWithAddress(final String address) {
         final ExaConnectionInformation connectionInformation = mock(ExaConnectionInformation.class);
-        when(connectionInformation.getAddress()).thenAnswer(I -> address);
+        when(connectionInformation.getAddress()).thenAnswer(i -> address);
         return connectionInformation;
     }
 }

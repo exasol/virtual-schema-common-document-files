@@ -26,7 +26,7 @@ class SeekableInputStreamAdapterTest extends AbstractInputStreamTest {
     }
 
     @BeforeAll
-    static void beforeAll() throws IOException {
+    static void beforeAll() {
         someBytes = new byte[TEST_SIZE];
         for (int count = 0; count < TEST_SIZE; count++) {
             someBytes[count] = (byte) ((count * 23) % 200);// simple pseudo random
