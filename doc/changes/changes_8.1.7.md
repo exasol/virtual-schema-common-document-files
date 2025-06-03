@@ -1,4 +1,4 @@
-# Virtual Schema for Document Data in Files 8.1.7, released 2025-??-??
+# Virtual Schema for Document Data in Files 8.1.7, released 2025-06-03
 
 Code name: Fix vulnerabilities CVE-2025-48734 and CVE-2025-4949 in test dependencies
 
