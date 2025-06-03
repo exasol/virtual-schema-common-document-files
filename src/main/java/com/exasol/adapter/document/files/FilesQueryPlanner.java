@@ -1,7 +1,5 @@
 package com.exasol.adapter.document.files;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -9,8 +7,9 @@ import com.exasol.adapter.document.QueryPlanner;
 import com.exasol.adapter.document.connection.ConnectionPropertiesReader;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.files.FileFinderFactory;
-import com.exasol.adapter.document.documentfetcher.files.FilesDocumentFetcher;
-import com.exasol.adapter.document.queryplan.*;
+import com.exasol.adapter.document.queryplan.EmptyQueryPlan;
+import com.exasol.adapter.document.queryplan.FetchQueryPlan;
+import com.exasol.adapter.document.queryplan.QueryPlan;
 import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
 
 /**

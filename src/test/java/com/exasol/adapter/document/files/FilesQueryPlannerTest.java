@@ -15,13 +15,20 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.exasol.adapter.document.connection.ConnectionPropertiesReader;
-import com.exasol.adapter.document.documentfetcher.files.*;
+import com.exasol.adapter.document.documentfetcher.files.FileFinderFactory;
+import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
+import com.exasol.adapter.document.documentfetcher.files.RemoteFileFinder;
 import com.exasol.adapter.document.iterators.CloseableIteratorWrapper;
 import com.exasol.adapter.document.mapping.SourceReferenceColumnMapping;
 import com.exasol.adapter.document.mapping.TableMapping;
-import com.exasol.adapter.document.queryplan.*;
+import com.exasol.adapter.document.queryplan.EmptyQueryPlan;
+import com.exasol.adapter.document.queryplan.FetchQueryPlan;
+import com.exasol.adapter.document.queryplan.QueryPlan;
 import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
-import com.exasol.adapter.document.querypredicate.*;
+import com.exasol.adapter.document.querypredicate.AbstractComparisonPredicate;
+import com.exasol.adapter.document.querypredicate.ColumnLiteralComparisonPredicate;
+import com.exasol.adapter.document.querypredicate.NoPredicate;
+import com.exasol.adapter.document.querypredicate.QueryPredicate;
 import com.exasol.adapter.sql.SqlLiteralString;
 
 @ExtendWith(MockitoExtension.class)
