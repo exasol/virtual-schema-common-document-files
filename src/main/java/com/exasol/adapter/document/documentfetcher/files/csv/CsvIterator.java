@@ -50,8 +50,10 @@ class CsvIterator implements CloseableIterator<DocumentNode> {
     private static Iterator<DocumentNode> createDelegate(final CsvConfiguration csvConfiguration,
             final CsvObjectNodeFactory nodeFactory, final InputStreamReader inputStreamReader) {
         if (hasHeaders(csvConfiguration)) {
+            final NamedCsvRecordHandler recordHandler = NamedCsvRecordHandler.builder()
+                    .fieldModifier(new PreventDuplicateHeader()).build();
             return new ConvertingCsvIterator<>(CsvReader.builder().build(
-                    new NamedCsvRecordHandler(new PreventDuplicateHeader()), inputStreamReader), nodeFactory::create);
+                    recordHandler, inputStreamReader), nodeFactory::create);
         } else {
             return new ConvertingCsvIterator<>(CsvReader.builder().ofCsvRecord(inputStreamReader), nodeFactory::create);
         }

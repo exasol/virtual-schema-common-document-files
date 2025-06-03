@@ -4,7 +4,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 
 import org.junit.jupiter.api.*;
@@ -57,7 +58,7 @@ public abstract class RandomAccessInputStreamTestBase extends AbstractInputStrea
     }
 
     @BeforeEach
-    void beforeEach() throws FileNotFoundException {
+    void beforeEach() {
         this.seekableStream = getSeekableInputStream();
     }
 
@@ -90,7 +91,7 @@ public abstract class RandomAccessInputStreamTestBase extends AbstractInputStrea
     }
 
     @Test
-    void testSeekOutOfRange() throws IOException {
+    void testSeekOutOfRange() {
         assertDoesNotThrow(() -> this.seekableStream.seek(testData.length + 1));
     }
 

@@ -16,11 +16,10 @@ class NonWildcardParserTest {
         final NonWildcardParser parser = new NonWildcardParser();
         final String testString = "test1234*_+-%";
         final WildcardExpression expression = parser.parse(testString);
-        assertAll(//
+        assertAll(
                 () -> assertThat(expression.getFragments().size(), equalTo(testString.length())),
                 () -> assertThat(
-                        expression.getFragments().stream().allMatch(fragment -> fragment instanceof RegularCharacter),
-                        equalTo(true))//
-        );
+                        expression.getFragments().stream().allMatch(RegularCharacter.class::isInstance),
+                        equalTo(true)));
     }
 }

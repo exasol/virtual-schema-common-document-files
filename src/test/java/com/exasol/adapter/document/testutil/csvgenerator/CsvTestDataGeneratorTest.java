@@ -45,7 +45,7 @@ class CsvTestDataGeneratorTest {
     }
 
     @Test
-    void testGenerateCreatesMapping() throws IOException {
+    void testGenerateCreatesMapping() {
         final CsvTestDataGenerator generator = CsvTestDataGenerator.builder() //
                 .columnCount(5) //
                 .rowCount(10) //

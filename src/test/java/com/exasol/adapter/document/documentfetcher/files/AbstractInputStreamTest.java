@@ -43,7 +43,7 @@ public abstract class AbstractInputStreamTest {
     }
 
     @Test
-    void testMarkSupported() throws IOException {
+    void testMarkSupported() {
         final InputStream stream = getInputStreamToTest();
         assertTrue(stream.markSupported());
     }

@@ -112,10 +112,10 @@ class RandomValueGeneratorFactory {
      * Adapted from https://stackoverflow.com/questions/41107/how-to-generate-a-random-alpha-numeric-string
      */
     private static class RandomString implements RandomValueGenerator {
-        static final String upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        static final String lower = upper.toLowerCase(Locale.ROOT);
-        static final String digits = "0123456789";
-        static final String alphanum = upper + lower + digits;
+        private static final String UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        private static final String LOWER = UPPER.toLowerCase(Locale.ROOT);
+        private static final String DIGITS = "0123456789";
+        private static final String ALPHANUM = UPPER + LOWER + DIGITS;
         private final Random random;
         private final char[] symbols;
         private final char[] buf;
@@ -133,7 +133,7 @@ class RandomValueGeneratorFactory {
         }
 
         RandomString(final int length, final Random random) {
-            this(length, random, alphanum);
+            this(length, random, ALPHANUM);
         }
 
         @Override

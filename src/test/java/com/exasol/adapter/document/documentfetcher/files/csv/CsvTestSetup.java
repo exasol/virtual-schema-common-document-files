@@ -22,7 +22,7 @@ public class CsvTestSetup implements AutoCloseable {
         return this.csvFile;
     }
 
-    public CsvTestSetup writeRow(final List<String> values) throws IOException {
+    public CsvTestSetup writeRow(final List<String> values) {
         this.csvWriter.writeRecord(values);
         return this;
     }
