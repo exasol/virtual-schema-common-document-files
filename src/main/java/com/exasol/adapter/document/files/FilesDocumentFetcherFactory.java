@@ -47,7 +47,7 @@ public class FilesDocumentFetcherFactory {
                 connectionInformation, numberOfSegments, sourceFilter, fileTypeSpecificDocumentFetcher);
         if (segmentDescriptions.isEmpty()) {
             LOGGER.fine(() -> getEmptyDocumentFetchersLogMessage(fileFinderFactory,
-                    numberOfSegments, sourceFilter, additionalConfiguration, fileTypeSpecificDocumentFetcher));
+                    fileTypeSpecificDocumentFetcher, numberOfSegments, sourceFilter, additionalConfiguration));
         }
         for (final SegmentDescription segmentDescription : segmentDescriptions) {
             final DocumentFetcher documentFetcher = new FilesDocumentFetcher(sourceFilter, segmentDescription,
@@ -66,16 +66,17 @@ public class FilesDocumentFetcherFactory {
      * provided. This is helpful for debugging and understanding why no fetchers were initialized.
      *
      * @param fileFinderFactory      the factory providing access to user guide URL
+     * @param fileTypeSpecificDocumentFetcher      the factory providing access to {@code supportsFileSplitting} flag
      * @param numberOfSegments       the number of segments that were attempted to be created
      * @param filePattern            the filter pattern used to identify source files
      * @param additionalConfiguration additional configuration that may have influenced the behavior
      * @return a formatted string suitable for logging, explaining why no fetchers were built
      */
     String getEmptyDocumentFetchersLogMessage(final FileFinderFactory fileFinderFactory,
+                                              final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher,
                                               final int numberOfSegments,
                                               final StringFilter filePattern,
-                                              final String additionalConfiguration,
-                                              final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher) {
+                                              final String additionalConfiguration) {
         return String.format(
                 "No segment descriptions built: " +
                         "[Source filter (File pattern = '%s')], " +

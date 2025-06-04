@@ -66,8 +66,9 @@ class FilesDocumentFetcherFactoryTest {
                 fileFinderFactory, filesDocumentFetcherFactory, fileTypeSpecificDocumentFetcher,
                 30, additionalConfiguration, true);
         assertThat(documentFetchers.size(), equalTo(0));
-        String emptyDocumentFetchersLogMessage = filesDocumentFetcherFactory.getEmptyDocumentFetchersLogMessage(fileFinderFactory, maxNumberOfParallelFetchers,
-                filePattern, additionalConfiguration, fileTypeSpecificDocumentFetcher);
+        String emptyDocumentFetchersLogMessage = filesDocumentFetcherFactory.getEmptyDocumentFetchersLogMessage(
+                fileFinderFactory, fileTypeSpecificDocumentFetcher, maxNumberOfParallelFetchers,
+                filePattern, additionalConfiguration);
         String expectedLogMessage = "No segment descriptions built: " +
                 "[Source filter (File pattern = 'test<DirectoryLimitedMultiCharWildcard>')], " +
                 "[User guide URL = 'jdbc:exa:test'], " +
