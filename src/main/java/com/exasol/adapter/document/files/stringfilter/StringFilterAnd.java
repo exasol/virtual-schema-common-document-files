@@ -3,12 +3,14 @@ package com.exasol.adapter.document.files.stringfilter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
  * And predicate for {@link StringFilter}s.
  */
 public class StringFilterAnd implements StringFilter {
+    private static final Logger LOGGER = Logger.getLogger(StringFilterAnd.class.getName());
     private static final long serialVersionUID = 3856323687685172983L;
     /** @serial */
     private final ArrayList<StringFilter> operands;
@@ -41,7 +43,11 @@ public class StringFilterAnd implements StringFilter {
             final List<String> prefixes = this.operands.stream().map(StringFilter::getStaticPrefix)
                     .collect(Collectors.toList());
             final String shortestPrefix = prefixes.stream().min(Comparator.comparingInt(String::length)).orElse("");
-            return prefixes.stream().anyMatch(prefix -> !prefix.startsWith(shortestPrefix));
+            boolean hasContradiction = prefixes.stream().anyMatch(prefix -> !prefix.startsWith(shortestPrefix));
+            if (hasContradiction) {
+                LOGGER.fine(() -> getContradictionLogMessage(prefixes, shortestPrefix));
+            }
+            return hasContradiction;
         }
     }
 
@@ -63,5 +69,19 @@ public class StringFilterAnd implements StringFilter {
     public String toString() {
         return this.operands.stream().map(operand -> "(" + operand.toString() + ")")
                 .collect(Collectors.joining(" AND "));
+    }
+
+    String getContradictionLogMessage(List<String> prefixes, String shortestPrefix) {
+        List<String> contradictablePrefixes = prefixes.stream()
+                .filter(prefix -> !prefix.startsWith(shortestPrefix))
+                .collect(Collectors.toList());
+        String staticPrefix = getStaticPrefix();
+        return String.format(
+                "Contradiction detected in StringFilter: expected all prefixes to start with the shortest prefix '%s'. "
+                        + "Static prefix: '%s'. Conflicting prefixes: %s",
+                shortestPrefix,
+                staticPrefix,
+                contradictablePrefixes
+        );
     }
 }
