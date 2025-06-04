@@ -97,7 +97,7 @@ class FilesQueryPlannerTest {
         var remoteQuerySelectionToString = remoteTableQuery.getSelection().toString();
         final var queryPlanner = new FilesQueryPlanner(null, mock(ConnectionPropertiesReader.class));
         final SourceString sourceString = queryPlanner.getSourceString(remoteTableQuery);
-        final FilesSelectionExtractor.Result splitSelection = queryPlanner.getSplitSelection(sourceString, remoteTableQuery);;
+        final FilesSelectionExtractor.Result splitSelection = queryPlanner.getSplitSelection(sourceString, remoteTableQuery);
         String sourceFilterContradictionLogMessage = String.format(
                 "Contradiction detected in source filter for file pattern 'test-*.json' with selection 'SOURCE_REFERENCE=%s'. Returning EmptyQueryPlan.",
                 sqlLiteralToString);
