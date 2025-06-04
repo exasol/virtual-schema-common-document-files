@@ -1,4 +1,4 @@
-# Virtual Schema for Document Data in Files 8.1.8, released 2025-06-03
+# Virtual Schema for Document Data in Files 8.1.8, released 2025-06-04
 
 Code name: Add logging for decision on empty query plan
 
