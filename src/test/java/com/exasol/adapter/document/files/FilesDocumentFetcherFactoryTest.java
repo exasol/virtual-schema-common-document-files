@@ -53,7 +53,7 @@ class FilesDocumentFetcherFactoryTest {
     }
 
     @Test
-    void testNoSegmentDescriptionBuilt() {
+    void testNoSegmentDescriptionsBuilt() {
         final var fileFinderFactory = mockEmptyFileLoaderFactory();
         when(fileFinderFactory.getUserGuideUrl()).thenReturn("jdbc:exa:test");
         final var filesDocumentFetcherFactory = new FilesDocumentFetcherFactory();
