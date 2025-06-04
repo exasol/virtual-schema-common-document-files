@@ -4,10 +4,14 @@ import static com.exasol.adapter.document.documentfetcher.files.segmentation.Fil
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import com.exasol.adapter.document.connection.ConnectionPropertiesReader;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
-import com.exasol.adapter.document.documentfetcher.files.*;
+import com.exasol.adapter.document.documentfetcher.files.FileFinderFactory;
+import com.exasol.adapter.document.documentfetcher.files.FilesDocumentFetcher;
+import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
+import com.exasol.adapter.document.documentfetcher.files.RemoteFileFinder;
 import com.exasol.adapter.document.documentfetcher.files.segmentation.*;
 import com.exasol.adapter.document.files.stringfilter.StringFilter;
 import com.exasol.adapter.document.iterators.CloseableIterator;
@@ -16,6 +20,7 @@ import com.exasol.adapter.document.iterators.CloseableIterator;
  * Factory for {@link FilesDocumentFetcher}.
  */
 public class FilesDocumentFetcherFactory {
+    private static final Logger LOGGER = Logger.getLogger(FilesDocumentFetcherFactory.class.getName());
     private static final int MAX_NUMBER_OF_FILES_TO_DISTRIBUTE_EXPLICITLY = 200;
     private static final int ONE_MB = 1_000_000;
     private static final int MIN_SIZE_PER_WORKER = ONE_MB;
@@ -40,12 +45,51 @@ public class FilesDocumentFetcherFactory {
         final int numberOfSegments = sourceFilter.hasWildcard() ? maxNumberOfParallelFetchers : 1;
         final List<SegmentDescription> segmentDescriptions = buildSegmentDescriptions(fileFinderFactory,
                 connectionInformation, numberOfSegments, sourceFilter, fileTypeSpecificDocumentFetcher);
+        if (segmentDescriptions.isEmpty()) {
+            LOGGER.fine(() -> getEmptyDocumentFetchersLogMessage(fileFinderFactory,
+                    numberOfSegments, sourceFilter, additionalConfiguration, fileTypeSpecificDocumentFetcher));
+        }
         for (final SegmentDescription segmentDescription : segmentDescriptions) {
             final DocumentFetcher documentFetcher = new FilesDocumentFetcher(sourceFilter, segmentDescription,
                     fileFinderFactory, fileTypeSpecificDocumentFetcher, additionalConfiguration);
             documentFetchers.add(documentFetcher);
         }
         return documentFetchers;
+    }
+
+    /**
+     * Generates a detailed log message to be used when no {@link SegmentDescription}s were created
+     * during the construction of {@link DocumentFetcher}s.
+     * <p>
+     * The message includes diagnostic information such as the file pattern, number of segments,
+     * a link to the user guide from the {@link FileFinderFactory}, and any additional configuration
+     * provided. This is helpful for debugging and understanding why no fetchers were initialized.
+     *
+     * @param fileFinderFactory      the factory providing access to user guide URL
+     * @param numberOfSegments       the number of segments that were attempted to be created
+     * @param filePattern            the filter pattern used to identify source files
+     * @param additionalConfiguration additional configuration that may have influenced the behavior
+     * @return a formatted string suitable for logging, explaining why no fetchers were built
+     */
+    String getEmptyDocumentFetchersLogMessage(final FileFinderFactory fileFinderFactory,
+                                              final int numberOfSegments,
+                                              final StringFilter filePattern,
+                                              final String additionalConfiguration,
+                                              final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher) {
+        return String.format(
+                "No segment descriptions built: " +
+                        "[Source filter (File pattern = '%s')], " +
+                        "[User guide URL = '%s'], " +
+                        "[Number of segments = %d], " +
+                        "[Additional config = '%s'], " +
+                        "[Document fetcher supports file splitting = '%B']. " +
+                        "Returning empty list of DocumentFetcher elements.",
+                filePattern,
+                fileFinderFactory.getUserGuideUrl(),
+                numberOfSegments,
+                additionalConfiguration,
+                fileTypeSpecificDocumentFetcher.supportsFileSplitting()
+        );
     }
 
     private List<SegmentDescription> buildSegmentDescriptions(final FileFinderFactory fileFinderFactory,
