@@ -36,16 +36,18 @@ public class StringFilterAnd implements StringFilter {
     }
 
     /**
-     * Checks whether this {@code StringFilter} contains a contradiction among its operands.
+     * Determines whether this {@code StringFilter} contains a contradiction among its operands.
      * <p>
-     * A contradiction occurs if:
+     * A contradiction is present if:
      * <ul>
-     *   <li>Any operand itself has a contradiction, or</li>
-     *   <li>Static prefixes of operands are not consistent — that is, not all prefixes start with the shortest one.</li>
+     *   <li>Any operand individually contains a contradiction, or</li>
+     *   <li>The static prefixes of operands are inconsistent — i.e., not all start with the shortest prefix.</li>
      * </ul>
-     * If a contradiction is detected based on static prefixes, a debug log message is recorded to assist in troubleshooting.
+     * Such contradictions indicate mutually exclusive conditions that will result in no matches.
+     * <p>
+     * If a contradiction is detected, a debug-level log message is recorded to assist in troubleshooting.
      *
-     * @return {@code true} if a contradiction exists among the operands; {@code false} otherwise.
+     * @return {@code true} if a contradiction exists; {@code false} otherwise.
      */
     @Override
     public boolean hasContradiction() {
