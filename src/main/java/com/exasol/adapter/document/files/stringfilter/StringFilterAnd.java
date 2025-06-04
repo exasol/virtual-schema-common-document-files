@@ -35,17 +35,29 @@ public class StringFilterAnd implements StringFilter {
         return this.operands.stream().allMatch(StringFilter::hasWildcard);
     }
 
+    /**
+     * Checks whether this {@code StringFilter} contains a contradiction among its operands.
+     * <p>
+     * A contradiction occurs if:
+     * <ul>
+     *   <li>Any operand itself has a contradiction, or</li>
+     *   <li>Static prefixes of operands are not consistent — that is, not all prefixes start with the shortest one.</li>
+     * </ul>
+     * If a contradiction is detected based on static prefixes, a debug log message is recorded to assist in troubleshooting.
+     *
+     * @return {@code true} if a contradiction exists among the operands; {@code false} otherwise.
+     */
     @Override
     public boolean hasContradiction() {
         if (this.operands.stream().anyMatch(StringFilter::hasContradiction)) {
             return true;
         } else {
-            final List<String> prefixes = this.operands.stream().map(StringFilter::getStaticPrefix)
-                    .collect(Collectors.toList());
-            final String shortestPrefix = prefixes.stream().min(Comparator.comparingInt(String::length)).orElse("");
-            boolean hasContradiction = prefixes.stream().anyMatch(prefix -> !prefix.startsWith(shortestPrefix));
+            final List<String> prefixes = getPrefixes();
+            final String shortestPrefix = getShortestPrefix(prefixes);
+            boolean hasContradiction = hasContradiction(prefixes, shortestPrefix);
             if (hasContradiction) {
-                LOGGER.fine(() -> getContradictionLogMessage(prefixes, shortestPrefix));
+                final String longestPrefix = getStaticPrefix();
+                LOGGER.fine(() -> getContradictionLogMessage(prefixes, shortestPrefix, longestPrefix));
             }
             return hasContradiction;
         }
@@ -71,17 +83,83 @@ public class StringFilterAnd implements StringFilter {
                 .collect(Collectors.joining(" AND "));
     }
 
-    String getContradictionLogMessage(List<String> prefixes, String shortestPrefix) {
-        List<String> contradictablePrefixes = prefixes.stream()
-                .filter(prefix -> !prefix.startsWith(shortestPrefix))
-                .collect(Collectors.toList());
-        String staticPrefix = getStaticPrefix();
+    /**
+     * Constructs a detailed log message describing a contradiction in string filter prefixes.
+     * <p>
+     * A contradiction occurs when not all prefixes in the given list start with the shortest common prefix,
+     * which indicates that the filter conditions are mutually exclusive and will never yield results.
+     *
+     * @param prefixes        the list of all static prefixes from the filter operands
+     * @param shortestPrefix  the shortest prefix found among the operands, expected to be a shared prefix
+     * @param longestPrefix   the longest prefix found among the operands
+     * @return a formatted log message highlighting the contradiction, the current shortest prefix,
+     *         the current longest prefix, and the conflicting prefixes
+     */
+    String getContradictionLogMessage(List<String> prefixes, String shortestPrefix, String longestPrefix) {
+        List<String> conflictingPrefixes = getConflictingPrefixes(prefixes, shortestPrefix);
         return String.format(
                 "Contradiction detected in StringFilter: expected all prefixes to start with the shortest prefix '%s'. "
-                        + "Static prefix: '%s'. Conflicting prefixes: %s",
+                        + "The longest prefix: '%s'. Conflicting prefixes: %s",
                 shortestPrefix,
-                staticPrefix,
-                contradictablePrefixes
+                longestPrefix,
+                conflictingPrefixes
         );
+    }
+
+    /**
+     * Returns a list of all static prefixes from the filter operands.
+     *
+     * @return a list of static prefixes
+     */
+    List<String> getPrefixes() {
+        return this.operands.stream()
+                .map(StringFilter::getStaticPrefix)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Identifies prefixes in the given list that do not start with the specified shortest prefix.
+     *
+     * @param prefixes       the list of static prefixes to analyze
+     * @param shortestPrefix the expected shared prefix
+     * @return a list of conflicting prefixes
+     */
+    List<String> getConflictingPrefixes(List<String> prefixes, String shortestPrefix) {
+        return prefixes.stream()
+                .filter(prefix -> !prefix.startsWith(shortestPrefix))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Determines if a contradiction exists based on the provided list of prefixes and
+     * the expected shortest prefix.
+     *
+     * @param prefixes       the list of static prefixes
+     * @param shortestPrefix the expected shared prefix
+     * @return {@code true} if a contradiction exists; {@code false} otherwise
+     */
+    boolean hasContradiction(List<String> prefixes, String shortestPrefix) {
+        return !getConflictingPrefixes(prefixes, shortestPrefix).isEmpty();
+    }
+
+    /**
+     * Returns the shortest prefix among all filter operands.
+     *
+     * @return the shortest static prefix, or an empty string if none found
+     */
+    String getShortestPrefix() {
+        return getShortestPrefix(getPrefixes());
+    }
+
+    /**
+     * Returns the shortest string from the provided list of prefixes.
+     *
+     * @param prefixes the list of prefixes to inspect
+     * @return the shortest prefix, or an empty string if the list is empty
+     */
+    String getShortestPrefix(List<String> prefixes) {
+        return prefixes.stream()
+                .min(Comparator.comparingInt(String::length))
+                .orElse("");
     }
 }
