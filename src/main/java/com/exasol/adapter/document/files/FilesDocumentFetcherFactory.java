@@ -65,10 +65,10 @@ public class FilesDocumentFetcherFactory {
      * a link to the user guide from the {@link FileFinderFactory}, and any additional configuration
      * provided. This is helpful for debugging and understanding why no fetchers were initialized.
      *
-     * @param fileFinderFactory      the factory providing access to user guide URL
-     * @param fileTypeSpecificDocumentFetcher      the factory providing access to {@code supportsFileSplitting} flag
-     * @param numberOfSegments       the number of segments that were attempted to be created
-     * @param filePattern            the filter pattern used to identify source files
+     * @param fileFinderFactory      factory providing access to user guide URL
+     * @param fileTypeSpecificDocumentFetcher      factory providing access to {@code supportsFileSplitting} flag
+     * @param numberOfSegments       number of segments that were attempted to be created
+     * @param filePattern            filter pattern used to identify source files
      * @param additionalConfiguration additional configuration that may have influenced the behavior
      * @return a formatted string suitable for logging, explaining why no fetchers were built
      */

@@ -91,20 +91,25 @@ public class StringFilterAnd implements StringFilter {
      * A contradiction occurs when not all prefixes in the given list start with the shortest common prefix,
      * which indicates that the filter conditions are mutually exclusive and will never yield results.
      *
-     * @param prefixes        the list of all static prefixes from the filter operands
-     * @param shortestPrefix  the shortest prefix found among the operands, expected to be a shared prefix
-     * @param longestPrefix   the longest prefix found among the operands
+     * @param prefixes        list of all static prefixes from the filter operands
+     * @param shortestPrefix  shortest prefix found among the operands, expected to be a shared prefix
+     * @param longestPrefix   longest prefix found among the operands
      * @return a formatted log message highlighting the contradiction, the current shortest prefix,
      *         the current longest prefix, and the conflicting prefixes
      */
-    String getContradictionLogMessage(List<String> prefixes, String shortestPrefix, String longestPrefix) {
+    String getContradictionLogMessage(final List<String> prefixes, final String shortestPrefix, final String longestPrefix) {
         List<String> conflictingPrefixes = getConflictingPrefixes(prefixes, shortestPrefix);
         return String.format(
-                "Contradiction detected in StringFilter: expected all prefixes to start with the shortest prefix '%s'. "
-                        + "The longest prefix: '%s'. Conflicting prefixes: %s",
+                "Contradiction detected in StringFilter. Expected all prefixes to start with the shortest prefix: " +
+                        "[The shorted prefix = '%s'], " +
+                        "[The longest prefix = '%s'], " +
+                        "[Conflicting prefixes = '%s'], " +
+                        "[Full list of prefixes = '%s']. " +
+                        "Returning EmptyQueryPlan.",
                 shortestPrefix,
                 longestPrefix,
-                conflictingPrefixes
+                conflictingPrefixes,
+                prefixes
         );
     }
 
@@ -126,7 +131,7 @@ public class StringFilterAnd implements StringFilter {
      * @param shortestPrefix the expected shared prefix
      * @return a list of conflicting prefixes
      */
-    List<String> getConflictingPrefixes(List<String> prefixes, String shortestPrefix) {
+    List<String> getConflictingPrefixes(final List<String> prefixes, final String shortestPrefix) {
         return prefixes.stream()
                 .filter(prefix -> !prefix.startsWith(shortestPrefix))
                 .collect(Collectors.toList());
@@ -140,7 +145,7 @@ public class StringFilterAnd implements StringFilter {
      * @param shortestPrefix the expected shared prefix
      * @return {@code true} if a contradiction exists; {@code false} otherwise
      */
-    boolean hasContradiction(List<String> prefixes, String shortestPrefix) {
+    boolean hasContradiction(final List<String> prefixes, final String shortestPrefix) {
         return !getConflictingPrefixes(prefixes, shortestPrefix).isEmpty();
     }
 
@@ -159,7 +164,7 @@ public class StringFilterAnd implements StringFilter {
      * @param prefixes the list of prefixes to inspect
      * @return the shortest prefix, or an empty string if the list is empty
      */
-    String getShortestPrefix(List<String> prefixes) {
+    String getShortestPrefix(final List<String> prefixes) {
         return prefixes.stream()
                 .min(Comparator.comparingInt(String::length))
                 .orElse("");

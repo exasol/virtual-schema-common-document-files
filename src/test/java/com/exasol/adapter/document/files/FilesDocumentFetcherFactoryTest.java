@@ -54,10 +54,10 @@ class FilesDocumentFetcherFactoryTest {
 
     @Test
     void testNoSegmentDescriptionsBuilt() {
-        final var fileFinderFactory = mockEmptyFileLoaderFactory();
+        final FileFinderFactory fileFinderFactory = mockEmptyFileLoaderFactory();
         when(fileFinderFactory.getUserGuideUrl()).thenReturn("jdbc:exa:test");
-        final var filesDocumentFetcherFactory = new FilesDocumentFetcherFactory();
-        final var fileTypeSpecificDocumentFetcher = mock(FileTypeSpecificDocumentFetcher.class);
+        final FilesDocumentFetcherFactory filesDocumentFetcherFactory = new FilesDocumentFetcherFactory();
+        final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher = mock(FileTypeSpecificDocumentFetcher.class);
         when(fileTypeSpecificDocumentFetcher.supportsFileSplitting()).thenReturn(true);
         final int maxNumberOfParallelFetchers = 30;
         final StringFilter filePattern = A_FILTER;
@@ -66,10 +66,10 @@ class FilesDocumentFetcherFactoryTest {
                 fileFinderFactory, filesDocumentFetcherFactory, fileTypeSpecificDocumentFetcher,
                 30, additionalConfiguration, true);
         assertThat(documentFetchers.size(), equalTo(0));
-        String emptyDocumentFetchersLogMessage = filesDocumentFetcherFactory.getEmptyDocumentFetchersLogMessage(
+        final String emptyDocumentFetchersLogMessage = filesDocumentFetcherFactory.getEmptyDocumentFetchersLogMessage(
                 fileFinderFactory, fileTypeSpecificDocumentFetcher, maxNumberOfParallelFetchers,
                 filePattern, additionalConfiguration);
-        String expectedLogMessage = "No segment descriptions built: " +
+        final String expectedLogMessage = "No segment descriptions built: " +
                 "[Source filter (File pattern = 'test<DirectoryLimitedMultiCharWildcard>')], " +
                 "[User guide URL = 'jdbc:exa:test'], " +
                 "[Number of segments = 30], " +
@@ -108,7 +108,7 @@ class FilesDocumentFetcherFactoryTest {
             final boolean supportsFileSplitting, final long fileSize) {
         final FileFinderFactory fileFinderFactory = mockFileLoaderFactory(numberOfFiles, fileSize);
         final ConnectionPropertiesReader connectionInformation = mock(ConnectionPropertiesReader.class);
-        final var fileTypeSpecificDocumentFetcher = mock(FileTypeSpecificDocumentFetcher.class);
+        final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher = mock(FileTypeSpecificDocumentFetcher.class);
         when(fileTypeSpecificDocumentFetcher.supportsFileSplitting()).thenReturn(supportsFileSplitting);
         return new FilesDocumentFetcherFactory().buildDocumentFetcherForQuery(A_FILTER, maxFetcher, fileFinderFactory,
                 connectionInformation, fileTypeSpecificDocumentFetcher, null);

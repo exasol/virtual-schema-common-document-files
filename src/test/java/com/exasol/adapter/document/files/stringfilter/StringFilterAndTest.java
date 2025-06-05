@@ -77,11 +77,16 @@ class StringFilterAndTest {
             String contradictionLogMessage = filter.getContradictionLogMessage(prefixes, shortestPrefix, longestPrefix);
             List<String> conflictingPrefixes = filter.getConflictingPrefixes(prefixes, shortestPrefix);
             String expectedLogMessage = String.format(
-                    "Contradiction detected in StringFilter: expected all prefixes to start with the shortest prefix '%s'. "
-                            + "The longest prefix: '%s'. Conflicting prefixes: %s",
+                    "Contradiction detected in StringFilter. Expected all prefixes to start with the shortest prefix: " +
+                            "[The shorted prefix = '%s'], " +
+                            "[The longest prefix = '%s'], " +
+                            "[Conflicting prefixes = '%s'], " +
+                            "[Full list of prefixes = '%s']. " +
+                            "Returning EmptyQueryPlan.",
                     shortestPrefix,
                     longestPrefix,
-                    conflictingPrefixes
+                    conflictingPrefixes,
+                    prefixes
             );
             assertThat(contradictionLogMessage, equalTo(expectedLogMessage));
         }
