@@ -67,8 +67,29 @@ class StringFilterAndTest {
         when(stringFilter1.getStaticPrefix()).thenReturn(filter1);
         final StringFilter stringFilter2 = mock(StringFilter.class);
         when(stringFilter2.getStaticPrefix()).thenReturn(filter2);
-        assertThat(new StringFilterAnd(List.of(stringFilter1, stringFilter2)).hasContradiction(),
-                equalTo(expectedResult));
+        final List<StringFilter> filters = List.of(stringFilter1, stringFilter2);
+        final StringFilterAnd filter = new StringFilterAnd(filters);
+        assertThat(filter.hasContradiction(), equalTo(expectedResult));
+        if (expectedResult) {
+            final String shortestPrefix = filter.getShortestPrefix();
+            final String longestPrefix = filter.getStaticPrefix();
+            final List<String> prefixes = filter.getPrefixes();
+            String contradictionLogMessage = filter.getContradictionLogMessage(prefixes, shortestPrefix, longestPrefix);
+            List<String> conflictingPrefixes = filter.getConflictingPrefixes(prefixes, shortestPrefix);
+            String expectedLogMessage = String.format(
+                    "Contradiction detected in StringFilter. Expected all prefixes to start with the shortest prefix: " +
+                            "[The shorted prefix = '%s'], " +
+                            "[The longest prefix = '%s'], " +
+                            "[Conflicting prefixes = '%s'], " +
+                            "[Full list of prefixes = '%s']. " +
+                            "Returning EmptyQueryPlan.",
+                    shortestPrefix,
+                    longestPrefix,
+                    conflictingPrefixes,
+                    prefixes
+            );
+            assertThat(contradictionLogMessage, equalTo(expectedLogMessage));
+        }
     }
 
     @ValueSource(booleans = { true, false })

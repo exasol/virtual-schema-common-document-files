@@ -66,7 +66,7 @@ class FilesQueryPlannerTest {
     @Test
     void testBuildDocumentFetcherForEmptyResult() {
         final RemoteTableQuery remoteTableQuery = getRemoteTableQuery("test-*.json", new NoPredicate());
-        var remoteQuerySelectionToString = remoteTableQuery.getSelection().toString();
+        String remoteQuerySelectionToString = remoteTableQuery.getSelection().toString();
         final RemoteFileFinder loader = mockLoaderThatReturnNoFiles();
         final FilesQueryPlanner queryPlanner = mockQueryPlanner(loader);
         final SourceString sourceString = queryPlanner.getSourceString(remoteTableQuery);
@@ -89,16 +89,16 @@ class FilesQueryPlannerTest {
 
     @Test
     void testContradiction() {
-        var sqlLiteral = new SqlLiteralString("other.json");
-        var sqlLiteralToString = sqlLiteral.toString();
+        final SqlLiteralString sqlLiteral = new SqlLiteralString("other.json");
+        final String sqlLiteralToString = sqlLiteral.toString();
         final RemoteTableQuery remoteTableQuery = getRemoteTableQuery("test-*.json",
                 new ColumnLiteralComparisonPredicate(AbstractComparisonPredicate.Operator.EQUAL,
                         new SourceReferenceColumnMapping(), sqlLiteral));
-        var remoteQuerySelectionToString = remoteTableQuery.getSelection().toString();
-        final var queryPlanner = new FilesQueryPlanner(null, mock(ConnectionPropertiesReader.class));
+        final String remoteQuerySelectionToString = remoteTableQuery.getSelection().toString();
+        final FilesQueryPlanner queryPlanner = new FilesQueryPlanner(null, mock(ConnectionPropertiesReader.class));
         final SourceString sourceString = queryPlanner.getSourceString(remoteTableQuery);
         final FilesSelectionExtractor.Result splitSelection = queryPlanner.getSplitSelection(sourceString, remoteTableQuery);
-        String sourceFilterContradictionLogMessage = String.format(
+        final String sourceFilterContradictionLogMessage = String.format(
                 "Contradiction detected in source filter for file pattern 'test-*.json' with selection 'SOURCE_REFERENCE=%s'. Returning EmptyQueryPlan.",
                 sqlLiteralToString);
         final QueryPlan queryPlan = queryPlanner.planQuery(remoteTableQuery, 10);

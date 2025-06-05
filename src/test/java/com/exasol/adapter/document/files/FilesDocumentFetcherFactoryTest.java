@@ -8,15 +8,20 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 import com.exasol.adapter.document.connection.ConnectionPropertiesReader;
 import com.exasol.adapter.document.documentfetcher.DocumentFetcher;
-import com.exasol.adapter.document.documentfetcher.files.*;
+import com.exasol.adapter.document.documentfetcher.files.FileFinderFactory;
+import com.exasol.adapter.document.documentfetcher.files.FilesDocumentFetcher;
+import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
+import com.exasol.adapter.document.documentfetcher.files.RemoteFileFinder;
 import com.exasol.adapter.document.documentfetcher.files.segmentation.ExplicitSegmentDescription;
 import com.exasol.adapter.document.documentfetcher.files.segmentation.HashSegmentDescription;
+import com.exasol.adapter.document.files.stringfilter.StringFilter;
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
 import com.exasol.adapter.document.iterators.CloseableIteratorWrapper;
 
@@ -48,6 +53,33 @@ class FilesDocumentFetcherFactoryTest {
     }
 
     @Test
+    void testNoSegmentDescriptionsBuilt() {
+        final FileFinderFactory fileFinderFactory = mockEmptyFileLoaderFactory();
+        when(fileFinderFactory.getUserGuideUrl()).thenReturn("jdbc:exa:test");
+        final FilesDocumentFetcherFactory filesDocumentFetcherFactory = new FilesDocumentFetcherFactory();
+        final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher = mock(FileTypeSpecificDocumentFetcher.class);
+        when(fileTypeSpecificDocumentFetcher.supportsFileSplitting()).thenReturn(true);
+        final int maxNumberOfParallelFetchers = 30;
+        final StringFilter filePattern = A_FILTER;
+        final String additionalConfiguration = "key: value";
+        final List<DocumentFetcher> documentFetchers = runGetEmptyDocumentFetchers(
+                fileFinderFactory, filesDocumentFetcherFactory, fileTypeSpecificDocumentFetcher,
+                30, additionalConfiguration, true);
+        assertThat(documentFetchers.size(), equalTo(0));
+        final String emptyDocumentFetchersLogMessage = filesDocumentFetcherFactory.getEmptyDocumentFetchersLogMessage(
+                fileFinderFactory, fileTypeSpecificDocumentFetcher, maxNumberOfParallelFetchers,
+                filePattern, additionalConfiguration);
+        final String expectedLogMessage = "No segment descriptions built: " +
+                "[Source filter (File pattern = 'test<DirectoryLimitedMultiCharWildcard>')], " +
+                "[User guide URL = 'jdbc:exa:test'], " +
+                "[Number of segments = 30], " +
+                "[Additional config = 'key: value'], " +
+                "[Document fetcher supports file splitting = 'TRUE']. " +
+                "Returning empty list of DocumentFetcher elements.";
+        assertThat(emptyDocumentFetchersLogMessage, equalTo(expectedLogMessage));
+    }
+
+    @Test
     void testSmallFiles() {
         final List<DocumentFetcher> documentFetchers = runGetDocumentFetchers(3, 30, true, 1);
         assertThat(documentFetchers.size(), equalTo(1));
@@ -76,10 +108,22 @@ class FilesDocumentFetcherFactoryTest {
             final boolean supportsFileSplitting, final long fileSize) {
         final FileFinderFactory fileFinderFactory = mockFileLoaderFactory(numberOfFiles, fileSize);
         final ConnectionPropertiesReader connectionInformation = mock(ConnectionPropertiesReader.class);
-        final var fileTypeSpecificDocumentFetcher = mock(FileTypeSpecificDocumentFetcher.class);
+        final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher = mock(FileTypeSpecificDocumentFetcher.class);
         when(fileTypeSpecificDocumentFetcher.supportsFileSplitting()).thenReturn(supportsFileSplitting);
         return new FilesDocumentFetcherFactory().buildDocumentFetcherForQuery(A_FILTER, maxFetcher, fileFinderFactory,
                 connectionInformation, fileTypeSpecificDocumentFetcher, null);
+    }
+
+    private List<DocumentFetcher> runGetEmptyDocumentFetchers(final FileFinderFactory fileFinderFactory,
+                                                              final FilesDocumentFetcherFactory filesDocumentFetcherFactory,
+                                                              final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher,
+                                                              final int maxNumberOfParallelFetchers,
+                                                              final String additionalConfiguration,
+                                                              final boolean supportsFileSplitting) {
+        final ConnectionPropertiesReader connectionInformation = mock(ConnectionPropertiesReader.class);
+        when(fileTypeSpecificDocumentFetcher.supportsFileSplitting()).thenReturn(supportsFileSplitting);
+        return filesDocumentFetcherFactory.buildDocumentFetcherForQuery(A_FILTER, maxNumberOfParallelFetchers, fileFinderFactory,
+                connectionInformation, fileTypeSpecificDocumentFetcher, additionalConfiguration);
     }
 
     private int countFilesInExplicitSegmentDescriptions(final DocumentFetcher documentFetcher) {
@@ -99,6 +143,15 @@ class FilesDocumentFetcherFactoryTest {
             when(remoteFile.getSize()).thenReturn(fileSize);
             remoteFiles.add(remoteFile);
         }
+        when(remoteFileFinder.loadFiles()).thenReturn(new CloseableIteratorWrapper<>(remoteFiles.iterator()));
+        when(fileFinderFactory.getFinder(any(), any())).thenReturn(remoteFileFinder);
+        return fileFinderFactory;
+    }
+
+    private FileFinderFactory mockEmptyFileLoaderFactory() {
+        final FileFinderFactory fileFinderFactory = mock(FileFinderFactory.class);
+        final RemoteFileFinder remoteFileFinder = mock(RemoteFileFinder.class);
+        final List<RemoteFile> remoteFiles = Collections.emptyList();
         when(remoteFileFinder.loadFiles()).thenReturn(new CloseableIteratorWrapper<>(remoteFiles.iterator()));
         when(fileFinderFactory.getFinder(any(), any())).thenReturn(remoteFileFinder);
         return fileFinderFactory;

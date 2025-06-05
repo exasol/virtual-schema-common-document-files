@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>virtual-schema-common-document-files</artifactId>
-    <version>8.1.8</version>
+    <version>8.1.9</version>
     <name>Virtual Schema for document data in files</name>
     <description>Adapter for document data access from files.</description>
     <url>https://github.com/exasol/virtual-schema-common-document-files/</url>
@@ -166,7 +166,7 @@
     <parent>
         <artifactId>virtual-schema-common-document-files-generated-parent</artifactId>
         <groupId>com.exasol</groupId>
-        <version>8.1.8</version>
+        <version>8.1.9</version>
         <relativePath>pk_generated_parent.pom</relativePath>
     </parent>
 </project>

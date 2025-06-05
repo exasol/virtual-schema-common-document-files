@@ -11,7 +11,9 @@ import java.util.stream.Stream;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.*;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.exasol.adapter.document.documentfetcher.files.JsonDocumentFetcher;
 import com.exasol.adapter.document.documentfetcher.files.JsonLinesDocumentFetcher;
