@@ -113,17 +113,34 @@ public class FilesDocumentFetcherFactory {
         }
     }
 
-    private List<SegmentDescription> buildExplicitSegmentation(final int numberOfSegments, final List<RemoteFile> files,
-            final boolean fileSplittingIsSupported) {
+    private List<SegmentDescription> buildExplicitSegmentation(final int numberOfSegments,
+                                                               final List<RemoteFile> files,
+                                                               final boolean fileSplittingIsSupported) {
+        LOGGER.fine(String.format("Starting explicit segmentation for %d files with %d segments. File splitting supported: %b",
+                files.size(), numberOfSegments, fileSplittingIsSupported));
+
         final int numberOfWorkers = limitWorkerCountByFileSize(numberOfSegments, files);
+        LOGGER.fine(String.format("Calculated number of workers (segments): %d", numberOfWorkers));
+
         final List<FileSegment> splitFiles = splitFilesIfRequired(numberOfWorkers, files, fileSplittingIsSupported);
+        LOGGER.fine(String.format("Number of file segments after splitting: %d", splitFiles.size()));
+
         final List<List<FileSegment>> bins = new BinDistributor().distributeInBins(splitFiles, numberOfWorkers);
+        LOGGER.fine(String.format("Distributed file segments into %d bins.", bins.size()));
+
         final List<SegmentDescription> segmentDescriptions = new ArrayList<>(numberOfWorkers);
+        int binIndex = 0;
         for (final List<FileSegment> bin : bins) {
             if (!bin.isEmpty()) {
                 segmentDescriptions.add(new ExplicitSegmentDescription(bin));
+                LOGGER.fine(String.format("Created segment for bin %d with %d file segments.", binIndex, bin.size()));
+            } else {
+                LOGGER.fine(String.format("Skipped empty bin %d", binIndex));
             }
+            binIndex++;
         }
+
+        LOGGER.fine(String.format("Completed building %d explicit segment descriptions.", segmentDescriptions.size()));
         return segmentDescriptions;
     }
 
@@ -171,10 +188,17 @@ public class FilesDocumentFetcherFactory {
     }
 
     private List<SegmentDescription> buildHashSegmentation(final int numberOfSegments) {
+        LOGGER.fine(() -> "Starting to build hash segmentation for " + numberOfSegments + " segments.");
+
         final List<SegmentDescription> segmentDescriptions = new ArrayList<>(numberOfSegments);
         for (int segmentCounter = 0; segmentCounter < numberOfSegments; segmentCounter++) {
-            segmentDescriptions.add(new HashSegmentDescription(numberOfSegments, segmentCounter));
+            HashSegmentDescription segment = new HashSegmentDescription(numberOfSegments, segmentCounter);
+            segmentDescriptions.add(segment);
+            final int counter = segmentCounter;
+            LOGGER.fine(() -> String.format("Created hash segment description with counter %d for total %d segments.", counter, numberOfSegments));
         }
+
+        LOGGER.fine("Completed building hash segmentation.");
         return segmentDescriptions;
     }
 }

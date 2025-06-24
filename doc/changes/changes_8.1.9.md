@@ -1,4 +1,4 @@
-# Virtual Schema for Document Data in Files 8.1.8, released 2025-??-??
+# Virtual Schema for Document Data in Files 8.1.9, released 2025-06-06
 
 Code name: Add logging for source filter contradictions
 
