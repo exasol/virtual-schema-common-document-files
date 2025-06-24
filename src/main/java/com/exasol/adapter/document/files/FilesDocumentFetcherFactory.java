@@ -21,10 +21,20 @@ import com.exasol.adapter.document.iterators.CloseableIterator;
  * Factory for {@link FilesDocumentFetcher}.
  */
 public class FilesDocumentFetcherFactory {
-    private static final Logger LOGGER = Logger.getLogger(FilesDocumentFetcherFactory.class.getName());
     private static final int MAX_NUMBER_OF_FILES_TO_DISTRIBUTE_EXPLICITLY = 200;
     private static final int ONE_MB = 1_000_000;
     private static final int MIN_SIZE_PER_WORKER = ONE_MB;
+
+    private final Logger LOGGER;
+
+    public FilesDocumentFetcherFactory() {
+        this(Logger.getLogger(FilesDocumentFetcherFactory.class.getName()));
+    }
+
+    // For testing
+    FilesDocumentFetcherFactory(Logger logger) {
+        this.LOGGER = logger;
+    }
 
     /**
      * Builds {@link DocumentFetcher}s for a given query.
@@ -114,49 +124,51 @@ public class FilesDocumentFetcherFactory {
         }
     }
 
-    private List<SegmentDescription> buildExplicitSegmentation(final int numberOfSegments,
+    List<SegmentDescription> buildExplicitSegmentation(final int numberOfSegments,
                                                                final List<RemoteFile> files,
                                                                final boolean fileSplittingIsSupported) {
-        logFine(String.format("Starting explicit segmentation for %d files with %d segments. File splitting supported: %b",
-                    files.size(), numberOfSegments, fileSplittingIsSupported));
+        logFine("Starting explicit segmentation for %d files with %d segments. File splitting supported: %b",
+                    files.size(), numberOfSegments, fileSplittingIsSupported);
 
         final int numberOfWorkers = limitWorkerCountByFileSize(numberOfSegments, files);
-        logFine(String.format("Calculated number of workers (segments): %d", numberOfWorkers));
+        logFine("Calculated number of workers (segments): %d", numberOfWorkers);
 
         final List<FileSegment> splitFiles = splitFilesIfRequired(numberOfWorkers, files, fileSplittingIsSupported);
-        logFine(String.format("Number of file segments after splitting: %d", splitFiles.size()));
+        logFine("Number of file segments after splitting: %d", splitFiles.size());
 
         final List<List<FileSegment>> bins = new BinDistributor().distributeInBins(splitFiles, numberOfWorkers);
-        logFine(String.format("Distributed file segments into %d bins.", bins.size()));
+        logFine("Distributed file segments into %d bins.", bins.size());
 
         final List<SegmentDescription> segmentDescriptions = new ArrayList<>(numberOfWorkers);
         int binIndex = 0;
         for (final List<FileSegment> bin : bins) {
             if (!bin.isEmpty()) {
                 segmentDescriptions.add(new ExplicitSegmentDescription(bin));
-                logFine(String.format("Created segment for bin %d with %d file segments.", binIndex, bin.size()));
+                logFine("Created segment for bin %d with %d file segments.", binIndex, bin.size());
             } else {
-                logFine(String.format("Skipped empty bin %d", binIndex));
+                logFine("Skipped empty bin %d", binIndex);
             }
             binIndex++;
         }
 
-        logFine(String.format("Completed building %d explicit segment descriptions.", segmentDescriptions.size()));
+        logFine("Completed building %d explicit segment descriptions.", segmentDescriptions.size());
         return segmentDescriptions;
     }
 
     /**
-     * Logs the given message at {@link Level#FINE} if that log level is enabled.
+     * Logs a formatted message at {@link Level#FINE} if fine-level logging is enabled.
      * <p>
-     * This helper method avoids unnecessary string construction (e.g., from {@code String.format(...)})
-     * when fine-level logging is not enabled, improving performance and avoiding static analysis warnings.
+     * This helper method avoids unnecessary string construction (such as {@code String.format(...)})
+     * when fine-level logging is not enabled. This improves performance and prevents static analysis
+     * warnings related to inefficient logging.
      * </p>
      *
-     * @param message the message to log
+     * @param stringPattern the format string, as used by {@link String#format(String, Object...)}
+     * @param args          the arguments referenced by the format specifiers in the format string
      */
-    private void logFine(String message) {
+    private void logFine(String stringPattern, Object... args) {
         if (LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.fine(message);
+            LOGGER.fine(String.format(stringPattern, args));
         }
     }
 
@@ -203,15 +215,15 @@ public class FilesDocumentFetcherFactory {
         return file.getSize() > ONE_MB;
     }
 
-    private List<SegmentDescription> buildHashSegmentation(final int numberOfSegments) {
-        LOGGER.fine(() -> "Starting to build hash segmentation for " + numberOfSegments + " segments.");
+    List<SegmentDescription> buildHashSegmentation(final int numberOfSegments) {
+        logFine("Starting to build hash segmentation for %d segments.", numberOfSegments);
 
         final List<SegmentDescription> segmentDescriptions = new ArrayList<>(numberOfSegments);
         for (int segmentCounter = 0; segmentCounter < numberOfSegments; segmentCounter++) {
             HashSegmentDescription segment = new HashSegmentDescription(numberOfSegments, segmentCounter);
             segmentDescriptions.add(segment);
             final int counter = segmentCounter;
-            LOGGER.fine(() -> String.format("Created hash segment description with counter %d for total %d segments.", counter, numberOfSegments));
+            logFine("Created hash segment description with counter %d for total %d segments.", counter, numberOfSegments);
         }
 
         LOGGER.fine("Completed building hash segmentation.");
