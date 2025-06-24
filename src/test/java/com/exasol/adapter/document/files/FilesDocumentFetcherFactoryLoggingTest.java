@@ -47,9 +47,10 @@ class FilesDocumentFetcherFactoryLoggingTest {
                 .reduce("", (a, b) -> a + "\n" + b);
 
         assertTrue(joinedLogs.contains("Starting explicit segmentation"));
+        // Now the three separate messages are combined into one log entry
         assertTrue(joinedLogs.contains("Calculated number of workers"));
-        assertTrue(joinedLogs.contains("Number of file segments after splitting"));
-        assertTrue(joinedLogs.contains("Distributed file segments into"));
+        assertTrue(joinedLogs.contains("number of file segments after splitting"));
+        assertTrue(joinedLogs.contains("number of bins distributed"));
         assertTrue(joinedLogs.contains("Created segment for bin"));
         assertTrue(joinedLogs.contains("Completed building"));
     }
@@ -68,7 +69,6 @@ class FilesDocumentFetcherFactoryLoggingTest {
 
         assertTrue(joinedLogs.contains("Starting to build hash segmentation"));
         assertTrue(joinedLogs.contains("Created hash segment description with counter"));
-        assertTrue(joinedLogs.contains("Completed building hash segmentation"));
 
         assertEquals(3, result.size());
         assertTrue(result.get(0) instanceof HashSegmentDescription);

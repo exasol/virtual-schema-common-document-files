@@ -146,13 +146,11 @@ public class FilesDocumentFetcherFactory {
                     files.size(), numberOfSegments, fileSplittingIsSupported);
 
         final int numberOfWorkers = limitWorkerCountByFileSize(numberOfSegments, files);
-        logFine("Calculated number of workers (segments): %d", numberOfWorkers);
-
         final List<FileSegment> splitFiles = splitFilesIfRequired(numberOfWorkers, files, fileSplittingIsSupported);
-        logFine("Number of file segments after splitting: %d", splitFiles.size());
-
         final List<List<FileSegment>> bins = new BinDistributor().distributeInBins(splitFiles, numberOfWorkers);
-        logFine("Distributed file segments into %d bins.", bins.size());
+
+        logFine("Calculated number of workers (segments): %d, number of file segments after splitting: %d, number of bins distributed: %d.",
+                numberOfWorkers, splitFiles.size(), bins.size());
 
         final List<SegmentDescription> segmentDescriptions = new ArrayList<>(numberOfWorkers);
         int binIndex = 0;
@@ -237,7 +235,6 @@ public class FilesDocumentFetcherFactory {
             logFine("Created hash segment description with counter %d for total %d segments.", segmentCounter, numberOfSegments);
         }
 
-        logFine("Completed building hash segmentation.");
         return segmentDescriptions;
     }
 }
