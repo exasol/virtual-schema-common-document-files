@@ -183,7 +183,7 @@ public class FilesDocumentFetcherFactory {
      */
     private void logFine(final String stringPattern, final Object... args) {
         if (logger.isLoggable(Level.FINE)) {
-            logger.fine(String.format(stringPattern, args));
+            logger.fine(args.length == 0 ? stringPattern : String.format(stringPattern, args));
         }
     }
 
