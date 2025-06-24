@@ -142,8 +142,8 @@ public class FilesDocumentFetcherFactory {
     List<SegmentDescription> buildExplicitSegmentation(final int numberOfSegments,
                                                                final List<RemoteFile> files,
                                                                final boolean fileSplittingIsSupported) {
-        logFine("Starting explicit segmentation for %d files with %d segments. File splitting supported: %b",
-                    files.size(), numberOfSegments, fileSplittingIsSupported);
+        logger.fine((() -> String.format("Starting explicit segmentation for %d files with %d segments. File splitting supported: %b",
+                    files.size(), numberOfSegments, fileSplittingIsSupported)));
 
         final int numberOfWorkers = limitWorkerCountByFileSize(numberOfSegments, files);
         logFine("Calculated number of workers (segments): %d", numberOfWorkers);
