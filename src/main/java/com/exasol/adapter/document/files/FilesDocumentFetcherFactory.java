@@ -4,6 +4,7 @@ import static com.exasol.adapter.document.documentfetcher.files.segmentation.Fil
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.exasol.adapter.document.connection.ConnectionPropertiesReader;
@@ -116,32 +117,47 @@ public class FilesDocumentFetcherFactory {
     private List<SegmentDescription> buildExplicitSegmentation(final int numberOfSegments,
                                                                final List<RemoteFile> files,
                                                                final boolean fileSplittingIsSupported) {
-        LOGGER.fine(String.format("Starting explicit segmentation for %d files with %d segments. File splitting supported: %b",
-                files.size(), numberOfSegments, fileSplittingIsSupported));
+        logFine(String.format("Starting explicit segmentation for %d files with %d segments. File splitting supported: %b",
+                    files.size(), numberOfSegments, fileSplittingIsSupported));
 
         final int numberOfWorkers = limitWorkerCountByFileSize(numberOfSegments, files);
-        LOGGER.fine(String.format("Calculated number of workers (segments): %d", numberOfWorkers));
+        logFine(String.format("Calculated number of workers (segments): %d", numberOfWorkers));
 
         final List<FileSegment> splitFiles = splitFilesIfRequired(numberOfWorkers, files, fileSplittingIsSupported);
-        LOGGER.fine(String.format("Number of file segments after splitting: %d", splitFiles.size()));
+        logFine(String.format("Number of file segments after splitting: %d", splitFiles.size()));
 
         final List<List<FileSegment>> bins = new BinDistributor().distributeInBins(splitFiles, numberOfWorkers);
-        LOGGER.fine(String.format("Distributed file segments into %d bins.", bins.size()));
+        logFine(String.format("Distributed file segments into %d bins.", bins.size()));
 
         final List<SegmentDescription> segmentDescriptions = new ArrayList<>(numberOfWorkers);
         int binIndex = 0;
         for (final List<FileSegment> bin : bins) {
             if (!bin.isEmpty()) {
                 segmentDescriptions.add(new ExplicitSegmentDescription(bin));
-                LOGGER.fine(String.format("Created segment for bin %d with %d file segments.", binIndex, bin.size()));
+                logFine(String.format("Created segment for bin %d with %d file segments.", binIndex, bin.size()));
             } else {
-                LOGGER.fine(String.format("Skipped empty bin %d", binIndex));
+                logFine(String.format("Skipped empty bin %d", binIndex));
             }
             binIndex++;
         }
 
-        LOGGER.fine(String.format("Completed building %d explicit segment descriptions.", segmentDescriptions.size()));
+        logFine(String.format("Completed building %d explicit segment descriptions.", segmentDescriptions.size()));
         return segmentDescriptions;
+    }
+
+    /**
+     * Logs the given message at {@link Level#FINE} if that log level is enabled.
+     * <p>
+     * This helper method avoids unnecessary string construction (e.g., from {@code String.format(...)})
+     * when fine-level logging is not enabled, improving performance and avoiding static analysis warnings.
+     * </p>
+     *
+     * @param message the message to log
+     */
+    private void logFine(String message) {
+        if (LOGGER.isLoggable(Level.FINE)) {
+            LOGGER.fine(message);
+        }
     }
 
     private int limitWorkerCountByFileSize(final int numberOfSegments, final List<RemoteFile> files) {
