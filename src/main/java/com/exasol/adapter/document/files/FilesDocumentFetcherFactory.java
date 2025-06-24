@@ -25,15 +25,30 @@ public class FilesDocumentFetcherFactory {
     private static final int ONE_MB = 1_000_000;
     private static final int MIN_SIZE_PER_WORKER = ONE_MB;
 
-    private final Logger LOGGER;
+    private final Logger logger;
 
+    /**
+     * Constructs a new {@link FilesDocumentFetcherFactory} using a default logger.
+     * <p>
+     * This is the standard constructor used in production. It initializes the logger
+     * with the class name {@code FilesDocumentFetcherFactory}.
+     * </p>
+     */
     public FilesDocumentFetcherFactory() {
         this(Logger.getLogger(FilesDocumentFetcherFactory.class.getName()));
     }
 
-    // For testing
+    /**
+     * Constructs a new {@link FilesDocumentFetcherFactory} using a custom logger.
+     * <p>
+     * This constructor is primarily intended for testing purposes to allow injection
+     * of a mock or custom logger.
+     * </p>
+     *
+     * @param logger the {@link Logger} instance to use
+     */
     FilesDocumentFetcherFactory(Logger logger) {
-        this.LOGGER = logger;
+        this.logger = logger;
     }
 
     /**
@@ -57,7 +72,7 @@ public class FilesDocumentFetcherFactory {
         final List<SegmentDescription> segmentDescriptions = buildSegmentDescriptions(fileFinderFactory,
                 connectionInformation, numberOfSegments, sourceFilter, fileTypeSpecificDocumentFetcher);
         if (segmentDescriptions.isEmpty()) {
-            LOGGER.fine(() -> getEmptyDocumentFetchersLogMessage(fileFinderFactory,
+            logger.fine(() -> getEmptyDocumentFetchersLogMessage(fileFinderFactory,
                     fileTypeSpecificDocumentFetcher, numberOfSegments, sourceFilter, additionalConfiguration));
         }
         for (final SegmentDescription segmentDescription : segmentDescriptions) {
@@ -167,8 +182,8 @@ public class FilesDocumentFetcherFactory {
      * @param args          the arguments referenced by the format specifiers in the format string
      */
     private void logFine(String stringPattern, Object... args) {
-        if (LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.fine(String.format(stringPattern, args));
+        if (logger.isLoggable(Level.FINE)) {
+            logger.fine(String.format(stringPattern, args));
         }
     }
 
@@ -226,7 +241,7 @@ public class FilesDocumentFetcherFactory {
             logFine("Created hash segment description with counter %d for total %d segments.", counter, numberOfSegments);
         }
 
-        LOGGER.fine("Completed building hash segmentation.");
+        logger.fine("Completed building hash segmentation.");
         return segmentDescriptions;
     }
 }
