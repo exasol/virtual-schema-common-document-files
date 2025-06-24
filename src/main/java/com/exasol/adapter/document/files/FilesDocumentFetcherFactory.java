@@ -4,6 +4,7 @@ import static com.exasol.adapter.document.documentfetcher.files.segmentation.Fil
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.exasol.adapter.document.connection.ConnectionPropertiesReader;
@@ -20,10 +21,35 @@ import com.exasol.adapter.document.iterators.CloseableIterator;
  * Factory for {@link FilesDocumentFetcher}.
  */
 public class FilesDocumentFetcherFactory {
-    private static final Logger LOGGER = Logger.getLogger(FilesDocumentFetcherFactory.class.getName());
     private static final int MAX_NUMBER_OF_FILES_TO_DISTRIBUTE_EXPLICITLY = 200;
     private static final int ONE_MB = 1_000_000;
     private static final int MIN_SIZE_PER_WORKER = ONE_MB;
+
+    private final Logger logger;
+
+    /**
+     * Constructs a new {@link FilesDocumentFetcherFactory} using a default logger.
+     * <p>
+     * This is the standard constructor used in production. It initializes the logger
+     * with the class name {@code FilesDocumentFetcherFactory}.
+     * </p>
+     */
+    public FilesDocumentFetcherFactory() {
+        this(Logger.getLogger(FilesDocumentFetcherFactory.class.getName()));
+    }
+
+    /**
+     * Constructs a new {@link FilesDocumentFetcherFactory} using a custom logger.
+     * <p>
+     * This constructor is primarily intended for testing purposes to allow injection
+     * of a mock or custom logger.
+     * </p>
+     *
+     * @param logger the {@link Logger} instance to use
+     */
+    FilesDocumentFetcherFactory(Logger logger) {
+        this.logger = logger;
+    }
 
     /**
      * Builds {@link DocumentFetcher}s for a given query.
@@ -46,7 +72,7 @@ public class FilesDocumentFetcherFactory {
         final List<SegmentDescription> segmentDescriptions = buildSegmentDescriptions(fileFinderFactory,
                 connectionInformation, numberOfSegments, sourceFilter, fileTypeSpecificDocumentFetcher);
         if (segmentDescriptions.isEmpty()) {
-            LOGGER.fine(() -> getEmptyDocumentFetchersLogMessage(fileFinderFactory,
+            logger.fine(() -> getEmptyDocumentFetchersLogMessage(fileFinderFactory,
                     fileTypeSpecificDocumentFetcher, numberOfSegments, sourceFilter, additionalConfiguration));
         }
         for (final SegmentDescription segmentDescription : segmentDescriptions) {
@@ -113,18 +139,48 @@ public class FilesDocumentFetcherFactory {
         }
     }
 
-    private List<SegmentDescription> buildExplicitSegmentation(final int numberOfSegments, final List<RemoteFile> files,
-            final boolean fileSplittingIsSupported) {
+    List<SegmentDescription> buildExplicitSegmentation(final int numberOfSegments,
+                                                               final List<RemoteFile> files,
+                                                               final boolean fileSplittingIsSupported) {
+        logFine("Starting explicit segmentation for %d files with %d segments. File splitting supported: %b",
+                    files.size(), numberOfSegments, fileSplittingIsSupported);
+
         final int numberOfWorkers = limitWorkerCountByFileSize(numberOfSegments, files);
         final List<FileSegment> splitFiles = splitFilesIfRequired(numberOfWorkers, files, fileSplittingIsSupported);
         final List<List<FileSegment>> bins = new BinDistributor().distributeInBins(splitFiles, numberOfWorkers);
+
+        logFine("Calculated number of workers (segments): %d, number of file segments after splitting: %d, number of bins distributed: %d.",
+                numberOfWorkers, splitFiles.size(), bins.size());
+
         final List<SegmentDescription> segmentDescriptions = new ArrayList<>(numberOfWorkers);
+        int binIndex = 0;
         for (final List<FileSegment> bin : bins) {
             if (!bin.isEmpty()) {
                 segmentDescriptions.add(new ExplicitSegmentDescription(bin));
+                logFine("Created segment for bin %d with %d file segments.", binIndex, bin.size());
+            } else {
+                logFine("Skipped empty bin %d", binIndex);
             }
+            binIndex++;
         }
+
+        logFine("Completed building %d explicit segment descriptions.", segmentDescriptions.size());
         return segmentDescriptions;
+    }
+
+    /**
+     * Logs a formatted message at {@link Level#FINE} if fine-level logging is enabled.
+     * <p>
+     * This helper method avoids unnecessary string construction (such as {@code String.format(...)})
+     * when fine-level logging is not enabled. This improves performance and prevents static analysis
+     * warnings related to inefficient logging.
+     * </p>
+     *
+     * @param stringPattern the format string, as used by {@link String#format(String, Object...)}
+     * @param args          the arguments referenced by the format specifiers in the format string
+     */
+    private void logFine(final String stringPattern, final Object... args) {
+        logger.fine(() -> args.length == 0 ? stringPattern : String.format(stringPattern, args));
     }
 
     private int limitWorkerCountByFileSize(final int numberOfSegments, final List<RemoteFile> files) {
@@ -170,11 +226,15 @@ public class FilesDocumentFetcherFactory {
         return file.getSize() > ONE_MB;
     }
 
-    private List<SegmentDescription> buildHashSegmentation(final int numberOfSegments) {
+    List<SegmentDescription> buildHashSegmentation(final int numberOfSegments) {
+        logFine("Starting to build hash segmentation for %d segments.", numberOfSegments);
+
         final List<SegmentDescription> segmentDescriptions = new ArrayList<>(numberOfSegments);
         for (int segmentCounter = 0; segmentCounter < numberOfSegments; segmentCounter++) {
             segmentDescriptions.add(new HashSegmentDescription(numberOfSegments, segmentCounter));
+            logFine("Created hash segment description with counter %d for total %d segments.", segmentCounter, numberOfSegments);
         }
+
         return segmentDescriptions;
     }
 }
