@@ -109,12 +109,14 @@ public class FilesDocumentFetcherFactory {
                         "[User guide URL = '%s'], " +
                         "[Number of segments = %d], " +
                         "[Additional config = '%s'], " +
+                        "[Document fetcher type = '%s'], " +
                         "[Document fetcher supports file splitting = '%B']. " +
                         "Returning empty list of DocumentFetcher elements.",
                 filePattern,
                 fileFinderFactory.getUserGuideUrl(),
                 numberOfSegments,
                 additionalConfiguration,
+                fileTypeSpecificDocumentFetcher.getClass().getName(),
                 fileTypeSpecificDocumentFetcher.supportsFileSplitting()
         );
     }
