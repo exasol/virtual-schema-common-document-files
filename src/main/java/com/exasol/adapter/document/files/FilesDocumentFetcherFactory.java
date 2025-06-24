@@ -181,7 +181,7 @@ public class FilesDocumentFetcherFactory {
      * @param stringPattern the format string, as used by {@link String#format(String, Object...)}
      * @param args          the arguments referenced by the format specifiers in the format string
      */
-    private void logFine(String stringPattern, Object... args) {
+    private void logFine(final String stringPattern, final Object... args) {
         if (logger.isLoggable(Level.FINE)) {
             logger.fine(String.format(stringPattern, args));
         }
@@ -235,10 +235,8 @@ public class FilesDocumentFetcherFactory {
 
         final List<SegmentDescription> segmentDescriptions = new ArrayList<>(numberOfSegments);
         for (int segmentCounter = 0; segmentCounter < numberOfSegments; segmentCounter++) {
-            HashSegmentDescription segment = new HashSegmentDescription(numberOfSegments, segmentCounter);
-            segmentDescriptions.add(segment);
-            final int counter = segmentCounter;
-            logFine("Created hash segment description with counter %d for total %d segments.", counter, numberOfSegments);
+            segmentDescriptions.add(new HashSegmentDescription(numberOfSegments, segmentCounter));
+            logFine("Created hash segment description with counter %d for total %d segments.", segmentCounter, numberOfSegments);
         }
 
         logger.fine("Completed building hash segmentation.");
