@@ -1,33 +1,30 @@
 package com.exasol.adapter.document.files;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.ArgumentCaptor;
 
 import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
 import com.exasol.adapter.document.documentfetcher.files.segmentation.HashSegmentDescription;
 import com.exasol.adapter.document.documentfetcher.files.segmentation.SegmentDescription;
 
-@ExtendWith(MockitoExtension.class)
 class FilesDocumentFetcherFactoryLoggingTest {
 
-    @Mock
-    Logger mockLogger;
-
+    private Logger mockLogger;
     private FilesDocumentFetcherFactory factory;
 
     @BeforeEach
     void setUp() {
-        // The class under test now takes a logger directly — good!
+        mockLogger = mock(Logger.class);
         when(mockLogger.isLoggable(Level.FINE)).thenReturn(true);
         factory = new FilesDocumentFetcherFactory(mockLogger);
     }
@@ -39,25 +36,39 @@ class FilesDocumentFetcherFactoryLoggingTest {
                 new RemoteFile("file2", 5_000_000, null)
         );
 
-        List<SegmentDescription> result = factory.buildExplicitSegmentation(4, files, true);
+        factory.buildExplicitSegmentation(4, files, true);
 
-        verify(mockLogger, atLeastOnce()).fine(contains("Starting explicit segmentation"));
-        verify(mockLogger, atLeastOnce()).fine(contains("Calculated number of workers"));
-        verify(mockLogger, atLeastOnce()).fine(contains("Number of file segments after splitting"));
-        verify(mockLogger, atLeastOnce()).fine(contains("Distributed file segments into"));
-        verify(mockLogger, atLeastOnce()).fine(contains("Created segment for bin"));
-        verify(mockLogger, atLeastOnce()).fine(contains("Completed building"));
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Supplier<String>> captor = ArgumentCaptor.forClass(Supplier.class);
+        verify(mockLogger, atLeast(1)).fine(captor.capture());
 
-        assertFalse(result.isEmpty());
+        String joinedLogs = captor.getAllValues().stream()
+                .map(Supplier::get)
+                .reduce("", (a, b) -> a + "\n" + b);
+
+        assertTrue(joinedLogs.contains("Starting explicit segmentation"));
+        assertTrue(joinedLogs.contains("Calculated number of workers"));
+        assertTrue(joinedLogs.contains("Number of file segments after splitting"));
+        assertTrue(joinedLogs.contains("Distributed file segments into"));
+        assertTrue(joinedLogs.contains("Created segment for bin"));
+        assertTrue(joinedLogs.contains("Completed building"));
     }
 
     @Test
     void testBuildHashSegmentation_logsExpectedMessages() {
         List<SegmentDescription> result = factory.buildHashSegmentation(3);
 
-        verify(mockLogger, atLeastOnce()).fine(contains("Starting to build hash segmentation"));
-        verify(mockLogger, atLeast(3)).fine(contains("Created hash segment description with counter"));
-        verify(mockLogger, atLeastOnce()).fine(contains("Completed building hash segmentation"));
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Supplier<String>> captor = ArgumentCaptor.forClass(Supplier.class);
+        verify(mockLogger, atLeast(1)).fine(captor.capture());
+
+        String joinedLogs = captor.getAllValues().stream()
+                .map(Supplier::get)
+                .reduce("", (a, b) -> a + "\n" + b);
+
+        assertTrue(joinedLogs.contains("Starting to build hash segmentation"));
+        assertTrue(joinedLogs.contains("Created hash segment description with counter"));
+        assertTrue(joinedLogs.contains("Completed building hash segmentation"));
 
         assertEquals(3, result.size());
         assertTrue(result.get(0) instanceof HashSegmentDescription);

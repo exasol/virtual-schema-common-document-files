@@ -142,8 +142,8 @@ public class FilesDocumentFetcherFactory {
     List<SegmentDescription> buildExplicitSegmentation(final int numberOfSegments,
                                                                final List<RemoteFile> files,
                                                                final boolean fileSplittingIsSupported) {
-        logger.fine((() -> String.format("Starting explicit segmentation for %d files with %d segments. File splitting supported: %b",
-                    files.size(), numberOfSegments, fileSplittingIsSupported)));
+        logFine("Starting explicit segmentation for %d files with %d segments. File splitting supported: %b",
+                    files.size(), numberOfSegments, fileSplittingIsSupported);
 
         final int numberOfWorkers = limitWorkerCountByFileSize(numberOfSegments, files);
         logFine("Calculated number of workers (segments): %d", numberOfWorkers);
@@ -182,9 +182,7 @@ public class FilesDocumentFetcherFactory {
      * @param args          the arguments referenced by the format specifiers in the format string
      */
     private void logFine(final String stringPattern, final Object... args) {
-        if (logger.isLoggable(Level.FINE)) {
-            logger.fine(args.length == 0 ? stringPattern : String.format(stringPattern, args));
-        }
+        logger.fine(() -> args.length == 0 ? stringPattern : String.format(stringPattern, args));
     }
 
     private int limitWorkerCountByFileSize(final int numberOfSegments, final List<RemoteFile> files) {
@@ -239,7 +237,7 @@ public class FilesDocumentFetcherFactory {
             logFine("Created hash segment description with counter %d for total %d segments.", segmentCounter, numberOfSegments);
         }
 
-        logger.fine("Completed building hash segmentation.");
+        logFine("Completed building hash segmentation.");
         return segmentDescriptions;
     }
 }
