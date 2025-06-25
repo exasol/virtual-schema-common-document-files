@@ -70,7 +70,7 @@ class FilesQueryPlannerTest {
         final FilesQueryPlanner queryPlanner = mockQueryPlanner(loader);
         final SourceString sourceString = queryPlanner.getSourceString(remoteTableQuery);
         final FilesSelectionExtractor.Result splitSelection = queryPlanner.getSplitSelection(sourceString, remoteTableQuery);
-        String emptyDocumentFetchersLogMessage = String.format("No document fetchers created for file pattern 'test-*.json' of file type 'json' with selection 'NoPredicate' | Remote table query: RemoteTableQuery{fromTable=tableMapping custom mock, selectList=[], selection=NoPredicate} | Returning EmptyQueryPlan.");
+        String emptyDocumentFetchersLogMessage = "No document fetchers created for file pattern 'test-*.json' of file type 'json' with selection 'NoPredicate' | Remote table query: RemoteTableQuery{fromTable=tableMapping custom mock, selectList=[], selection=NoPredicate} | Returning EmptyQueryPlan.";
         final QueryPlan queryPlan = queryPlanner.planQuery(remoteTableQuery, 10);
 
         assertAll(
