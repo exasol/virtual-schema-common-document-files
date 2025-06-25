@@ -1,10 +1,10 @@
 package com.exasol.adapter.document.files;
 
 import static com.exasol.adapter.document.documentfetcher.files.segmentation.FileSegmentDescription.ENTIRE_FILE;
+import static com.exasol.utils.LogHelper.logFine;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.exasol.adapter.document.connection.ConnectionPropertiesReader;
@@ -144,14 +144,14 @@ public class FilesDocumentFetcherFactory {
     List<SegmentDescription> buildExplicitSegmentation(final int numberOfSegments,
                                                                final List<RemoteFile> files,
                                                                final boolean fileSplittingIsSupported) {
-        logFine("Starting explicit segmentation for %d files with %d segments. File splitting supported: %b",
+        logFine(logger,"Starting explicit segmentation for %d files with %d segments. File splitting supported: %b",
                     files.size(), numberOfSegments, fileSplittingIsSupported);
 
         final int numberOfWorkers = limitWorkerCountByFileSize(numberOfSegments, files);
         final List<FileSegment> splitFiles = splitFilesIfRequired(numberOfWorkers, files, fileSplittingIsSupported);
         final List<List<FileSegment>> bins = new BinDistributor().distributeInBins(splitFiles, numberOfWorkers);
 
-        logFine("Calculated number of workers (segments): %d, number of file segments after splitting: %d, number of bins distributed: %d.",
+        logFine(logger, "Calculated number of workers (segments): %d, number of file segments after splitting: %d, number of bins distributed: %d.",
                 numberOfWorkers, splitFiles.size(), bins.size());
 
         final List<SegmentDescription> segmentDescriptions = new ArrayList<>(numberOfWorkers);
@@ -159,30 +159,15 @@ public class FilesDocumentFetcherFactory {
         for (final List<FileSegment> bin : bins) {
             if (!bin.isEmpty()) {
                 segmentDescriptions.add(new ExplicitSegmentDescription(bin));
-                logFine("Created segment for bin %d with %d file segments.", binIndex, bin.size());
+                logFine(logger, "Created segment for bin %d with %d file segments.", binIndex, bin.size());
             } else {
-                logFine("Skipped empty bin %d", binIndex);
+                logFine(logger, "Skipped empty bin %d", binIndex);
             }
             binIndex++;
         }
 
-        logFine("Completed building %d explicit segment descriptions.", segmentDescriptions.size());
+        logFine(logger, "Completed building %d explicit segment descriptions.", segmentDescriptions.size());
         return segmentDescriptions;
-    }
-
-    /**
-     * Logs a formatted message at {@link Level#FINE} if fine-level logging is enabled.
-     * <p>
-     * This helper method avoids unnecessary string construction (such as {@code String.format(...)})
-     * when fine-level logging is not enabled. This improves performance and prevents static analysis
-     * warnings related to inefficient logging.
-     * </p>
-     *
-     * @param stringPattern the format string, as used by {@link String#format(String, Object...)}
-     * @param args          the arguments referenced by the format specifiers in the format string
-     */
-    private void logFine(final String stringPattern, final Object... args) {
-        logger.fine(() -> args.length == 0 ? stringPattern : String.format(stringPattern, args));
     }
 
     private int limitWorkerCountByFileSize(final int numberOfSegments, final List<RemoteFile> files) {
@@ -229,12 +214,12 @@ public class FilesDocumentFetcherFactory {
     }
 
     List<SegmentDescription> buildHashSegmentation(final int numberOfSegments) {
-        logFine("Starting to build hash segmentation for %d segments.", numberOfSegments);
+        logFine(logger, "Starting to build hash segmentation for %d segments.", numberOfSegments);
 
         final List<SegmentDescription> segmentDescriptions = new ArrayList<>(numberOfSegments);
         for (int segmentCounter = 0; segmentCounter < numberOfSegments; segmentCounter++) {
             segmentDescriptions.add(new HashSegmentDescription(numberOfSegments, segmentCounter));
-            logFine("Created hash segment description with counter %d for total %d segments.", segmentCounter, numberOfSegments);
+            logFine(logger, "Created hash segment description with counter %d for total %d segments.", segmentCounter, numberOfSegments);
         }
 
         return segmentDescriptions;

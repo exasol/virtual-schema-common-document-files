@@ -1,4 +1,4 @@
-# Virtual Schema for Document Data in Files 8.1.10, released 2025-06-24
+# Virtual Schema for Document Data in Files 8.1.10, released 2025-06-25
 
 Code name: Improve query plan logging
 
