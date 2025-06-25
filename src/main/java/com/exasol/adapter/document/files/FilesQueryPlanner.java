@@ -112,9 +112,11 @@ public class FilesQueryPlanner implements QueryPlanner {
      */
     String getEmptyDocumentFetchersLogMessage(final SourceString sourceString, final RemoteTableQuery remoteTableQuery) {
         return String.format(
-                "No document fetchers created for file pattern '%s' with selection '%s'. Returning EmptyQueryPlan.",
+                "No document fetchers created for file pattern '%s' of file type '%s' with selection '%s' | Remote table query: %s | Returning EmptyQueryPlan.",
                 sourceString.getFilePattern(),
-                remoteTableQuery.getSelection()
+                sourceString.getFileType(),
+                remoteTableQuery.getSelection(),
+                remoteTableQuery
         );
     }
 

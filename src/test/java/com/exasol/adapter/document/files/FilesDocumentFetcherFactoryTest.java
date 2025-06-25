@@ -74,6 +74,7 @@ class FilesDocumentFetcherFactoryTest {
                 "[User guide URL = 'jdbc:exa:test'], " +
                 "[Number of segments = 30], " +
                 "[Additional config = 'key: value'], " +
+                String.format("[Document fetcher type = '%s'], ", fileTypeSpecificDocumentFetcher.getClass().getName()) +
                 "[Document fetcher supports file splitting = 'TRUE']. " +
                 "Returning empty list of DocumentFetcher elements.";
         assertThat(emptyDocumentFetchersLogMessage, equalTo(expectedLogMessage));

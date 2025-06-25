@@ -5,8 +5,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.Collections;
 import java.util.List;
@@ -71,7 +70,7 @@ class FilesQueryPlannerTest {
         final FilesQueryPlanner queryPlanner = mockQueryPlanner(loader);
         final SourceString sourceString = queryPlanner.getSourceString(remoteTableQuery);
         final FilesSelectionExtractor.Result splitSelection = queryPlanner.getSplitSelection(sourceString, remoteTableQuery);
-        String emptyDocumentFetchersLogMessage = "No document fetchers created for file pattern 'test-*.json' with selection 'NoPredicate'. Returning EmptyQueryPlan.";
+        String emptyDocumentFetchersLogMessage = "No document fetchers created for file pattern 'test-*.json' of file type 'json' with selection 'NoPredicate' | Remote table query: RemoteTableQuery{fromTable=tableMapping custom mock, selectList=[], selection=NoPredicate} | Returning EmptyQueryPlan.";
         final QueryPlan queryPlan = queryPlanner.planQuery(remoteTableQuery, 10);
 
         assertAll(
@@ -116,6 +115,7 @@ class FilesQueryPlannerTest {
 
     private RemoteTableQuery getRemoteTableQuery(final String filePattern, final QueryPredicate selection) {
         final TableMapping tableMapping = mock(TableMapping.class);
+        lenient().when(tableMapping.toString()).thenReturn("tableMapping custom mock");
         when(tableMapping.getRemoteName()).thenReturn(filePattern);
         return new RemoteTableQuery(tableMapping, Collections.emptyList(), selection);
     }
