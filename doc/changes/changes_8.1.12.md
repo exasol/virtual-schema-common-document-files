@@ -32,9 +32,14 @@ CWE: CWE-674
 
 ## Dependency Updates
 
+### Compile Dependency Updates
+
+* Updated `com.exasol:virtual-schema-common-document:11.0.5` to `11.0.6`
+
 ### Test Dependency Updates
 
 * Updated `com.exasol:udf-debugging-java:0.6.16` to `0.6.17`
+* Updated `com.exasol:virtual-schema-common-document:11.0.5` to `11.0.6`
 
 ### Plugin Dependency Updates
 
