@@ -7,7 +7,7 @@
     <description>Adapter for document data access from files.</description>
     <url>https://github.com/exasol/virtual-schema-common-document-files/</url>
     <properties>
-        <vs-common-document.version>11.0.5</vs-common-document.version>
+        <vs-common-document.version>11.0.6</vs-common-document.version>
     </properties>
     <dependencies>
         <dependency>
