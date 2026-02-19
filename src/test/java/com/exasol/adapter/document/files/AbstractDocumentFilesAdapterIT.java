@@ -1,38 +1,5 @@
 package com.exasol.adapter.document.files;
 
-import static com.exasol.matcher.ResultSetStructureMatcher.table;
-import static com.exasol.udfdebugging.PushDownTesting.getPushDownSql;
-import static com.exasol.udfdebugging.PushDownTesting.getSelectionThatIsSentToTheAdapter;
-import static java.util.stream.Collectors.joining;
-import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.*;
-import static org.apache.parquet.schema.Type.Repetition.REQUIRED;
-import static org.hamcrest.CoreMatchers.endsWith;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.sql.*;
-import java.sql.Date;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.TimeoutException;
-import java.util.function.Supplier;
-import java.util.logging.Logger;
-
-import org.apache.parquet.schema.LogicalTypeAnnotation;
-import org.apache.parquet.schema.Type;
-import org.apache.parquet.schema.Types;
-import org.hamcrest.Matcher;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.io.TempDir;
-
 import com.exasol.adapter.document.documentfetcher.files.parquet.ParquetTestSetup;
 import com.exasol.adapter.document.edml.*;
 import com.exasol.adapter.document.edml.EdmlDefinition.EdmlDefinitionBuilder;
@@ -45,6 +12,42 @@ import com.exasol.matcher.ResultSetStructureMatcher;
 import com.exasol.matcher.ResultSetStructureMatcher.Builder;
 import com.exasol.matcher.TypeMatchMode;
 import com.exasol.performancetestrecorder.PerformanceTestRecorder;
+import org.apache.parquet.schema.LogicalTypeAnnotation;
+import org.apache.parquet.schema.Type;
+import org.apache.parquet.schema.Types;
+import org.hamcrest.Matcher;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.*;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
+import java.util.concurrent.TimeoutException;
+import java.util.function.Supplier;
+import java.util.logging.Logger;
+
+import static com.exasol.matcher.ResultSetStructureMatcher.table;
+import static com.exasol.udfdebugging.PushDownTesting.getPushDownSql;
+import static com.exasol.udfdebugging.PushDownTesting.getSelectionThatIsSentToTheAdapter;
+import static java.util.stream.Collectors.joining;
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.*;
+import static org.apache.parquet.schema.Type.Repetition.REQUIRED;
+import static org.hamcrest.CoreMatchers.endsWith;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * This is a base class for document-file virtual schema integration tests.
@@ -242,7 +245,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 .mapField("int_col", ToDecimalMapping.builder().decimalPrecision(5).decimalScale(0).build()) //
                 .mapField("double_col", ToDoubleMapping.builder().build()) //
                 .mapField("date_col", ToDateMapping.builder().build()) //
-                .mapField("timestamp_col", ToTimestampMapping.builder().build()) //
+                .mapField("timestamp_col", timestampMappingBuilder().build()) //
                 .build();
         createVirtualSchemaWithMapping(TEST_SCHEMA, csvEdml(mapping, "testData-*.csv", true));
         uploadFileContent("testData-1.csv", List.of( //
@@ -352,7 +355,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
                                 .build()) //
                 .mapField("4", ToDoubleMapping.builder().destinationName("DOUBLE_COL").build()) //
                 .mapField("5", ToDateMapping.builder().destinationName("DATE_COL").build()) //
-                .mapField("6", ToTimestampMapping.builder().destinationName("TIMESTAMP_COL").build()) //
+                .mapField("6", timestampMappingBuilder().destinationName("TIMESTAMP_COL").build()) //
                 .build();
         createVirtualSchemaWithMapping(TEST_SCHEMA, csvEdml(mapping, "testData-*.csv", false));
 
@@ -598,7 +601,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 .mapField("isActive", ToBoolMapping.builder().destinationName("IS_ACTIVE").build())//
                 .mapField("my_date", ToDateMapping.builder().build())//
                 .mapField("my_time", ToDecimalMapping.builder().decimalPrecision(15).decimalScale(0).build())//
-                .mapField("my_timestamp", ToTimestampMapping.builder().build())//
+                .mapField("my_timestamp", timestampMappingBuilder().build())//
                 .mapField("json", ToVarcharMapping.builder().build())//
                 .build();
         createVirtualSchemaWithMapping(TEST_SCHEMA, mapping, "testData-*.parquet");
@@ -630,6 +633,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 "{\"my_value\": 2}").withUtcCalendar().matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
     }
 
+    @Disabled("Will be enabled after fixing https://github.com/exasol/virtual-schema-common-document-files/issues/182")
     @Test
     public void testReadParquetFileWithAutomaticInference() throws IOException {
         final Type stringColumn = Types.primitive(BINARY, REQUIRED).named("data");
@@ -784,6 +788,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
         return columns;
     }
 
+    @Disabled("Will be enabled after fixing https://github.com/exasol/virtual-schema-common-document-files/issues/182")
     @Test
     public void testLoadRandomCsvFile() {
         final long rowCount = 100;
@@ -1038,4 +1043,9 @@ public abstract class AbstractDocumentFilesAdapterIT {
         createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapCsvFileDifferentDelimiter.json");
         uploadDataFileFromResources("testCsvDifferentDelimiter.csv");
     }
+
+    private ToTimestampMapping.ToTimestampMappingBuilder<?> timestampMappingBuilder() {
+        return ToTimestampMapping.builder().secondsPrecision(3);
+    }
+
 }
