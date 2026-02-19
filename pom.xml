@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>virtual-schema-common-document-files</artifactId>
-    <version>8.1.12</version>
+    <version>8.1.13</version>
     <name>Virtual Schema for document data in files</name>
     <description>Adapter for document data access from files.</description>
     <url>https://github.com/exasol/virtual-schema-common-document-files/</url>
     <properties>
-        <vs-common-document.version>11.0.6</vs-common-document.version>
+        <vs-common-document.version>11.0.7</vs-common-document.version>
     </properties>
     <dependencies>
         <dependency>
@@ -126,7 +126,7 @@
             <plugin>
                 <groupId>com.exasol</groupId>
                 <artifactId>project-keeper-maven-plugin</artifactId>
-                <version>5.2.3</version>
+                <version>5.4.6</version>
                 <executions>
                     <execution>
                         <goals>
@@ -161,12 +161,28 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.sonatype.ossindex.maven</groupId>
+                <artifactId>ossindex-maven-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <excludeCoordinates>
+                        <!-- Excludes CVE-2025-67721 in transitive dependency `io.airlift:aircompressor:jar:2.0.2` of `parquet-hadoop` and `parquet-io` -->
+                        <!-- Remove when the new version of `parquet-hadoop` and `parquet-io` fixes this vulnerability -->
+                        <exclude>
+                            <groupId>io.airlift</groupId>
+                            <artifactId>aircompressor</artifactId>
+                            <version>2.0.2</version>
+                        </exclude>
+                    </excludeCoordinates>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <parent>
         <artifactId>virtual-schema-common-document-files-generated-parent</artifactId>
         <groupId>com.exasol</groupId>
-        <version>8.1.12</version>
+        <version>8.1.13</version>
         <relativePath>pk_generated_parent.pom</relativePath>
     </parent>
 </project>
