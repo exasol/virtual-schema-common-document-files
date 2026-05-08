@@ -1,5 +1,6 @@
 package com.exasol.adapter.document.documentfetcher.files.parquet;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
 
@@ -10,6 +11,7 @@ import org.apache.parquet.example.data.GroupWriter;
 import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.hadoop.api.WriteSupport;
 import org.apache.parquet.hadoop.util.ConfigurationUtil;
+import org.apache.parquet.hadoop.util.HadoopOutputFile;
 import org.apache.parquet.io.api.RecordConsumer;
 import org.apache.parquet.schema.MessageType;
 
@@ -17,8 +19,16 @@ public class ParquetTestWriterBuilder extends ParquetWriter.Builder<Group, Parqu
     private final MessageType schema;
 
     public ParquetTestWriterBuilder(final Path destinationFile, final MessageType schema) {
-        super(new org.apache.hadoop.fs.Path(destinationFile.toString()));
+        super(toHadoopFile(destinationFile));
         this.schema = schema;
+    }
+
+    private static HadoopOutputFile toHadoopFile(final Path file) {
+        try {
+            return HadoopOutputFile.fromPath(new org.apache.hadoop.fs.Path(file.toString()), new Configuration());
+        } catch (IllegalArgumentException | IOException e) {
+            throw new IllegalStateException("Failed to create HadoopOutputFile for path: " + file, e);
+        }
     }
 
     @Override
@@ -27,7 +37,7 @@ public class ParquetTestWriterBuilder extends ParquetWriter.Builder<Group, Parqu
     }
 
     // ParquetWriter.Builder#getWriteSupport(Configuration) is deprecated and replaced with
-    // getWriteSupport(ParquetConfiguration).
+    // getWriteSupport(ParquetConfiguration). But the parent class still requires this method.
     @SuppressWarnings("deprecation")
     @Override
     protected WriteSupport<Group> getWriteSupport(final Configuration conf) {
