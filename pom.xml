@@ -2,12 +2,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>virtual-schema-common-document-files</artifactId>
-    <version>8.1.14</version>
+    <version>9.0.0</version>
     <name>Virtual Schema for document data in files</name>
     <description>Adapter for document data access from files.</description>
     <url>https://github.com/exasol/virtual-schema-common-document-files/</url>
     <properties>
-        <vs-common-document.version>11.0.7</vs-common-document.version>
+        <vs-common-document.version>12.0.2</vs-common-document.version>
     </properties>
     <dependencies>
         <dependency>
@@ -18,20 +18,21 @@
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>parquet-io-java</artifactId>
-            <version>2.0.13</version>
+            <version>2.0.15</version>
         </dependency>
         <dependency>
             <!-- https://mvnrepository.com/artifact/de.siegmar/fastcsv -->
             <!-- Used for reading CSV content -->
             <groupId>de.siegmar</groupId>
             <artifactId>fastcsv</artifactId>
+            <!-- Version 4 requires Java 17 -->
             <version>3.7.0</version>
         </dependency>
         <dependency>
             <!-- Used for detecting CSV header and column types -->
             <groupId>io.deephaven</groupId>
             <artifactId>deephaven-csv</artifactId>
-            <version>0.15.0</version>
+            <version>0.19.0</version>
         </dependency>
         <dependency>
             <groupId>jakarta.json</groupId>
@@ -49,7 +50,7 @@
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>error-reporting-java</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.2</version>
         </dependency>
         <!-- Test dependencies -->
         <dependency>
@@ -61,14 +62,14 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
-            <version>5.13.0</version>
+            <version>5.14.4</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>nl.jqno.equalsverifier</groupId>
             <artifactId>equalsverifier</artifactId>
             <!-- Version 4.0 requires Java 17 -->
-            <version>3.19</version>
+            <version>3.19.4</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -80,7 +81,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>5.18.0</version>
+            <version>5.23.0</version>
             <scope>test</scope>
         </dependency>
         <!--Integration test dependencies-->
@@ -94,19 +95,27 @@
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>hamcrest-resultset-matcher</artifactId>
-            <version>1.7.1</version>
+            <version>1.7.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>udf-debugging-java</artifactId>
-            <version>0.6.17</version>
+            <version>0.6.18</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>performance-test-recorder-java</artifactId>
-            <version>0.1.4</version>
+            <version>0.1.5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <!-- Enable logging in tests -->
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <!-- parquet-io-java uses version 1 -->
+            <version>1.7.36</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -115,7 +124,6 @@
             <plugin>
                 <groupId>org.basepom.maven</groupId>
                 <artifactId>duplicate-finder-maven-plugin</artifactId>
-                <version>2.0.1</version>
                 <configuration>
                     <!-- org.apache.parquet:parquet-column and org.apache.parquet:parquet-hadoop both contain classes shaded.parquet.it.unimi.dsi.fastutil.** -->
                     <failBuildInCaseOfEqualContentConflict>false</failBuildInCaseOfEqualContentConflict>
@@ -126,7 +134,7 @@
             <plugin>
                 <groupId>com.exasol</groupId>
                 <artifactId>project-keeper-maven-plugin</artifactId>
-                <version>5.4.6</version>
+                <version>5.6.2</version>
                 <executions>
                     <execution>
                         <goals>
@@ -138,7 +146,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.4.2</version>
+                <version>3.5.0</version>
                 <executions>
                     <execution>
                         <goals>
@@ -161,28 +169,12 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.sonatype.ossindex.maven</groupId>
-                <artifactId>ossindex-maven-plugin</artifactId>
-                <version>3.2.0</version>
-                <configuration>
-                    <excludeCoordinates>
-                        <!-- Excludes CVE-2025-67721 in transitive dependency `io.airlift:aircompressor:jar:2.0.2` of `parquet-hadoop` and `parquet-io` -->
-                        <!-- Remove when the new version of `parquet-hadoop` and `parquet-io` fixes this vulnerability -->
-                        <exclude>
-                            <groupId>io.airlift</groupId>
-                            <artifactId>aircompressor</artifactId>
-                            <version>2.0.2</version>
-                        </exclude>
-                    </excludeCoordinates>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
     <parent>
         <artifactId>virtual-schema-common-document-files-generated-parent</artifactId>
         <groupId>com.exasol</groupId>
-        <version>8.1.14</version>
+        <version>9.0.0</version>
         <relativePath>pk_generated_parent.pom</relativePath>
     </parent>
 </project>

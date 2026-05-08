@@ -3,3 +3,4 @@ sources:
     path: pom.xml
     modules:
       - maven_central
+      - integration_tests
