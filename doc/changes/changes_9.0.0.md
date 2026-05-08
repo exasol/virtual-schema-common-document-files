@@ -1,12 +1,14 @@
-# Virtual Schema for Document Data in Files 9.0.0, released 2026-??-??
+# Virtual Schema for Document Data in Files 9.0.0, released 2026-05-08
 
-Code name:
+Code name: Anonymous feature tracking
 
 ## Summary
 
+This release adds anonymous feature tracking using the [telemetry-java](https://github.com/exasol/telemetry-java) library. When you integrate this new version into another product, please check the [required user documentation](https://github.com/exasol/telemetry-java/blob/main/doc/integration-guide.md#required-documentation).
+
 ## Features
 
-* ISSUE_NUMBER: description
+* #201: Added anonymous feature tracking
 
 ## Dependency Updates
 
