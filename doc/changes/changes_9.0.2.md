@@ -19,9 +19,14 @@ In Eclipse Parsson published Maven Central artifacts before version 1.1.8, the J
 * #204: Fixed vulnerability CVE-2026-9563 in dependency `org.eclipse.parsson:parsson:jar:1.1.7:compile`
 ## Dependency Updates
 
+### Compile Dependency Updates
+
+* Updated `com.exasol:virtual-schema-common-document:12.0.2` to `12.0.3`
+
 ### Test Dependency Updates
 
 * Updated `com.exasol:udf-debugging-java:0.6.18` to `0.6.20`
+* Updated `com.exasol:virtual-schema-common-document:12.0.2` to `12.0.3`
 
 ### Plugin Dependency Updates
 
