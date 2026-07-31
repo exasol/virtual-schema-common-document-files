@@ -1,41 +1,5 @@
 package com.exasol.adapter.document.files;
 
-import com.exasol.adapter.document.documentfetcher.files.parquet.ParquetTestSetup;
-import com.exasol.adapter.document.edml.*;
-import com.exasol.adapter.document.edml.EdmlDefinition.EdmlDefinitionBuilder;
-import com.exasol.adapter.document.edml.ToVarcharMapping.ToVarcharMappingBuilder;
-import com.exasol.adapter.document.edml.serializer.EdmlSerializer;
-import com.exasol.adapter.document.testutil.csvgenerator.CsvTestDataGenerator;
-import com.exasol.bucketfs.Bucket;
-import com.exasol.bucketfs.BucketAccessException;
-import com.exasol.matcher.ResultSetStructureMatcher;
-import com.exasol.matcher.ResultSetStructureMatcher.Builder;
-import com.exasol.matcher.TypeMatchMode;
-import com.exasol.performancetestrecorder.PerformanceTestRecorder;
-import org.apache.parquet.schema.LogicalTypeAnnotation;
-import org.apache.parquet.schema.Type;
-import org.apache.parquet.schema.Types;
-import org.hamcrest.Matcher;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.io.TempDir;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.sql.*;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
-import java.util.concurrent.TimeoutException;
-import java.util.function.Supplier;
-import java.util.logging.Logger;
-
 import static com.exasol.matcher.ResultSetStructureMatcher.table;
 import static com.exasol.udfdebugging.PushDownTesting.getPushDownSql;
 import static com.exasol.udfdebugging.PushDownTesting.getSelectionThatIsSentToTheAdapter;
@@ -48,6 +12,42 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.*;
+import java.sql.Date;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.TimeoutException;
+import java.util.function.Supplier;
+import java.util.logging.Logger;
+import java.util.stream.IntStream;
+
+import org.apache.parquet.schema.LogicalTypeAnnotation;
+import org.apache.parquet.schema.Type;
+import org.apache.parquet.schema.Types;
+import org.hamcrest.Matcher;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.io.TempDir;
+
+import com.exasol.adapter.document.documentfetcher.files.parquet.ParquetTestSetup;
+import com.exasol.adapter.document.edml.*;
+import com.exasol.adapter.document.edml.EdmlDefinition.EdmlDefinitionBuilder;
+import com.exasol.adapter.document.edml.Fields.FieldsBuilder;
+import com.exasol.adapter.document.edml.ToVarcharMapping.ToVarcharMappingBuilder;
+import com.exasol.adapter.document.edml.serializer.EdmlSerializer;
+import com.exasol.adapter.document.testutil.csvgenerator.CsvTestDataGenerator;
+import com.exasol.bucketfs.Bucket;
+import com.exasol.bucketfs.BucketAccessException;
+import com.exasol.matcher.ResultSetStructureMatcher;
+import com.exasol.matcher.ResultSetStructureMatcher.Builder;
+import com.exasol.matcher.TypeMatchMode;
+import com.exasol.performancetestrecorder.PerformanceTestRecorder;
 
 /**
  * This is a base class for document-file virtual schema integration tests.
@@ -95,7 +95,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     /**
      * Get the default BucketFS bucket.
-     * 
+     *
      * @return default bucket
      */
     protected abstract Bucket getBucketFSDefaultBucket();
@@ -237,14 +237,105 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
+    public void testReadCsvTimestampTypes() {
+        assumeTimestampPrecisionSupported();
+        final FieldsBuilder mappingBuilder = Fields.builder()
+                .mapField("id", ToDecimalMapping.builder().decimalScale(0).decimalPrecision(2).build());
+        IntStream.range(0, 10).forEach(precision -> mappingBuilder.mapField("ts" + precision,
+                ToTimestampMapping.builder().secondsPrecision(precision).notTimestampBehavior(ConvertableMappingErrorBehaviour.ABORT).build()));
+        createVirtualSchemaWithMapping(TEST_SCHEMA, csvEdml(mappingBuilder.build(), "testData-*.csv", true));
+        final List<String> csvContent = List.of(
+                "id,ts0,ts1,ts2,ts3,ts4,ts5,ts6,ts7,ts8,ts9",
+                "0" + ("," + timestampLiteral(0)).repeat(10),
+                "1" + ("," + timestampLiteral(1)).repeat(10),
+                "2" + ("," + timestampLiteral(2)).repeat(10),
+                "3" + ("," + timestampLiteral(3)).repeat(10),
+                "4" + ("," + timestampLiteral(4)).repeat(10),
+                "5" + ("," + timestampLiteral(5)).repeat(10),
+                "6" + ("," + timestampLiteral(6)).repeat(10),
+                "7" + ("," + timestampLiteral(7)).repeat(10),
+                "8" + ("," + timestampLiteral(8)).repeat(10),
+                "9" + ("," + timestampLiteral(9)).repeat(10),
+                "10" + IntStream.range(0, 10).mapToObj(i -> "," + timestampLiteral(i)).collect(joining()));
+        csvContent.forEach(line -> System.out.println("CSV line: " + line));
+        uploadFileContent("testData-1.csv", csvContent);
+        assertQuery(
+                "SELECT id,ts0,ts1,ts2,ts3,ts4,ts5,ts6,ts7,ts8,ts9 FROM " + TEST_SCHEMA + ".BOOKS",
+                table("SMALLINT", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP",
+                        "TIMESTAMP")
+                                .row((short) 0, ts(0), ts(0), ts(0), ts(0), ts(0), ts(0), ts(0), ts(0), ts(0), ts(0))
+                                .row((short) 1, ts(0), ts(1), ts(1), ts(1), ts(1), ts(1), ts(1), ts(1), ts(1), ts(1))
+                                .row((short) 2, ts(0), ts(1), ts(2), ts(2), ts(2), ts(2), ts(2), ts(2), ts(2), ts(2))
+                                .row((short) 3, ts(0), ts(1), ts(2), ts(3), ts(3), ts(3), ts(3), ts(3), ts(3), ts(3))
+                                .row((short) 4, ts(0), ts(1), ts(2), ts(3), ts(4), ts(4), ts(4), ts(4), ts(4), ts(4))
+                                .row((short) 5, ts(0), ts(1), ts(2), ts(3), ts(4), ts(5), ts(5), ts(5), ts(5), ts(5))
+                                .row((short) 6, ts(0), ts(1), ts(2), ts(3), ts(4), ts(5), ts(6), ts(6), ts(6), ts(6))
+                                .row((short) 7, ts(0), ts(1), ts(2), ts(3), ts(4), ts(5), ts(6), ts(7), ts(7), ts(7))
+                                .row((short) 8, ts(0), ts(1), ts(2), ts(3), ts(4), ts(5), ts(6), ts(7), ts(8), ts(8))
+                                .row((short) 9, ts(0), ts(1), ts(2), ts(3), ts(4), ts(5), ts(6), ts(7), ts(8), ts(9))
+                                .row((short) 10, ts(0), ts(1), ts(2), ts(3), ts(4), ts(5), ts(6), ts(7), ts(8), ts(9))
+                                .matches());
+    }
+
+    /**
+     * Exasol v8 only supports {@code TIMESTAMP(3)} and {@code TIMESTAMP(6)}. It maps {@code TIMESTAMP(6)} to precision 3. All other timestamp precisions are
+     * rejected with error message {@code Feature not supported: TIMESTAMP(p) - timestamp with custom precision}.
+     */
+    @Test
+    public void testReadCsvTimestampTypesExasolV8() {
+        assumeTimestampPrecisionNotSupported();
+        final FieldsBuilder mappingBuilder = Fields.builder()
+                .mapField("id", ToDecimalMapping.builder().decimalScale(0).decimalPrecision(2).build())
+                .mapField("ts3", ToTimestampMapping.builder().secondsPrecision(3).notTimestampBehavior(ConvertableMappingErrorBehaviour.ABORT).build())
+                .mapField("ts6", ToTimestampMapping.builder().secondsPrecision(6).notTimestampBehavior(ConvertableMappingErrorBehaviour.ABORT).build());
+        createVirtualSchemaWithMapping(TEST_SCHEMA, csvEdml(mappingBuilder.build(), "testData-*.csv", true));
+        final List<String> csvContent = List.of(
+                "id,ts3,ts6",
+                "0" + ("," + timestampLiteral(0)).repeat(2),
+                "1" + ("," + timestampLiteral(1)).repeat(2),
+                "2" + ("," + timestampLiteral(2)).repeat(2),
+                "3" + ("," + timestampLiteral(3)).repeat(2),
+                "4" + ("," + timestampLiteral(4)).repeat(2),
+                "5" + ("," + timestampLiteral(5)).repeat(2),
+                "6" + ("," + timestampLiteral(6)).repeat(2),
+                "7" + ("," + timestampLiteral(7)).repeat(2),
+                "8" + ("," + timestampLiteral(8)).repeat(2),
+                "9" + ("," + timestampLiteral(9)).repeat(2),
+                "10" + ("," + timestampLiteral(3)).repeat(2));
+        csvContent.forEach(line -> System.out.println("CSV line: " + line));
+        uploadFileContent("testData-1.csv", csvContent);
+        assertQuery(
+                "SELECT id,ts3,ts6 FROM " + TEST_SCHEMA + ".BOOKS",
+                table("SMALLINT", "TIMESTAMP", "TIMESTAMP")
+                        .row((short) 0, ts(0), ts(0))
+                        .row((short) 1, ts(1), ts(1))
+                        .row((short) 2, ts(2), ts(2))
+                        .row((short) 3, ts(3), ts(3))
+                        .row((short) 4, ts(3), ts(3))
+                        .row((short) 5, ts(3), ts(3))
+                        .row((short) 6, ts(3), ts(3))
+                        .row((short) 7, ts(3), ts(3))
+                        .row((short) 8, ts(3), ts(3))
+                        .row((short) 9, ts(3), ts(3))
+                        .row((short) 10, ts(3), ts(3))
+                        .matches());
+    }
+
+    private static java.sql.Timestamp ts(final int precision) {
+        return java.sql.Timestamp.valueOf(timestampLiteral(precision));
+    }
+
+    private static String timestampLiteral(final int precision) {
+        String value = "2007-12-03 10:15:30";
+        if (precision > 0) {
+            value += "." + IntStream.range(1, precision + 1).mapToObj(String::valueOf).collect(joining());
+        }
+        return value;
+    }
+
+    @Test
     public void testReadCsvWithTypesWithHeader() {
         final Fields mapping = Fields.builder()//
-                .mapField("str", ToVarcharMapping.builder().build()) //
-                .mapField("bool", ToBoolMapping.builder().destinationName("IS_ACTIVE").build())//
-                .mapField("decimal_col", ToDecimalMapping.builder().decimalPrecision(10).decimalScale(5).build()) //
-                .mapField("int_col", ToDecimalMapping.builder().decimalPrecision(5).decimalScale(0).build()) //
-                .mapField("double_col", ToDoubleMapping.builder().build()) //
-                .mapField("date_col", ToDateMapping.builder().build()) //
                 .mapField("timestamp_col", timestampMappingBuilder().build()) //
                 .build();
         createVirtualSchemaWithMapping(TEST_SCHEMA, csvEdml(mapping, "testData-*.csv", true));
@@ -460,7 +551,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 .matches());
     }
 
-    // everything in a csv is currently read out into a stringholdernode,
+    // Everything in a csv is currently read out into a StringHolderNode,
     // this is a problem when using anything else than toVarcharmapping in the edml definition
     // (toBoolMapping,toDecimalMapping, ...)
     // the workaround currently is to use SQL conversion functions in the query itself
@@ -1048,4 +1139,26 @@ public abstract class AbstractDocumentFilesAdapterIT {
         return ToTimestampMapping.builder().secondsPrecision(3);
     }
 
+    protected void assumeTimestampPrecisionSupported() {
+        final int majorVersion = getExasolDatabaseMajorVersion();
+        assumeTrue(majorVersion > 8, "Timestamp precision is not supported in Exasol version " + majorVersion);
+    }
+
+    protected void assumeTimestampPrecisionNotSupported() {
+        final int majorVersion = getExasolDatabaseMajorVersion();
+        assumeTrue(majorVersion <= 8, "Timestamp precision is supported in Exasol version " + majorVersion);
+    }
+
+    protected int getExasolDatabaseMajorVersion() {
+        // Don't close the statement here, because it is reused by the test framework and will be closed automatically after the test.
+        try (final ResultSet result = getStatement().executeQuery("select \"VALUE\" from SYS.DB_METADATA where name = 'databaseMajorVersion'")) {
+            if (result.next()) {
+                return result.getInt(1);
+            } else {
+                throw new IllegalStateException("Failed to get Exasol database version.");
+            }
+        } catch (final SQLException exception) {
+            throw new IllegalStateException("Failed to get Exasol database version: " + exception.getMessage(), exception);
+        }
+    }
 }
