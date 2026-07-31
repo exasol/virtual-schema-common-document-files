@@ -336,6 +336,12 @@ public abstract class AbstractDocumentFilesAdapterIT {
     @Test
     public void testReadCsvWithTypesWithHeader() {
         final Fields mapping = Fields.builder()//
+                .mapField("str", ToVarcharMapping.builder().build()) //
+                .mapField("bool", ToBoolMapping.builder().destinationName("IS_ACTIVE").build())//
+                .mapField("decimal_col", ToDecimalMapping.builder().decimalPrecision(10).decimalScale(5).build()) //
+                .mapField("int_col", ToDecimalMapping.builder().decimalPrecision(5).decimalScale(0).build()) //
+                .mapField("double_col", ToDoubleMapping.builder().build()) //
+                .mapField("date_col", ToDateMapping.builder().build()) //
                 .mapField("timestamp_col", timestampMappingBuilder().build()) //
                 .build();
         createVirtualSchemaWithMapping(TEST_SCHEMA, csvEdml(mapping, "testData-*.csv", true));
