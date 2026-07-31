@@ -1,14 +1,14 @@
 # Virtual Schema for Document Data in Files 9.1.0, released 2026-??-??
 
-Code name: TIMESTAMP(9) Support
+Code name: `TIMESTAMP` Precision Support
 
 ## Summary
 
-This release adds support for `TIMESTAMP(9)`
+This release adds support for `TIMESTAMP` precision. This means you can use `TIMESTAMP(0)` to `TIMESTAMP(9)` in your EDML mapping for all supported data types CSV, JSON and Parquet.
 
 ## Features
 
-* ISSUE_NUMBER: description
+* #207: Added `TIMESTAMP` precision support for CSV
 
 ## Dependency Updates
 
