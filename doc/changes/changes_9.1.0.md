@@ -9,6 +9,7 @@ This release adds support for `TIMESTAMP` precision. This means you can use `TIM
 ## Features
 
 * #207: Added `TIMESTAMP` precision support for CSV
+* #208: Added `TIMESTAMP` precision support tests for JSON Lines
 
 ## Dependency Updates
 
