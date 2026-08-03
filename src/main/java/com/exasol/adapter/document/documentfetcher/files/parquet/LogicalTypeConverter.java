@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.apache.parquet.schema.LogicalTypeAnnotation;
 
 import com.exasol.adapter.document.edml.*;
+import com.exasol.errorreporting.ExaError;
 
 /**
  * This class converts parquet logical types to a {@link MappingDefinition EDML definitions}. See:
@@ -91,25 +92,30 @@ class LogicalTypeConverter {
 
         @Override
         public Optional<Void> visit(final LogicalTypeAnnotation.TimestampLogicalTypeAnnotation timestampLogicalType) {
-            final int secondsPrecision;
-            switch (timestampLogicalType.getUnit()) {
-                case MILLIS:
-                    secondsPrecision = 3;
-                    break;
-                case MICROS:
-                    secondsPrecision = 6;
-                    break;
-                case NANOS:
-                    secondsPrecision = 9;
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unsupported Parquet timestamp unit: "
-                            + timestampLogicalType.getUnit());
+            final LogicalTypeAnnotation.TimeUnit unit = timestampLogicalType.getUnit();
+            if (unit == null) {
+                throw new IllegalArgumentException(ExaError.messageBuilder("E-VSDF-74")
+                        .message("Parquet timestamp unit is null.").ticketMitigation().toString());
             }
+            final int secondsPrecision = getSecondsPrecision(unit);
             this.result = ToTimestampMapping.builder()
                     .secondsPrecision(secondsPrecision)
                     .destinationName(this.columnName).build();
             return Optional.empty();
+        }
+
+        private int getSecondsPrecision(final LogicalTypeAnnotation.TimeUnit unit) {
+            switch (unit) {
+                case MILLIS:
+                    return 3;
+                case MICROS:
+                    return 6;
+                case NANOS:
+                    return 9;
+                default:
+                    throw new IllegalArgumentException(ExaError.messageBuilder("E-VSDF-73")
+                            .message("Unsupported Parquet timestamp unit: {{unit}}", unit).ticketMitigation().toString());
+            }
         }
 
         @Override

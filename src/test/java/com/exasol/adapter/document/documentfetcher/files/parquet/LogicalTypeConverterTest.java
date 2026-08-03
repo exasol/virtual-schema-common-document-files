@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.stream.Stream;
 
 import org.apache.parquet.schema.*;
+import org.apache.parquet.schema.LogicalTypeAnnotation.TimestampLogicalTypeAnnotation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -136,6 +137,15 @@ class LogicalTypeConverterTest {
                 Arguments.of(LogicalTypeAnnotation.TimeUnit.NANOS, 9));
     }
 
+    @Test
+    void testConvertLogicalTypeTimestampUnsupportedPrecision() {
+        final LogicalTypeConverter converter = new LogicalTypeConverter();
+        final TimestampLogicalTypeAnnotation type = LogicalTypeAnnotation.timestampType(true, null);
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> converter.convert(type, "my_timestamp"));
+        assertThat(exception.getMessage(), equalTo(
+                "E-VSDF-74: Parquet timestamp unit is null. This is an internal error that should not happen. Please report it by opening a GitHub issue."));
+    }
+
     private void assertConvertsToToDecimalMapping(final LogicalTypeAnnotation type, final int scale,
             final int precision) {
         final ToDecimalMapping toDecimalMapping = (ToDecimalMapping) new LogicalTypeConverter().convert(type,
@@ -146,5 +156,4 @@ class LogicalTypeConverterTest {
                 () -> assertThat(toDecimalMapping.getDestinationName(), equalTo("my_decimal"))//
         );
     }
-
 }
