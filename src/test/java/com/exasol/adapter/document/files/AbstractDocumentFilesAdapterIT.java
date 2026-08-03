@@ -911,6 +911,86 @@ public abstract class AbstractDocumentFilesAdapterIT {
         return timestamp.toInstant().getEpochSecond() * 1_000_000_000L + timestamp.getNanos();
     }
 
+    @Test
+    public void testReadParquetTimestampTypesWithAutomaticInference() {
+        assumeTimestampPrecisionSupported();
+        final ParquetTestSetup parquetTestSetup = parquetFile(Types.primitive(INT32, REQUIRED).named("id"),
+                parquetTimestampColumn("ts_millis", LogicalTypeAnnotation.TimeUnit.MILLIS),
+                parquetTimestampColumn("ts_micros", LogicalTypeAnnotation.TimeUnit.MICROS),
+                parquetTimestampColumn("ts_nanos", LogicalTypeAnnotation.TimeUnit.NANOS));
+        for (int precision = 0; precision <= 10; precision++) {
+            final int rowId = precision;
+            final long timestampNanos = timestampNanos(Math.min(precision, 9));
+            parquetTestSetup.writeRow(row -> {
+                row.add("id", rowId);
+                row.add("ts_millis", timestampNanos / 1_000_000L);
+                row.add("ts_micros", timestampNanos / 1_000L);
+                row.add("ts_nanos", timestampNanos);
+            });
+        }
+        parquetTestSetup.closeWriter();
+        uploadAsParquetFile(parquetTestSetup, 1);
+        createVirtualSchemaWithMapping(TEST_SCHEMA,
+                EdmlDefinition.builder().source(this.dataFilesDirectory + "/testData-*.parquet").destinationTable("BOOKS"));
+
+        assertQuery("SELECT ID, TS_MILLIS, TS_MICROS, TS_NANOS FROM " + TEST_SCHEMA
+                + ".BOOKS ORDER BY ID ASC",
+                table("BIGINT", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP")
+                        .row((short) 0, ts(0), ts(0), ts(0))
+                        .row((short) 1, ts(1), ts(1), ts(1))
+                        .row((short) 2, ts(2), ts(2), ts(2))
+                        .row((short) 3, ts(3), ts(3), ts(3))
+                        .row((short) 4, ts(3), ts(4), ts(4))
+                        .row((short) 5, ts(3), ts(5), ts(5))
+                        .row((short) 6, ts(3), ts(6), ts(6))
+                        .row((short) 7, ts(3), ts(6), ts(7))
+                        .row((short) 8, ts(3), ts(6), ts(8))
+                        .row((short) 9, ts(3), ts(6), ts(9))
+                        .row((short) 10, ts(3), ts(6), ts(9))
+                        .withUtcCalendar()
+                        .matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
+    }
+
+    @Test
+    public void testReadParquetTimestampTypesWithAutomaticInferenceExasolV8() {
+        assumeTimestampPrecisionNotSupported();
+        final ParquetTestSetup parquetTestSetup = parquetFile(Types.primitive(INT32, REQUIRED).named("id"),
+                parquetTimestampColumn("ts_millis", LogicalTypeAnnotation.TimeUnit.MILLIS),
+                parquetTimestampColumn("ts_micros", LogicalTypeAnnotation.TimeUnit.MICROS));
+        for (int precision = 0; precision <= 10; precision++) {
+            final int rowId = precision;
+            final long timestampNanos = timestampNanos(precision == 10 ? 3 : precision);
+            parquetTestSetup.writeRow(row -> {
+                row.add("id", rowId);
+                row.add("ts_millis", timestampNanos / 1_000_000L);
+                row.add("ts_micros", timestampNanos / 1_000L);
+            });
+        }
+        parquetTestSetup.closeWriter();
+        uploadAsParquetFile(parquetTestSetup, 1);
+        createVirtualSchemaWithMapping(TEST_SCHEMA,
+                EdmlDefinition.builder().source(this.dataFilesDirectory + "/testData-*.parquet").destinationTable("BOOKS"));
+
+        assertQuery("SELECT ID, TS_MILLIS, TS_MICROS FROM " + TEST_SCHEMA + ".BOOKS ORDER BY ID ASC",
+                table("BIGINT", "TIMESTAMP", "TIMESTAMP")
+                        .row((short) 0, ts(0), ts(0))
+                        .row((short) 1, ts(1), ts(1))
+                        .row((short) 2, ts(2), ts(2))
+                        .row((short) 3, ts(3), ts(3))
+                        .row((short) 4, ts(3), ts(3))
+                        .row((short) 5, ts(3), ts(3))
+                        .row((short) 6, ts(3), ts(3))
+                        .row((short) 7, ts(3), ts(3))
+                        .row((short) 8, ts(3), ts(3))
+                        .row((short) 9, ts(3), ts(3))
+                        .row((short) 10, ts(3), ts(3)).withUtcCalendar()
+                        .matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
+    }
+
+    private static Type parquetTimestampColumn(final String name, final LogicalTypeAnnotation.TimeUnit unit) {
+        return Types.primitive(INT64, REQUIRED).as(LogicalTypeAnnotation.timestampType(true, unit)).named(name);
+    }
+
     @Disabled("Will be enabled after fixing https://github.com/exasol/virtual-schema-common-document-files/issues/182")
     @Test
     public void testReadParquetFileWithAutomaticInference() throws IOException {
