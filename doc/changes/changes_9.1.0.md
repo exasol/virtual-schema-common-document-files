@@ -1,4 +1,4 @@
-# Virtual Schema for Document Data in Files 9.1.0, released 2026-??-??
+# Virtual Schema for Document Data in Files 9.1.0, released 2026-08-03
 
 Code name: `TIMESTAMP` Precision Support
 
