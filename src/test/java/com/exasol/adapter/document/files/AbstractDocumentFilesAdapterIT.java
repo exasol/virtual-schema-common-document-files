@@ -25,7 +25,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
-import java.util.function.IntUnaryOperator;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
@@ -335,16 +334,17 @@ public abstract class AbstractDocumentFilesAdapterIT {
         assumeTimestampPrecisionSupported();
         final FieldsBuilder mappingBuilder = Fields.builder()
                 .mapField("id", ToDecimalMapping.builder().decimalScale(0).decimalPrecision(2).build());
-        IntStream.range(0, 10).forEach(precision -> mappingBuilder.mapField("ts" + precision,
-                ToTimestampMapping.builder().secondsPrecision(precision)
-                        // Use CONVERT_OR_ABORT because JSON only supports numbers as millis since epoch
-                        .notTimestampBehavior(ConvertableMappingErrorBehaviour.CONVERT_OR_ABORT).build()));
-        createVirtualSchemaWithMapping(TEST_SCHEMA, mappingBuilder.build(), "testData-*.jsonl");
         final int[] timestampPrecisions = IntStream.range(0, 10).toArray();
-        final List<String> jsonLinesContent = IntStream.range(0, 10)
-                .mapToObj(precision -> jsonTimestampLine(precision, timestampPrecisions, ignored -> precision))
-                .collect(java.util.stream.Collectors.toList());
-        jsonLinesContent.add(jsonTimestampLine(10, timestampPrecisions, precision -> precision));
+        final List<String> jsonLinesContent = new ArrayList<>();
+        for (int precision = 0; precision < 10; precision++) {
+            mappingBuilder.mapField("ts" + precision,
+                    ToTimestampMapping.builder().secondsPrecision(precision)
+                            // Use CONVERT_OR_ABORT because JSON only supports numbers as millis since epoch
+                            .notTimestampBehavior(ConvertableMappingErrorBehaviour.CONVERT_OR_ABORT).build());
+            jsonLinesContent.add(jsonTimestampLine(precision, timestampPrecisions, precision));
+        }
+        createVirtualSchemaWithMapping(TEST_SCHEMA, mappingBuilder.build(), "testData-*.jsonl");
+        jsonLinesContent.add(jsonTimestampLine(10, timestampPrecisions, 10));
         uploadFileContent("testData-1.jsonl", jsonLinesContent);
         assertQuery(
                 "SELECT id,ts0,ts1,ts2,ts3,ts4,ts5,ts6,ts7,ts8,ts9 FROM " + TEST_SCHEMA + ".BOOKS ORDER BY id ASC",
@@ -378,9 +378,9 @@ public abstract class AbstractDocumentFilesAdapterIT {
         createVirtualSchemaWithMapping(TEST_SCHEMA, mapping, "testData-*.jsonl");
         final int[] timestampPrecisions = { 3, 6 };
         final List<String> jsonLinesContent = IntStream.range(0, 10)
-                .mapToObj(precision -> jsonTimestampLine(precision, timestampPrecisions, ignored -> precision))
+                .mapToObj(precision -> jsonTimestampLine(precision, timestampPrecisions, precision))
                 .collect(toList());
-        jsonLinesContent.add(jsonTimestampLine(10, timestampPrecisions, ignored -> 3));
+        jsonLinesContent.add(jsonTimestampLine(10, timestampPrecisions, 3));
         uploadFileContent("testData-1.jsonl", jsonLinesContent);
         assertQuery(
                 "SELECT id,ts3,ts6 FROM " + TEST_SCHEMA + ".BOOKS ORDER BY id ASC",
@@ -399,11 +399,10 @@ public abstract class AbstractDocumentFilesAdapterIT {
                         .matches());
     }
 
-    private static String jsonTimestampLine(final int id, final int[] timestampPrecisions,
-            final IntUnaryOperator timestampValuePrecision) {
+    private static String jsonTimestampLine(final int id, final int[] timestampPrecisions, final int timestampValuePrecision) {
         final JsonObjectBuilder jsonObject = Json.createObjectBuilder().add("id", id);
         for (final int timestampPrecision : timestampPrecisions) {
-            jsonObject.add("ts" + timestampPrecision, timestampMillis(timestampValuePrecision.applyAsInt(timestampPrecision)));
+            jsonObject.add("ts" + timestampPrecision, timestampMillis(timestampValuePrecision));
         }
         return jsonObject.build().toString();
     }
