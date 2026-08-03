@@ -4,6 +4,7 @@ import static com.exasol.matcher.ResultSetStructureMatcher.table;
 import static com.exasol.udfdebugging.PushDownTesting.getPushDownSql;
 import static com.exasol.udfdebugging.PushDownTesting.getSelectionThatIsSentToTheAdapter;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.*;
 import static org.apache.parquet.schema.Type.Repetition.REQUIRED;
 import static org.hamcrest.CoreMatchers.endsWith;
@@ -266,7 +267,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 "10" + IntStream.range(0, 10).mapToObj(i -> "," + timestampLiteral(i)).collect(joining()));
         uploadFileContent("testData-1.csv", csvContent);
         assertQuery(
-                "SELECT id,ts0,ts1,ts2,ts3,ts4,ts5,ts6,ts7,ts8,ts9 FROM " + TEST_SCHEMA + ".BOOKS",
+                "SELECT id,ts0,ts1,ts2,ts3,ts4,ts5,ts6,ts7,ts8,ts9 FROM " + TEST_SCHEMA + ".BOOKS ORDER BY id ASC",
                 table("SMALLINT", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP",
                         "TIMESTAMP")
                                 .row((short) 0, ts(0), ts(0), ts(0), ts(0), ts(0), ts(0), ts(0), ts(0), ts(0), ts(0))
@@ -313,7 +314,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 "10" + ("," + timestampLiteral(3)).repeat(2));
         uploadFileContent("testData-1.csv", csvContent);
         assertQuery(
-                "SELECT id,ts3,ts6 FROM " + TEST_SCHEMA + ".BOOKS",
+                "SELECT id,ts3,ts6 FROM " + TEST_SCHEMA + ".BOOKS ORDER BY id ASC",
                 table("SMALLINT", "TIMESTAMP", "TIMESTAMP")
                         .row((short) 0, ts(0), ts(0))
                         .row((short) 1, ts(1), ts(1))
@@ -335,30 +336,31 @@ public abstract class AbstractDocumentFilesAdapterIT {
         final FieldsBuilder mappingBuilder = Fields.builder()
                 .mapField("id", ToDecimalMapping.builder().decimalScale(0).decimalPrecision(2).build());
         IntStream.range(0, 10).forEach(precision -> mappingBuilder.mapField("ts" + precision,
-                ToTimestampMapping.builder().secondsPrecision(precision).notTimestampBehavior(ConvertableMappingErrorBehaviour.ABORT).build()));
+                ToTimestampMapping.builder().secondsPrecision(precision)
+                        // Use CONVERT_OR_ABORT because JSON only supports numbers as millis since epoch
+                        .notTimestampBehavior(ConvertableMappingErrorBehaviour.CONVERT_OR_ABORT).build()));
         createVirtualSchemaWithMapping(TEST_SCHEMA, mappingBuilder.build(), "testData-*.jsonl");
         final int[] timestampPrecisions = IntStream.range(0, 10).toArray();
         final List<String> jsonLinesContent = IntStream.range(0, 10)
                 .mapToObj(precision -> jsonTimestampLine(precision, timestampPrecisions, ignored -> precision))
                 .collect(java.util.stream.Collectors.toList());
         jsonLinesContent.add(jsonTimestampLine(10, timestampPrecisions, precision -> precision));
-        jsonLinesContent.forEach(line -> System.out.println("JSON line: " + line));
         uploadFileContent("testData-1.jsonl", jsonLinesContent);
         assertQuery(
-                "SELECT id,ts0,ts1,ts2,ts3,ts4,ts5,ts6,ts7,ts8,ts9 FROM " + TEST_SCHEMA + ".BOOKS",
+                "SELECT id,ts0,ts1,ts2,ts3,ts4,ts5,ts6,ts7,ts8,ts9 FROM " + TEST_SCHEMA + ".BOOKS ORDER BY id ASC",
                 table("SMALLINT", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP",
-                        "TIMESTAMP")
+                        "TIMESTAMP").withUtcCalendar()
                                 .row((short) 0, ts(0), ts(0), ts(0), ts(0), ts(0), ts(0), ts(0), ts(0), ts(0), ts(0))
                                 .row((short) 1, ts(0), ts(1), ts(1), ts(1), ts(1), ts(1), ts(1), ts(1), ts(1), ts(1))
                                 .row((short) 2, ts(0), ts(1), ts(2), ts(2), ts(2), ts(2), ts(2), ts(2), ts(2), ts(2))
                                 .row((short) 3, ts(0), ts(1), ts(2), ts(3), ts(3), ts(3), ts(3), ts(3), ts(3), ts(3))
-                                .row((short) 4, ts(0), ts(1), ts(2), ts(3), ts(4), ts(4), ts(4), ts(4), ts(4), ts(4))
-                                .row((short) 5, ts(0), ts(1), ts(2), ts(3), ts(4), ts(5), ts(5), ts(5), ts(5), ts(5))
-                                .row((short) 6, ts(0), ts(1), ts(2), ts(3), ts(4), ts(5), ts(6), ts(6), ts(6), ts(6))
-                                .row((short) 7, ts(0), ts(1), ts(2), ts(3), ts(4), ts(5), ts(6), ts(7), ts(7), ts(7))
-                                .row((short) 8, ts(0), ts(1), ts(2), ts(3), ts(4), ts(5), ts(6), ts(7), ts(8), ts(8))
-                                .row((short) 9, ts(0), ts(1), ts(2), ts(3), ts(4), ts(5), ts(6), ts(7), ts(8), ts(9))
-                                .row((short) 10, ts(0), ts(1), ts(2), ts(3), ts(4), ts(5), ts(6), ts(7), ts(8), ts(9))
+                                .row((short) 4, ts(0), ts(1), ts(2), ts(3), ts(3), ts(3), ts(3), ts(3), ts(3), ts(3))
+                                .row((short) 5, ts(0), ts(1), ts(2), ts(3), ts(3), ts(3), ts(3), ts(3), ts(3), ts(3))
+                                .row((short) 6, ts(0), ts(1), ts(2), ts(3), ts(3), ts(3), ts(3), ts(3), ts(3), ts(3))
+                                .row((short) 7, ts(0), ts(1), ts(2), ts(3), ts(3), ts(3), ts(3), ts(3), ts(3), ts(3))
+                                .row((short) 8, ts(0), ts(1), ts(2), ts(3), ts(3), ts(3), ts(3), ts(3), ts(3), ts(3))
+                                .row((short) 9, ts(0), ts(1), ts(2), ts(3), ts(3), ts(3), ts(3), ts(3), ts(3), ts(3))
+                                .row((short) 10, ts(0), ts(1), ts(2), ts(3), ts(3), ts(3), ts(3), ts(3), ts(3), ts(3))
                                 .matches());
     }
 
@@ -367,20 +369,22 @@ public abstract class AbstractDocumentFilesAdapterIT {
         assumeTimestampPrecisionNotSupported();
         final Fields mapping = Fields.builder()
                 .mapField("id", ToDecimalMapping.builder().decimalScale(0).decimalPrecision(2).build())
-                .mapField("ts3", ToTimestampMapping.builder().secondsPrecision(3).notTimestampBehavior(ConvertableMappingErrorBehaviour.ABORT).build())
-                .mapField("ts6", ToTimestampMapping.builder().secondsPrecision(6).notTimestampBehavior(ConvertableMappingErrorBehaviour.ABORT).build())
+                // Use CONVERT_OR_ABORT because JSON only supports numbers as millis since epoch
+                .mapField("ts3",
+                        ToTimestampMapping.builder().secondsPrecision(3).notTimestampBehavior(ConvertableMappingErrorBehaviour.CONVERT_OR_ABORT).build())
+                .mapField("ts6",
+                        ToTimestampMapping.builder().secondsPrecision(6).notTimestampBehavior(ConvertableMappingErrorBehaviour.CONVERT_OR_ABORT).build())
                 .build();
         createVirtualSchemaWithMapping(TEST_SCHEMA, mapping, "testData-*.jsonl");
         final int[] timestampPrecisions = { 3, 6 };
         final List<String> jsonLinesContent = IntStream.range(0, 10)
                 .mapToObj(precision -> jsonTimestampLine(precision, timestampPrecisions, ignored -> precision))
-                .collect(java.util.stream.Collectors.toList());
+                .collect(toList());
         jsonLinesContent.add(jsonTimestampLine(10, timestampPrecisions, ignored -> 3));
-        jsonLinesContent.forEach(line -> System.out.println("JSON line: " + line));
         uploadFileContent("testData-1.jsonl", jsonLinesContent);
         assertQuery(
-                "SELECT id,ts3,ts6 FROM " + TEST_SCHEMA + ".BOOKS",
-                table("SMALLINT", "TIMESTAMP", "TIMESTAMP")
+                "SELECT id,ts3,ts6 FROM " + TEST_SCHEMA + ".BOOKS ORDER BY id ASC",
+                table("SMALLINT", "TIMESTAMP", "TIMESTAMP").withUtcCalendar()
                         .row((short) 0, ts(0), ts(0))
                         .row((short) 1, ts(1), ts(1))
                         .row((short) 2, ts(2), ts(2))
@@ -399,9 +403,13 @@ public abstract class AbstractDocumentFilesAdapterIT {
             final IntUnaryOperator timestampValuePrecision) {
         final JsonObjectBuilder jsonObject = Json.createObjectBuilder().add("id", id);
         for (final int timestampPrecision : timestampPrecisions) {
-            jsonObject.add("ts" + timestampPrecision, timestampLiteral(timestampValuePrecision.applyAsInt(timestampPrecision)));
+            jsonObject.add("ts" + timestampPrecision, timestampMillis(timestampValuePrecision.applyAsInt(timestampPrecision)));
         }
         return jsonObject.build().toString();
+    }
+
+    private static long timestampMillis(final int precision) {
+        return ts(Math.min(precision, 3)).getTime();
     }
 
     private static java.sql.Timestamp ts(final int precision) {
