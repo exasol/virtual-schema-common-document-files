@@ -6,6 +6,8 @@ Code name: `TIMESTAMP` Precision Support
 
 This release adds support for `TIMESTAMP` precision. This means you can use `TIMESTAMP(0)` to `TIMESTAMP(9)` in your EDML mapping for all supported data types CSV, JSON and Parquet.
 
+Please note that JSON files only support timestamps for number fields, interpreting the number as milliseconds since epoch. To enable this conversion, you need to set `notTimestampBehavior=CONVERT_OR_ABORT` for that column in the EDML definition file.
+
 ## Features
 
 * #207: Added `TIMESTAMP` precision support for CSV
