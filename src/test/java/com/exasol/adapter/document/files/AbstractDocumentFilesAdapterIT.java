@@ -241,8 +241,11 @@ public abstract class AbstractDocumentFilesAdapterIT {
         assumeTimestampPrecisionSupported();
         final FieldsBuilder mappingBuilder = Fields.builder()
                 .mapField("id", ToDecimalMapping.builder().decimalScale(0).decimalPrecision(2).build());
-        IntStream.range(0, 10).forEach(precision -> mappingBuilder.mapField("ts" + precision,
-                ToTimestampMapping.builder().secondsPrecision(precision).notTimestampBehavior(ConvertableMappingErrorBehaviour.ABORT).build()));
+        for (int precision = 0; precision < 10; precision++) {
+            final ToTimestampMapping mapping = ToTimestampMapping.builder().secondsPrecision(precision)
+                    .notTimestampBehavior(ConvertableMappingErrorBehaviour.ABORT).build();
+            mappingBuilder.mapField("ts" + precision, mapping);
+        }
         createVirtualSchemaWithMapping(TEST_SCHEMA, csvEdml(mappingBuilder.build(), "testData-*.csv", true));
         final List<String> csvContent = List.of(
                 "id,ts0,ts1,ts2,ts3,ts4,ts5,ts6,ts7,ts8,ts9",
@@ -257,7 +260,6 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 "8" + ("," + timestampLiteral(8)).repeat(10),
                 "9" + ("," + timestampLiteral(9)).repeat(10),
                 "10" + IntStream.range(0, 10).mapToObj(i -> "," + timestampLiteral(i)).collect(joining()));
-        csvContent.forEach(line -> System.out.println("CSV line: " + line));
         uploadFileContent("testData-1.csv", csvContent);
         assertQuery(
                 "SELECT id,ts0,ts1,ts2,ts3,ts4,ts5,ts6,ts7,ts8,ts9 FROM " + TEST_SCHEMA + ".BOOKS",
@@ -278,8 +280,11 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     /**
-     * Exasol v8 only supports {@code TIMESTAMP(3)} and {@code TIMESTAMP(6)}. It maps {@code TIMESTAMP(6)} to precision 3. All other timestamp precisions are
-     * rejected with error message {@code Feature not supported: TIMESTAMP(p) - timestamp with custom precision}.
+     * Exasol v8 only supports {@code TIMESTAMP(3)} and {@code TIMESTAMP(6)}:
+     * <ul>
+     * <li>It maps {@code TIMESTAMP(6)} to precision 3.</li>
+     * <li>Any other timestamp precision is rejected with error message {@code Feature not supported: TIMESTAMP(p) - timestamp with custom precision}.</li>
+     * </ul>
      */
     @Test
     public void testReadCsvTimestampTypesExasolV8() {
@@ -302,7 +307,6 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 "8" + ("," + timestampLiteral(8)).repeat(2),
                 "9" + ("," + timestampLiteral(9)).repeat(2),
                 "10" + ("," + timestampLiteral(3)).repeat(2));
-        csvContent.forEach(line -> System.out.println("CSV line: " + line));
         uploadFileContent("testData-1.csv", csvContent);
         assertQuery(
                 "SELECT id,ts3,ts6 FROM " + TEST_SCHEMA + ".BOOKS",
@@ -328,7 +332,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     private static String timestampLiteral(final int precision) {
         String value = "2007-12-03 10:15:30";
         if (precision > 0) {
-            value += "." + IntStream.range(1, precision + 1).mapToObj(String::valueOf).collect(joining());
+            value += "." + "123456789".substring(0, precision);
         }
         return value;
     }
