@@ -2,12 +2,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>virtual-schema-common-document-files</artifactId>
-    <version>9.0.2</version>
+    <version>9.1.0</version>
     <name>Virtual Schema for document data in files</name>
     <description>Adapter for document data access from files.</description>
     <url>https://github.com/exasol/virtual-schema-common-document-files/</url>
     <properties>
-        <vs-common-document.version>12.0.3</vs-common-document.version>
+        <vs-common-document.version>12.1.0</vs-common-document.version>
     </properties>
     <dependencies>
         <dependency>
@@ -96,7 +96,7 @@
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>hamcrest-resultset-matcher</artifactId>
-            <version>1.7.2</version>
+            <version>1.7.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -109,7 +109,7 @@
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>performance-test-recorder-java</artifactId>
-            <version>0.1.5</version>
+            <version>0.1.6</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -156,6 +156,7 @@
                         </goals>
                         <configuration>
                             <includes>
+                                <!-- We also build a test jar containing shared integration tests -->
                                 <include>**/AbstractDocumentFilesAdapterIT.class</include>
                                 <include>**/AbstractDocumentFilesAdapterIT*</include>
                                 <include>**/RandomAccessInputStreamTestBase.class</include>
@@ -176,7 +177,7 @@
     <parent>
         <artifactId>virtual-schema-common-document-files-generated-parent</artifactId>
         <groupId>com.exasol</groupId>
-        <version>9.0.2</version>
+        <version>9.1.0</version>
         <relativePath>pk_generated_parent.pom</relativePath>
     </parent>
 </project>
