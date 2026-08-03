@@ -116,11 +116,24 @@ class LogicalTypeConverterTest {
                 20);
     }
 
-    @Test
-    void testConvertLogicalTypeTimestamp() {
+    @ParameterizedTest
+    @MethodSource("timestampTypes")
+    void testConvertLogicalTypeTimestamp(final LogicalTypeAnnotation.TimeUnit timeUnit,
+            final int expectedSecondsPrecision) {
         final ToTimestampMapping toTimestampMapping = (ToTimestampMapping) new LogicalTypeConverter().convert(
-                LogicalTypeAnnotation.timestampType(true, LogicalTypeAnnotation.TimeUnit.MILLIS), "my_timestamp");
-        assertThat(toTimestampMapping.getNotTimestampBehavior(), equalTo(ConvertableMappingErrorBehaviour.ABORT));
+                LogicalTypeAnnotation.timestampType(true, timeUnit), "my_timestamp");
+        assertAll(
+                () -> assertThat(toTimestampMapping.getSecondsPrecision(), equalTo(expectedSecondsPrecision)),
+                () -> assertThat(toTimestampMapping.getNotTimestampBehavior(),
+                        equalTo(ConvertableMappingErrorBehaviour.ABORT)),
+                () -> assertThat(toTimestampMapping.getDestinationName(), equalTo("my_timestamp")));
+    }
+
+    private static Stream<Arguments> timestampTypes() {
+        return Stream.of(
+                Arguments.of(LogicalTypeAnnotation.TimeUnit.MILLIS, 3),
+                Arguments.of(LogicalTypeAnnotation.TimeUnit.MICROS, 6),
+                Arguments.of(LogicalTypeAnnotation.TimeUnit.NANOS, 9));
     }
 
     private void assertConvertsToToDecimalMapping(final LogicalTypeAnnotation type, final int scale,

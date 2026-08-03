@@ -821,6 +821,97 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 "{\"my_value\": 2}").withUtcCalendar().matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
     }
 
+    @Test
+    public void testReadParquetTimestampTypes() {
+        assumeTimestampPrecisionSupported();
+        final FieldsBuilder mappingBuilder = Fields.builder().mapField("id", ToDecimalMapping.builder().decimalScale(0).decimalPrecision(2).build());
+        final List<Type> timestampColumns = new ArrayList<>();
+        for (int precision = 0; precision < 10; precision++) {
+            mappingBuilder.mapField("ts" + precision,
+                    ToTimestampMapping.builder().secondsPrecision(precision).notTimestampBehavior(ConvertableMappingErrorBehaviour.ABORT).build());
+            timestampColumns.add(parquetTimestampColumn("ts" + precision));
+        }
+        createVirtualSchemaWithMapping(TEST_SCHEMA, mappingBuilder.build(), "testData-*.parquet");
+        final List<Type> columns = new ArrayList<>();
+        columns.add(Types.primitive(INT32, REQUIRED).named("id"));
+        columns.addAll(timestampColumns);
+        final ParquetTestSetup parquetTestSetup = parquetFile(columns.toArray(Type[]::new));
+        for (int precision = 0; precision <= 10; precision++) {
+            final int rowId = precision;
+            final int valuePrecision = Math.min(precision, 9);
+            final long timestampNanos = timestampNanos(valuePrecision);
+            parquetTestSetup.writeRow(row -> {
+                row.add("id", rowId);
+                for (int timestampPrecision = 0; timestampPrecision < 10; timestampPrecision++) {
+                    row.add("ts" + timestampPrecision, timestampNanos);
+                }
+            });
+        }
+        parquetTestSetup.closeWriter();
+        uploadAsParquetFile(parquetTestSetup, 1);
+
+        assertQuery(
+                "SELECT id,ts0,ts1,ts2,ts3,ts4,ts5,ts6,ts7,ts8,ts9 FROM " + TEST_SCHEMA + ".BOOKS ORDER BY id ASC",
+                table("SMALLINT", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP", "TIMESTAMP",
+                        "TIMESTAMP")
+                                .row((short) 0, ts(0), ts(0), ts(0), ts(0), ts(0), ts(0), ts(0), ts(0), ts(0), ts(0))
+                                .row((short) 1, ts(0), ts(1), ts(1), ts(1), ts(1), ts(1), ts(1), ts(1), ts(1), ts(1))
+                                .row((short) 2, ts(0), ts(1), ts(2), ts(2), ts(2), ts(2), ts(2), ts(2), ts(2), ts(2))
+                                .row((short) 3, ts(0), ts(1), ts(2), ts(3), ts(3), ts(3), ts(3), ts(3), ts(3), ts(3))
+                                .row((short) 4, ts(0), ts(1), ts(2), ts(3), ts(4), ts(4), ts(4), ts(4), ts(4), ts(4))
+                                .row((short) 5, ts(0), ts(1), ts(2), ts(3), ts(4), ts(5), ts(5), ts(5), ts(5), ts(5))
+                                .row((short) 6, ts(0), ts(1), ts(2), ts(3), ts(4), ts(5), ts(6), ts(6), ts(6), ts(6))
+                                .row((short) 7, ts(0), ts(1), ts(2), ts(3), ts(4), ts(5), ts(6), ts(7), ts(7), ts(7))
+                                .row((short) 8, ts(0), ts(1), ts(2), ts(3), ts(4), ts(5), ts(6), ts(7), ts(8), ts(8))
+                                .row((short) 9, ts(0), ts(1), ts(2), ts(3), ts(4), ts(5), ts(6), ts(7), ts(8), ts(9))
+                                .row((short) 10, ts(0), ts(1), ts(2), ts(3), ts(4), ts(5), ts(6), ts(7), ts(8), ts(9))
+                                .withUtcCalendar().matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
+    }
+
+    @Test
+    public void testReadParquetTimestampTypesExasolV8() {
+        assumeTimestampPrecisionNotSupported();
+        final Fields mapping = Fields.builder()
+                .mapField("id", ToDecimalMapping.builder().decimalScale(0).decimalPrecision(2).build())
+                .mapField("ts3", ToTimestampMapping.builder().secondsPrecision(3)
+                        .notTimestampBehavior(ConvertableMappingErrorBehaviour.ABORT).build())
+                .mapField("ts6", ToTimestampMapping.builder().secondsPrecision(6)
+                        .notTimestampBehavior(ConvertableMappingErrorBehaviour.ABORT).build())
+                .build();
+        createVirtualSchemaWithMapping(TEST_SCHEMA, mapping, "testData-*.parquet");
+        final ParquetTestSetup parquetTestSetup = parquetFile(Types.primitive(INT32, REQUIRED).named("id"),
+                parquetTimestampColumn("ts3"), parquetTimestampColumn("ts6"));
+        for (int precision = 0; precision <= 10; precision++) {
+            final int rowId = precision;
+            final int valuePrecision = precision == 10 ? 3 : precision;
+            final long timestampNanos = timestampNanos(valuePrecision);
+            parquetTestSetup.writeRow(row -> {
+                row.add("id", rowId);
+                row.add("ts3", timestampNanos);
+                row.add("ts6", timestampNanos);
+            });
+        }
+        parquetTestSetup.closeWriter();
+        uploadAsParquetFile(parquetTestSetup, 1);
+
+        assertQuery("SELECT id,ts3,ts6 FROM " + TEST_SCHEMA + ".BOOKS ORDER BY id ASC",
+                table("SMALLINT", "TIMESTAMP", "TIMESTAMP")
+                        .row((short) 0, ts(0), ts(0)).row((short) 1, ts(1), ts(1)).row((short) 2, ts(2), ts(2))
+                        .row((short) 3, ts(3), ts(3)).row((short) 4, ts(3), ts(3)).row((short) 5, ts(3), ts(3))
+                        .row((short) 6, ts(3), ts(3)).row((short) 7, ts(3), ts(3)).row((short) 8, ts(3), ts(3))
+                        .row((short) 9, ts(3), ts(3)).row((short) 10, ts(3), ts(3))
+                        .withUtcCalendar().matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
+    }
+
+    private static Type parquetTimestampColumn(final String name) {
+        return Types.primitive(INT64, REQUIRED).as(LogicalTypeAnnotation.timestampType(true, LogicalTypeAnnotation.TimeUnit.NANOS)).named(name);
+    }
+
+    private static long timestampNanos(final int precision) {
+        final Timestamp timestamp = ts(precision);
+        return timestamp.toInstant().getEpochSecond() * 1_000_000_000L + timestamp.getNanos();
+    }
+
     @Disabled("Will be enabled after fixing https://github.com/exasol/virtual-schema-common-document-files/issues/182")
     @Test
     public void testReadParquetFileWithAutomaticInference() throws IOException {
@@ -923,7 +1014,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
         }
     }
 
-    protected ParquetTestSetup parquetFile(final Type... columnTypes) throws IOException {
+    protected ParquetTestSetup parquetFile(final Type... columnTypes) {
         return new ParquetTestSetup(this.tempDir, columnTypes);
     }
 

@@ -91,7 +91,24 @@ class LogicalTypeConverter {
 
         @Override
         public Optional<Void> visit(final LogicalTypeAnnotation.TimestampLogicalTypeAnnotation timestampLogicalType) {
-            this.result = ToTimestampMapping.builder().destinationName(this.columnName).build();
+            final int secondsPrecision;
+            switch (timestampLogicalType.getUnit()) {
+                case MILLIS:
+                    secondsPrecision = 3;
+                    break;
+                case MICROS:
+                    secondsPrecision = 6;
+                    break;
+                case NANOS:
+                    secondsPrecision = 9;
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unsupported Parquet timestamp unit: "
+                            + timestampLogicalType.getUnit());
+            }
+            this.result = ToTimestampMapping.builder()
+                    .secondsPrecision(secondsPrecision)
+                    .destinationName(this.columnName).build();
             return Optional.empty();
         }
 
