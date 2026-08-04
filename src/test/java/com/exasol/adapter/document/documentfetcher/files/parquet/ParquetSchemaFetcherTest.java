@@ -60,7 +60,7 @@ class ParquetSchemaFetcherTest {
         assertThat(exception.getMessage(), containsString("is not a Parquet file"));
     }
 
-    private ParquetTestSetup parquetFile(final Type... columnTypes) throws IOException {
+    private ParquetTestSetup parquetFile(final Type... columnTypes) {
         return new ParquetTestSetup(this.tempDir, columnTypes);
     }
 
