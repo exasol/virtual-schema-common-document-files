@@ -11,7 +11,7 @@ Please note that JSON files only support timestamps for number fields, interpret
 ## Features
 
 * #207: Added `TIMESTAMP` precision support for CSV
-* #208: Added `TIMESTAMP` precision support tests for JSON Lines
+* #208: Added `TIMESTAMP` precision support for JSON
 * #209: Added `TIMESTAMP` precision support for Parquet
 
 ## Dependency Updates
