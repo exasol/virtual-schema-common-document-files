@@ -612,7 +612,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    public void testJsonDataTypesAsVarcharColumn() throws SQLException, IOException {
+    public void testJsonDataTypesAsVarcharColumn() throws SQLException {
         final ResultSet result = getJsonDataTypesTestResult("mapDataTypesToVarchar.json");
         assertThat(result, table("VARCHAR", "VARCHAR")//
                 .row("false", "false")//
@@ -624,7 +624,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    public void testJsonDataTypesAsDecimal() throws SQLException, IOException {
+    public void testJsonDataTypesAsDecimal() throws SQLException {
         final ResultSet result = getJsonDataTypesTestResult("mapDataTypesToDecimal.json");
         assertThat(result, table("VARCHAR", "DECIMAL")//
                 .row("false", equalTo(null))//
@@ -636,7 +636,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    public void testJsonDataTypesAsJson() throws SQLException, IOException {
+    public void testJsonDataTypesAsJson() throws SQLException {
         final ResultSet result = getJsonDataTypesTestResult("mapDataTypesToJson.json");
         assertThat(result, table("VARCHAR", "VARCHAR")//
                 .row("false", "false")//
@@ -652,7 +652,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     // (toBoolMapping,toDecimalMapping, ...)
     // the workaround currently is to use SQL conversion functions in the query itself
     @Test
-    public void testCsvDataTypesConversion() throws SQLException, IOException {
+    public void testCsvDataTypesConversion() throws SQLException {
         final ResultSet result = getCsvDataTypesTestResult("mapCsvToVarchar.json", "dataTypeTests.csv",
                 "SELECT * FROM " + TEST_SCHEMA + ".DATA_TYPES");
         assertThat(result,
@@ -662,28 +662,24 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    public void testCsvDataTypesConversionWorkaround() throws SQLException, IOException {
-        final ResultSet result = getCsvDataTypesTestResult("mapCsvToVarcharWorkaround.json",
-                "dataTypeWorkaroundTests.csv",
+    public void testCsvDataTypesConversionWorkaround() throws SQLException {
+        final ResultSet result = getCsvDataTypesTestResult("mapCsvToVarcharWorkaround.json", "dataTypeWorkaroundTests.csv",
                 "SELECT CONVERT( BOOLEAN, BOOLEANCOLUMN ) CONVERTEDBOOLEAN FROM " + TEST_SCHEMA + ".DATA_TYPES");
-        assertThat(result, table("BOOLEAN").row(false)//
-                .matches());
+        assertThat(result, table("BOOLEAN").row(false).matches());
     }
 
-    private ResultSet getJsonDataTypesTestResult(final String mappingFileName) throws SQLException, IOException {
+    private ResultSet getJsonDataTypesTestResult(final String mappingFileName) throws SQLException {
         final String dataFile = "dataTypeTests.jsonl";
         return getDatatypesTestResult(mappingFileName, dataFile);
     }
 
-    private ResultSet getDatatypesTestResult(final String mappingFileName, final String dataFile)
-            throws IOException, SQLException {
+    private ResultSet getDatatypesTestResult(final String mappingFileName, final String dataFile) throws SQLException {
         createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, mappingFileName);
         uploadDataFileFromResources(dataFile);
         return getStatement().executeQuery("SELECT * FROM " + TEST_SCHEMA + ".DATA_TYPES ORDER BY TYPE ASC;");
     }
 
-    private ResultSet getCsvDataTypesTestResult(final String mappingFileName, final String dataFile,
-            final String sqlQuery) throws SQLException, IOException {
+    private ResultSet getCsvDataTypesTestResult(final String mappingFileName, final String dataFile, final String sqlQuery) throws SQLException {
         createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, mappingFileName);
         uploadDataFileFromResources(dataFile);
         return getStatement().executeQuery(sqlQuery);
@@ -697,7 +693,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    public void testFilterOnSourceReference() throws SQLException, IOException {
+    public void testFilterOnSourceReference() throws SQLException {
         createJsonVirtualSchema();
         final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS WHERE SOURCE_REFERENCE = '"
                 + this.dataFilesDirectory + "/testData-1.json'";
@@ -716,7 +712,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
      * SPOT-11018 (fixed) https://github.com/exasol/virtual-schema-common-document-files/issues/41
      */
     @Test
-    public void testFilterWithOrOnSourceReference() throws IOException {
+    public void testFilterWithOrOnSourceReference() {
         createJsonVirtualSchema();
         final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS WHERE SOURCE_REFERENCE = '"
                 + this.dataFilesDirectory + "/testData-1.json' OR SOURCE_REFERENCE = '" + this.dataFilesDirectory
@@ -737,7 +733,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
      */
     @Test
     // workaround for
-    public void testFilterWithOrOnSourceReferenceWithBugfixForSPOT11018() throws IOException {
+    public void testFilterWithOrOnSourceReferenceWithBugfixForSPOT11018() {
         createJsonVirtualSchema();
         final String query = "SELECT ID FROM (SELECT ID, SOURCE_REFERENCE FROM " + TEST_SCHEMA
                 + ".BOOKS WHERE SOURCE_REFERENCE = '" + this.dataFilesDirectory
@@ -754,7 +750,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    public void testFilterOnSourceReferenceForNonExisting() throws SQLException, IOException {
+    public void testFilterOnSourceReferenceForNonExisting() throws SQLException {
         createJsonVirtualSchema();
         final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS WHERE SOURCE_REFERENCE = 'UNKNOWN.json'";
         try (final ResultSet result = getStatement().executeQuery(query)) {
@@ -768,7 +764,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    public void testFilterOnSourceReferenceUsingLike() throws SQLException, IOException {
+    public void testFilterOnSourceReferenceUsingLike() throws SQLException {
         createJsonVirtualSchema();
         final String query = "SELECT ID FROM " + TEST_SCHEMA + ".BOOKS WHERE SOURCE_REFERENCE LIKE '%1.json'";
         try (final ResultSet result = getStatement().executeQuery(query)) {
@@ -782,7 +778,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
-    public void testReadParquetFile() throws IOException {
+    public void testReadParquetFile() {
         final Fields mapping = Fields.builder()//
                 .mapField("data", ToVarcharMapping.builder().build())//
                 .mapField("isActive", ToBoolMapping.builder().destinationName("IS_ACTIVE").build())//
