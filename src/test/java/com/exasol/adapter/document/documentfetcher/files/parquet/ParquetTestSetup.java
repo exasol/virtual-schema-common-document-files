@@ -28,6 +28,7 @@ public class ParquetTestSetup {
     }
 
     public Path getParquetFile() {
+        this.closeWriter();
         return this.parquetFile;
     }
 

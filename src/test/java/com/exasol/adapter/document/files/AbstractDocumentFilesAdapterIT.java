@@ -1096,7 +1096,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
         createVirtualSchemaWithMapping(TEST_SCHEMA, mapping, "testData-*.parquet");
         for (int fileCounter = 0; fileCounter < fileCount; fileCounter++) {
             LOGGER.info("Uploading parquet file #" + (fileCounter + 1) + " of " + fileCount);
-            final Path parquetFile = createParquetFile(itemSize, rowCount, columnCount, random);
+            final ParquetTestSetup parquetFile = createParquetFile(itemSize, rowCount, columnCount, random);
             uploadAsParquetFile(parquetFile, fileCounter);
         }
     }
@@ -1107,7 +1107,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 () -> assertQuery(query, table().row(rowCount * fileCount).matches()));
     }
 
-    private Path createParquetFile(final int itemSize, final long rowCount, final int columnCount, final Random random) {
+    private ParquetTestSetup createParquetFile(final int itemSize, final long rowCount, final int columnCount, final Random random) {
         final List<Type> columns = createParquetColumnDefinitions(columnCount);
         final ParquetTestSetup parquetTestSetup = new ParquetTestSetup(this.tempDir, columns.toArray(Type[]::new));
         for (long rowCounter = 0; rowCounter < rowCount; rowCounter++) {
@@ -1120,8 +1120,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 }
             });
         }
-        parquetTestSetup.closeWriter();
-        return parquetTestSetup.getParquetFile();
+        return parquetTestSetup;
     }
 
     private List<Type> createParquetColumnDefinitions(final int columnCount) {
