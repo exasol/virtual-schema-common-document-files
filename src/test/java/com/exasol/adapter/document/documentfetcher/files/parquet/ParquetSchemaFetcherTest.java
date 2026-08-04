@@ -27,7 +27,7 @@ class ParquetSchemaFetcherTest {
     Path tempDir;
 
     @Test
-    void fetchSchema() throws IOException {
+    void fetchSchema() {
         final Type stringColumn = Types.primitive(BINARY, REQUIRED).named("data");
         final Type boolColumn = Types.primitive(BOOLEAN, REQUIRED).named("isActive");
         final Type dateColumn = Types.primitive(INT32, REQUIRED).as(LogicalTypeAnnotation.dateType()).named("my_date");
@@ -38,16 +38,15 @@ class ParquetSchemaFetcherTest {
                 .named("my_timestamp");
         final Type jsonColumn = Types.primitive(BINARY, REQUIRED).as(LogicalTypeAnnotation.jsonType()).named("json");
 
-        final Path file = parquetFile(stringColumn, boolColumn, dateColumn, timeColumn, timestampColumn, jsonColumn)
-                .closeWriter().getParquetFile();
+        final Path file = parquetFile(stringColumn, boolColumn, dateColumn, timeColumn, timestampColumn, jsonColumn).getParquetFile();
         final Map<String, MappingDefinition> fields = ((Fields) fetch(file)).getFieldsMap();
         assertThat(fields, aMapWithSize(6));
     }
 
     @Test
-    void fetchSchemaConvertsColumnNames() throws IOException {
+    void fetchSchemaConvertsColumnNames() {
         final Type stringColumn = Types.primitive(BINARY, REQUIRED).named("data");
-        final Path file = parquetFile(stringColumn).closeWriter().getParquetFile();
+        final Path file = parquetFile(stringColumn).getParquetFile();
         final Map<String, MappingDefinition> fields = ((Fields) fetch(file)).getFieldsMap();
         assertAll(() -> assertThat(fields, aMapWithSize(1)),
                 () -> assertThat(((ToVarcharMapping) fields.get("data")).getDestinationName(),
@@ -61,7 +60,7 @@ class ParquetSchemaFetcherTest {
         assertThat(exception.getMessage(), containsString("is not a Parquet file"));
     }
 
-    private ParquetTestSetup parquetFile(final Type... columnTypes) throws IOException {
+    private ParquetTestSetup parquetFile(final Type... columnTypes) {
         return new ParquetTestSetup(this.tempDir, columnTypes);
     }
 

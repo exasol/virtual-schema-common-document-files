@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.stream.Stream;
 
 import org.apache.parquet.schema.*;
+import org.apache.parquet.schema.LogicalTypeAnnotation.TimestampLogicalTypeAnnotation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -116,11 +117,33 @@ class LogicalTypeConverterTest {
                 20);
     }
 
-    @Test
-    void testConvertLogicalTypeTimestamp() {
+    @ParameterizedTest
+    @MethodSource("timestampTypes")
+    void testConvertLogicalTypeTimestamp(final LogicalTypeAnnotation.TimeUnit timeUnit,
+            final int expectedSecondsPrecision) {
         final ToTimestampMapping toTimestampMapping = (ToTimestampMapping) new LogicalTypeConverter().convert(
-                LogicalTypeAnnotation.timestampType(true, LogicalTypeAnnotation.TimeUnit.MILLIS), "my_timestamp");
-        assertThat(toTimestampMapping.getNotTimestampBehavior(), equalTo(ConvertableMappingErrorBehaviour.ABORT));
+                LogicalTypeAnnotation.timestampType(true, timeUnit), "my_timestamp");
+        assertAll(
+                () -> assertThat(toTimestampMapping.getSecondsPrecision(), equalTo(expectedSecondsPrecision)),
+                () -> assertThat(toTimestampMapping.getNotTimestampBehavior(),
+                        equalTo(ConvertableMappingErrorBehaviour.ABORT)),
+                () -> assertThat(toTimestampMapping.getDestinationName(), equalTo("my_timestamp")));
+    }
+
+    private static Stream<Arguments> timestampTypes() {
+        return Stream.of(
+                Arguments.of(LogicalTypeAnnotation.TimeUnit.MILLIS, 3),
+                Arguments.of(LogicalTypeAnnotation.TimeUnit.MICROS, 6),
+                Arguments.of(LogicalTypeAnnotation.TimeUnit.NANOS, 9));
+    }
+
+    @Test
+    void testConvertLogicalTypeTimestampUnsupportedPrecision() {
+        final LogicalTypeConverter converter = new LogicalTypeConverter();
+        final TimestampLogicalTypeAnnotation type = LogicalTypeAnnotation.timestampType(true, null);
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> converter.convert(type, "my_timestamp"));
+        assertThat(exception.getMessage(), equalTo(
+                "E-VSDF-74: Parquet timestamp unit is null. This is an internal error that should not happen. Please report it by opening a GitHub issue."));
     }
 
     private void assertConvertsToToDecimalMapping(final LogicalTypeAnnotation type, final int scale,
@@ -133,5 +156,4 @@ class LogicalTypeConverterTest {
                 () -> assertThat(toDecimalMapping.getDestinationName(), equalTo("my_decimal"))//
         );
     }
-
 }
