@@ -27,7 +27,7 @@ class ParquetSchemaFetcherTest {
     Path tempDir;
 
     @Test
-    void fetchSchema() throws IOException {
+    void fetchSchema() {
         final Type stringColumn = Types.primitive(BINARY, REQUIRED).named("data");
         final Type boolColumn = Types.primitive(BOOLEAN, REQUIRED).named("isActive");
         final Type dateColumn = Types.primitive(INT32, REQUIRED).as(LogicalTypeAnnotation.dateType()).named("my_date");
@@ -44,7 +44,7 @@ class ParquetSchemaFetcherTest {
     }
 
     @Test
-    void fetchSchemaConvertsColumnNames() throws IOException {
+    void fetchSchemaConvertsColumnNames() {
         final Type stringColumn = Types.primitive(BINARY, REQUIRED).named("data");
         final Path file = parquetFile(stringColumn).getParquetFile();
         final Map<String, MappingDefinition> fields = ((Fields) fetch(file)).getFieldsMap();
