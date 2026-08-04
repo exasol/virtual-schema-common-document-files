@@ -76,7 +76,7 @@ public class RemoteFilePrefetchingIterator implements CloseableIterator<RemoteFi
                 try {
                     final RemoteFile loadedFile = each.getLoadedFile();
                     iterator.remove();
-                    this.dynamicPrefetchSize += 0.1;
+                    this.dynamicPrefetchSize += (float) 0.1;
                     if (this.dynamicPrefetchSize > MAX_PREFETCH) {
                         this.dynamicPrefetchSize = MAX_PREFETCH;
                     }
