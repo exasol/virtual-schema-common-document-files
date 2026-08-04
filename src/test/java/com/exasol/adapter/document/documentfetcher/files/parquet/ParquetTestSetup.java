@@ -42,13 +42,12 @@ public class ParquetTestSetup {
         return this;
     }
 
-    public ParquetTestSetup closeWriter() {
+    public void closeWriter() {
         try {
             this.parquetWriter.close();
         } catch (final IOException e) {
             throw new UncheckedIOException("Failed to close parquet writer for file: " + this.parquetFile, e);
         }
-        return this;
     }
 
     @FunctionalInterface

@@ -812,8 +812,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
             row.add("my_timestamp", a_timestamp);// ms after midnight
             row.add("json", "{\"my_value\": 2}");
         });
-        parquetTestSetup.closeWriter();
-        uploadAsParquetFile(parquetTestSetup.getParquetFile(), 1);
+        uploadAsParquetFile(parquetTestSetup, 1);
         final String query = "SELECT \"DATA\", \"IS_ACTIVE\", \"MY_DATE\", \"MY_TIME\", \"MY_TIMESTAMP\", \"JSON\" FROM "
                 + TEST_SCHEMA + ".BOOKS";
         assertQuery(query, table().row("my test string", true, new Date(a_timestamp), 1000, new Timestamp(a_timestamp),
@@ -846,7 +845,6 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 }
             });
         }
-        parquetTestSetup.closeWriter();
         uploadAsParquetFile(parquetTestSetup, 1);
 
         assertQuery(
@@ -872,10 +870,8 @@ public abstract class AbstractDocumentFilesAdapterIT {
         assumeTimestampPrecisionNotSupported();
         final Fields mapping = Fields.builder()
                 .mapField("id", ToDecimalMapping.builder().decimalScale(0).decimalPrecision(2).build())
-                .mapField("ts3", ToTimestampMapping.builder().secondsPrecision(3)
-                        .notTimestampBehavior(ConvertableMappingErrorBehaviour.ABORT).build())
-                .mapField("ts6", ToTimestampMapping.builder().secondsPrecision(6)
-                        .notTimestampBehavior(ConvertableMappingErrorBehaviour.ABORT).build())
+                .mapField("ts3", ToTimestampMapping.builder().secondsPrecision(3).notTimestampBehavior(ConvertableMappingErrorBehaviour.ABORT).build())
+                .mapField("ts6", ToTimestampMapping.builder().secondsPrecision(6).notTimestampBehavior(ConvertableMappingErrorBehaviour.ABORT).build())
                 .build();
         createVirtualSchemaWithMapping(TEST_SCHEMA, mapping, "testData-*.parquet");
         final ParquetTestSetup parquetTestSetup = parquetFile(Types.primitive(INT32, REQUIRED).named("id"),
@@ -890,7 +886,6 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 row.add("ts6", timestampNanos);
             });
         }
-        parquetTestSetup.closeWriter();
         uploadAsParquetFile(parquetTestSetup, 1);
 
         assertQuery("SELECT id,ts3,ts6 FROM " + TEST_SCHEMA + ".BOOKS ORDER BY id ASC",
@@ -928,7 +923,6 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 row.add("ts_nanos", timestampNanos);
             });
         }
-        parquetTestSetup.closeWriter();
         uploadAsParquetFile(parquetTestSetup, 1);
         createVirtualSchemaWithMapping(TEST_SCHEMA,
                 EdmlDefinition.builder().source(this.dataFilesDirectory + "/testData-*.parquet").destinationTable("BOOKS"));
@@ -966,7 +960,6 @@ public abstract class AbstractDocumentFilesAdapterIT {
                 row.add("ts_micros", timestampNanos / 1_000L);
             });
         }
-        parquetTestSetup.closeWriter();
         uploadAsParquetFile(parquetTestSetup, 1);
         createVirtualSchemaWithMapping(TEST_SCHEMA,
                 EdmlDefinition.builder().source(this.dataFilesDirectory + "/testData-*.parquet").destinationTable("BOOKS"));
@@ -1011,7 +1004,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
                     row.add("my_time", 1000);// ms after midnight
                     row.add("my_timestamp", timestamp);// ms after midnight
                     row.add("json", "{\"my_value\": 2}");
-                }).closeWriter(), 1);
+                }), 1);
 
         final String source = this.dataFilesDirectory + "/testData-*.parquet";
         createVirtualSchemaWithMapping(TEST_SCHEMA, EdmlDefinition.builder().source(source).destinationTable("BOOKS"));
@@ -1026,8 +1019,8 @@ public abstract class AbstractDocumentFilesAdapterIT {
     @Test
     public void testReadMultipleParquetFilesWithAutomaticInference() {
         final Type stringColumn = Types.primitive(BINARY, REQUIRED).named("data");
-        uploadAsParquetFile(parquetFile(stringColumn).writeRow(row -> row.add("data", "row1")).closeWriter(), 1);
-        uploadAsParquetFile(parquetFile(stringColumn).writeRow(row -> row.add("data", "row2")).closeWriter(), 2);
+        uploadAsParquetFile(parquetFile(stringColumn).writeRow(row -> row.add("data", "row1")), 1);
+        uploadAsParquetFile(parquetFile(stringColumn).writeRow(row -> row.add("data", "row2")), 2);
 
         final String source = this.dataFilesDirectory + "/testData-*.parquet";
         createVirtualSchemaWithMapping(TEST_SCHEMA,
@@ -1318,13 +1311,10 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     protected void uploadAsParquetFile(final ParquetTestSetup parquetFile, final int fileIndex) {
-        uploadAsParquetFile(parquetFile.getParquetFile(), fileIndex);
-    }
-
-    protected void uploadAsParquetFile(final Path parquetFile, final int fileIndex) {
+        parquetFile.closeWriter();
         final String resourceName = this.dataFilesDirectory + "/testData-" + fileIndex + ".parquet";
         LOGGER.fine("Uploading parquet " + resourceName + "...");
-        uploadDataFile(parquetFile, resourceName);
+        uploadDataFile(parquetFile.getParquetFile(), resourceName);
     }
 
     protected void uploadAsCsvFile(final Path csvFile, final int fileIndex) {
