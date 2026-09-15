@@ -7,7 +7,7 @@
     <description>Adapter for document data access from files.</description>
     <url>https://github.com/exasol/virtual-schema-common-document-files/</url>
     <properties>
-        <vs-common-document.version>12.1.0</vs-common-document.version>
+        <vs-common-document.version>12.1.1</vs-common-document.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -38,7 +38,7 @@
             <groupId>de.siegmar</groupId>
             <artifactId>fastcsv</artifactId>
             <!-- Version 4 requires Java 17 -->
-            <version>4.4.0</version>
+            <version>3.7.0</version>
         </dependency>
         <dependency>
             <!-- Used for detecting CSV header and column types -->
@@ -75,14 +75,14 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
             <!-- Version 6 requires Java 17 -->
-            <version>6.1.3</version>
+            <version>5.14.4</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>nl.jqno.equalsverifier</groupId>
             <artifactId>equalsverifier</artifactId>
             <!-- Version 4.0 requires Java 17 -->
-            <version>4.5.2</version>
+            <version>3.19.4</version>
             <scope>test</scope>
         </dependency>
         <dependency>

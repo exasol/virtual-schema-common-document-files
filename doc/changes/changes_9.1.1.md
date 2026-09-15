@@ -1,4 +1,4 @@
-# Virtual Schema for Document Data in Files 9.1.1, released 2026-??-??
+# Virtual Schema for Document Data in Files 9.1.1, released 2026-09-15
 
 Code name: Fixed vulnerabilities CVE-2026-73334, CVE-2026-87795, CVE-2026-87823, CVE-2026-89045
 
@@ -7,10 +7,10 @@ Code name: Fixed vulnerabilities CVE-2026-73334, CVE-2026-87795, CVE-2026-87823,
 This release fixes the following 4 vulnerabilities:
 
 ### CVE-2026-73334 (CWE-20) in dependency `org.apache.parquet:parquet-hadoop:jar:1.17.1:compile`
-Potential problem for users of theÂ org.apache.parquet.crypto.keytools package in Apache Parquet, versions 1.12 to 1.18. 
+Potential problem for users of theÂ org.apache.parquet.crypto.keytools package in Apache Parquet, versions 1.12 to 1.18.
 This package enables users to encrypt Parquet files via an envelope encryption mechanism that wraps (encrypts) data keys via a Key Management Service (KMS).Â 
 On the reader side, the KMS URL can be application-controlled or file-controlled.
-If the user does not leverage application control for this parameter, a file-controlled KMS URL is forwarded to a pluggable KmsClient implementation. 
+If the user does not leverage application control for this parameter, a file-controlled KMS URL is forwarded to a pluggable KmsClient implementation.
 If the pluggable implementation does not perform host validation, a KMS token can be sent to a malicious host set by an attacker in the file.
 
 Before the problem is fixed, users are recommended toÂ leverage application control for KMS URL parameter in readers (versions 1.12-1.18).
@@ -57,14 +57,17 @@ zstd-jni versions 1.4.8-4 through 1.5.7-13 fail to validate negative length para
 
 ### Compile Dependency Updates
 
-* Updated `de.siegmar:fastcsv:3.7.0` to `4.4.0`
+* Updated `com.exasol:virtual-schema-common-document:12.1.0` to `12.1.1`
 
 ### Test Dependency Updates
 
-* Updated `nl.jqno.equalsverifier:equalsverifier:3.19.4` to `4.5.2`
-* Updated `org.junit.jupiter:junit-jupiter-params:5.14.4` to `6.1.3`
+* Updated `com.exasol:virtual-schema-common-document:12.1.0` to `12.1.1`
 * Updated `org.slf4j:slf4j-jdk14:2.0.18` to `2.0.19`
 
 ### Plugin Dependency Updates
 
+* Updated `com.exasol:error-code-crawler-maven-plugin:2.1.0` to `2.1.1`
 * Updated `com.exasol:project-keeper-maven-plugin:5.7.4` to `5.7.5`
+* Updated `io.github.git-commit-id:git-commit-id-maven-plugin:10.0.0` to `10.0.1`
+* Updated `org.apache.maven.plugins:maven-toolchains-plugin:3.2.0` to `3.3.0`
+* Updated `org.codehaus.mojo:flatten-maven-plugin:1.7.3` to `1.8.0`
