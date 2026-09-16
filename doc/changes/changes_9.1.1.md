@@ -1,4 +1,4 @@
-# Virtual Schema for Document Data in Files 9.1.1, released 2026-09-15
+# Virtual Schema for Document Data in Files 9.1.1, released 2026-09-16
 
 Code name: Fixed vulnerabilities CVE-2026-73334, CVE-2026-87795, CVE-2026-87823, CVE-2026-89045
 
