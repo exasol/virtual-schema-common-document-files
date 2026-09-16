@@ -66,14 +66,11 @@ zstd-jni versions 1.4.8-4 through 1.5.7-13 fail to validate negative length para
 
 * Updated `com.exasol:parquet-io-java:2.1.0` to `2.1.1`
 * Updated `com.exasol:virtual-schema-common-document:12.1.0` to `12.1.1`
-* Updated `de.siegmar:fastcsv:3.7.0` to `4.4.0`
 
 ### Test Dependency Updates
 
 * Updated `com.exasol:hamcrest-resultset-matcher:1.7.3` to `1.7.4`
 * Updated `com.exasol:virtual-schema-common-document:12.1.0` to `12.1.1`
-* Updated `nl.jqno.equalsverifier:equalsverifier:3.19.4` to `4.5.2`
-* Updated `org.junit.jupiter:junit-jupiter-params:5.14.4` to `6.1.3`
 * Updated `org.slf4j:slf4j-jdk14:2.0.18` to `2.0.19`
 
 ### Plugin Dependency Updates
