@@ -13,7 +13,6 @@ Snappy remains supported for compatibility, but the transitive Snappy-Java depen
 * https://github.com/advisories/GHSA-mrhq-xxpp-qf7j
 * https://github.com/xerial/snappy-java/issues/728
 
-
 ### CVE-2026-73334 (CWE-20) in dependency `org.apache.parquet:parquet-hadoop:jar:1.17.1:compile`
 Potential problem for users of theÂ org.apache.parquet.crypto.keytools package in Apache Parquet, versions 1.12 to 1.18.
 This package enables users to encrypt Parquet files via an envelope encryption mechanism that wraps (encrypts) data keys via a Key Management Service (KMS).Â 
@@ -65,11 +64,16 @@ zstd-jni versions 1.4.8-4 through 1.5.7-13 fail to validate negative length para
 
 ### Compile Dependency Updates
 
+* Updated `com.exasol:parquet-io-java:2.1.0` to `2.1.1`
 * Updated `com.exasol:virtual-schema-common-document:12.1.0` to `12.1.1`
+* Updated `de.siegmar:fastcsv:3.7.0` to `4.4.0`
 
 ### Test Dependency Updates
 
+* Updated `com.exasol:hamcrest-resultset-matcher:1.7.3` to `1.7.4`
 * Updated `com.exasol:virtual-schema-common-document:12.1.0` to `12.1.1`
+* Updated `nl.jqno.equalsverifier:equalsverifier:3.19.4` to `4.5.2`
+* Updated `org.junit.jupiter:junit-jupiter-params:5.14.4` to `6.1.3`
 * Updated `org.slf4j:slf4j-jdk14:2.0.18` to `2.0.19`
 
 ### Plugin Dependency Updates
