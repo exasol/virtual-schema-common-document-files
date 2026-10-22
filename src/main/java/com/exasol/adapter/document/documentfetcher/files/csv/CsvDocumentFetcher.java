@@ -3,6 +3,7 @@ package com.exasol.adapter.document.documentfetcher.files.csv;
 import static com.exasol.adapter.document.documentfetcher.files.csv.CsvConfigurationHelper.getCsvConfiguration;
 
 import java.io.Serial;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.exasol.adapter.document.documentfetcher.files.segmentation.FileSegment;
@@ -22,7 +23,7 @@ public final class CsvDocumentFetcher implements FileTypeSpecificDocumentFetcher
     /** Additional configuration serialized as JSON */
     private String additionalConfiguration;
     /** Expected CSV columns */
-    private final List<ColumnMapping> csvColumns;
+    private final ArrayList<ColumnMapping> csvColumns;
 
     /**
      * Create a new instance.
@@ -30,7 +31,7 @@ public final class CsvDocumentFetcher implements FileTypeSpecificDocumentFetcher
      * @param csvColumns the expected types of the CSV columns
      */
     public CsvDocumentFetcher(final List<ColumnMapping> csvColumns) {
-        this.csvColumns = csvColumns;
+        this.csvColumns = csvColumns == null ? null : new ArrayList<>(csvColumns);
     }
 
     /**
