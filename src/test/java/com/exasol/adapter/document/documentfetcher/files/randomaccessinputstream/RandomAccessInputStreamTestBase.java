@@ -75,7 +75,7 @@ public abstract class RandomAccessInputStreamTestBase extends AbstractInputStrea
 
     @Test
     void testSkipAndRead() throws IOException {
-        int bytesToSkip = 2;
+        long bytesToSkip = 2L;
         while (bytesToSkip > 0) {
             bytesToSkip -= this.seekableStream.skip(bytesToSkip);
         }
