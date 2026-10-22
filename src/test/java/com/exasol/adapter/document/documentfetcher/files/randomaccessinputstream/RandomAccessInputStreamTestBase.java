@@ -53,7 +53,7 @@ public abstract class RandomAccessInputStreamTestBase extends AbstractInputStrea
     }
 
     @AfterAll
-    void afterAll() throws IOException {
+    void afterAll() {
         this.cleanupTestSetup();
     }
 
