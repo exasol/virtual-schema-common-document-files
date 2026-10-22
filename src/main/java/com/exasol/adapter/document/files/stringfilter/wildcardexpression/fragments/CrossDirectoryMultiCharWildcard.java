@@ -10,6 +10,13 @@ import com.exasol.adapter.document.files.stringfilter.wildcardexpression.Wildcar
 public class CrossDirectoryMultiCharWildcard implements WildcardExpressionFragment {
     private static final long serialVersionUID = 7378976142816239029L;
 
+    /**
+     * Creates a wildcard that matches any number of characters across directory boundaries.
+     */
+    public CrossDirectoryMultiCharWildcard() {
+        // Default constructor.
+    }
+
     @Override
     public void accept(final WildcardExpressionFragmentVisitor visitor) {
         visitor.visit(this);

@@ -22,6 +22,13 @@ public class JsonDocumentFetcher implements FileTypeSpecificDocumentFetcher {
     private static final long serialVersionUID = 2783593249946168796L;
     private static final JsonReaderFactory JSON_READER_FACTORY = Json.createReaderFactory(null);
 
+    /**
+     * Creates a document fetcher for JSON files.
+     */
+    public JsonDocumentFetcher() {
+        // Default constructor.
+    }
+
     @Override
     public CloseableIterator<DocumentNode> readDocuments(final FileSegment segment) {
         if (!segment.getSegmentDescription().equals(FileSegmentDescription.ENTIRE_FILE)) {

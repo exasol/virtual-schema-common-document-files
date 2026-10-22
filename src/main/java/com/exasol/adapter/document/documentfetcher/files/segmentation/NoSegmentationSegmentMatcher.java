@@ -10,6 +10,13 @@ import com.exasol.adapter.document.documentfetcher.files.RemoteFile;
  * This {@link SegmentMatcher} accepts all files since no segmentation is needed.
  */
 public class NoSegmentationSegmentMatcher implements SegmentMatcher {
+    /**
+     * Creates a matcher that selects whole files without segmentation.
+     */
+    public NoSegmentationSegmentMatcher() {
+        // Default constructor.
+    }
+
     @Override
     public List<FileSegment> getMatchingSegmentsFor(final RemoteFile remoteFile) {
         return List.of(new FileSegment(remoteFile, ENTIRE_FILE));

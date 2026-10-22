@@ -18,6 +18,13 @@ public class CsvSchemaFetcher implements SingleFileSchemaFetcher {
     private static final Logger LOG = Logger.getLogger(CsvSchemaFetcher.class.getName());
     private static final long MAX_ROW_COUNT = 10_000;
 
+    /**
+     * Creates a CSV schema fetcher.
+     */
+    public CsvSchemaFetcher() {
+        // Default constructor.
+    }
+
     @Override
     public InferredMappingDefinition fetchSchema(final RemoteFile remoteFile,
             final ColumnNameConverter columnNameConverter) {

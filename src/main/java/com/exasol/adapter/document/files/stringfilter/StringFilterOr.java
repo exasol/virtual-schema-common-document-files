@@ -9,11 +9,15 @@ import java.util.stream.Collectors;
  */
 public class StringFilterOr implements StringFilter {
     private static final long serialVersionUID = -5480465940663077807L;
-    /** @serial */
+    /**
+     * Serialized operands combined by this filter.
+     *
+     * @serial
+     */
     private final ArrayList<StringFilter> operands;
 
     /**
-     * Create a new instance of {@clink StringFilterOr}.
+     * Create a new instance of {@link StringFilterOr}.
      * 
      * @param operands operands to be combined with OR semantic
      */
@@ -39,7 +43,7 @@ public class StringFilterOr implements StringFilter {
     @Override
     public String getStaticPrefix() {
         final List<String> operandsPrefixes = this.operands.stream().map(StringFilter::getStaticPrefix)
-                .collect(Collectors.toList());
+                .toList();
         final StringBuilder prefixBuilder = new StringBuilder();
         final int shortestOperandsPrefixLength = operandsPrefixes.stream().map(String::length).min(Integer::compareTo)
                 .orElse(-1);
