@@ -41,7 +41,7 @@ public abstract class RandomAccessInputStreamTestBase extends AbstractInputStrea
      * 
      * @throws IOException if cleaning fails
      */
-    protected void cleanupTestSetup() throws IOException {
+    protected void cleanupTestSetup() {
         // nothing to do.
     }
 
