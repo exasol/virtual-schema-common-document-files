@@ -1,17 +1,18 @@
-# Virtual Schema for Document Data in Files 9.1.2, released 2026-??-??
+# Virtual Schema for Document Data in Files 9.1.2, released 2026-10-20
 
 Code name:
 
 ## Summary
 
-## Features
+## Security
 
-* ISSUE_NUMBER: description
+* #222: Fixed vulnerability CVE-2026-104880 in dependency `de.siegmar:fastcsv:jar:3.7.0:compile`
 
 ## Dependency Updates
 
 ### Compile Dependency Updates
 
+* Updated `com.exasol:parquet-io-java:2.1.1` to `2.1.2`
 * Updated `de.siegmar:fastcsv:3.7.0` to `4.4.0`
 
 ### Test Dependency Updates
