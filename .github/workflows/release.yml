@@ -87,7 +87,7 @@ jobs:
         with:
           distribution: temurin
           java-version: |-
-            11
+            17
             21
           server-id: maven-central-portal
           server-username-env-var: MAVEN_USERNAME
@@ -129,7 +129,7 @@ jobs:
         with:
           distribution: temurin
           java-version: |-
-            11
+            17
             21
           cache: maven
       - {

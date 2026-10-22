@@ -10,6 +10,18 @@ Code name:
 
 ## Dependency Updates
 
+### Compile Dependency Updates
+
+* Updated `de.siegmar:fastcsv:3.7.0` to `4.4.0`
+
+### Test Dependency Updates
+
+* Updated `com.exasol:udf-debugging-java:0.6.20` to `0.6.22`
+* Updated `nl.jqno.equalsverifier:equalsverifier:3.19.4` to `4.5.2`
+* Updated `org.junit.jupiter:junit-jupiter-params:5.14.4` to `6.1.3`
+* Updated `org.mockito:mockito-junit-jupiter:5.23.0` to `5.24.0`
+* Updated `org.slf4j:slf4j-jdk14:2.0.19` to `2.0.20`
+
 ### Plugin Dependency Updates
 
 * Updated `com.exasol:error-code-crawler-maven-plugin:2.1.1` to `2.1.2`
