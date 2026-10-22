@@ -1,12 +1,27 @@
 # Virtual Schema for Document Data in Files 9.1.2, released 2026-10-20
 
-Code name:
+Code name: Fix CVE-2026-104880, CVE-2026-90559, CVE-2026-93451, CVE-2026-93452, CVE-2026-108104, CVE-2026-108106, CVE-2026-110262, CVE-2026-110270, CVE-2026-110257, CVE-2026-110258, CVE-2026-110259, CVE-2026-110260, CVE-2026-110261, CVE-2026-110263
 
 ## Summary
+
+This release updates dependencies to fix security vulnerabilities in CSV processing, Snappy compression, and ASM bytecode handling. Upgrade to benefit from these security fixes.
 
 ## Security
 
 * #222: Fixed vulnerability CVE-2026-104880 in dependency `de.siegmar:fastcsv:jar:3.7.0:compile`
+* #218: Fixed vulnerability CVE-2026-90559 in dependency `org.xerial.snappy:snappy-java:jar:1.1.10.8:compile`
+* #219: Fixed vulnerability CVE-2026-93451 in dependency `org.xerial.snappy:snappy-java:jar:1.1.10.8:compile`
+* #220: Fixed vulnerability CVE-2026-93452 in dependency `org.xerial.snappy:snappy-java:jar:1.1.10.8:compile`
+* #224: Fixed vulnerability CVE-2026-108104 in dependency `org.xerial.snappy:snappy-java:jar:1.1.10.8:compile`
+* #225: Fixed vulnerability CVE-2026-108106 in dependency `org.xerial.snappy:snappy-java:jar:1.1.10.8:compile`
+* #227: Fixed vulnerability CVE-2026-110262 in dependency `org.ow2.asm:asm-commons:jar:9.10.1:test`
+* #228: Fixed vulnerability CVE-2026-110270 in dependency `org.ow2.asm:asm-commons:jar:9.10.1:test`
+* #229: Fixed vulnerability CVE-2026-110257 in dependency `org.ow2.asm:asm:jar:9.10.1:test`
+* #230: Fixed vulnerability CVE-2026-110258 in dependency `org.ow2.asm:asm:jar:9.10.1:test`
+* #231: Fixed vulnerability CVE-2026-110259 in dependency `org.ow2.asm:asm:jar:9.10.1:test`
+* #232: Fixed vulnerability CVE-2026-110260 in dependency `org.ow2.asm:asm:jar:9.10.1:test`
+* #233: Fixed vulnerability CVE-2026-110261 in dependency `org.ow2.asm:asm:jar:9.10.1:test`
+* #234: Fixed vulnerability CVE-2026-110263 in dependency `org.ow2.asm:asm:jar:9.10.1:test`
 
 ## Dependency Updates
 
