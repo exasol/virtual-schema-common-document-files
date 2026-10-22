@@ -31,6 +31,7 @@ Code name:
 * Updated `org.apache.maven.plugins:maven-deploy-plugin:3.1.4` to `3.2.0`
 * Updated `org.apache.maven.plugins:maven-failsafe-plugin:3.5.6` to `3.6.0`
 * Updated `org.apache.maven.plugins:maven-install-plugin:3.1.4` to `3.2.0`
+* Updated `org.apache.maven.plugins:maven-jar-plugin:3.5.0` to `3.5.1`
 * Updated `org.apache.maven.plugins:maven-surefire-plugin:3.5.6` to `3.6.0`
 * Updated `org.codehaus.mojo:build-helper-maven-plugin:3.6.1` to `3.6.2`
 * Updated `org.codehaus.mojo:versions-maven-plugin:2.21.0` to `2.23.0`
