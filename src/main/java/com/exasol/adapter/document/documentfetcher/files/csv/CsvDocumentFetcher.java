@@ -20,9 +20,17 @@ import com.exasol.errorreporting.ExaError;
 public final class CsvDocumentFetcher implements FileTypeSpecificDocumentFetcher {
     @Serial
     private static final long serialVersionUID = 2783593249946168796L;
-    /** Additional configuration serialized as JSON */
+    /**
+     * Serialized additional configuration as JSON.
+     *
+     * @serial
+     */
     private String additionalConfiguration;
-    /** Expected CSV columns */
+    /**
+     * Serialized expected CSV columns.
+     *
+     * @serial
+     */
     private final ArrayList<ColumnMapping> csvColumns;
 
     /**

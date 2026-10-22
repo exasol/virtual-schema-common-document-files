@@ -1,7 +1,6 @@
 package com.exasol.adapter.document.files.stringfilter;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
@@ -11,6 +10,13 @@ import com.exasol.adapter.document.files.stringfilter.wildcardexpression.Wildcar
  * This class prepends a static prefix to a {@link StringFilter}.
  */
 public class PrefixPrepender {
+
+    /**
+     * Creates a prefix prepender.
+     */
+    public PrefixPrepender() {
+        // Default constructor.
+    }
 
     /**
      * Prepend a static prefix to a given {@link StringFilter}.
@@ -57,7 +63,7 @@ public class PrefixPrepender {
             final List<WildcardExpressionFragment> fragments = Stream
                     .concat(WildcardExpression.forNonWildcardString(this.prefix).getFragments().stream(),
                             wildcardExpression.getFragments().stream())
-                    .collect(Collectors.toList());
+                    .toList();
             this.result = new WildcardExpression(fragments);
         }
 

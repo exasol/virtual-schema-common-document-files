@@ -19,6 +19,13 @@ import com.exasol.errorreporting.ExaError;
  */
 public class ParquetSchemaFetcher implements SingleFileSchemaFetcher {
 
+    /**
+     * Creates a Parquet schema fetcher.
+     */
+    public ParquetSchemaFetcher() {
+        // Default constructor.
+    }
+
     @Override
     public InferredMappingDefinition fetchSchema(final RemoteFile remoteFile,
             final ColumnNameConverter columnNameConverter) {

@@ -10,6 +10,13 @@ import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
  * Factory for Parquet file {@link FileTypeSpecificDocumentFetcher}s.
  */
 public class ParquetFilesDocumentFetcherFactory implements FileTypeSpecificDocumentFetcherFactoryInterface {
+    /**
+     * Creates a factory for Parquet document fetchers.
+     */
+    public ParquetFilesDocumentFetcherFactory() {
+        // Default constructor.
+    }
+
     @Override
     public List<String> getSupportedFileExtensions() {
         return List.of(".parquet");

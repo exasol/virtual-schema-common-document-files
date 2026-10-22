@@ -23,6 +23,13 @@ public class ParquetDocumentFetcher implements FileTypeSpecificDocumentFetcher {
     private static final long serialVersionUID = 6439498036010861848L;
     private static final long SPLIT_CHUNK_SIZE = 16L * 1024;
 
+    /**
+     * Creates a document fetcher for Parquet files.
+     */
+    public ParquetDocumentFetcher() {
+        // Default constructor.
+    }
+
     @Override
     public CloseableIterator<DocumentNode> readDocuments(final FileSegment segment) {
         final InputFile hadoopInputFile = SeekableInputStreamAdapter

@@ -15,6 +15,13 @@ public final class SeekableInputStreamAdapter {
     private static final int COPY_BUFFER_SIZE = 8192;
 
     /**
+     * Creates an adapter for converting random-access streams to Parquet input files.
+     */
+    public SeekableInputStreamAdapter() {
+        // Default constructor.
+    }
+
+    /**
      * Convert a {@link RandomAccessInputStream} to an {@link org.apache.parquet.io.InputFile}.
      *
      * @param source stream to convert
