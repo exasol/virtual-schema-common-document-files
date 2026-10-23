@@ -107,7 +107,8 @@ public class FilesDocumentFetcher implements DocumentFetcher {
         LOGGER.finest(() -> "Reading segment " + fileSegment.getSegmentDescription() + " from file "
                 + remoteFile.getResourceName() + " with size " + remoteFile.getSize() + " bytes");
         // add the property if csv
-        if (this.fileTypeSpecificDocumentFetcher instanceof CsvDocumentFetcher csvDocumentFetcher) {
+        if (this.fileTypeSpecificDocumentFetcher instanceof CsvDocumentFetcher) {
+            final CsvDocumentFetcher csvDocumentFetcher = (CsvDocumentFetcher) this.fileTypeSpecificDocumentFetcher;
             csvDocumentFetcher.setAdditionalConfiguration(this.additionalConfiguration);
         }
         return new TransformingIterator<>(this.fileTypeSpecificDocumentFetcher.readDocuments(fileSegment),
