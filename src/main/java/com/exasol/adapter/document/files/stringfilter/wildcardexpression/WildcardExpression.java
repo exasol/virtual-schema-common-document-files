@@ -70,11 +70,12 @@ public class WildcardExpression implements StringFilter {
      * @param prefix prefix to bild wildcard expression for
      * @return built {@link WildcardExpression}
      */
+    @SuppressWarnings("java:S6204") // Java 11 compatibility
     public static WildcardExpression forNonWildcardPrefix(final String prefix) {
         final List<WildcardExpressionFragment> fragments = Stream
                 .concat(new NonWildcardParser().parse(prefix).getFragments().stream(),
                         Stream.of(new CrossDirectoryMultiCharWildcard()))
-                .toList();
+                .collect(Collectors.toList());
         return new WildcardExpression(fragments);
     }
 

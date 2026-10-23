@@ -2,6 +2,7 @@ package com.exasol.adapter.document.files.stringfilter;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
@@ -78,8 +79,9 @@ public class StringFilterFactory {
         return new StringFilterNot(operand);
     }
 
+    @SuppressWarnings("java:S6204") // Java 11 compatibility
     private List<StringFilter> filterEmptyOperands(final Stream<StringFilter> operands) {
-        return operands.filter(operand -> !IsEmptyVisitor.isEmpty(operand)).toList();
+        return operands.filter(operand -> !IsEmptyVisitor.isEmpty(operand)).collect(Collectors.toList());
     }
 
     private static class IsEmptyVisitor implements StringFilterVisitor {

@@ -1,6 +1,7 @@
 package com.exasol.adapter.document.files.stringfilter;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
@@ -59,11 +60,12 @@ public class PrefixPrepender {
         }
 
         @Override
+        @SuppressWarnings("java:S6204") // Java 11 compatibility
         public void visit(final WildcardExpression wildcardExpression) {
             final List<WildcardExpressionFragment> fragments = Stream
                     .concat(WildcardExpression.forNonWildcardString(this.prefix).getFragments().stream(),
                             wildcardExpression.getFragments().stream())
-                    .toList();
+                    .collect(Collectors.toList());
             this.result = new WildcardExpression(fragments);
         }
 

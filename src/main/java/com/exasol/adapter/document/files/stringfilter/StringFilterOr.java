@@ -41,9 +41,10 @@ public class StringFilterOr implements StringFilter {
     }
 
     @Override
+    @SuppressWarnings("java:S6204") // Java 11 compatibility
     public String getStaticPrefix() {
         final List<String> operandsPrefixes = this.operands.stream().map(StringFilter::getStaticPrefix)
-                .toList();
+                .collect(Collectors.toList());
         final StringBuilder prefixBuilder = new StringBuilder();
         final int shortestOperandsPrefixLength = operandsPrefixes.stream().map(String::length).min(Integer::compareTo)
                 .orElse(-1);

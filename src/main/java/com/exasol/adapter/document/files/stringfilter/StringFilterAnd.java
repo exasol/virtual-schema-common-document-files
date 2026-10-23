@@ -122,10 +122,11 @@ public class StringFilterAnd implements StringFilter {
      *
      * @return a list of static prefixes
      */
+    @SuppressWarnings("java:S6204") // Java 11 compatibility
     List<String> getPrefixes() {
         return this.operands.stream()
                 .map(StringFilter::getStaticPrefix)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     /**
@@ -135,10 +136,11 @@ public class StringFilterAnd implements StringFilter {
      * @param shortestPrefix the expected shared prefix
      * @return a list of conflicting prefixes
      */
+    @SuppressWarnings("java:S6204") // Java 11 compatibility
     List<String> getConflictingPrefixes(final List<String> prefixes, final String shortestPrefix) {
         return prefixes.stream()
                 .filter(prefix -> !prefix.startsWith(shortestPrefix))
-                .toList();
+                .collect(Collectors.toList());
     }
 
     /**
