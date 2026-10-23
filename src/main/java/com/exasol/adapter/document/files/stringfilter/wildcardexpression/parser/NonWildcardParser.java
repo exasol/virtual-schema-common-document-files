@@ -13,6 +13,13 @@ import com.exasol.adapter.document.files.stringfilter.wildcardexpression.fragmen
 public class NonWildcardParser {
 
     /**
+     * Creates a parser for strings without wildcard syntax.
+     */
+    public NonWildcardParser() {
+        // Default constructor.
+    }
+
+    /**
      * Create a {@link WildcardExpression}s from a string without wildcards.
      * <p>
      * If the input string contains characters that are used as wildcard characters in some regular language, they are

@@ -12,7 +12,11 @@ import java.util.stream.Collectors;
 public class StringFilterAnd implements StringFilter {
     private static final Logger LOGGER = Logger.getLogger(StringFilterAnd.class.getName());
     private static final long serialVersionUID = 3856323687685172983L;
-    /** @serial */
+    /**
+     * Serialized operands combined by this filter.
+     *
+     * @serial
+     */
     private final ArrayList<StringFilter> operands;
 
     /**
@@ -118,6 +122,7 @@ public class StringFilterAnd implements StringFilter {
      *
      * @return a list of static prefixes
      */
+    @SuppressWarnings("java:S6204") // Java 11 compatibility
     List<String> getPrefixes() {
         return this.operands.stream()
                 .map(StringFilter::getStaticPrefix)
@@ -131,6 +136,7 @@ public class StringFilterAnd implements StringFilter {
      * @param shortestPrefix the expected shared prefix
      * @return a list of conflicting prefixes
      */
+    @SuppressWarnings("java:S6204") // Java 11 compatibility
     List<String> getConflictingPrefixes(final List<String> prefixes, final String shortestPrefix) {
         return prefixes.stream()
                 .filter(prefix -> !prefix.startsWith(shortestPrefix))

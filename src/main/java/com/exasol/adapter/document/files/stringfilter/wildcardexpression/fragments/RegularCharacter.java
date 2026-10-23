@@ -9,7 +9,11 @@ import com.exasol.adapter.document.files.stringfilter.wildcardexpression.Wildcar
 public class RegularCharacter implements WildcardExpressionFragment {
     private static final long serialVersionUID = 3923902784041914771L;
 
-    /** @serial */
+    /**
+     * Serialized character matched by this fragment.
+     *
+     * @serial
+     */
     private final char character;
 
     /**

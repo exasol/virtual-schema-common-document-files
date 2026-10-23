@@ -11,6 +11,13 @@ import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
  */
 public class CsvFilesDocumentFetcherFactory implements FileTypeSpecificDocumentFetcherFactoryInterface {
 
+    /**
+     * Creates a factory for CSV document fetchers.
+     */
+    public CsvFilesDocumentFetcherFactory() {
+        // Default constructor.
+    }
+
     @Override
     public FileTypeSpecificDocumentFetcher buildFileTypeSpecificDocumentFetcher(
             final RemoteTableQuery remoteTableQuery) {

@@ -5,9 +5,17 @@ package com.exasol.adapter.document.documentfetcher.files.segmentation;
  */
 public class HashSegmentDescription implements SegmentDescription {
     private static final long serialVersionUID = 4642659777595474828L;//
-    /** @serial */
+    /**
+     * Serialized total number of segments.
+     *
+     * @serial
+     */
     private final int numberOfSegments;
-    /** @serial */
+    /**
+     * Serialized identifier of this segment.
+     *
+     * @serial
+     */
     private final int segmentId;
 
     /**

@@ -13,6 +13,13 @@ import com.exasol.adapter.document.files.stringfilter.wildcardexpression.Wildcar
 public class StringFilterFactory {
 
     /**
+     * Creates a string-filter factory.
+     */
+    public StringFilterFactory() {
+        // Default constructor.
+    }
+
+    /**
      * Get an AND expression.
      * 
      * @param operands operands for the AND
@@ -72,6 +79,7 @@ public class StringFilterFactory {
         return new StringFilterNot(operand);
     }
 
+    @SuppressWarnings("java:S6204") // Java 11 compatibility
     private List<StringFilter> filterEmptyOperands(final Stream<StringFilter> operands) {
         return operands.filter(operand -> !IsEmptyVisitor.isEmpty(operand)).collect(Collectors.toList());
     }

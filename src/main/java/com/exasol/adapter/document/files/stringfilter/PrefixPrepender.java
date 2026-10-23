@@ -13,6 +13,13 @@ import com.exasol.adapter.document.files.stringfilter.wildcardexpression.Wildcar
 public class PrefixPrepender {
 
     /**
+     * Creates a prefix prepender.
+     */
+    public PrefixPrepender() {
+        // Default constructor.
+    }
+
+    /**
      * Prepend a static prefix to a given {@link StringFilter}.
      * 
      * @param prefix  prefix to prepend
@@ -53,6 +60,7 @@ public class PrefixPrepender {
         }
 
         @Override
+        @SuppressWarnings("java:S6204") // Java 11 compatibility
         public void visit(final WildcardExpression wildcardExpression) {
             final List<WildcardExpressionFragment> fragments = Stream
                     .concat(WildcardExpression.forNonWildcardString(this.prefix).getFragments().stream(),

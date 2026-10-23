@@ -10,6 +10,13 @@ import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
  */
 public class JsonFilesDocumentFetcherFactory implements FileTypeSpecificDocumentFetcherFactoryInterface {
 
+    /**
+     * Creates a factory for JSON document fetchers.
+     */
+    public JsonFilesDocumentFetcherFactory() {
+        // Default constructor.
+    }
+
     @Override
     public FileTypeSpecificDocumentFetcher buildFileTypeSpecificDocumentFetcher(
             final RemoteTableQuery remoteTableQuery) {

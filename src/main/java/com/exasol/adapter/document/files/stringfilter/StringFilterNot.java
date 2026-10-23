@@ -5,7 +5,11 @@ package com.exasol.adapter.document.files.stringfilter;
  */
 public class StringFilterNot implements StringFilter {
     private static final long serialVersionUID = -8313963115014264939L;
-    /** @serial */
+    /**
+     * Serialized operand negated by this filter.
+     *
+     * @serial
+     */
     private final StringFilter operand;
 
     /**

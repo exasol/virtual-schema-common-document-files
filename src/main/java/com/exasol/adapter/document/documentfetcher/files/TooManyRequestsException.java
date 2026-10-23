@@ -5,4 +5,11 @@ package com.exasol.adapter.document.documentfetcher.files;
  */
 public class TooManyRequestsException extends RuntimeException {
     private static final long serialVersionUID = 1485753394282586784L;
+
+    /**
+     * Creates an exception for a throttled request.
+     */
+    public TooManyRequestsException() {
+        // Default constructor.
+    }
 }

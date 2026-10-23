@@ -11,6 +11,13 @@ import com.exasol.errorreporting.ExaError;
 public class FileTypeSpecificDocumentFetcherFactory {
 
     /**
+     * Creates a factory that selects document fetchers by file extension.
+     */
+    public FileTypeSpecificDocumentFetcherFactory() {
+        // Default constructor.
+    }
+
+    /**
      * Build a {@link FileTypeSpecificDocumentFetcher} for a given file name extension.
      *
      * @param fileEnding       file ending including the leading {@code "."}

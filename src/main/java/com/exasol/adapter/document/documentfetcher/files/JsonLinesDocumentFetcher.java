@@ -13,6 +13,13 @@ import com.exasol.errorreporting.ExaError;
 public class JsonLinesDocumentFetcher implements FileTypeSpecificDocumentFetcher {
     private static final long serialVersionUID = -3283964622507676609L;
 
+    /**
+     * Creates a document fetcher for JSON Lines files.
+     */
+    public JsonLinesDocumentFetcher() {
+        // Default constructor.
+    }
+
     @Override
     public CloseableIterator<DocumentNode> readDocuments(final FileSegment segment) {
         if (!segment.getSegmentDescription().equals(FileSegmentDescription.ENTIRE_FILE)) {

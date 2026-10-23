@@ -9,6 +9,13 @@ import com.exasol.adapter.document.files.stringfilter.wildcardexpression.Wildcar
 public class CrossDirectorySingleCharWildcard implements WildcardExpressionFragment {
     private static final long serialVersionUID = 1947044901719175233L;
 
+    /**
+     * Creates a wildcard that matches one character outside a directory separator.
+     */
+    public CrossDirectorySingleCharWildcard() {
+        // Default constructor.
+    }
+
     @Override
     public void accept(final WildcardExpressionFragmentVisitor visitor) {
         visitor.visit(this);

@@ -11,9 +11,17 @@ public final class FileSegmentDescription implements Serializable {
     public static final FileSegmentDescription ENTIRE_FILE = new FileSegmentDescription(1, 0);
     private static final long serialVersionUID = 8989312140293872950L;
 
-    /** @serial */
+    /**
+     * Serialized total number of segments.
+     *
+     * @serial
+     */
     private final int numberOfSegments;
-    /** @serial */
+    /**
+     * Serialized identifier of this segment.
+     *
+     * @serial
+     */
     private final int segmentId;
 
     /**

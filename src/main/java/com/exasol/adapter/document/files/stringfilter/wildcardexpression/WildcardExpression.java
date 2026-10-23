@@ -17,7 +17,11 @@ import com.exasol.adapter.document.files.stringfilter.wildcardexpression.rendere
  */
 public class WildcardExpression implements StringFilter {
     private static final long serialVersionUID = 3873397815526160795L;
-    /** @serial */
+    /**
+     * Serialized fragments that make up this expression.
+     *
+     * @serial
+     */
     private final ArrayList<WildcardExpressionFragment> fragments;
 
     /**
@@ -66,6 +70,7 @@ public class WildcardExpression implements StringFilter {
      * @param prefix prefix to bild wildcard expression for
      * @return built {@link WildcardExpression}
      */
+    @SuppressWarnings("java:S6204") // Java 11 compatibility
     public static WildcardExpression forNonWildcardPrefix(final String prefix) {
         final List<WildcardExpressionFragment> fragments = Stream
                 .concat(new NonWildcardParser().parse(prefix).getFragments().stream(),

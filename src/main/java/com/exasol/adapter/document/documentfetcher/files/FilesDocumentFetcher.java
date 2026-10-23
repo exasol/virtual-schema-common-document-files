@@ -20,15 +20,35 @@ import com.exasol.adapter.document.iterators.*;
 public class FilesDocumentFetcher implements DocumentFetcher {
     private static final long serialVersionUID = 3556762980241219690L;
     private static final Logger LOGGER = Logger.getLogger(FilesDocumentFetcher.class.getName());
-    /** @serial */
+    /**
+     * Serialized filter that selects files to load.
+     *
+     * @serial
+     */
     private final StringFilter filePattern;
-    /** @serial */
+    /**
+     * Serialized description of the requested segmentation.
+     *
+     * @serial
+     */
     private final SegmentDescription segmentDescription;
-    /** @serial */
+    /**
+     * Serialized factory that creates remote file finders.
+     *
+     * @serial
+     */
     private final FileFinderFactory fileFinderFactory;
-    /** @serial */
+    /**
+     * Serialized fetcher for the selected file type.
+     *
+     * @serial
+     */
     private final FileTypeSpecificDocumentFetcher fileTypeSpecificDocumentFetcher;
-    /** @serial */
+    /**
+     * Serialized additional fetcher configuration.
+     *
+     * @serial
+     */
     private final String additionalConfiguration;
 
     /**
