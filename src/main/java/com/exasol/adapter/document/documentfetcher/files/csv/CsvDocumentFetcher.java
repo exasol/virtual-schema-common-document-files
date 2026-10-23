@@ -2,7 +2,6 @@ package com.exasol.adapter.document.documentfetcher.files.csv;
 
 import static com.exasol.adapter.document.documentfetcher.files.csv.CsvConfigurationHelper.getCsvConfiguration;
 
-import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +17,6 @@ import com.exasol.errorreporting.ExaError;
  * {@link FileTypeSpecificDocumentFetcher} for CSV files.
  */
 public class CsvDocumentFetcher implements FileTypeSpecificDocumentFetcher {
-    @Serial
     private static final long serialVersionUID = 2783593249946168796L;
     /**
      * Serialized additional configuration as JSON.
