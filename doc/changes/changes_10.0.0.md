@@ -1,10 +1,14 @@
-# Virtual Schema for Document Data in Files 9.1.2, released 2026-10-23
+# Virtual Schema for Document Data in Files 10.0.0, released 2026-10-27
 
 Code name: Fix CVE-2026-104880, CVE-2026-90559, CVE-2026-93451, CVE-2026-93452, CVE-2026-108104, CVE-2026-108106, CVE-2026-110262, CVE-2026-110270, CVE-2026-110257, CVE-2026-110258, CVE-2026-110259, CVE-2026-110260, CVE-2026-110261, CVE-2026-110263
 
 ## Summary
 
 This release updates dependencies to fix security vulnerabilities in CSV processing, Snappy compression, and ASM bytecode handling. Upgrade to benefit from these security fixes.
+
+## Breaking Changes
+
+* Java 17 is now required to build and run this library. Java 11 is no longer supported.
 
 ## Security
 
