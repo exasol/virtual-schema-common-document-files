@@ -1,5 +1,6 @@
 package com.exasol.adapter.document.files.stringfilter;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.stream.Collectors;
  */
 public class StringFilterAnd implements StringFilter {
     private static final Logger LOGGER = Logger.getLogger(StringFilterAnd.class.getName());
+    @Serial
     private static final long serialVersionUID = 3856323687685172983L;
     /**
      * Serialized operands combined by this filter.

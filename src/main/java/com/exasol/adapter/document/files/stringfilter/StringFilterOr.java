@@ -1,5 +1,6 @@
 package com.exasol.adapter.document.files.stringfilter;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -8,6 +9,7 @@ import java.util.stream.Collectors;
  * OR predicate for {@link StringFilter}.
  */
 public class StringFilterOr implements StringFilter {
+    @Serial
     private static final long serialVersionUID = -5480465940663077807L;
     /**
      * Serialized operands combined by this filter.

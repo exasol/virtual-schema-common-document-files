@@ -1,5 +1,6 @@
 package com.exasol.adapter.document.files.stringfilter.wildcardexpression;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,6 +17,7 @@ import com.exasol.adapter.document.files.stringfilter.wildcardexpression.rendere
  * This class represents expressions with simple wildcards as can be expressed using the GLOB or SQL-LIKE syntax.
  */
 public class WildcardExpression implements StringFilter {
+    @Serial
     private static final long serialVersionUID = 3873397815526160795L;
     /**
      * Serialized fragments that make up this expression.
