@@ -225,6 +225,14 @@ public abstract class AbstractDocumentFilesAdapterIT {
     }
 
     @Test
+    public void testReadCsvDifferentDelimiterNotSupportedWithoutHeaders() {
+        createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapCsvFileDifferentDelimiterNoHeaders.json");
+        uploadDataFileFromResources("testCsvDifferentDelimiter.csv");
+        assertQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS",
+                table().row((String) null).row((String) null).matches());
+    }
+
+    @Test
     public void testReadCsvWithDuplicateHeader() {
         final Fields mapping = Fields.builder()//
                 .mapField("col", ToVarcharMapping.builder().destinationName("my_col").build()) //

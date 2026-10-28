@@ -13,6 +13,7 @@ import com.exasol.adapter.document.mapping.ColumnMapping;
 import com.exasol.errorreporting.ExaError;
 
 import de.siegmar.fastcsv.reader.*;
+import de.siegmar.fastcsv.reader.CsvReader.CsvReaderBuilder;
 
 /**
  * This class iterates the lines of a CSV file and creates a {@link CsvObjectNode} for each line.
@@ -49,14 +50,20 @@ class CsvIterator implements CloseableIterator<DocumentNode> {
 
     private static Iterator<DocumentNode> createDelegate(final CsvConfiguration csvConfiguration,
             final CsvObjectNodeFactory nodeFactory, final InputStreamReader inputStreamReader) {
+        final CsvReaderBuilder readerBuilder = createReaderBuilder();
         if (hasHeaders(csvConfiguration)) {
             final NamedCsvRecordHandler recordHandler = NamedCsvRecordHandler.builder()
                     .fieldModifier(new PreventDuplicateHeader()).build();
-            return new ConvertingCsvIterator<>(CsvReader.builder().build(
-                    recordHandler, inputStreamReader), nodeFactory::create);
+            return new ConvertingCsvIterator<>(readerBuilder.build(recordHandler, inputStreamReader),
+                    nodeFactory::create);
         } else {
-            return new ConvertingCsvIterator<>(CsvReader.builder().ofCsvRecord(inputStreamReader), nodeFactory::create);
+            return new ConvertingCsvIterator<>(readerBuilder.ofCsvRecord(inputStreamReader), nodeFactory::create);
         }
+    }
+
+    @SuppressWarnings("removal") // Keep original behavior
+    private static CsvReaderBuilder createReaderBuilder() {
+        return CsvReader.builder().allowExtraCharsAfterClosingQuote(true);
     }
 
     private static boolean hasHeaders(final CsvConfiguration csvConfiguration) {

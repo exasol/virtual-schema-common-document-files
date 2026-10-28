@@ -27,6 +27,7 @@ import de.siegmar.fastcsv.reader.CsvParseException;
 class CsvIteratorTest {
     private static final String CSV_EXAMPLE = "test-1\ntest-2";
     private static final String CSV_WITH_HEADERS_EXAMPLE = "header-1\ntest-1\ntest-2";
+    private static final String DELIMITER_MISMATCH_CSV = "\"header\";\"other\"\n\"value\";\"other\"";
 
     enum CsvMode {
         WITH_HEADER, WITHOUT_HEADER
@@ -51,6 +52,20 @@ class CsvIteratorTest {
         final List<DocumentNode> result = readCsvWithHeadersLines(CSV_WITH_HEADERS_EXAMPLE,
                 List.of(varcharMapping("header-1")));
         assertThat(result.size(), equalTo(2));
+    }
+
+    @Test
+    void testDelimiterMismatchAfterClosingQuoteIsParsedAsFieldContentWithHeader() {
+        final List<DocumentNode> result = readCsvWithHeadersLines(DELIMITER_MISMATCH_CSV, List.of(varcharMapping("header;\"other")));
+        assertThat(result, hasSize(1));
+        assertThat(((DocumentObject) result.get(0)).get("header;\"other"), stringNode("value;\"other"));
+    }
+
+    @Test
+    void testDelimiterMismatchAfterClosingQuoteIsParsedAsFieldContentWithoutHeader() {
+        final List<DocumentNode> result = readCsvLines(DELIMITER_MISMATCH_CSV, List.of(varcharMapping("0")));
+        assertThat(result, hasSize(2));
+        assertThat(((DocumentObject) result.get(1)).get("0"), stringNode("value;\"other"));
     }
 
     @Test
