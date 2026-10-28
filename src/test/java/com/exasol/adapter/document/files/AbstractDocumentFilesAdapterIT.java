@@ -227,7 +227,7 @@ public abstract class AbstractDocumentFilesAdapterIT {
         createVirtualSchemaWithMappingFromResource(TEST_SCHEMA, "mapCsvFileDifferentDelimiterNoHeaders.json");
         uploadDataFileFromResources("testCsvDifferentDelimiter.csv");
         assertQuery("SELECT ID FROM " + TEST_SCHEMA + ".BOOKS",
-                table().row((String) null).row((String) null).matches());
+                table().row("id;\"name").row("book-1;\"Mapping document files in Exasol").row("book-2;\"Exasol User-Guide").matches());
     }
 
     @Test
