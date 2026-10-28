@@ -4,7 +4,6 @@ import static com.exasol.matcher.ResultSetStructureMatcher.table;
 import static com.exasol.udfdebugging.PushDownTesting.getPushDownSql;
 import static com.exasol.udfdebugging.PushDownTesting.getSelectionThatIsSentToTheAdapter;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.*;
 import static org.apache.parquet.schema.Type.Repetition.REQUIRED;
 import static org.hamcrest.CoreMatchers.endsWith;
@@ -13,7 +12,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -250,7 +248,6 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     @Test
     public void testReadCsvTimestampTypes() {
-        assumeTimestampPrecisionSupported();
         final FieldsBuilder mappingBuilder = Fields.builder()
                 .mapField("id", ToDecimalMapping.builder().decimalScale(0).decimalPrecision(2).build());
         for (int precision = 0; precision < 10; precision++) {
@@ -291,55 +288,8 @@ public abstract class AbstractDocumentFilesAdapterIT {
                                 .matches());
     }
 
-    /**
-     * Exasol v8 only supports {@code TIMESTAMP(3)} and {@code TIMESTAMP(6)}:
-     * <ul>
-     * <li>It maps {@code TIMESTAMP(6)} to precision 3.</li>
-     * <li>Any other timestamp precision is rejected with error message {@code Feature not supported: TIMESTAMP(p) - timestamp with custom precision}.</li>
-     * </ul>
-     */
-    @Test
-    public void testReadCsvTimestampTypesExasolV8() {
-        assumeTimestampPrecisionNotSupported();
-        final FieldsBuilder mappingBuilder = Fields.builder()
-                .mapField("id", ToDecimalMapping.builder().decimalScale(0).decimalPrecision(2).build())
-                .mapField("ts3", ToTimestampMapping.builder().secondsPrecision(3).notTimestampBehavior(ConvertableMappingErrorBehaviour.ABORT).build())
-                .mapField("ts6", ToTimestampMapping.builder().secondsPrecision(6).notTimestampBehavior(ConvertableMappingErrorBehaviour.ABORT).build());
-        createVirtualSchemaWithMapping(TEST_SCHEMA, csvEdml(mappingBuilder.build(), "testData-*.csv", true));
-        final List<String> csvContent = List.of(
-                "id,ts3,ts6",
-                "0" + ("," + timestampLiteral(0)).repeat(2),
-                "1" + ("," + timestampLiteral(1)).repeat(2),
-                "2" + ("," + timestampLiteral(2)).repeat(2),
-                "3" + ("," + timestampLiteral(3)).repeat(2),
-                "4" + ("," + timestampLiteral(4)).repeat(2),
-                "5" + ("," + timestampLiteral(5)).repeat(2),
-                "6" + ("," + timestampLiteral(6)).repeat(2),
-                "7" + ("," + timestampLiteral(7)).repeat(2),
-                "8" + ("," + timestampLiteral(8)).repeat(2),
-                "9" + ("," + timestampLiteral(9)).repeat(2),
-                "10" + ("," + timestampLiteral(3)).repeat(2));
-        uploadFileContent("testData-1.csv", csvContent);
-        assertQuery(
-                "SELECT id,ts3,ts6 FROM " + TEST_SCHEMA + ".BOOKS ORDER BY id ASC",
-                table("SMALLINT", "TIMESTAMP", "TIMESTAMP")
-                        .row((short) 0, ts(0), ts(0))
-                        .row((short) 1, ts(1), ts(1))
-                        .row((short) 2, ts(2), ts(2))
-                        .row((short) 3, ts(3), ts(3))
-                        .row((short) 4, ts(3), ts(3))
-                        .row((short) 5, ts(3), ts(3))
-                        .row((short) 6, ts(3), ts(3))
-                        .row((short) 7, ts(3), ts(3))
-                        .row((short) 8, ts(3), ts(3))
-                        .row((short) 9, ts(3), ts(3))
-                        .row((short) 10, ts(3), ts(3))
-                        .matches());
-    }
-
     @Test
     public void testReadJsonTimestampTypes() {
-        assumeTimestampPrecisionSupported();
         final FieldsBuilder mappingBuilder = Fields.builder()
                 .mapField("id", ToDecimalMapping.builder().decimalScale(0).decimalPrecision(2).build());
         final int[] timestampPrecisions = IntStream.range(0, 10).toArray();
@@ -370,41 +320,6 @@ public abstract class AbstractDocumentFilesAdapterIT {
                                 .row((short) 9, ts(0), ts(1), ts(2), ts(3), ts(3), ts(3), ts(3), ts(3), ts(3), ts(3))
                                 .row((short) 10, ts(0), ts(1), ts(2), ts(3), ts(3), ts(3), ts(3), ts(3), ts(3), ts(3))
                                 .matches());
-    }
-
-    @Test
-    public void testReadJsonTimestampTypesExasolV8() {
-        assumeTimestampPrecisionNotSupported();
-        final Fields mapping = Fields.builder()
-                .mapField("id", ToDecimalMapping.builder().decimalScale(0).decimalPrecision(2).build())
-                // Use CONVERT_OR_ABORT because JSON only supports numbers as millis since epoch
-                .mapField("ts3",
-                        ToTimestampMapping.builder().secondsPrecision(3).notTimestampBehavior(ConvertableMappingErrorBehaviour.CONVERT_OR_ABORT).build())
-                .mapField("ts6",
-                        ToTimestampMapping.builder().secondsPrecision(6).notTimestampBehavior(ConvertableMappingErrorBehaviour.CONVERT_OR_ABORT).build())
-                .build();
-        createVirtualSchemaWithMapping(TEST_SCHEMA, mapping, "testData-*.jsonl");
-        final int[] timestampPrecisions = { 3, 6 };
-        final List<String> jsonLinesContent = IntStream.range(0, 10)
-                .mapToObj(precision -> jsonTimestampLine(precision, timestampPrecisions, precision))
-                .collect(toList());
-        jsonLinesContent.add(jsonTimestampLine(10, timestampPrecisions, 3));
-        uploadFileContent("testData-1.jsonl", jsonLinesContent);
-        assertQuery(
-                "SELECT id,ts3,ts6 FROM " + TEST_SCHEMA + ".BOOKS ORDER BY id ASC",
-                table("SMALLINT", "TIMESTAMP", "TIMESTAMP").withUtcCalendar()
-                        .row((short) 0, ts(0), ts(0))
-                        .row((short) 1, ts(1), ts(1))
-                        .row((short) 2, ts(2), ts(2))
-                        .row((short) 3, ts(3), ts(3))
-                        .row((short) 4, ts(3), ts(3))
-                        .row((short) 5, ts(3), ts(3))
-                        .row((short) 6, ts(3), ts(3))
-                        .row((short) 7, ts(3), ts(3))
-                        .row((short) 8, ts(3), ts(3))
-                        .row((short) 9, ts(3), ts(3))
-                        .row((short) 10, ts(3), ts(3))
-                        .matches());
     }
 
     private static String jsonTimestampLine(final int id, final int[] timestampPrecisions, final int timestampValuePrecision) {
@@ -825,7 +740,6 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     @Test
     public void testReadParquetTimestampTypes() {
-        assumeTimestampPrecisionSupported();
         final FieldsBuilder mappingBuilder = Fields.builder().mapField("id", ToDecimalMapping.builder().decimalScale(0).decimalPrecision(2).build());
         final List<Type> timestampColumns = new ArrayList<>();
         for (int precision = 0; precision < 10; precision++) {
@@ -869,38 +783,6 @@ public abstract class AbstractDocumentFilesAdapterIT {
                                 .withUtcCalendar().matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
     }
 
-    @Test
-    public void testReadParquetTimestampTypesExasolV8() {
-        assumeTimestampPrecisionNotSupported();
-        final Fields mapping = Fields.builder()
-                .mapField("id", ToDecimalMapping.builder().decimalScale(0).decimalPrecision(2).build())
-                .mapField("ts3", ToTimestampMapping.builder().secondsPrecision(3).notTimestampBehavior(ConvertableMappingErrorBehaviour.ABORT).build())
-                .mapField("ts6", ToTimestampMapping.builder().secondsPrecision(6).notTimestampBehavior(ConvertableMappingErrorBehaviour.ABORT).build())
-                .build();
-        createVirtualSchemaWithMapping(TEST_SCHEMA, mapping, "testData-*.parquet");
-        final ParquetTestSetup parquetTestSetup = parquetFile(Types.primitive(INT32, REQUIRED).named("id"),
-                parquetTimestampColumn("ts3"), parquetTimestampColumn("ts6"));
-        for (int precision = 0; precision <= 10; precision++) {
-            final int rowId = precision;
-            final int valuePrecision = precision == 10 ? 3 : precision;
-            final long timestampNanos = timestampNanos(valuePrecision);
-            parquetTestSetup.writeRow(row -> {
-                row.add("id", rowId);
-                row.add("ts3", timestampNanos);
-                row.add("ts6", timestampNanos);
-            });
-        }
-        uploadAsParquetFile(parquetTestSetup, 1);
-
-        assertQuery("SELECT id,ts3,ts6 FROM " + TEST_SCHEMA + ".BOOKS ORDER BY id ASC",
-                table("SMALLINT", "TIMESTAMP", "TIMESTAMP")
-                        .row((short) 0, ts(0), ts(0)).row((short) 1, ts(1), ts(1)).row((short) 2, ts(2), ts(2))
-                        .row((short) 3, ts(3), ts(3)).row((short) 4, ts(3), ts(3)).row((short) 5, ts(3), ts(3))
-                        .row((short) 6, ts(3), ts(3)).row((short) 7, ts(3), ts(3)).row((short) 8, ts(3), ts(3))
-                        .row((short) 9, ts(3), ts(3)).row((short) 10, ts(3), ts(3))
-                        .withUtcCalendar().matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
-    }
-
     private static Type parquetTimestampColumn(final String name) {
         return Types.primitive(INT64, REQUIRED).as(LogicalTypeAnnotation.timestampType(true, LogicalTypeAnnotation.TimeUnit.NANOS)).named(name);
     }
@@ -912,7 +794,6 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     @Test
     public void testReadParquetTimestampTypesWithAutomaticInference() {
-        assumeTimestampPrecisionSupported();
         final ParquetTestSetup parquetTestSetup = parquetFile(Types.primitive(INT32, REQUIRED).named("id"),
                 parquetTimestampColumn("ts_millis", LogicalTypeAnnotation.TimeUnit.MILLIS),
                 parquetTimestampColumn("ts_micros", LogicalTypeAnnotation.TimeUnit.MICROS),
@@ -946,41 +827,6 @@ public abstract class AbstractDocumentFilesAdapterIT {
                         .row((short) 9, ts(3), ts(6), ts(9))
                         .row((short) 10, ts(3), ts(6), ts(9))
                         .withUtcCalendar()
-                        .matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
-    }
-
-    @Test
-    public void testReadParquetTimestampTypesWithAutomaticInferenceExasolV8() {
-        assumeTimestampPrecisionNotSupported();
-        final ParquetTestSetup parquetTestSetup = parquetFile(Types.primitive(INT32, REQUIRED).named("id"),
-                parquetTimestampColumn("ts_millis", LogicalTypeAnnotation.TimeUnit.MILLIS),
-                parquetTimestampColumn("ts_micros", LogicalTypeAnnotation.TimeUnit.MICROS));
-        for (int precision = 0; precision <= 10; precision++) {
-            final int rowId = precision;
-            final long timestampNanos = timestampNanos(precision == 10 ? 3 : precision);
-            parquetTestSetup.writeRow(row -> {
-                row.add("id", rowId);
-                row.add("ts_millis", timestampNanos / 1_000_000L);
-                row.add("ts_micros", timestampNanos / 1_000L);
-            });
-        }
-        uploadAsParquetFile(parquetTestSetup, 1);
-        createVirtualSchemaWithMapping(TEST_SCHEMA,
-                EdmlDefinition.builder().source(this.dataFilesDirectory + "/testData-*.parquet").destinationTable("BOOKS"));
-
-        assertQuery("SELECT ID, TS_MILLIS, TS_MICROS FROM " + TEST_SCHEMA + ".BOOKS ORDER BY ID ASC",
-                table("BIGINT", "TIMESTAMP", "TIMESTAMP")
-                        .row((short) 0, ts(0), ts(0))
-                        .row((short) 1, ts(1), ts(1))
-                        .row((short) 2, ts(2), ts(2))
-                        .row((short) 3, ts(3), ts(3))
-                        .row((short) 4, ts(3), ts(3))
-                        .row((short) 5, ts(3), ts(3))
-                        .row((short) 6, ts(3), ts(3))
-                        .row((short) 7, ts(3), ts(3))
-                        .row((short) 8, ts(3), ts(3))
-                        .row((short) 9, ts(3), ts(3))
-                        .row((short) 10, ts(3), ts(3)).withUtcCalendar()
                         .matches(TypeMatchMode.NO_JAVA_TYPE_CHECK));
     }
 
@@ -1393,16 +1239,6 @@ public abstract class AbstractDocumentFilesAdapterIT {
 
     private ToTimestampMapping.ToTimestampMappingBuilder<?> timestampMappingBuilder() {
         return ToTimestampMapping.builder().secondsPrecision(3);
-    }
-
-    protected void assumeTimestampPrecisionSupported() {
-        final int majorVersion = getExasolDatabaseMajorVersion();
-        assumeTrue(majorVersion > 8, "Timestamp precision is not supported in Exasol version " + majorVersion);
-    }
-
-    protected void assumeTimestampPrecisionNotSupported() {
-        final int majorVersion = getExasolDatabaseMajorVersion();
-        assumeTrue(majorVersion <= 8, "Timestamp precision is supported in Exasol version " + majorVersion);
     }
 
     protected int getExasolDatabaseMajorVersion() {
