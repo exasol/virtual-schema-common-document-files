@@ -12,8 +12,13 @@ This release restores lenient CSV parsing for rows that use a different delimite
 
 ## Dependency Updates
 
+### Compile Dependency Updates
+
+* Updated `com.exasol:virtual-schema-common-document:12.1.1` to `12.1.2`
+
 ### Test Dependency Updates
 
+* Updated `com.exasol:virtual-schema-common-document:12.1.1` to `12.1.2`
 * Removed `org.junit.jupiter:junit-jupiter-params:6.1.3`
 * Added `org.junit.jupiter:junit-jupiter:6.1.3`
 
