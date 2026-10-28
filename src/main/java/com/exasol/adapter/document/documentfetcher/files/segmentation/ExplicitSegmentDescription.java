@@ -7,7 +7,11 @@ import java.util.*;
  */
 public class ExplicitSegmentDescription implements SegmentDescription {
     private static final long serialVersionUID = -9092990439459054785L;
-    /** @serial */
+    /**
+     * Serialized mapping from file names to their segment descriptions.
+     *
+     * @serial
+     */
     private final HashMap<String, List<FileSegmentDescription>> segmentKeys;
 
     /**

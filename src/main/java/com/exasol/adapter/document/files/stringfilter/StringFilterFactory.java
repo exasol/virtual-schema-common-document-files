@@ -2,7 +2,6 @@ package com.exasol.adapter.document.files.stringfilter;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.exasol.adapter.document.files.stringfilter.wildcardexpression.WildcardExpression;
@@ -11,6 +10,13 @@ import com.exasol.adapter.document.files.stringfilter.wildcardexpression.Wildcar
  * Factory for {@link StringFilter}.
  */
 public class StringFilterFactory {
+
+    /**
+     * Creates a string-filter factory.
+     */
+    public StringFilterFactory() {
+        // Default constructor.
+    }
 
     /**
      * Get an AND expression.
@@ -73,7 +79,7 @@ public class StringFilterFactory {
     }
 
     private List<StringFilter> filterEmptyOperands(final Stream<StringFilter> operands) {
-        return operands.filter(operand -> !IsEmptyVisitor.isEmpty(operand)).collect(Collectors.toList());
+        return operands.filter(operand -> !IsEmptyVisitor.isEmpty(operand)).toList();
     }
 
     private static class IsEmptyVisitor implements StringFilterVisitor {

@@ -12,6 +12,13 @@ public abstract class RandomAccessInputStream extends InputStream {
     private long markPosition;
 
     /**
+     * Creates a random-access input stream.
+     */
+    protected RandomAccessInputStream() {
+        // Default constructor.
+    }
+
+    /**
      * Jump to a specific position.
      * 
      * @param position position to jump to

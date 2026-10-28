@@ -9,6 +9,13 @@ import io.deephaven.csv.util.MutableObject;
  */
 public class NullSinkFactory implements SinkFactory {
 
+    /**
+     * Creates a sink factory that discards parsed values.
+     */
+    public NullSinkFactory() {
+        // Default constructor.
+    }
+
     @Override
     public Sink<byte[]> forByte(final int colNum, final MutableObject<Source<byte[]>> source) {
         return new NullSink<>();

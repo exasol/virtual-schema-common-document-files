@@ -9,6 +9,13 @@ import com.exasol.adapter.document.queryplanning.RemoteTableQuery;
  * Factory for {@link FileTypeSpecificDocumentFetcher}s.
  */
 public class JsonLinesFilesDocumentFetcherFactory implements FileTypeSpecificDocumentFetcherFactoryInterface {
+    /**
+     * Creates a factory for JSON Lines document fetchers.
+     */
+    public JsonLinesFilesDocumentFetcherFactory() {
+        // Default constructor.
+    }
+
     @Override
     public List<String> getSupportedFileExtensions() {
         return List.of(".jsonl");

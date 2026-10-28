@@ -1,5 +1,6 @@
 package com.exasol.adapter.document.files.stringfilter;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -11,8 +12,13 @@ import java.util.stream.Collectors;
  */
 public class StringFilterAnd implements StringFilter {
     private static final Logger LOGGER = Logger.getLogger(StringFilterAnd.class.getName());
+    @Serial
     private static final long serialVersionUID = 3856323687685172983L;
-    /** @serial */
+    /**
+     * Serialized operands combined by this filter.
+     *
+     * @serial
+     */
     private final ArrayList<StringFilter> operands;
 
     /**
@@ -121,7 +127,7 @@ public class StringFilterAnd implements StringFilter {
     List<String> getPrefixes() {
         return this.operands.stream()
                 .map(StringFilter::getStaticPrefix)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -134,7 +140,7 @@ public class StringFilterAnd implements StringFilter {
     List<String> getConflictingPrefixes(final List<String> prefixes, final String shortestPrefix) {
         return prefixes.stream()
                 .filter(prefix -> !prefix.startsWith(shortestPrefix))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**

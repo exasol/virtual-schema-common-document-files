@@ -41,7 +41,7 @@ public abstract class RandomAccessInputStreamTestBase extends AbstractInputStrea
      * 
      * @throws IOException if cleaning fails
      */
-    protected void cleanupTestSetup() throws IOException {
+    protected void cleanupTestSetup() {
         // nothing to do.
     }
 
@@ -53,7 +53,7 @@ public abstract class RandomAccessInputStreamTestBase extends AbstractInputStrea
     }
 
     @AfterAll
-    void afterAll() throws IOException {
+    void afterAll() {
         this.cleanupTestSetup();
     }
 
@@ -75,7 +75,7 @@ public abstract class RandomAccessInputStreamTestBase extends AbstractInputStrea
 
     @Test
     void testSkipAndRead() throws IOException {
-        int bytesToSkip = 2;
+        long bytesToSkip = 2L;
         while (bytesToSkip > 0) {
             bytesToSkip -= this.seekableStream.skip(bytesToSkip);
         }

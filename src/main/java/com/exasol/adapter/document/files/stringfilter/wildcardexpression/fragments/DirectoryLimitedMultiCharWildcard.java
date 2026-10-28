@@ -10,6 +10,13 @@ import com.exasol.adapter.document.files.stringfilter.wildcardexpression.Wildcar
 public class DirectoryLimitedMultiCharWildcard implements WildcardExpressionFragment {
     private static final long serialVersionUID = 3700416607925554441L;
 
+    /**
+     * Creates a wildcard that matches any number of characters within one directory segment.
+     */
+    public DirectoryLimitedMultiCharWildcard() {
+        // Default constructor.
+    }
+
     @Override
     public void accept(final WildcardExpressionFragmentVisitor visitor) {
         visitor.visit(this);
