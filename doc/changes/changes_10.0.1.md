@@ -6,6 +6,8 @@ Code name: CSV Delimiter Compatibility
 
 This release restores lenient CSV parsing for rows that use a different delimiter after a quoted field. CSV readers with and without headers handle these rows consistently.
 
+Version 10 requires Java 17 and therefore no longer supports Exasol 8, which requires Java 11.
+
 ## Bug Fixes
 
 * #237: Restored support for CSV rows with a different delimiter after a closing quote.
